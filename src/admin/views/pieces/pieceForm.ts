@@ -9,7 +9,12 @@ import type {
   TextileFiber,
   VatCategory,
 } from '@/lib/enums'
-import { DEFAULT_SHIPPING_CLASS, fieldAppliesTo, isTextile } from '@/lib/products/categoryRules'
+import {
+  DEFAULT_SHIPPING_CLASS,
+  fieldAppliesTo,
+  hasCareTemplate,
+  isTextile,
+} from '@/lib/products/categoryRules'
 
 // Formular „Neues Stück“ / „Stück bearbeiten“ (PLAN P5.6, KONZEPT §7.4): Formularzustand und Umrechnung in die Felder
 // von DATENMODELL §6.6.1. Dieselben Felder und dieselbe Validierung wie das Standardformular – geprüft wird auf dem
@@ -74,6 +79,11 @@ export interface PieceForm {
   showInArchiveAfterSale: boolean
   storageLocation: string
   internalNote: string
+  /**
+   * V-22 a (U-93): Claudes Vorschlag für „Ein Wort von mir“ (DE/EN) – nur zum Lesen; erscheint nie von selbst (E-62).
+   * „Vorschlag übernehmen“ kopiert ihn ins Feld, gespeichert wird erst mit „Speichern“.
+   */
+  juttaSaysSuggestion: { de: string; en: string }
 }
 
 export const emptyTexts = (): PieceTexts =>
@@ -113,13 +123,14 @@ export function emptyPieceForm(itemNumber: number | null = null): PieceForm {
     showInArchiveAfterSale: true,
     storageLocation: '',
     internalNote: '',
+    juttaSaysSuggestion: { de: '', en: '' },
   }
 }
 
 export interface CategoryTemplateTexts {
   /** `settings.safetyTemplates` je Kategorie (DE). */
   safety: Partial<Record<ProductCategory, string>>
-  /** `settings.careTemplates` (textil/cap, DE). */
+  /** `settings.careTemplates` (Textil, Cap, Keramik, Schmuck – V-23; DE). */
   care: Partial<Record<ProductCategory, string>>
 }
 
@@ -146,10 +157,12 @@ export function applyCategory(
     next.foodContact = ''
     next.conformityDeclarations = []
   } else if (!form.foodContact) next.foodContact = 'deko'
+  // Feste Pflegezeile je Stückart (V-23): nur wenn leer oder noch die Vorlage der vorigen Kategorie
+  if (!hasCareTemplate(category)) next.de.careInstructions = ''
+  else if (untouched(form.de.careInstructions, prev ? templates.care[prev] : undefined))
+    next.de.careInstructions = templates.care[category] ?? ''
   if (isTextile(category)) {
     next.isSecondHand = true
-    if (untouched(form.de.careInstructions, prev ? templates.care[prev] : undefined))
-      next.de.careInstructions = templates.care[category] ?? ''
   } else {
     next.isSecondHand = false
     next.condition = ''
@@ -159,7 +172,6 @@ export function applyCategory(
     next.de.sizeLabel = ''
     next.de.conditionNote = ''
     next.de.fiberFreeText = ''
-    next.de.careInstructions = ''
   }
   if (category === 'schmuck') next.smallPartsWarning = true
   else {
@@ -241,6 +253,18 @@ export function formFromDoc(de: Doc, en: Doc | null): PieceForm {
     showInArchiveAfterSale: de.showInArchiveAfterSale !== false,
     storageLocation: str(de.storageLocation),
     internalNote: str(de.internalNote),
+    juttaSaysSuggestion: { de: str(de.juttaSaysSuggestion), en: str(en?.juttaSaysSuggestion) },
+  }
+}
+
+/** „Vorschlag übernehmen“ (V-22 a): Claudes Vorschlag DE/EN ins Feld „Ein Wort von mir“; ohne Vorschlag unverändert. */
+export function adoptJuttaSaysSuggestion(form: PieceForm): PieceForm {
+  const { de, en } = form.juttaSaysSuggestion
+  if (!de.trim()) return form
+  return {
+    ...form,
+    de: { ...form.de, juttaSays: de },
+    en: { ...form.en, juttaSays: en.trim() ? en : form.en.juttaSays },
   }
 }
 
@@ -339,10 +363,10 @@ export function toSaveData(
       })),
       labelMissing: form.labelMissing,
       fiberFreeText: orNull(de.fiberFreeText),
-      careInstructions: orNull(de.careInstructions),
       blankBrandVisible: form.blankBrandVisible,
     })
   }
+  if (hasCareTemplate(category)) data.careInstructions = orNull(de.careInstructions)
   if (category === 'keramik') {
     Object.assign(data, {
       foodContact: form.foodContact || null,
@@ -383,9 +407,9 @@ export function toEnData(form: PieceForm): Doc {
       sizeLabel: orNull(en.sizeLabel),
       conditionNote: orNull(en.conditionNote),
       fiberFreeText: orNull(en.fiberFreeText),
-      careInstructions: orNull(en.careInstructions),
     })
   }
+  if (category && hasCareTemplate(category)) data.careInstructions = orNull(en.careInstructions)
   if (category === 'schmuck') data.metalPartsMaterial = orNull(en.metalPartsMaterial)
   return data
 }
@@ -393,13 +417,9 @@ export function toEnData(form: PieceForm): Doc {
 /** Textfelder, die zur Kategorie gehören (für die EN-Liste und „Übersetzen“). */
 export function textFieldsFor(category: ProductCategory | ''): PieceTextField[] {
   return PIECE_TEXT_FIELDS.filter((f) => {
-    if (
-      f === 'sizeLabel' ||
-      f === 'conditionNote' ||
-      f === 'fiberFreeText' ||
-      f === 'careInstructions'
-    )
+    if (f === 'sizeLabel' || f === 'conditionNote' || f === 'fiberFreeText')
       return isTextile(category)
+    if (f === 'careInstructions') return hasCareTemplate(category)
     if (f === 'metalPartsMaterial') return category === 'schmuck'
     return true
   })

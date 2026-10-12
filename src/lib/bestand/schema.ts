@@ -15,6 +15,7 @@ import {
   TEXTILE_FIBERS,
   VAT_CATEGORIES,
 } from '@/lib/enums'
+import { hasCareTemplate } from '@/lib/products/categoryRules'
 import { isReservedItemNumber } from '@/lib/products/itemNumber'
 
 // Echter Bestand aus Juttas Fotos (U-76, U-77, PLAN P16.1): `content/bestand/products.json` mit den Fotos in
@@ -30,6 +31,8 @@ const text = (min = 1) => z.string().trim().min(min)
 const l10nBoth = z.strictObject({ de: text(), en: text() })
 /** Aus Juttas Excel-Liste (U-85) neu eingetragene Texte: Englisch ergänzt Claude danach (U-00). */
 const l10nDe = z.strictObject({ de: text(), en: text().optional() })
+/** „Ein Wort von mir“ (`juttaSays`, höchstens 280 Zeichen wie in der Verwaltung). */
+const WORD_MAX = 280
 const cm = z
   .number()
   .positive()
@@ -61,6 +64,20 @@ export const bestandProductSchema = z
       en: z.string().trim().min(3).max(120),
     }),
     description: l10nBoth,
+    /**
+     * V-22 a (U-93): „Ein Wort von mir“ – nur Juttas eigener oder von ihr übernommener Satz (Spalte „Ein Wort von mir“
+     * bzw. „Vorschlag übernehmen“ = ja); das Englische ergänzt Claude, wenn sie selbst schreibt.
+     */
+    juttaSays: z
+      .strictObject({ de: text().max(WORD_MAX), en: text().max(WORD_MAX).optional() })
+      .optional(),
+    /**
+     * V-22 a: Claudes Vorschlag in Ich-Form (DE/EN). Erscheint nie von selbst (E-62) – `bestand:import` legt ihn nur als
+     * internes Feld `juttaSaysSuggestion` an.
+     */
+    juttaSaysSuggestion: z
+      .strictObject({ de: text().max(WORD_MAX), en: text().max(WORD_MAX) })
+      .optional(),
     materials: l10nBoth,
     dimensions: z.strictObject({
       widthCm: cm.optional(),
@@ -141,9 +158,11 @@ export const bestandProductSchema = z
       'isSecondHand',
       'condition',
       'fiberComposition',
-      'careInstructions',
       'blankBrandVisible',
     ] as const
+    // Pflege je Stückart (V-23): Textil, Cap, Keramik, Schmuck – ohne Eintrag gilt die feste Pflegezeile
+    if (p.careInstructions && !hasCareTemplate(p.category))
+      issue('careInstructions nur bei Textil, Cap, Keramik und Schmuck')
     if (!textile)
       for (const f of textileOnly) if (p[f] !== undefined) issue(`${f} nur bei Textil und Cap`)
     if (textile && p.isSecondHand === undefined) issue('Second-Hand-Angabe fehlt')

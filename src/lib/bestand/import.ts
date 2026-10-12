@@ -154,6 +154,9 @@ export function productDataDe(
   if (p.deviationDescription) data.deviationDescription = p.deviationDescription.de
   if (p.sizeLabel) data.sizeLabel = p.sizeLabel.de
   if (p.careInstructions) data.careInstructions = p.careInstructions.de
+  if (p.juttaSays) data.juttaSays = p.juttaSays.de
+  // V-22 a: Vorschlag nur intern (E-62) – „Ein Wort von mir“ bleibt leer, bis Jutta ihn übernimmt
+  if (p.juttaSaysSuggestion) data.juttaSaysSuggestion = p.juttaSaysSuggestion.de
   if (p.metalPartsMaterial) data.metalPartsMaterial = p.metalPartsMaterial.de
   for (const key of [
     'isSecondHand',
@@ -178,6 +181,8 @@ export function productDataEn(p: BestandProduct): Record<string, unknown> {
   if (p.dimensions.note) data.dimensions = { note: p.dimensions.note.en }
   if (p.sizeLabel) data.sizeLabel = p.sizeLabel.en
   if (p.careInstructions) data.careInstructions = p.careInstructions.en
+  if (p.juttaSays?.en) data.juttaSays = p.juttaSays.en
+  if (p.juttaSaysSuggestion) data.juttaSaysSuggestion = p.juttaSaysSuggestion.en
   if (p.deviationDescription) data.deviationDescription = p.deviationDescription.en
   if (p.metalPartsMaterial?.en) data.metalPartsMaterial = p.metalPartsMaterial.en
   return data

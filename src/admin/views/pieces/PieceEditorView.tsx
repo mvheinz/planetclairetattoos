@@ -3,8 +3,10 @@ import type { Payload } from 'payload'
 import React from 'react'
 
 import { computeNextItemNumber } from '@/endpoints/products/nextItemNumber'
+import { CARE_TEMPLATE_TEXTS } from '@/globals/settingsDefaults'
 import type { ProductCategory, ProductStatus } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
+import { CARE_CATEGORIES } from '@/lib/products/categoryRules'
 import { readinessOfProduct } from '@/lib/products/publishReadiness'
 import { formatBerlin } from '@/lib/time'
 import { translationAvailability } from '@/lib/translation'
@@ -45,7 +47,14 @@ async function loadTemplates(payload: Payload): Promise<CategoryTemplateTexts> {
         .filter((r) => r.category && typeof r.text === 'string')
         .map((r) => [r.category!, r.text!]),
     ) as Partial<Record<ProductCategory, string>>
-  return { safety: toMap(settings.safetyTemplates), care: toMap(settings.careTemplates) }
+  // Ohne gespeicherte Zeile gilt der Startwert (wie im Server-Hook) – z. B. Keramik/Schmuck seit V-23
+  const careDefaults = Object.fromEntries(
+    CARE_CATEGORIES.map((c) => [c, CARE_TEMPLATE_TEXTS[c].de]),
+  ) as Partial<Record<ProductCategory, string>>
+  return {
+    safety: toMap(settings.safetyTemplates),
+    care: { ...careDefaults, ...toMap(settings.careTemplates) },
+  }
 }
 
 /** Fotos mit Alt-Texten DE/EN und Fokuspunkt (auch für Flash und Galerie, P7.6/P7.8). */

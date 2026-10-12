@@ -197,6 +197,20 @@
           "de": "Nicht in die Waschmaschine. Flecken mit einem feuchten Tuch vorsichtig abtupfen, an der Luft trocknen.",
           "en": "Do not machine wash. Gently dab stains with a damp cloth and let it air dry."
         }
+      },
+      {
+        "category": "keramik",
+        "text": {
+          "de": "Feucht abwischen und trocknen lassen, nicht in die Spülmaschine.",
+          "en": "Wipe with a damp cloth and let it dry; not dishwasher safe."
+        }
+      },
+      {
+        "category": "schmuck",
+        "text": {
+          "de": "Mit einem weichen, trockenen Tuch abwischen. Vor Wasser, Parfum und Creme schützen und einzeln aufbewahren.",
+          "en": "Wipe with a soft, dry cloth. Keep away from water, perfume and lotion, and store it on its own."
+        }
       }
     ],
     "packingChecklists": [

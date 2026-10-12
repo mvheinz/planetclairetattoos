@@ -227,13 +227,19 @@ export const ADMIN_CUSTOM_DE = {
   pieceDuplicateConfirm: 'Ja, kopieren',
   pieceDuplicateDone: 'Kopie angelegt – sie öffnet sich gleich.',
   pieceDuplicateHint:
-    'Für ähnliche Stücke: Danach nur Fotos, Titel und Besonderheiten anpassen und „nur eigene Figuren“ bestätigen.',
+    'Für ähnliche Stücke: Danach nur Fotos, Titel und Besonderheiten anpassen und „Motiv und Schriftzug sind von mir“ bestätigen.',
   pieceField_images: 'Fotos',
   pieceField_itemNumber: 'Objektnummer',
   pieceField_category: 'Kategorie',
   pieceField_title: 'Titel',
   pieceField_description: 'Beschreibung',
-  pieceField_juttaSays: '„Jutta sagt“',
+  pieceField_juttaSays: '„Ein Wort von mir“',
+  pieceJuttaSaysSuggestion: 'Vorschlag von Claude:',
+  pieceJuttaSaysAdopt: 'Vorschlag übernehmen',
+  pieceJuttaSaysSuggestionTaken:
+    'Der Vorschlag steht im Feld – ändere ihn gern noch und speichere dann. Englisch kommt mit.',
+  pieceCareHint:
+    'Hier steht die feste Pflegezeile der Stückart aus den Einstellungen. Nur ändern, wenn dieses Stück etwas anderes braucht.',
   pieceField_priceCents: 'Preis',
   pieceField_materials: 'Material',
   pieceField_dimensions: 'Maße (mindestens eins)',
@@ -260,8 +266,10 @@ export const ADMIN_CUSTOM_DE = {
   pieceField_safetyWarnings: 'Warn- und Sicherheitshinweise',
   pieceField_deviationDecision: 'Abweichende Beschaffenheit',
   pieceField_deviationDescription: 'Abweichung – Beschreibung',
+  // V-43 (U-93): fremde Textzeilen sind der häufigste Abmahngrund – das Häkchen nennt sie ausdrücklich
   pieceField_ownDesignConfirmed:
-    'Das Motiv zeigt nur eigene Figuren – keine geschützten fremden Figuren, Marken, Logos oder Schriftzüge Dritter',
+    'Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte, Film- oder Buchzitate',
+  pieceOwnDesignHint: 'Auch keine fremden Figuren, Marken oder Logos.',
   pieceField_showInArchiveAfterSale: 'Nach Verkauf mit sold-Stempel im Archiv zeigen',
   pieceField_vatCategory: 'Steuersatz',
   pieceField_vatReducedReason: 'Begründung ermäßigter Satz',
@@ -352,7 +360,7 @@ export const ADMIN_CUSTOM_DE = {
   piecesPublishReadyTitle: 'Alle fertigen Entwürfe online stellen?',
   piecesPublishReadyCounting: 'Ich zähle die fertigen Entwürfe …',
   piecesPublishReadyText:
-    '{{ready}} von {{drafts}} Entwürfen sind fertig. Sie erscheinen sofort im Shop. Häkchen wie „nur eigene Figuren“ oder „nickelfrei“ setzt du weiter bei jedem Stück selbst – hier wird nichts angehakt.',
+    '{{ready}} von {{drafts}} Entwürfen sind fertig. Sie erscheinen sofort im Shop. Häkchen wie „Motiv und Schriftzug sind von mir“ oder „nickelfrei“ setzt du weiter bei jedem Stück selbst – hier wird nichts angehakt.',
   piecesPublishReadyNone: 'Gerade ist kein Entwurf fertig. Auf jeder Karte steht, was noch fehlt.',
   piecesPublishReadyConfirm: 'Ja, {{n}} online stellen',
   piecesPublishReadyRunning: '{{done}} von {{total}} sind online …',

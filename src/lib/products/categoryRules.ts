@@ -5,6 +5,13 @@ import type { ProductCategory, ShippingClass } from '@/lib/enums'
 
 const TEXTILE = ['textil', 'cap'] as const
 
+/**
+ * Stückarten mit fester Pflegezeile (`settings.careTemplates`): Textil und Cap, seit V-23 (U-93) auch Keramik und
+ * Schmuck – Pflege steht dann nicht mehr in der Beschreibung.
+ */
+export const CARE_CATEGORIES = ['textil', 'cap', 'keramik', 'schmuck'] as const
+export type CareCategory = (typeof CARE_CATEGORIES)[number]
+
 /** Felder, die nur bei bestimmten Kategorien erscheinen; alle anderen Felder gelten für jede Kategorie. */
 export const CATEGORY_FIELDS = {
   sizeLabel: TEXTILE,
@@ -14,7 +21,7 @@ export const CATEGORY_FIELDS = {
   fiberComposition: TEXTILE,
   labelMissing: TEXTILE,
   fiberFreeText: TEXTILE,
-  careInstructions: TEXTILE,
+  careInstructions: CARE_CATEGORIES,
   blankBrandVisible: TEXTILE,
   foodContact: ['keramik'],
   conformityDeclarations: ['keramik'],
@@ -64,6 +71,10 @@ export function showFor(field: CategoryField) {
 export const isTextile = (category: unknown): boolean =>
   (TEXTILE as readonly string[]).includes(String(category))
 
+/** Hat die Stückart eine feste Pflegezeile (V-23)? */
+export const hasCareTemplate = (category: unknown): category is CareCategory =>
+  (CARE_CATEGORIES as readonly string[]).includes(String(category))
+
 /** Versandklasse je Kategorie (§6.6.3, E-25). */
 export const DEFAULT_SHIPPING_CLASS: Record<ProductCategory, ShippingClass> = {
   keramik: 'keramik',
@@ -81,7 +92,7 @@ const isEmpty = (v: unknown) =>
 export interface CategoryTemplates {
   /** `settings.safetyTemplates[category]` in der Sprache des Requests. */
   safety?: string | null
-  /** `settings.careTemplates[category]` (textil/cap) in der Sprache des Requests. */
+  /** `settings.careTemplates[category]` (Textil, Cap, Keramik, Schmuck) in der Sprache des Requests. */
   care?: string | null
 }
 
@@ -103,8 +114,9 @@ export function applyCategoryDefaults(
   if (isTextile(category)) {
     // Textil und Cap sind immer Second-Hand (E-16, R-043); der Formular-Standard `false` zählt nicht als gesetzt.
     data.isSecondHand = true
-    set('careInstructions', templates.care)
   }
+  // Feste Pflegezeile je Stückart (V-23) – nur wenn das Feld leer ist
+  if (hasCareTemplate(category)) set('careInstructions', templates.care)
   // Kleinteile-Hinweis bei Schmuck immer an (R-045).
   if (category === 'schmuck') data.smallPartsWarning = true
   set('safetyWarnings', templates.safety)

@@ -56,6 +56,7 @@ import * as migration_20261011_153702_p18_order_item_handover from './20261011_1
 import * as migration_20261012_123105_p20_tattoo_booking from './20261012_123105_p20_tattoo_booking';
 import * as migration_20261012_145440_p20_inquiry_similar from './20261012_145440_p20_inquiry_similar';
 import * as migration_20261012_185023_p20_checkout_gift_billing_country from './20261012_185023_p20_checkout_gift_billing_country';
+import * as migration_20261012_213803_p20_care_templates_word_suggestion from './20261012_213803_p20_care_templates_word_suggestion';
 
 export const migrations = [
   {
@@ -346,6 +347,11 @@ export const migrations = [
   {
     up: migration_20261012_185023_p20_checkout_gift_billing_country.up,
     down: migration_20261012_185023_p20_checkout_gift_billing_country.down,
-    name: '20261012_185023_p20_checkout_gift_billing_country'
+    name: '20261012_185023_p20_checkout_gift_billing_country',
+  },
+  {
+    up: migration_20261012_213803_p20_care_templates_word_suggestion.up,
+    down: migration_20261012_213803_p20_care_templates_word_suggestion.down,
+    name: '20261012_213803_p20_care_templates_word_suggestion'
   },
 ];

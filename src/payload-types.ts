@@ -1133,6 +1133,10 @@ export interface Product {
    * Optionale kurze Notiz von dir (höchstens 280 Zeichen).
    */
   juttaSays?: string | null;
+  /**
+   * Vorschlag von Claude – erscheint nie im Shop. Übernehmen im Stück-Formular.
+   */
+  juttaSaysSuggestion?: string | null;
   priceCents: number;
   /**
    * Nur bei Regelbesteuerung relevant.
@@ -1305,6 +1309,9 @@ export interface Product {
    */
   hasDeviation?: boolean | null;
   deviationDescription?: string | null;
+  /**
+   * Auch keine fremden Figuren, Marken oder Logos.
+   */
   ownDesignConfirmed?: boolean | null;
   isCustomCommission?: boolean | null;
   customs?: {
@@ -3139,6 +3146,7 @@ export interface ProductsSelect<T extends boolean = true> {
   category?: T;
   description?: T;
   juttaSays?: T;
+  juttaSaysSuggestion?: T;
   priceCents?: T;
   vatCategory?: T;
   vatReducedReason?: T;
@@ -4633,7 +4641,7 @@ export interface Setting {
     | null;
   careTemplates?:
     | {
-        category: 'textil' | 'cap';
+        category: 'textil' | 'cap' | 'keramik' | 'schmuck';
         text: string;
         id?: string | null;
       }[]

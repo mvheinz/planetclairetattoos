@@ -1,4 +1,6 @@
+import { CARE_TEMPLATE_TEXTS } from '@/globals/settingsDefaults'
 import { formatEuroInput } from '@/lib/money'
+import { CARE_CATEGORIES } from '@/lib/products/categoryRules'
 
 // Einstellungen, Teil 2 und 3 (PLAN P5.22/P5.22a, KONZEPT §7.14): Bereiche, Beschriftungen und Startwerte der
 // Handy-Formulare über `POST /api/globals/settings/area`. Eine Quelle für Ansicht (Server), Formulare (Client) und
@@ -260,6 +262,15 @@ export function initialMailTexts(
 
 const id = (r: Obj) => (typeof r.id === 'string' ? { id: r.id } : {})
 
+/**
+ * V-23 (U-93): Pflegezeilen für Keramik und Schmuck kamen später dazu – fehlen sie in den gespeicherten Einstellungen,
+ * zeigt das Formular die Startwerte (dieselben, die das Stück ohne gespeicherte Zeile bekommt); Speichern legt sie an.
+ */
+function withCareDefaults(rows: TemplateRow[]): TemplateRow[] {
+  const missing = CARE_CATEGORIES.filter((c) => !rows.some((r) => r.category === c))
+  return [...rows, ...missing.map((category) => ({ category, text: { ...CARE_TEMPLATE_TEXTS[category] } }))]
+}
+
 /** Startwerte aller Bereiche aus dem Global in beiden Sprachen (`fallbackLocale: false`). */
 export function initialAreaValues(de: Obj, en: Obj) {
   const shopDe = obj(de.shop)
@@ -345,7 +356,7 @@ export function initialAreaValues(de: Obj, en: Obj) {
     } satisfies CostsValues,
     templates: {
       safetyTemplates: templateRows('safetyTemplates'),
-      careTemplates: templateRows('careTemplates'),
+      careTemplates: withCareDefaults(templateRows('careTemplates')),
     } satisfies TemplatesValues,
     yearTotals: list(obj(de.revenueGuard).manualYearTotals).map((r) => ({
       ...id(r),

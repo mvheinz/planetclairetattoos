@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  adoptJuttaSaysSuggestion,
   applyCategory,
   emptyPieceForm,
   fieldAnchor,
@@ -145,5 +146,50 @@ describe('Formular „Neues Stück“ (P5.6)', () => {
       )
       expect(Object.keys(toEnData(form))).not.toContain('adminAttention')
     }
+  })
+
+  it('V-23: Keramik und Schmuck bekommen die feste Pflegezeile, Zeichnung keine; eigener Text bleibt', () => {
+    const t = {
+      ...templates,
+      care: { ...templates.care, keramik: 'Feucht abwischen.', schmuck: 'Trocken abwischen.' },
+    }
+    const keramik = applyCategory(emptyPieceForm(17), 'keramik', t)
+    expect(keramik.de.careInstructions).toBe('Feucht abwischen.')
+    expect(applyCategory(keramik, 'schmuck', t).de.careInstructions).toBe('Trocken abwischen.')
+    expect(applyCategory(keramik, 'zeichnung', t).de.careInstructions).toBe('')
+    const own = { ...keramik, de: { ...keramik.de, careInstructions: 'Nur trocken abstauben.' } }
+    expect(applyCategory(own, 'schmuck', t).de.careInstructions).toBe('Nur trocken abstauben.')
+    const data = toSaveData(keramik, {
+      priceCents: 4500,
+      images: [],
+      locks: pieceLocks(null, null),
+    })
+    expect(data.careInstructions).toBe('Feucht abwischen.')
+    const en = { ...keramik, en: { ...keramik.en, careInstructions: 'Wipe with a damp cloth.' } }
+    expect(toEnData(en).careInstructions).toBe('Wipe with a damp cloth.')
+    const zeichnung = applyCategory(keramik, 'zeichnung', t)
+    expect(
+      toSaveData(zeichnung, { priceCents: 4500, images: [], locks: pieceLocks(null, null) }),
+    ).not.toHaveProperty('careInstructions')
+  })
+
+  it('V-22 a: Vorschlag „Ein Wort von mir“ wird nie gespeichert, nur per „Vorschlag übernehmen“ ins Feld kopiert', () => {
+    const f = formFromDoc(
+      { itemNumber: 17, category: 'keramik', juttaSaysSuggestion: 'Mein Vorschlag.' },
+      { juttaSaysSuggestion: 'My suggestion.' },
+    )
+    expect(f.juttaSaysSuggestion).toEqual({ de: 'Mein Vorschlag.', en: 'My suggestion.' })
+    expect(f.de.juttaSays).toBe('')
+    const opts = { priceCents: 4500, images: [], locks: pieceLocks(null, null) }
+    expect(toSaveData(f, opts)).not.toHaveProperty('juttaSaysSuggestion')
+    expect(toSaveData(f, opts).juttaSays).toBeNull()
+    const taken = adoptJuttaSaysSuggestion(f)
+    expect(taken.de.juttaSays).toBe('Mein Vorschlag.')
+    expect(taken.en.juttaSays).toBe('My suggestion.')
+    expect(toSaveData(taken, opts).juttaSays).toBe('Mein Vorschlag.')
+    expect(toEnData(taken).juttaSays).toBe('My suggestion.')
+    // ohne Vorschlag: nichts passiert
+    const none = emptyPieceForm(17)
+    expect(adoptJuttaSaysSuggestion(none)).toBe(none)
   })
 })

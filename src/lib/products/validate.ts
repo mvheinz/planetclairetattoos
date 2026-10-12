@@ -115,7 +115,7 @@ const hasDimension = (d: ProductForValidation['dimensions']) =>
 const LINT_FIELDS = [
   ['title', 'Titel'],
   ['description', 'Beschreibung'],
-  ['juttaSays', '„Jutta sagt“'],
+  ['juttaSays', '„Ein Wort von mir“'],
   ['materials', 'Material'],
   ['conditionNote', 'Zustand – Anmerkung'],
   ['deviationDescription', 'Abweichung – Beschreibung'],
@@ -194,7 +194,7 @@ export function validateForPublish(
   if (product.ownDesignConfirmed !== true) {
     add(
       'ownDesignConfirmed',
-      'Bestätigung „nur eigene Figuren, keine fremden Marken“ fehlt (R-047).',
+      'Bestätigung „Motiv und Schriftzug sind von mir“ fehlt (R-047).',
     )
   }
 

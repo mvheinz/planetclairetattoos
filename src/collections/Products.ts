@@ -249,10 +249,24 @@ const basisFields: Field[] = [
   {
     name: 'juttaSays',
     type: 'textarea',
-    label: '„Jutta sagt“',
+    label: '„Ein Wort von mir“',
     localized: true,
     validate: maxLength(280),
     admin: { description: 'Optionale kurze Notiz von dir (höchstens 280 Zeichen).' },
+  },
+  {
+    // V-22 a (U-93): Claudes Vorschlag in Ich-Form – nur intern, erscheint nie von selbst (E-62). Jutta übernimmt ihn
+    // im Stück-Formular („Vorschlag übernehmen“) oder in der Bestandsliste (Spalte „Vorschlag übernehmen“ = ja).
+    name: 'juttaSaysSuggestion',
+    type: 'textarea',
+    label: 'Vorschlag für „Ein Wort von mir“',
+    localized: true,
+    access: adminField,
+    validate: maxLength(280),
+    admin: {
+      readOnly: true,
+      description: 'Vorschlag von Claude – erscheint nie im Shop. Übernehmen im Stück-Formular.',
+    },
   },
   {
     ...moneyField('priceCents', { label: 'Preis', required: true }),
@@ -584,9 +598,10 @@ const requiredInfoFields: Field[] = [
   {
     name: 'ownDesignConfirmed',
     type: 'checkbox',
-    label:
-      'Das Motiv zeigt nur eigene Figuren – keine geschützten fremden Figuren, Marken, Logos oder Schriftzüge Dritter',
+    // V-43 (U-93), R-047
+    label: 'Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte, Film- oder Buchzitate',
     defaultValue: false,
+    admin: { description: 'Auch keine fremden Figuren, Marken oder Logos.' },
   },
   {
     name: 'isCustomCommission',
