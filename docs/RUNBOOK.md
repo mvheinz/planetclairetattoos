@@ -156,6 +156,8 @@ Produktion ab, wenn eine Regel verletzt ist (`assertProductionEnv`, ARCHITEKTUR 
 | `E2E_BASE_URL` | Ziel der E2E-Tests | – | nein |
 | `E2E_SERVER` | dev (lokal) oder start (CI: Produktions-Build) | – | nein |
 | `PW_SKIP_WEBKIT` | Nur wenn die WebKit-Installation scheitert (nie in CI) | – | nein |
+| `VIDEO_BASE_URL` | Nur `pnpm pflege:videos`: Adresse des laufenden Servers (leer = http://localhost:3000) | – | nein |
+| `FFMPEG_PATH` | Nur `pnpm pflege:videos`: Pfad zu ffmpeg für MP4 (leer = ffmpeg aus dem PATH) | – | nein |
 
 ## 3. Deploy, Rollback und Migrationen
 
@@ -525,3 +527,26 @@ Auch dann gilt nach jedem Bestandsimport: Rahmentexte prüfen (V-21). Jutta scha
 Startseite und die Kategorien im Shop; Kategorie-Texte ändert sie in der Verwaltung unter **Shop → Kategorien**, die
 Stationstexte unter **Inhalte → Seiten → Startseite** – oder sie schreibt Claude, was nicht mehr passt (HANDBUCH §11).
 Google-Texte (`seo.descriptions.*`) passt eine Sitzung an.
+
+## 16. Bewegungen als Videos für Jutta
+
+Jutta sieht Bewegungen (Coco, Leine, Koko) am iPad nur als Video: Die große Vorschau läuft dort nicht, Rundgang und
+Vorschau-Fotos sind Standbilder mit reduzierter Bewegung (UEBERARBEITUNG U-93, V-66). **Nach jeder Änderung an
+Bewegungen** – Coco, Leine, Koko, Stationen (`src/leash/**`, `src/components/Coco*`, Bewegungs-CSS, Kunst-QA-Nachbesserungen)
+– bekommt sie kurze Videos, Handy und großer Bildschirm, bevor die Änderung als fertig gilt.
+
+1. Server mit echtem Bestand (U-76, keine Demo-Stücke) auf einer eigenen Datenbank: `pnpm payload migrate`,
+   `pnpm seed:base`, `pnpm seed:example --only=media,flash,tattoo-gallery,tour-dates,pages,faqs`, dann
+   `SEED_PREVIEW_MODE=true pnpm bestand:import --preview` (wie die Vorschau-Datei). Danach `pnpm build && pnpm start`
+   (flüssiger als `pnpm dev`, das beim ersten Aufruf übersetzt und ruckelt).
+2. `pnpm pflege:videos alle --url=http://localhost:3000` – Coco im Shop (40 s: ankommen, kurz scrollen, dann stehen
+   bleiben, Warte-Aktionen) und die Startseite (30 s: langsam nach unten, Leine und Koko), je Handy (390 × 844) und
+   großer Bildschirm (1280 × 800). Nur der Shop: ohne Szene; kürzer: `--sekunden=20`; ein Gerät: `--geraet=handy`.
+   Ergebnis: `dist/videos/planet-claire-<szene>-<geraet>-<Tag>.mp4` (H.264, ohne Ton, etwa 1–3 MB). ffmpeg kommt aus
+   `FFMPEG_PATH` oder dem `PATH`; ohne ffmpeg entstehen WebM-Dateien mit Hinweis – vor dem Schicken umwandeln, WebM
+   spielt am iPad nicht in jeder App.
+3. Videos selbst ansehen (Anfang ohne leere Seite, kein Ruckeln, Coco sichtbar), dann mit `SendUserFile` an Jutta
+   schicken, mit einem Satz, was sich geändert hat und worauf sie achten soll. Sie sieht sie am iPad oder am Computer
+   (Anleitung `docs/owner/IPAD.md` Abschnitt F, U-94).
+4. Videos nie committen; `dist/videos/` danach löschen, Server stoppen. Juttas Rückmeldung wie eine Kunst-QA-Rückmeldung
+   behandeln: ändern, neue Videos.

@@ -533,6 +533,22 @@ const DEFS = [
     '',
     boolish.optional(),
   ),
+  def(
+    'VIDEO_BASE_URL',
+    T,
+    'P20',
+    'Nur pnpm pflege:videos: Adresse des laufenden Servers (leer = http://localhost:3000)',
+    '',
+    optionalString,
+  ),
+  def(
+    'FFMPEG_PATH',
+    T,
+    'P20',
+    'Nur pnpm pflege:videos: Pfad zu ffmpeg für MP4 (leer = ffmpeg aus dem PATH)',
+    '',
+    optionalString,
+  ),
 ] as const
 
 export const ENV_VARS: readonly EnvVarDef[] = DEFS
@@ -619,6 +635,8 @@ const PRODUCTION_SKIP = new Set([
   'E2E_BASE_URL',
   'E2E_SERVER',
   'PW_SKIP_WEBKIT',
+  'VIDEO_BASE_URL',
+  'FFMPEG_PATH',
   'STRIPE_API_BASE_URL',
   'EMAIL_FILE_DIR',
   'MAIL_REDIRECT_ALL_TO',

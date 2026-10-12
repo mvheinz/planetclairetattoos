@@ -141,6 +141,7 @@ brauchen.
 | `pnpm art:bundle` | `scripts/art/bundle.ts` | `manifest.json`, Größen-Check, optional ZIP für CI |
 | `pnpm art:vectorize` | `scripts/art/vectorize.ts` | Stationszeichnungen neu erzeugen (DESIGN §12.4) |
 | `pnpm art:sprite` | `scripts/art/build-sprite.ts` | `public/art/coco-sprite.v{N}.svg` + `src/art/coco/coco-sprite.json` (DESIGN §10.4) |
+| `pnpm pflege:videos [shop\|start\|alle]` | `scripts/pflege/videos.ts` | Nicht Teil der Schleife: nach jeder Änderung an Bewegungen kurze MP4-Videos (Handy, großer Bildschirm) gegen einen laufenden Server für Jutta, die Bewegungen am iPad sonst nicht sieht (V-66, RUNBOOK §16) |
 
 Browser: Chromium **und** WebKit müssen installiert sein (`pnpm exec playwright install chromium webkit --with-deps`).
 Die Cloud-Umgebung braucht dafür die Playwright-Download-Domains in der Netzwerk-Freigabe; `scripts/cloud-setup.sh`
