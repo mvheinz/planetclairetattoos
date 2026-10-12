@@ -130,7 +130,14 @@ describe('Formular „Neues Stück“ (P5.6)', () => {
       title: 'Ohrring',
       adminAttention: { flag: true, reason: 'manual', note: 'Bitte prüfen' },
     }
-    for (const category of ['keramik', 'textil', 'cap', 'schmuck', 'zeichnung', 'sonstiges'] as const) {
+    for (const category of [
+      'keramik',
+      'textil',
+      'cap',
+      'schmuck',
+      'zeichnung',
+      'sonstiges',
+    ] as const) {
       const form = { ...formFromDoc({ ...doc, category }, null), category }
       const locks = pieceLocks('draft', null)
       expect(Object.keys(toSaveData(form, { priceCents: 4500, images: [], locks }))).not.toContain(

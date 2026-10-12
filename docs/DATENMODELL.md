@@ -945,8 +945,8 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 | `seo.metaTitle` / `seo.metaDescription` | text | – | ✓ | – | ≤ 60 / ≤ 160 | sonst aus Titel/Beschreibung |
 | `i18n.enStatus` | select `EnTranslationStatus` | S | – | `missing` | Hook-gesteuert | Badge „EN fehlt/maschinell/geprüft“ |
 | `i18n.translatedAt` | date | S | – | – | – | – |
-| `adminAttention.flag` | checkbox | – | – | `false` | – | roter Hinweis im Dashboard |
-| `adminAttention.reason` | select `AttentionReason` | – | – | – | Pflicht bei `flag`; hier nur `conformity_revoked` oder `manual` | – |
+| `adminAttention.flag` | checkbox | – | – | `false` | – | Hinweis unter „Heute“: `conformity_revoked` einzeln rot; `manual` („zu prüfen“, z. B. Bestands-Import) als eine gelbe Sammelzeile mit Filter `/stuecke?pruefen=1` (V-31) |
+| `adminAttention.reason` | select `AttentionReason` | – | – | – | Pflicht bei `flag`; hier nur `conformity_revoked` oder `manual` | `manual` löscht „Erledigt“ (`POST …/attention-done`) oder das erste Online-Stellen (P2); das Formular schreibt das Feld nie |
 | `adminAttention.note` | textarea | – | – | – | ≤ 500 | – |
 | `seed` | checkbox | S | – | `false` | – | §13 |
 
@@ -1025,12 +1025,21 @@ Feld). Die Regel „`lebensmittelecht` nur mit gültigen Erklärungen“ gilt zu
 | `framed` gesetzt; `frameHasGlass` ⇒ Baustein `product.glassFrame` in `safetyWarnings` (R-046) | – | – | – | ✓ | – | – |
 | `metalPartsMaterial.de`, `nickelFreeConfirmed = true`, `nickelEvidence`, `leadFreeGlazeConfirmed = true`, `smallPartsWarning = true` | – | – | – | – | ✓ | – |
 | `hasDeviation` ⇒ `deviationDescription.de` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dimensions.note` und `sizeLabel` (DE und EN) ohne Schätz-Vermerk („geschätzt“, „vermutlich“, „bitte nachmessen“, „estimated“ …; Liste `ESTIMATE_MARKERS` in `src/lib/products/measure.ts`) – Meldung „Bitte erst nachmessen“; schlichtes „ca.“ erlaubt (V-15, U-93) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Freitexte (`title`, `description`, `juttaSays`, `materials`, `conditionNote`, `deviationDescription`, DE und EN) ohne Begriffe aus RECHT V-13 (Aussagen nur über Bausteine mit Nachweis; R-044, R-045) und ohne fremde Marken-/Figurennamen aus der Lint-Liste V-16 (R-047) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `vatCategory = reduced_art` ⇒ `category = zeichnung` und `vatReducedReason` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `settings.business` (GPSR-Herstellerangaben) vollständig | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
-EN-Texte sind **nicht** blockierend (Fallback DE, Badge „EN fehlt“) – außer Alt-Texte (s. o.). Die Lint-Listen V-13 und
-V-16 liegen als Konstanten in `src/lib/legal/forbidden.ts` (dieselbe Quelle wie die Verbotsprüfung aus RECHT §5).
+EN-Texte sind **nicht** blockierend (Fallback DE, Badge „EN fehlt“) – außer Alt-Texte (s. o.) und Schätz-Vermerke in
+einem vorhandenen EN-Maß-Hinweis bzw. einer EN-Größe (V-15). Die Lint-Listen V-13 und V-16 liegen als Konstanten in
+`src/lib/legal/forbidden.ts` (dieselbe Quelle wie die Verbotsprüfung aus RECHT §5).
+
+**„Was fehlt noch?“ und Sammelaktion** (V-32, U-93; P20.6): Bilder, Erklärungen und `settings` lädt
+`src/lib/products/publishReadiness.ts` gebündelt – für den Speicher-Hook (ein Stück) wie für viele Entwürfe; dieselbe
+Funktion `validateForPublish`. Die Meldungen werden für Karten zu kurzen Stichworten (`src/lib/products/readiness.ts`);
+freiwillige Tipps sperren nie (Schmuck ohne `scalePhoto` → „Foto an der Hand“). „Alle fertigen online stellen“ führt je
+fertigem Entwurf nur den Übergang P2 aus (keine Daten dazu – Bestätigungen wie `ownDesignConfirmed`,
+`nickelFreeConfirmed` bleiben je Stück, R-047).
 
 **Widerruf einer Konformitätserklärung** (`conformity-declarations.status → revoked`, R-044): in derselben
 Transaktion wird jedes verknüpfte Stück mit `foodContact = lebensmittelecht`, das keine andere gültige Erklärung mehr
@@ -1050,17 +1059,17 @@ Verhalten laut KONZEPT §5.1 (P1–P15, AK-5-01), Namen laut diesem Dokument; Se
 stateDiagram-v2
   [*] --> draft: P1 anlegen
   draft --> available: P2 publish (Admin, validateForPublish)
-  available --> draft: P3 unpublish „Offline nehmen“ (Admin; System bei widerrufener Konformitätserklärung)
+  available --> draft: P3 unpublish „Aus dem Shop nehmen → Ja“ (Admin; System bei widerrufener Konformitätserklärung)
   available --> reserved: P4 Kasse gestartet (System)
   reserved --> available: P5 Ablauf / Abbruch / Zahlung gescheitert / Vorkasse storniert (System)
   reserved --> reserved: P6 Vorkasse bestellt (System)
   reserved --> sold: P7 Zahlung bestätigt / „Zahlung erhalten“ (System, Admin)
-  available --> sold: P8 Zahlung für freies Stück (System, Admin) · P9 „Offline verkauft“ (Admin, E-28)
-  reserved --> sold: P10 „Offline verkauft“ aus laufender Kasse (Admin, mit Warnung)
+  available --> sold: P8 Zahlung für freies Stück (System, Admin) · P9 „Verkauft (Markt/privat)“ / Markt-Knopf (Admin, E-28)
+  reserved --> sold: P10 „Verkauft (Markt/privat)“ aus laufender Kasse (Admin, mit Warnung)
   sold --> available: P11 „Wieder verkaufen“ (Admin, validateForPublish)
-  draft --> archived: P12 „Ausblenden“ (Admin)
-  available --> archived: P12 „Ausblenden“ (Admin)
-  sold --> archived: P13 nach Rückgabe oder Bruch ausblenden (Admin)
+  draft --> archived: P12 „Weglegen“ (Admin)
+  available --> archived: P12 „Aus dem Shop nehmen → Nein, weglegen“ (Admin)
+  sold --> archived: P13 nach Rückgabe oder Bruch weglegen (Admin)
   archived --> draft: P14 „Wieder bearbeiten“ (Admin)
   draft --> [*]: P15 löschen (nur nie veröffentlicht)
 ```
@@ -1068,23 +1077,23 @@ stateDiagram-v2
 | # | Übergang | Auslöser (`context.transition`) | Wer | Vorbedingung | Nebenwirkung |
 |---|---|---|---|---|---|
 | P1 | – → draft | Anlage | Admin | Nummer frei (§6.6.4) | – |
-| P2 | draft → available | `publish` | Admin | `validateForPublish` ok | `firstPublishedAt ??= now`; `itemNumber` ab jetzt fest; Audit `product_published`; Revalidierung |
-| P3 | available → draft | `unpublish` | Admin „Offline nehmen“; System beim Widerruf einer Konformitätserklärung (§6.6.6) | keine aktive Reservierung (Status ist `available`) | Revalidierung (Produktseite → 404); `firstPublishedAt` und Nummernsperre bleiben |
+| P2 | draft → available | `publish` | Admin | `validateForPublish` ok | `firstPublishedAt ??= now`; `itemNumber` ab jetzt fest; beim ersten Mal `adminAttention` mit Grund `manual` leeren (V-31); Audit `product_published`; Revalidierung |
+| P3 | available → draft | `unpublish` | Admin „Aus dem Shop nehmen“ → „Ja, später wieder anbieten“ (V-34); System beim Widerruf einer Konformitätserklärung (§6.6.6) | keine aktive Reservierung (Status ist `available`) | Revalidierung (Produktseite → 404); `firstPublishedAt` und Nummernsperre bleiben |
 | P4 | available → reserved | `reserve` | System | nur via SQL §8.1 | `reservedUntil`, `reservationRef` |
 | P5 | reserved → available | `release` | System | Reservierung `active` mit gleicher `reservationRef` | Felder leeren; Stripe-Session beendet (§8.2) |
 | P6 | reserved → reserved | `convertToPrepayment` | System | Vorkasse bestellt, Reservierung der Kasse gültig | kein Statuswechsel: `reservedUntil = prepayment.dueAt`, `currentOrder` (§8.5) |
 | P7 | reserved → sold | `sell` | System `fulfillCheckout` / Admin „Zahlung erhalten“ | Reservierung gehört zur Bestellung | `soldAt`, `soldChannel = online/pickup`, `currentOrder`; Revalidierung |
 | P8 | available → sold | `sell` | System `fulfillCheckout` (Reservierung abgelaufen, Stück noch frei) / Admin „Nachträglich bezahlt“ (O5) | – | wie P7 (§8.3, Zweig `available`) |
-| P9 | available → sold | `sellOffline` | Admin | – | `soldChannel = offline`, `soldAt`, `offlineSaleNote`, `showInArchiveAfterSale` wie im Dialog gewählt, seit U-60 optional `offlineSaleTourDate` und `offlineSalePriceCents`; Audit `product_offline_sold`; keine Bestellung, kein Beleg (R-127) |
+| P9 | available → sold | `sellOffline` | Admin („Verkauft (Markt/privat)“ oder Markt-Knopf unter „Heute“, V-33 a/V-34) | – | `soldChannel = offline`, `soldAt`, `offlineSaleNote`, `showInArchiveAfterSale` wie im Dialog gewählt, seit U-60 optional `offlineSaleTourDate` und `offlineSalePriceCents`; Audit `product_offline_sold`; keine Bestellung, kein Beleg (R-127) |
 | P10 | reserved (Kasse, `source = checkout_session`) → sold | `sellOffline` mit `confirmReservedCheckout: true` | Admin nach Warndialog (KONZEPT §4.11 S5) | zugehörige Kasse im Status `open` (bei `confirming` gesperrt: „Zahlung läuft gerade“, DM-34) | zuerst Stripe-Session beenden: meldet der Anbieter „bezahlt“, bricht die Aktion ab und `fulfillCheckout` übernimmt; sonst Reservierung `released` (`releaseReason = admin`), Kasse `cancelled` (`closeReason = sold_offline`), dann wie P9 |
 | P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, und das Stück ist nicht mehr zu liefern (Position nicht mehr `active` oder Bestellung `refunded`; KONZEPT KA-37) **oder** Position des Stücks `refunded` durch eine erfolgreiche Erstattung mit Grund `withdrawal` (`refunds[].itemIds`), Stück nie verschickt oder abgeholt (Widerruf vor dem Versand, P18.5). „Nie verschickt oder abgeholt“ gilt je Position: `items[].handedOverAt` leer, obwohl die Bestellung eine Übergabe erfasst hat (Rest-Lieferung); ohne erfasste Übergabe (Bestellung vor P18.5) `shippedAt`/`pickedUpAt` leer; `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
-| P12 | draft/available → archived | `archive` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`; Revalidierung |
-| P13 | sold → archived | `archiveAfterReturn` | Admin „Ausblenden“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) **oder** Widerruf vor dem Versand wie bei P11 (Position mit Grund `withdrawal` erstattet, Stück nie verschickt oder abgeholt – je Position wie bei P11; P18.5) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
+| P12 | draft/available → archived | `archive` | Admin „Weglegen“ bzw. „Aus dem Shop nehmen“ → „Nein, weglegen“ (V-34) | keine aktive Reservierung | `archivedAt`; Revalidierung |
+| P13 | sold → archived | `archiveAfterReturn` | Admin „Weglegen“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) **oder** Widerruf vor dem Versand wie bei P11 (Position mit Grund `withdrawal` erstattet, Stück nie verschickt oder abgeholt – je Position wie bei P11; P18.5) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
 | P14 | archived → draft | `restore` | Admin „Wieder bearbeiten“ | – | `archivedAt = null`; danach wieder P2 |
 | P15 | draft → gelöscht | Payload-`delete` | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | nur von diesem Stück genutzte Bilder werden mit gelöscht; Nummer wieder frei; Audit `product_deleted` |
 
-Alle anderen Übergänge werden abgelehnt, u. a. `reserved` (Vorkasse, `source = prepayment`) → `sold` per „Offline
-verkauft“ (Meldung „für eine Vorkasse-Bestellung reserviert“), `reserved → archived`, `sold → reserved`, Löschen
+Alle anderen Übergänge werden abgelehnt, u. a. `reserved` (Vorkasse, `source = prepayment`) → `sold` per „Verkauft
+(Markt/privat)“ (Meldung „für eine Vorkasse-Bestellung reserviert“), `reserved → archived`, `sold → reserved`, Löschen
 veröffentlichter Stücke, Ändern der Nummer nach der ersten Veröffentlichung. „Im Archiv zeigen“
 (`showInArchiveAfterSale`) ist ein Schalter, kein Statuswechsel.
 
@@ -1130,6 +1139,10 @@ veröffentlichter Stücke, Ändern der Nummer nach der ersten Veröffentlichung.
 | `POST /api/products/:id/archive` · `/archive-after-return` · `/restore` · `/return-to-stock` | P12 · P13 · P14 (archived → draft) · P11 |
 | `POST /api/products/:id/translate` (`{ force?: boolean }`) | DE → EN für `title`, `description`, `juttaSays`, `materials`, `dimensions.note`, `sizeLabel`, `conditionNote`, `fiberFreeText`, `careInstructions`, `metalPartsMaterial`, `safetyWarnings`, `deviationDescription`, `seo.*` sowie Alt-Texte der Bilder; überschreibt `reviewed`-Texte nur mit `force` |
 | `POST /api/products/:id/adopt` | Seed-Stück übernehmen (`seed = false`, §13.4) |
+| `POST /api/products/:id/attention-done` | „Erledigt“ (V-31): `adminAttention` mit Grund `manual` leeren; Systemgrund → 409; ohne Markierung `{ unchanged: true }` |
+| `GET /api/products/:id/readiness` | „Was fehlt noch?“ (V-32): `{ readiness: { ready, missing[], issues[], hints[] } }` – dieselbe Prüfung wie §6.6.6 |
+| `GET` · `POST /api/products/publish-ready` (`{ skip?: number[] }`) | „Alle fertigen online stellen“ (V-32): GET zählt Entwürfe und fertige; POST stellt höchstens 10 fertige nacheinander online (je P2) und antwortet `{ published, failed, remaining }` |
+| `GET /api/products/market-sale?nr=` · `POST /api/products/market-sale` (`{ itemNumber, priceCents? }`) | Markt-Knopf (V-33 a): Stück zur Nummer anzeigen bzw. per P9 verkaufen (Datum heute, heutiger Markt-Termin nur wenn genau einer); `reserved`/`draft`/`archived` → 409 mit Meldung; schon offline verkauft → `{ unchanged: true }` |
 
 #### 6.6.11 Indizes & Constraints
 `item_number` UNIQUE · Index `status` · Index (`category`, `status`) · Index `first_published_at` · Index `seed` ·
@@ -1299,7 +1312,7 @@ sind gefilterte Listen dieser Collection.
 | `dispute.status` | select `DisputeStatus` | S | – | `none` | – | – |
 | `dispute.stripeDisputeId` | text | S | – | – | – | – |
 | `adminAttention.flag` | checkbox | – | – | `false` | – | roter Hinweis im Dashboard |
-| `adminAttention.reason` | select `AttentionReason` | – | – | – | Pflicht bei `flag` | – |
+| `adminAttention.reason` | select `AttentionReason` | – | – | – | Pflicht bei `flag` | `manual` löscht „Erledigt“ in der Bestellung (`POST /api/orders/:id/attention-done`, V-31); Systemgründe nur das System |
 | `adminAttention.note` | textarea | – | – | – | ≤ 500 | – |
 | `timestamps.placedAt` | date | S, R | – | = `checkouts.submittedAt` (Klick auf „Zahlungspflichtig bestellen“) | – | – |
 | `timestamps.paidAt` … `disputedAt` | date | S | – | – | je ein Feld pro Zielstatus: `paidAt`, `packedAt`, `shippedAt`, `deliveredAt`, `readyForPickupAt`, `pickedUpAt`, `withdrawalReceivedAt`, `returnReceivedAt`, `refundedAt`, `cancelledAt`, `disputedAt` | – |
@@ -2151,7 +2164,7 @@ Seed-Kassen erhalten `tokenHash` aus `seedToken(seedKey, 'checkout')` (SEED-SPEC
 | `confirming` | `open` | Stripe meldet Fehler/Abbruch zurück, Reservierung noch gültig | – |
 | `open`, `confirming` | `completed` | `fulfillCheckout` (O1/O19) bzw. `submitCheckout` mit `prepayment` (O2) | `order`, `completedAt`; Reservierungen `converted` (Stripe) bzw. auf Vorkasse umgestellt (§8.5) |
 | `open`, `confirming` | `expired` | Ablauf **und** Anbieter bestätigt „nicht bezahlt“ (Webhook `checkout.session.expired` oder `releaseExpiredReservations`) | Freigabe §8.2 (`session_expired`), `closeReason = reservation_expired` |
-| `open` | `cancelled` | Korb geändert (S6) oder neue Kasse ersetzt diese; Admin „Offline verkauft“ für ein Stück dieser Kasse (§6.6.7 P10) | Stripe-Session beenden, Freigabe §8.2 (`customer_cancelled` bzw. `admin`), `closeReason = cart_changed`/`replaced`/`sold_offline` |
+| `open` | `cancelled` | Korb geändert (S6) oder neue Kasse ersetzt diese; Admin „Verkauft (Markt/privat)“ für ein Stück dieser Kasse (§6.6.7 P10) | Stripe-Session beenden, Freigabe §8.2 (`customer_cancelled` bzw. `admin`), `closeReason = cart_changed`/`replaced`/`sold_offline` |
 | `confirming` | `failed` | Webhook `checkout.session.async_payment_failed` | Freigabe §8.2 (`payment_failed`), `closeReason = payment_failed` |
 
 Alle anderen Übergänge werden abgelehnt. `checkout.session.expired` für eine Kasse in `completed` (z. B. Vorkasse bestellt)

@@ -32,8 +32,7 @@ let nr = 980
 
 const FUTURE = '2099-01-01T10:00:00.000Z'
 const auth = () => ({ authorization: `JWT ${token}` })
-const sell = (body: Record<string, unknown>) =>
-  rest('POST', '/products/market-sale', body, auth())
+const sell = (body: Record<string, unknown>) => rest('POST', '/products/market-sale', body, auth())
 const lookup = (n: string | number) =>
   rest('GET', `/products/market-sale?nr=${n}`, undefined, auth())
 const byId = (id: number) =>
@@ -176,7 +175,10 @@ describe('V-33 a Markt-Knopf', () => {
     const p = await available()
     const res = await sell({ itemNumber: p.itemNumber, priceCents: 4200 })
     expect(res.status).toBe(200)
-    expect(await byId(p.id)).toMatchObject({ offlineSalePriceCents: 4200, offlineSaleTourDate: tour })
+    expect(await byId(p.id)).toMatchObject({
+      offlineSalePriceCents: 4200,
+      offlineSaleTourDate: tour,
+    })
     expect((await status()).totalCents).toBe(before + 4200)
     // zwei Termine heute → keiner (nichts raten)
     await tourToday('Zweiter Markt heute (Test)')

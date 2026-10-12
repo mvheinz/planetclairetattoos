@@ -40,7 +40,7 @@ und den machen wir zusammen.
 | 2. Während der Cloud-Phasen | A06–A22 | 550 Min., verteilt über mehrere Wochen (plus Optionales) | Nein |
 | 3. Vor dem Start (P11) | A23–A32 | 295 Min. plus ca. 25 Min. pro Stück | Nein, aber P11 braucht die Ergebnisse |
 | 4. Am Start-Tag (P11, mit Claude) | A33–A41 (mit A33a und A36a) | 300 Min. plus ca. 10 Min. pro Stück | – |
-| 5. Nach dem Start | A42–A52 | laufend | – |
+| 5. Nach dem Start | A42–A53 | laufend | – |
 
 ---
 
@@ -307,8 +307,11 @@ Die Reihenfolge steht in [Z1](ANLEITUNGEN.md#z1).
     „Tattoo“ (quer: links „Tattoo“) → Reiter „Texte“ → bei „Preise“ auf „Preise stimmen – bestätigen“ tippen. Am Computer: links „Tattoo“ →
     Reiter „Texte“ → „Preise stimmen – bestätigen“ anklicken. Bis dahin bleibt der Startklar-Punkt dazu rot
     ([Handbuch, Kapitel 10](HANDBUCH.md#10-tattoo-flash-und-galerie)).
-  - Deine 74 Stücke aus den Fotos spielt Claude mit `pnpm bestand:import` als Entwürfe ein (rot markiert „bitte
-    prüfen“). Du korrigierst sie mit deiner Liste aus A29, setzt den Haken „nur eigene Figuren“ und stellst sie online.
+  - Deine 74 Stücke aus den Fotos spielt Claude mit `pnpm bestand:import` als Entwürfe ein (gelb markiert „zu
+    prüfen“). Du korrigierst sie mit deiner Liste aus A29, **misst nach** (steht noch „geschätzt“ bei den Maßen, geht
+    das Stück nicht online), setzt den Haken „nur eigene Figuren“ und tippst „Erledigt“. Jede Karte in „Meine Stücke“
+    zeigt „fertig“ oder was noch fehlt; „Alle fertigen online stellen“ stellt die fertigen auf einmal online
+    ([Handbuch, Kapitel 4](HANDBUCH.md#4-meine-stücke)).
   - Aufwand: ca. 60 Min. plus ca. 10 Min. pro Stück
   - Anleitung: [T3](ANLEITUNGEN.md#t3), [E1](ANLEITUNGEN.md#e1), [F1](ANLEITUNGEN.md#f1), [M3](ANLEITUNGEN.md#m3)
 
@@ -423,6 +426,22 @@ Die genaue Bedienung erklärt dein [Handbuch](HANDBUCH.md).
     trage die Gramm unter Einstellungen → Versand → Verpackung ein. Dann stimmt deine Jahresmeldung (A46).
   - Aufwand: ca. 10 Min. einmalig
 
+- [ ] **A53 · Vor deinem ersten Markt mit dem Shop, mit der Steuerberatung: Ist der Markt-Knopf eine „Kasse“? (J-45)**
+  - Warum: Unter „Heute“ gibt es das Feld „Markt“: Nummer eintippen, „verkauft“ antippen, und das Stück ist sofort aus
+    dem Shop (Handbuch, Kapitel 2). Den Preis kannst du dazu eintragen, er zählt im Umsatz-Wächter. Deine
+    Steuerberatung soll sagen, ob die Verwaltung dadurch zu einem elektronischen Aufzeichnungssystem, also einer
+    „Kasse“ im Sinn von § 146a Abgabenordnung und GoBD (Regeln für digitale Buchführung) wird, wenn du am Stand tippst,
+    oder ob es bei deiner offenen Ladenkasse (Bargeld, Kassenbericht) bzw. dem Kartenterminal bleibt. Frag auch, ob du
+    den Preis lieber erst nach dem Markt eintragen sollst.
+  - So fragst du (zum Kopieren): „Ich verkaufe auf Märkten bar und mit Kartenterminal und führe eine offene
+    Ladenkasse. In meiner Shop-Verwaltung markiere ich verkaufte Einzelstücke sofort als verkauft, damit sie online
+    nicht noch einmal verkauft werden; optional trage ich den Preis ein, der nur für meine Umsatzgrenze zusammengezählt
+    wird. Es entsteht kein Beleg, keine Rechnung und kein Kassenbuch. Ist die Verwaltung damit ein elektronisches
+    Aufzeichnungssystem nach § 146a AO (TSE-Pflicht)? Soll ich den Preis erst nach dem Markt eintragen?“
+  - Bis zur Antwort: Den Knopf kannst du nutzen; den Preis trägst du im Zweifel erst nach dem Markt nach. Sag Claude
+    Bescheid, was die Steuerberatung antwortet.
+  - Aufwand: ca. 10 Min.
+
 ---
 
 ## Für Claude-Sessions (Jutta kann das überspringen)
@@ -470,3 +489,4 @@ Die genaue Bedienung erklärt dein [Handbuch](HANDBUCH.md).
 | A45 | E-45 | Umsatz-Wächter: `revenue-entries` (manuelle Monatssummen je Quelle `tattoo`, `flohmarkt`, `auftragsarbeiten`, `sonstiges`) | – |
 | A51 | E-04, R-124 | `settings.export.datev.*` (`consultantNumber`, `clientNumber`, `fiscalYearStart`, `revenueAccount`, `stripeTransitAccount`, `bankAccount`, `feeAccount`); `GET /api/admin/export/{JJJJ-MM}.datev.csv` (P5.25) | Knopf ausgegraut, Endpunkt 409 |
 | A52 | E-47, R-201, KA-29 | `settings.packaging.templates[].components[].grams` (Schätzwerte aus dem Grund-Seed); Vorbelegung je Sendung `orders.packaging.*` beim Packen (P5.11) | Schätzwerte bleiben stehen |
+| A53 | E-28, U-60, U-93 (V-33 a), R-127, J-45 | Markt-Knopf unter „Heute“ (`POST /api/products/market-sale`, Übergang P9 `sellOffline`, Preis optional `offlineSalePriceCents`); Rücknahme des Preises: Feld leeren („Preis nachtragen“) | Preis erst nach dem Markt nachtragen |

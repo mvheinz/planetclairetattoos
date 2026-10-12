@@ -389,7 +389,7 @@ Vorrang):
 
 | Art | Umsetzung | Beispiele |
 |---|---|---|
-| Nur für die angemeldete Verwaltung | **Payload Custom Endpoint** (`src/endpoints/`, Auth durch Payload, `req.user` Pflicht) | Stück übernehmen, Beispieldaten entfernen, Offline verkauft, Zahlung erhalten, Export |
+| Nur für die angemeldete Verwaltung | **Payload Custom Endpoint** (`src/endpoints/`, Auth durch Payload, `req.user` Pflicht) | Stück übernehmen, Beispieldaten entfernen, Verkauft (Markt/privat) und Markt-Knopf, Erledigt, Alle fertigen online stellen, Zahlung erhalten, Export |
 | Öffentlich oder System (Webhook, Cron, Token) | **Next Route Handler** in `src/app/(api)/…` mit zod-Validierung, Rate-Limit, `getPayload()` + `overrideAccess` nur im Service | Tabelle §2.5 |
 | Formular-Aktionen öffentlicher Seiten | **Server Actions** (progressiv, funktionieren ohne JS) | In den Korb, Zur Kasse, Kasse absenden, Widerruf, Auftragsanfrage |
 
@@ -1894,7 +1894,7 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 
 | Ereignis | Tags | Aufruf | Sichtbar nach |
 |---|---|---|---|
-| Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Offline verkauft“) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
+| Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Verkauft (Markt/privat)“, Markt-Knopf) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
 | Stück in der Verwaltung bearbeitet | wie oben | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Seite, FAQ, Texte, Einstellungen | `page:<key>`, `faqs`, `site-texts`, `settings` | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Flash, Galerie (auch gelöscht) | `flash`, `tattoo-gallery`, `home` – dieselben Tags erneuern seit P20.5 Menü (`getTattooAvailability` im Seitenrahmen), Unter-Navigation und Sitemap: Flash/Galerie erscheinen dort nur mit Inhalt (V-28 a) | `'max'` | ≤ 60 s |

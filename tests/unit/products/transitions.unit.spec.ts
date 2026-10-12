@@ -207,7 +207,7 @@ describe('PRODUCT_TRANSITIONS (AK-5-01, DM-PROD-10)', () => {
     })
   })
 
-  it('P13 „Ausblenden“ nach Verkauf: erstattet + zurück oder Erstattung wegen Bruch', () => {
+  it('P13 „Weglegen“ (V-34, früher „Ausblenden“) nach Verkauf: erstattet + zurück oder Erstattung wegen Bruch', () => {
     const run = (order: ProductTransitionFacts['order']) =>
       evaluateProductTransition('sold', 'archiveAfterReturn', {
         actor: 'admin',
@@ -218,7 +218,7 @@ describe('PRODUCT_TRANSITIONS (AK-5-01, DM-PROD-10)', () => {
     expect(run({ refunds: [{ reason: 'breakage', status: 'succeeded' }] }).ok).toBe(true)
     expect(run({ refunds: [{ reason: 'goodwill', status: 'succeeded' }] })).toMatchObject({
       ok: false,
-      message: expect.stringMatching(/Ausblenden/),
+      message: expect.stringMatching(/Weglegen/),
     })
     expect(run(null).ok).toBe(false)
   })

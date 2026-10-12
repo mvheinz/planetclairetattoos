@@ -83,6 +83,26 @@ Beim Öffnen siehst du, was ansteht:
 
 Wenn hier nichts Rotes steht, ist alles in Ordnung.
 
+**„… Stücke warten auf deine Prüfung“** (seit P20.6): Stücke, die zum Prüfen markiert sind (zum Beispiel alle Stücke aus
+deiner Bestandsliste), stehen nicht mehr einzeln in Rot da, sondern als **eine gelbe Zeile** mit der aktuellen Zahl. Der
+Link „Zu prüfen ansehen“ öffnet „Meine Stücke“ mit dem Filter „zu prüfen“ (siehe Kapitel 4). Echte Notfälle wie eine
+angefochtene Zahlung bleiben einzeln und rot.
+
+**Markt: ein Stück am Stand verkauft** (seit P20.6). Oben unter „Heute“ steht das Feld **Markt**. Damit nimmst du ein
+Stück in zwei Schritten aus dem Shop, während du noch am Stand bist – so kann es niemand mehr online kaufen.
+
+- **Am iPad (oder Handy):** Verwaltung öffnen (sie startet mit „Heute“) → ins Feld **Nummer** die Nummer vom Etikett
+  tippen, zum Beispiel `17` → darunter erscheint, welches Stück das ist („Nr. 017 „Schale …“ · 45,00 €“) → auf
+  **verkauft** tippen.
+- **Am Computer (Mac oder PC):** Verwaltung im Browser öffnen → „Heute“ → Nummer ins Feld **Nummer** schreiben → auf
+  **verkauft** klicken.
+
+Den Preis kannst du gleich mit eintragen („Preis in Euro (freiwillig)“) oder später nachtragen (Kapitel 4, „Preis
+nachtragen“). Mit Preis zählt der Verkauf im [Umsatz-Wächter](#13-umsatz-wächter) mit. Läuft heute genau ein
+Markt-Termin, ordnet die Verwaltung den Verkauf ihm zu. Liegt das Stück gerade bei jemandem in der Kasse oder wartet auf
+eine Vorkasse, sagt die Verwaltung „ist gerade reserviert – bitte jetzt nicht verkaufen“ und ändert nichts. Vertippt?
+Der Link „Stück ansehen“ führt zum Stück, dort machst du es mit „Wieder verkaufen“ rückgängig.
+
 ## 3. Neues Stück einstellen
 
 ![Das Formular „Neues Stück“](img/handbuch/neues-stueck.webp)
@@ -111,6 +131,26 @@ Tippe auf **Neues Stück**. Der Ablauf:
 
 **Pflichtangaben je Kategorie.** Fehlt etwas, zeigt die Verwaltung beim Online-Stellen eine Liste „Das fehlt noch:“ und
 springt zum Feld. Ohne die Angaben lässt sich nichts veröffentlichen. Das ist gewollt, weil der Shop sie gesetzlich zeigen muss.
+Bei einem Entwurf steht die Liste schon oben im Formular unter **„Was fehlt noch, bevor es online gehen kann?“** und wird
+nach jedem Speichern neu berechnet (seit P20.6). Steht dort „Fertig“, kannst du es online stellen.
+
+**Erst messen, dann online** (seit P20.6): Steht im Feld „Hinweis zu den Maßen“ oder „Größe“ noch „geschätzt“,
+„vermutlich“, „bitte nachmessen“ (oder auf Englisch „estimated“), lässt sich das Stück nicht online stellen. Die Meldung
+heißt „Bitte erst nachmessen“. Miss das Stück nach, trag die echten Werte ein und nimm das Wort heraus. Ein schlichtes
+„ca.“ bei gemessenen Werten ist in Ordnung – handgemachte Stücke sind nie auf den Millimeter gleich. Maße stehen später
+in der Bestellung und gelten als zugesagt, deshalb diese Sperre. Bei sehr kleinen Stücken (unter 4 cm) schreibt der
+Shop von selbst einen Vergleich dazu, zum Beispiel „Etwa so groß wie eine 1-Euro-Münze“.
+
+**Foto an der Hand** (Schmuck): Unter „Foto zum Größenvergleich“ hilft bei Schmuck ein Foto an deiner Hand oder am Ohr.
+Fehlt es, steht in „Was fehlt noch?“ ein **Tipp** – das ist freiwillig und sperrt nichts.
+
+**Nickel-Nachweis nur einmal hochladen:** Hast du die Lieferantenerklärung für deine Ketten schon einmal hochgeladen,
+wählst du sie beim nächsten Schmuckstück unter **„Schon hochgeladenen Nachweis wählen“** einfach aus. Am iPad tippst du
+auf das Auswahlfeld, am Computer klickst du darauf. Neu hochladen geht weiterhin darunter. Das Häkchen „Metallteile
+nickelfrei“ setzt du trotzdem bei jedem Stück selbst.
+
+**Speichern und nächstes Stück** (bei Entwürfen): speichert und öffnet gleich den nächsten Entwurf in der Reihenfolge von
+„Meine Stücke“. So arbeitest du deine Entwürfe nacheinander ab, ohne zurück zur Liste zu gehen.
 
 | Kategorie | Das brauchst du zusätzlich |
 |---|---|
@@ -136,23 +176,50 @@ Nach dem Online-Stellen erscheint eine Erfolgsseite mit **Link kopieren** und **
 ![Die Liste „Meine Stücke“](img/handbuch/stuecke.webp)
 
 Hier sind alle deine Stücke mit Foto, Nummer, Titel, Preis und Status. Oben suchst du nach Nummer oder Titel und filterst
-nach Status und Kategorie. Auf jeder Karte stehen die Knöpfe, die gerade passen:
+nach Status und Kategorie. Auf jeder Karte stehen die Knöpfe, die gerade passen (seit P20.6 mit neuen, eindeutigen
+Namen):
 
 - **Bearbeiten:** öffnet das Formular.
 - **Link kopieren:** den Link zur Produktseite.
-- **Ausblenden:** das Stück verschwindet aus dem Shop und bleibt in deiner Liste. Zurückholen geht jederzeit.
-- **Offline nehmen:** wie Ausblenden für ein Stück, das zwar da ist, aber gerade nicht verkauft werden soll.
-- **Offline verkauft:** Du hast es auf dem Flohmarkt oder über Instagram verkauft.
+- **Verkauft (Markt/privat):** Du hast es auf dem Markt, auf dem Flohmarkt oder privat (zum Beispiel über Instagram)
+  verkauft. Schneller geht es am Stand mit dem Feld „Markt“ unter „Heute“ (Kapitel 2).
+- **Aus dem Shop nehmen:** Die Verwaltung fragt **„Kommt es wieder?“**
+  - **„Ja, später wieder anbieten“:** Das Stück wird wieder ein Entwurf. Mit „Online stellen“ ist es zurück im Shop.
+  - **„Nein, weglegen“:** für Stücke, die kaputt sind, die du verschenkt hast oder behältst. Das Stück steht dann als
+    „ausgeblendet“ in deiner Liste, nicht im Shop und nicht im Archiv. Mit „Wieder bearbeiten“ holst du es zurück.
+- **Weglegen:** dasselbe „Nein“ für einen Entwurf, der nie online gehen soll.
+- **Preis nachtragen** (bei Markt- und Privatverkäufen): den erzielten Preis später eintragen oder ändern. Mit Preis zählt
+  der Verkauf im Umsatz-Wächter mit.
 - **Im Archiv zeigen (Schalter):** Verkaufte Stücke bleiben standardmäßig im öffentlichen Archiv sichtbar, mit
   „verkauft“-Stempel. Mit dem Schalter nimmst du ein verkauftes Stück wieder heraus.
 
+**Was fehlt noch?** Jede Entwurf-Karte zeigt **„fertig“** oder zum Beispiel **„fehlt: Faserangabe, Nickel-Nachweis“**
+(höchstens drei Stichworte, der Rest als „+2“). Das ist dieselbe Prüfung wie beim Online-Stellen. „Tipp: Foto an der Hand“
+ist freiwillig.
+
+**Alle fertigen online stellen:** Der Knopf oben neben „Neues Stück“ zählt erst, wie viele Entwürfe fertig sind
+(„12 von 74 Entwürfen sind fertig“), und fragt nach. Nach „Ja“ gehen genau diese Stücke online; danach siehst du, wie
+viele es geklappt hat und welche nicht (mit Grund). Häkchen wie „nur eigene Figuren“ oder „nickelfrei“ setzt dieser Knopf
+nie – die setzt du bei jedem Stück selbst.
+
+- **Am iPad (oder Handy):** unten „Mehr“ → „Meine Stücke“ (quer gehalten steht es links) → oben **„Alle fertigen online
+  stellen“** antippen → Zahl lesen → **„Ja, … online stellen“**.
+- **Am Computer (Mac oder PC):** links in der Seitenleiste „Meine Stücke“ → oben **„Alle fertigen online stellen“**
+  anklicken → **„Ja, … online stellen“**.
+
+**Zu prüfen:** Stücke aus deiner Bestandsliste tragen die Markierung **„zu prüfen“** (gelb). Mit dem Häkchen
+**„Nur „zu prüfen“ zeigen“** im Filter (oder über die gelbe Zeile unter „Heute“) siehst du nur diese Stücke. Bist du mit
+einem Stück durch, tippst (am Computer: klickst) du auf **„Erledigt“** – direkt an der Karte oder oben im Formular des
+Stücks. Beim ersten Online-Stellen verschwindet die Markierung von selbst. Rote Markierungen des Systems (zum Beispiel
+„Konformitätserklärung widerrufen“) haben keinen „Erledigt“-Knopf; sie verschwinden, wenn die Ursache behoben ist.
+
 ![Ein einzelnes Stück ansehen und bearbeiten](img/handbuch/stueck.webp)
 
-![Dialog „Offline verkauft“](img/handbuch/dialog-offline-verkauft.webp)
+![Dialog „Verkauft (Markt/privat)“](img/handbuch/dialog-offline-verkauft.webp)
 
-Bei **Offline verkauft** fragt die Verwaltung noch einmal nach („Nr. 17 als offline verkauft markieren? Es verschwindet aus
-dem Shop.“). Wichtig: Trage das sofort ein, sobald du ein Stück offline verkauft hast. Sonst könnte es noch einmal
-online gekauft werden. Ein Stück gibt es nur einmal.
+Bei **Verkauft (Markt/privat)** fragt die Verwaltung noch einmal nach („Nr. 17 als verkauft eintragen (Markt oder
+privat)? Es verschwindet sofort aus dem Shop.“). Wichtig: Trage das sofort ein, sobald du ein Stück verkauft hast. Sonst
+könnte es noch einmal online gekauft werden. Ein Stück gibt es nur einmal.
 
 Im selben Dialog kannst du – wenn du magst – den **Markt-Termin** auswählen, auf dem du es verkauft hast (die Liste zeigt
 deine Termine der letzten drei Monate), und den **erzielten Preis** eintragen, zum Beispiel „45,00“. Mit Preis zählt der
@@ -306,7 +373,8 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 ![Flash-Motive](img/handbuch/tattoo-flash.webp)
 
 - **Flash:** Ein einmaliges Motiv wechselst du mit zwei Tipps zwischen „verfügbar“ und „vergeben“. Ein wiederholbares
-  Motiv pausierst du mit „Offline nehmen“. Ein neues Motiv brauchst du nur mit Bild, Titel, Größe und Festpreis.
+  Motiv pausierst du mit **„Pausieren“** (seit P20.6, vorher „Offline nehmen“); „Online stellen“ zeigt es wieder. Ein
+  neues Motiv brauchst du nur mit Bild, Titel, Größe und Festpreis.
   „Übersetzen“ gibt es auch hier.
 
 ![Der Menüpunkt „Termine“](img/handbuch/termine.webp)
@@ -445,7 +513,8 @@ Als Kleinunternehmerin darfst du bestimmte Umsatzgrenzen im Jahr nicht überschr
 Der Wächter rechnet **alles** zusammen, nicht nur den Shop: Tattoo, Flohmarkt, Auftragsarbeiten und Sonstiges.
 
 - **Jeden Monat** trägst du die Einnahmen außerhalb des Shops ein (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges). Den
-  Shop-Umsatz kennt die Verwaltung selbst. Stücke, die du bei „Offline verkauft“ mit Preis eingetragen hast, stehen
+  Shop-Umsatz kennt die Verwaltung selbst. Stücke, die du mit „Verkauft (Markt/privat)“ oder dem Feld „Markt“ unter
+  „Heute“ mit Preis eingetragen hast, stehen
   automatisch in der Spalte „Markt-Verkäufe (Stücke)“ – die zählst du bei „Flohmarkt“ nicht noch einmal mit.
 - Zu Jahresbeginn gibst du den **Umsatz des Vorjahres** ein, falls der Shop später startet.
 - Erreicht die Summe eine Stufe, zeigt „Heute“ einen gelben oder roten Hinweis, und du bekommst eine Mail. Dann sprichst

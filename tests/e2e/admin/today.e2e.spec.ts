@@ -9,6 +9,8 @@ import {
 // P5.28 – „Heute“ (KONZEPT §7.3): Kacheln mit Zahl und Link, rote Hinweise (Anfechtung) mit Link, letzte Bestellungen,
 // Schnellknopf „Neues Stück“; Handy 390 × 844 ohne horizontales Scrollen, axe ohne serious/critical.
 // P5.27 – „Texte“: Bereiche, Mail-Bausteine DE/EN und Vorlagen mit Bestellnummer (mailto, Arbeitsfassung).
+// P20.6 (V-33 a) – Markt-Knopf unter „Heute“: Nummer eintippen (Stück wird angezeigt), „verkauft“ → sofort aus dem Shop;
+// ein Entwurf wird mit klarer Meldung abgelehnt (Knopf aus).
 
 test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Bestellungen, 390 px', async ({
   adminPage: page,
@@ -68,6 +70,53 @@ test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Best
   } finally {
     await removeOrder(payload, disputed.id)
   }
+})
+
+test('@a11y V-33 a Markt-Knopf: Nummer → Stück, „verkauft“ → aus dem Shop; Entwurf abgelehnt; 390 px', async ({
+  adminPage: page,
+  fixtureProducts,
+}) => {
+  const payload = await testPayload()
+  const piece = await fixtureProducts.create('keramik', {
+    title: 'Markt-Becher',
+    status: 'available',
+    firstPublishedAt: '2026-09-01T10:00:00.000Z',
+  })
+  const draft = await fixtureProducts.create('keramik', { title: 'Noch Entwurf' })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(adminPath('/heute'))
+  const market = page.getByTestId('today-market')
+  await expect(market.getByRole('heading', { name: 'Markt' })).toBeVisible()
+
+  // Entwurf: Meldung, Knopf aus
+  await market.getByTestId('today-market-number').fill(String(draft.itemNumber))
+  await expect(market.getByTestId('today-market-piece')).toContainText('ist ein Entwurf')
+  await expect(market.getByTestId('today-market-sell')).toBeDisabled()
+
+  // verfügbares Stück: Anzeige, dann „verkauft“ (Preis freiwillig)
+  await market.getByTestId('today-market-number').fill(String(piece.itemNumber))
+  await expect(market.getByTestId('today-market-piece')).toContainText(
+    `Nr. ${piece.itemNumber} „Markt-Becher“ · 45,00 €`,
+  )
+  await market.getByTestId('today-market-price').fill('40')
+  await market.getByTestId('today-market-sell').click()
+  await expect(market.getByTestId('today-market-done')).toContainText(
+    `Nr. ${piece.itemNumber} „Markt-Becher“ ist verkauft und aus dem Shop.`,
+  )
+  await expect(market.getByTestId('today-market-number')).toHaveValue('')
+  const doc = await payload.findByID({
+    collection: 'products',
+    id: piece.id,
+    depth: 0,
+    overrideAccess: true,
+  })
+  expect(doc).toMatchObject({ status: 'sold', soldChannel: 'offline', offlineSalePriceCents: 4000 })
+  await expect(market.getByTestId('today-market-open')).toHaveAttribute(
+    'href',
+    adminPath(`/stuecke?q=${piece.itemNumber}`),
+  )
+  await expectNoHorizontalScroll(page)
+  await expectAccessible(page, '.pc-admin-view')
 })
 
 test('@a11y „Texte“: Bereiche, Mail-Bausteine DE/EN, Vorlagen mit Bestellnummer und mailto, 390 px', async ({

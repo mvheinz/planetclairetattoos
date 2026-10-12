@@ -1082,7 +1082,7 @@ Signatur ungültig → HTTP 400. Verarbeitungsfehler → HTTP 500 (Stripe wieder
 | S2 | Reservierung läuft ab, niemand zahlt | Freigabe (Event `expired` oder Job); Kasse zeigt „abgelaufen“; Stück wieder `available`. |
 | S3 | Zahlung in letzter Sekunde, Webhook kommt nach dem Joblauf | Job beendet vor der Freigabe die Stripe-Session; Stripe meldet „bereits bezahlt“ → keine Freigabe, `fulfillCheckout`. |
 | S4 | **Bezahlt, aber Stück schon verkauft** (Restfall trotz S3) | Automatische (Teil-)Erstattung über Stripe, Kund:innen-Mail M10 bzw. Hinweis in M01, **Admin-Alarm A06** (E-22, Konzeptseite „Risiken“). |
-| S5 | Jutta klickt „Offline verkauft“, während jemand in der Kasse ist | Dialog warnt („Nr. 017 ist gerade in einer Kasse reserviert“). Bestätigen → Stripe-Session beenden, Reservierung freigeben, Stück `sold` (`offline`). Die Kasse meldet beim Bestellen „leider gerade verkauft“. Geht die Zahlung dennoch durch → S4. Bei `source = prepayment` ist „Offline verkauft“ gesperrt („erst Vorkasse-Bestellung PC-… stornieren“). |
+| S5 | Jutta klickt „Verkauft (Markt/privat)“, während jemand in der Kasse ist (der Markt-Knopf unter „Heute“ lehnt dann ab, V-33 a) | Dialog warnt („Nr. 017 ist gerade in einer Kasse reserviert“). Bestätigen → Stripe-Session beenden, Reservierung freigeben, Stück `sold` (`offline`). Die Kasse meldet beim Bestellen „leider gerade verkauft“. Geht die Zahlung dennoch durch → S4. Bei `source = prepayment` ist „Verkauft (Markt/privat)“ gesperrt („erst Vorkasse-Bestellung PC-… stornieren“). |
 | S6 | Korb wird in anderem Tab geändert, während die Kasse offen ist | Kasse abgebrochen, Reservierung frei; Kasse zeigt „Dein Korb hat sich geändert“ + Link zum Korb. |
 | S7 | Preise ändern sich während einer offenen Kasse | Snapshot-Preis der Kasse gilt bis zu ihrem Ende; neue Kasse → neuer Preis. |
 | S8 | Karte abgelehnt | Meldung im Zahlungsfeld; erneuter Versuch bis Ablauf der Reservierung. |
@@ -1092,7 +1092,7 @@ Signatur ungültig → HTTP 400. Verarbeitungsfehler → HTTP 500 (Stripe wieder
 | S12 | Jemand will ein Vorkasse-reserviertes Stück kaufen | Anzeige „gerade reserviert“ bis Zahlung oder Storno. |
 | S13 | Stripe beim Kassenstart nicht erreichbar | Kasse öffnet mit nur „Vorkasse“ und Hinweis „Kartenzahlung ist gerade nicht erreichbar“. |
 | S14 | Zwei Tabs derselben Person | Gleiches Cookie `pc_checkout` → dieselbe Kasse wird wiederverwendet (keine doppelte Reservierung). |
-| S15 | Jutta will ein reserviertes Stück bearbeiten/offline nehmen | Bearbeiten erlaubt (wirkt nicht auf laufende Kasse), „Offline nehmen“ und „Ausblenden“ gesperrt mit Hinweis bis HH:MM. |
+| S15 | Jutta will ein reserviertes Stück bearbeiten/aus dem Shop nehmen | Bearbeiten erlaubt (wirkt nicht auf laufende Kasse), „Aus dem Shop nehmen“ (beide Antworten) gesperrt mit Hinweis bis HH:MM. |
 | S16 | Stripe meldet eine Zahlung zu einer Kasse, die schon `expired`, `cancelled` oder `failed` ist (Restfall, weil vor jeder Freigabe die Session beendet wird, §4.6) | Keine Bestellung, keine Rechnung, Stücke unverändert; Ereignis protokolliert; Mail A12 an Jutta mit Betrag, Stripe-Zahlungs-ID und Anweisung „bitte im Stripe-Dashboard erstatten und der Kundin schreiben“ [Annahme KA-34]. |
 | S17 | Kund:in hat Vorkasse bestellt, und die Stripe-Session derselben Kasse wird trotzdem bezahlt (z. B. zweiter Tab) | Keine zweite Bestellung; die Vorkasse-Bestellung bleibt unverändert und erhält einen Hinweis (`adminAttention` mit Notiz, sichtbar unter „Heute“); Mail A12 „Karte/PayPal bezahlt, obwohl Vorkasse bestellt – Kartenzahlung im Stripe-Dashboard erstatten oder mit der Kundin klären“ [Annahme KA-35]. |
 
@@ -1201,21 +1201,21 @@ Zusatzfelder (DATENMODELL §6.6.1): `showInArchiveAfterSale` (bool, Standard `tr
 |---|---|---|---|---|---|
 | P1 | – | `draft` | Admin „Als Entwurf speichern“ | Nummer eindeutig | – |
 | P2 | `draft` | `available` | Admin „Online stellen“ | Veröffentlichungsprüfung bestanden (§7.4) | `firstPublishedAt` (nur beim ersten Mal; ab dann Nummer gesperrt), Revalidierung |
-| P3 | `available` | `draft` | Admin „Offline nehmen“ · System, wenn eine verknüpfte Konformitätserklärung eines lebensmittelechten Stücks widerrufen wird | keine aktive Reservierung | Revalidierung (Seite → 404); beim System-Übergang Admin-Mail und Hinweis unter „Heute“ (`adminAttention`) |
+| P3 | `available` | `draft` | Admin „Aus dem Shop nehmen“ → „Ja, später wieder anbieten“ (V-34; früher „Offline nehmen“) · System, wenn eine verknüpfte Konformitätserklärung eines lebensmittelechten Stücks widerrufen wird | keine aktive Reservierung | Revalidierung (Seite → 404); beim System-Übergang Admin-Mail und Hinweis unter „Heute“ (`adminAttention`) |
 | P4 | `available` | `reserved` | System „Zur Kasse“ | atomar (§4.6) | Reservierung `source = checkout_session` |
 | P5 | `reserved` | `available` | System: Ablauf, Event `expired`, Korb geändert, Zahlung gescheitert, Vorkasse storniert | – | Reservierung `released`, Stripe-Session beendet |
 | P6 | `reserved` | `reserved` | System: Vorkasse bestellt | Reservierung dieser Kasse gültig | `source → prepayment`, `expiresAt = prepayment.dueAt` |
 | P7 | `reserved` | `sold` | System `fulfillCheckout` / Admin „Zahlung erhalten“ | Reservierung gehört zur Bestellung | `soldChannel = online`/`pickup` je Lieferart, `soldAt`, `currentOrder`, Revalidierung |
 | P8 | `available` | `sold` | System `fulfillCheckout` (Reservierung war schon frei, Stück noch frei) / Admin „Nachträglich bezahlt“ | – | wie P7 |
-| P9 | `available` | `sold` | Admin „Offline verkauft“ | – | `soldChannel=offline`, `soldAt`; `showInArchiveAfterSale` wie im Dialog gewählt |
-| P10 | `reserved` (`source = checkout_session`) | `sold` | Admin „Offline verkauft“ mit Warnung (S5) | Bestätigung im Dialog | Stripe-Session beenden, Reservierung freigeben, `soldChannel=offline` |
+| P9 | `available` | `sold` | Admin „Verkauft (Markt/privat)“ oder Markt-Knopf unter „Heute“ (V-33 a, V-34) | – | `soldChannel=offline`, `soldAt`; `showInArchiveAfterSale` wie im Dialog gewählt |
+| P10 | `reserved` (`source = checkout_session`) | `sold` | Admin „Verkauft (Markt/privat)“ mit Warnung (S5) | Bestätigung im Dialog | Stripe-Session beenden, Reservierung freigeben, `soldChannel=offline` |
 | P11 | `sold` | `available` | Admin „Wieder verkaufen“ | `soldChannel=offline` (Korrektur) **oder** zugehörige Bestellposition erstattet und Ware zurück **oder** Bestellung vor Versand bzw. Übergabe mit Grund `admin_cancellation` erstattet (Stück nie verschickt und nicht mehr zu liefern) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5); „nie verschickt“ gilt je Stück, auch wenn der Rest der Bestellung danach verschickt bzw. abgeholt wurde [Annahme KA-37] | `soldAt`, `soldChannel`, `currentOrder` leeren; Historie bleibt; Veröffentlichungsprüfung erneut |
-| P12 | `draft`, `available` | `archived` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`, Revalidierung |
-| P13 | `sold` | `archived` | Admin „Ausblenden“ nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5, KA-37; je Stück wie bei P11) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
+| P12 | `draft`, `available` | `archived` | Admin „Weglegen“ bzw. „Aus dem Shop nehmen“ → „Nein, weglegen“ (V-34; früher „Ausblenden“) | keine aktive Reservierung | `archivedAt`, Revalidierung |
+| P13 | `sold` | `archived` | Admin „Weglegen“ (früher „Ausblenden“) nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5, KA-37; je Stück wie bei P11) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
 | P14 | `archived` | `draft` | Admin „Wieder bearbeiten“ (Endpunkt `/restore`) | – | `archivedAt = null` |
 | P15 | `draft` | gelöscht | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | Bilder gelöscht, Nummer wieder frei |
 
-Nicht erlaubt u. a.: `reserved` (`source = prepayment`) → `sold` per „Offline verkauft“; Löschen veröffentlichter Stücke;
+Nicht erlaubt u. a.: `reserved` (`source = prepayment`) → `sold` per „Verkauft (Markt/privat)“; Löschen veröffentlichter Stücke;
 Ändern der Nummer nach der ersten Veröffentlichung. „Im Archiv zeigen“ ist ein Schalter (`showInArchiveAfterSale`), kein
 Statuswechsel.
 
@@ -1292,7 +1292,7 @@ goodwill | complaint | item_unavailable | dispute | admin_cancellation | breakag
 | O12 | `withdrawal_received` | `return_received` | Admin „Ware ist zurück“ | – | `timestamps.returnReceivedAt`, Zustandsnotiz, optional Fotos |
 | O13 | `withdrawal_received`, `return_received` | `refunded` | Erstattung (voll) erfolgreich | Stripe-Refund `succeeded` bzw. Vorkasse „Erstattung überwiesen“ | Stornorechnung GS, M09 |
 | O14 | `withdrawal_received`, `return_received` | `partially_refunded` | Erstattung (teilweise) erfolgreich | wie O13 | Gutschrift GS, M09 |
-| O15 | `paid`, `packed`, `shipped`, `delivered`, `ready_for_pickup`, `picked_up` | `refunded` / `partially_refunded` | Admin „Erstatten“ (Kulanz, Reklamation, Bruch, Storno) | Grund Pflicht: `goodwill` (Kulanz), `complaint` (Reklamation, §7.8), `breakage` (Stück vor dem Versand beschädigt; danach „Ausblenden“ P13) oder `admin_cancellation` (Jutta storniert eine bezahlte Bestellung, meist vor dem Versand; Stück danach wieder verkaufbar, P11) | GS, M09 |
+| O15 | `paid`, `packed`, `shipped`, `delivered`, `ready_for_pickup`, `picked_up` | `refunded` / `partially_refunded` | Admin „Erstatten“ (Kulanz, Reklamation, Bruch, Storno) | Grund Pflicht: `goodwill` (Kulanz), `complaint` (Reklamation, §7.8), `breakage` (Stück vor dem Versand beschädigt; danach „Weglegen“ P13) oder `admin_cancellation` (Jutta storniert eine bezahlte Bestellung, meist vor dem Versand; Stück danach wieder verkaufbar, P11) | GS, M09 |
 | O16 | `paid`, `packed`, `shipped`, `delivered`, `ready_for_pickup`, `picked_up`, `withdrawal_received`, `return_received`, `partially_refunded` (nur Stripe) | `disputed` | Webhook `charge.dispute.created` | – | `statusBeforeDispute`, A07 |
 | O17 | `disputed` | `statusBeforeDispute` | Webhook `charge.dispute.closed` (gewonnen) | – | Notiz |
 | O18 | `disputed` | `refunded` | Webhook `charge.dispute.closed` (verloren) | – | Notiz „durch Anfechtung erstattet“, GS |
@@ -1404,7 +1404,7 @@ verschiebt sich dadurch **nicht**, L-10). Angebote und Bezahlung laufen per Mail
 
 | Objekt | Zustände | Regel |
 |---|---|---|
-| Flash | `status` = `available` / `claimed` + Schalter `repeatable`, `published` | einmalige Motive werden nach dem Stechen `claimed` und bleiben mit Stempel „vergeben“ sichtbar; wiederholbare sind immer `available` (DB-CHECK) und werden zum Pausieren über `published=false` („Offline nehmen“) ausgeblendet (E-52) |
+| Flash | `status` = `available` / `claimed` + Schalter `repeatable`, `published` | einmalige Motive werden nach dem Stechen `claimed` und bleiben mit Stempel „vergeben“ sichtbar; wiederholbare sind immer `available` (DB-CHECK) und werden zum Pausieren über `published=false` („Pausieren“, V-34; früher „Offline nehmen“) ausgeblendet (E-52) |
 | Galerie-Eintrag | `published` bei `showsCustomer=true` nur möglich mit `consentGiven=true`, `consentDate` und `consentNote` (E-42) | Ausnahme nur `seed=true` bei wirksamem `SEED_PREVIEW_MODE` (§9.7) |
 
 **AK-5-01** Matrix-Tests für Produkt, Kasse, Bestellung, Widerruf und Anfrage: alle Übergänge aus den Tabellen gelingen, alle anderen werden abgelehnt.
@@ -1623,13 +1623,21 @@ Admin-Ansicht. Keine Kund:innen-Freitexte, keine Anfrage-Bilder.
   versenden“) zählt „Zu packen“ nicht.
 - **Hinweise** (rot/gelb, jeweils mit Link): Umsatz-Wächter-Stufe (§8.4); Rechtstexte-Prüfung fällig (R-014); offene
   Datenschutz-Anfragen mit nächster Frist (R-153); Aufbewahrungssperren zur Prüfung; Stücke und Bestellungen mit
-  `adminAttention` (z. B. Konformitätserklärung widerrufen, abweichender Zahlbetrag); fehlgeschlagene Mails;
+  `adminAttention` mit Systemgrund (z. B. Konformitätserklärung widerrufen, abweichender Zahlbetrag) einzeln und rot;
+  Stücke mit Markierung **von Hand** (`reason = manual`, z. B. aus dem Bestands-Import) als **eine** gelbe Sammelzeile
+  „74 Stücke warten auf deine Prüfung“ (Live-Zahl) mit Link auf den Filter „zu prüfen“ in §7.5 (V-31, U-93); fehlgeschlagene Mails;
   fehlgeschlagene Jobs; Anfechtungen; Abholungen > 14 Tage; manuelle Monatssummen fehlen; Kostenwarnung, sobald der
   letzte Monatswert in `settings.costs.monthlyEntries` die Schwelle `settings.costs.warningThresholdCents` erreicht
   (≥, Standard 30 €, E-05); **Beispieldaten vorhanden**
   (Anzahl, Link zu Einstellungen → Beispieldaten); Startklar-Prüfung nicht grün (nur Anzeige).
 - **Letzte 5 Bestellungen** (Nummer, Betrag, Status).
 - Schnellknopf „Neues Stück“.
+- **Markt** (V-33 a, U-93; P20.6): Nummer eintippen (die Verwaltung zeigt das Stück), „verkauft“ antippen → derselbe
+  Übergang wie „Verkauft (Markt/privat)“ (§5.1 P9): sofort aus dem Shop, `soldAt` = jetzt (Datum heute, Europe/Berlin),
+  läuft heute genau ein Markt-Termin, wird er zugeordnet; Preis freiwillig (zählt im Umsatz-Wächter, später in §7.5
+  „Preis nachtragen“). Reserviert (Kasse oder Vorkasse), Entwurf, weggelegt → klare Meldung, keine Wirkung. Kein
+  Zwischenzustand „sichtbar, aber nicht bestellbar“ (Option b abgelehnt, E-28 bleibt). Ob das Antippen am Stand die
+  Verwaltung zum Aufzeichnungssystem nach § 146a AO macht, klärt die Steuerberatung (J-45, AUFGABEN A53).
 
 ### 7.4 Neues Stück / Stück bearbeiten
 
@@ -1689,11 +1697,23 @@ Schmuck wählbar.
 
 **Veröffentlichungsprüfung** („Online stellen“, P2/P11 in §5.1) – serverseitig (`validateForPublish`, Regeltabelle
 DATENMODELL §6.6.6, auch vollständige Herstellerangaben in `settings.business`); bei Fehlern Liste „Das fehlt noch:“ mit
-Sprung zum Feld. Ohne sie lässt sich nichts veröffentlichen (Konzeptseite „Vom Foto zum Verkauf“).
+Sprung zum Feld. Ohne sie lässt sich nichts veröffentlichen (Konzeptseite „Vom Foto zum Verkauf“). **Erst messen, dann
+online** (V-15, U-93): Steht im Maß-Hinweis oder in der Größe (DE oder EN) noch ein Schätz-Vermerk („geschätzt“,
+„vermutlich“, „bitte nachmessen“, „estimated“ …; zentrale Liste `src/lib/products/measure.ts`), sperrt die Prüfung mit
+„Bitte erst nachmessen“; ein schlichtes „ca.“ bei gemessenen Werten bleibt erlaubt. Sehr kleine Stücke (größte Abmessung
+< 4 cm) zeigen auf der Produktseite einen festen Größenvergleich (1-Cent-, 1-Euro-, 2-Euro-Münze, Walnuss; DE/EN, keine
+erzeugte Skizze, E-80).
 
-**Knöpfe:** „Als Entwurf speichern“ · „Vorschau“ (Produktseite im Entwurfsmodus, nur für Admin) · **„Online stellen“** →
+**Was fehlt noch?** (V-32, P20.6): Bei Entwürfen steht oben im Formular dieselbe Meldungsliste schon vor dem
+Online-Stellen (nach jedem Speichern neu, `GET /api/products/:id/readiness`), dazu freiwillige Tipps (Schmuck ohne Foto
+zum Größenvergleich → „Foto an der Hand“, sperrt nie). Markierung „zu prüfen“ oben mit „Erledigt“ (V-31). Beim Schmuck
+lässt sich ein schon hochgeladener Nickel-Nachweis (`private-uploads`, Zweck `nickel_evidence`) auswählen, statt ihn neu
+hochzuladen; das Häkchen `nickelFreeConfirmed` bleibt je Stück.
+
+**Knöpfe:** „Als Entwurf speichern“ · „Speichern und nächstes Stück“ (nur Entwürfe: öffnet den nächsten Entwurf in der
+Reihenfolge von §7.5, V-32) · „Vorschau“ (Produktseite im Entwurfsmodus, nur für Admin) · **„Online stellen“** →
 Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren“ (`planetclairetattoos.com/nr/17`) und
-„Noch ein Stück“.
+„Noch ein Stück“. Das Formular schreibt `adminAttention` nie (weder setzen noch löschen).
 
 **AK-7-01** Ein Keramik-Stück mit `lebensmittelecht` ohne aktive Konformitätserklärung lässt sich schon als Entwurf nicht speichern; ein Schmuck-Stück ohne `nickelFreeConfirmed`, `nickelEvidence` oder `leadFreeGlazeConfirmed` nicht online stellen; ein Textil/Cap ohne Faserangabe (auch mit „Etikett fehlt“), ohne `deviationDecision` oder mit `blankBrandVisible` (bei `allowVisibleBlankBrands = false`) nicht online stellen; ein Foto ohne EN-Alt-Text verhindert das Online-Stellen.
 **AK-7-02** Ein hochgeladenes Foto mit GPS-EXIF wird ohne GPS-Daten ausgeliefert (alle Bildgrößen, auch Original).
@@ -1701,17 +1721,26 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
 
 ### 7.5 Meine Stücke
 
-- Suche: Nummer (exakt) oder Titel (enthält); Filter Status (Entwurf, online, reserviert, verkauft, ausgeblendet) und Kategorie.
-- Karte: Foto, `Nr. 017`, Titel, Preis, Status-Badge; bei `reserved` „reserviert bis HH:MM“ bzw. „Vorkasse PC-… bis {Datum}“.
-- **Aktionen je Status:**
+- Suche: Nummer (exakt) oder Titel (enthält); Filter Status (Entwurf, online, reserviert, verkauft, ausgeblendet),
+  Kategorie und „zu prüfen“ (`?pruefen=1`: `adminAttention` mit Grund `manual`, V-31).
+- Karte: Foto, `Nr. 017`, Titel, Preis, Status-Badge; bei `reserved` „reserviert bis HH:MM“ bzw. „Vorkasse PC-… bis {Datum}“;
+  Markierung „zu prüfen“ (gelb) mit Knopf **„Erledigt“** bzw. Systemgrund (rot, ohne Knopf; V-31); bei Entwürfen
+  **„fertig“** oder **„fehlt: …“** (höchstens 3 Stichworte + „+N“, dieselbe Prüfung wie „Online stellen“) und Tipps
+  (V-32).
+- Oben **„Alle fertigen online stellen“** (V-32, sobald es Entwürfe gibt): Dialog nennt die Zahl („12 von 74 Entwürfen
+  sind fertig“), stellt nach Bestätigung nacheinander online (je Stück P2 mit Veröffentlichungsprüfung, in Paketen zu
+  10) und meldet Erfolge und Fehler; Bestätigungen wie `ownDesignConfirmed` oder `nickelFreeConfirmed` setzt die
+  Sammelaktion nie (R-047).
+- Erstes Online-Stellen löscht eine Markierung `manual` (V-31); Systemgründe bleiben.
+- **Aktionen je Status** (Benennung seit V-34, U-93; Zustände und Übergänge unverändert, E-14):
 
 | Status | Knöpfe | Wirkung |
 |---|---|---|
 | alle | Bearbeiten | §7.4 |
-| `draft` | Online stellen · Ausblenden · Löschen (nur nie veröffentlichte) | P2 · P12 · P15 |
-| `available` | Link kopieren · **Offline verkauft** · Offline nehmen · Ausblenden | – · P9 (Dialog: „Nr. 017 als offline verkauft markieren? Es verschwindet aus dem Shop.“ + Schalter „Im Archiv mit sold-Stempel zeigen“) · P3 · P12 |
-| `reserved` | Offline verkauft (nur Reservierung mit `source = checkout_session`, mit Warnung S5) · Zur Bestellung (bei Vorkasse) | P10 |
-| `sold` | Im Archiv zeigen an/aus · Wieder verkaufen (nur bei P11-Bedingung) · Ausblenden (nur bei P13-Bedingung, z. B. nach Erstattung wegen `breakage`) · Zur Bestellung (online verkauft) | Schalter `showInArchiveAfterSale` · P11 · P13 |
+| `draft` | Online stellen · Weglegen · Löschen (nur nie veröffentlichte) | P2 · P12 · P15 |
+| `available` | Link kopieren · **Verkauft (Markt/privat)** · **Aus dem Shop nehmen** | – · P9 (Dialog: „Nr. 017 als verkauft eintragen (Markt oder privat)? Es verschwindet sofort aus dem Shop.“ + Schalter „Im Archiv mit sold-Stempel zeigen“, Termin, Preis) · Frage „Kommt es wieder?“: „Ja, später wieder anbieten“ = P3 (zurück zum Entwurf), „Nein, weglegen“ = P12 (kaputt, verschenkt, behalten) |
+| `reserved` | Verkauft (Markt/privat) (nur Reservierung mit `source = checkout_session`, mit Warnung S5) · Zur Bestellung (bei Vorkasse) | P10 |
+| `sold` | Im Archiv zeigen an/aus · Wieder verkaufen (nur bei P11-Bedingung) · Weglegen (nur bei P13-Bedingung, z. B. nach Erstattung wegen `breakage`) · Zur Bestellung (online verkauft) · Preis nachtragen (Markt-/Privatverkauf, `offlineSalePriceCents`, V-33 a) | Schalter `showInArchiveAfterSale` · P11 · P13 |
 | `archived` | Wieder bearbeiten | P14 |
 
 ### 7.6 Zu packen
@@ -1804,7 +1833,7 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
 
 Unterbereiche (Details §9):
 - **Flash** (`flash`): Liste mit Status-Chips; Wechsel „verfügbar ↔ vergeben“ (`available` ↔ `claimed`, nur einmalige
-  Motive) mit höchstens 2 Taps; wiederholbare Motive pausiert Jutta mit „Offline nehmen“ (`published = false`); „Neuer
+  Motive) mit höchstens 2 Taps; wiederholbare Motive pausiert Jutta mit „Pausieren“ (`published = false`, V-34); „Neuer
   Flash“ (Bild `image`, weitere Bilder, Nummer `number` vorbelegt, Titel DE + Übersetzen, Größe `sizeCm` + `sizeNote`,
   Festpreis `priceCents`, einmalig/wiederholbar `repeatable`, veröffentlichen `published`).
 - **Galerie** (`tattoo-gallery`): Liste mit Einwilligungsangaben je Foto (`showsCustomer`, `consentGiven`, `consentDate`,
@@ -2037,7 +2066,7 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 - **Shop-Umsatz eines Jahres** = Summe der Rechnungsbeträge (Endpreise inkl. Versand) mit Rechnungsdatum im Jahr −
   Summe der Stornorechnungen/Gutschriften im Jahr. Beispieldaten zählen nur bei wirksamem `SEED_PREVIEW_MODE` (§11.4),
   in Produktion also nie.
-- **Gesamtumsatz** = Shop-Umsatz + Markt-Verkäufe von Stücken mit Preis („Offline verkauft“ mit
+- **Gesamtumsatz** = Shop-Umsatz + Markt-Verkäufe von Stücken mit Preis („Verkauft (Markt/privat)“ bzw. Markt-Knopf mit
   `offlineSalePriceCents`, nach Verkaufsdatum, U-60/P14.11) + manuelle Monatssummen (`revenue-entries`, Quellen `tattoo`,
   `flohmarkt`, `auftragsarbeiten`, `sonstiges`) des Jahres (R-125). Vorjahr: berechnet, für Jahre vor dem Shop aus
   `settings.revenueGuard.manualYearTotals`.
@@ -2569,7 +2598,7 @@ Mikromomente („In den Korb“, sold-Stempel, schwingendes Preisschild, Danke-S
 | Online-Anzahlung Tattoo | – (E-53) |
 | Klarna | – (E-20) |
 | Eigene Handschrift-Font | – (E-79: Mansalva) |
-| Markt-Modus „Marktkiste“ | nur „Offline verkauft“ (E-28) |
+| Markt-Modus „Marktkiste“ | nur „Verkauft (Markt/privat)“ und der Markt-Knopf unter „Heute“ (E-28, V-33 a) |
 | Kundenkonten | – (E-30) |
 
 **Außerdem nicht im Umfang** (folgt aus Entscheidungen oder ist nicht beauftragt):
@@ -2619,7 +2648,7 @@ Mikromomente („In den Korb“, sold-Stempel, schwingendes Preisschild, Danke-S
 | **Beleg** | Rechnung `RE-…` oder Storno/Gutschrift `GS-…`, unveränderliches PDF mit Prüfsumme. |
 | **Packzettel** | PDF ohne Preise mit Positionen, Checkliste und GPSR-Beileger; daneben Etikett und Beileger je Stück (R-203). |
 | **Sendungsnummer** | Tracking-Nummer von DHL/Deutsche Post, im Admin eingetippt oder gescannt (E-26). |
-| **Offline verkauft** | Knopf, der ein Stück als z. B. auf dem Flohmarkt verkauft markiert; nur Bestand, keine Kasse (E-28). |
+| **Verkauft (Markt/privat)** (früher „Offline verkauft“) | Knopf, der ein Stück als z. B. auf dem Markt oder privat verkauft markiert; nur Bestand, keine Kasse (E-28). Abkürzung am Stand: Markt-Knopf unter „Heute“ (V-33 a). |
 | **Archiv** | Öffentliche Liste verkaufter Stücke mit „sold“-Stempel (pro Stück abschaltbar, E-14). |
 | **Ausgeblendet** (`archived`) | Unverkauftes Stück, das nicht mehr angeboten wird; nicht öffentlich. |
 | **Flash** | Fertiges Tattoo-Motiv mit Nummer `F-012`, Festpreis, Status verfügbar/vergeben, einmalig oder wiederholbar (E-52). |
@@ -2666,7 +2695,7 @@ Einträge mit „geklärt (Abgleich vom 26.09.2026)“ sind zwischen den Fachdok
 | KA-13 | Bezirk des Privatstudios | unbekannt → Platzhalter im Seed (`[Bezirk folgt]`, SEED-SPEC) | Jutta (P11) |
 | KA-14 | Privatadresse | Impressum und GPSR zeigen die Privatadresse (E-40); damit ist der Ort des Privatstudios faktisch öffentlich, obwohl Tattoo-Seiten nur den Bezirk nennen (E-50) und die Abholadresse erst per Mail kommt (E-29) | Jutta (Hinweis) |
 | KA-15 | Technische Namen | geklärt (Abgleich vom 26.09.2026): es gelten die Namen aus ARCHITEKTUR §5.2, §2.5, §8.7 und Anhang A – u. a. `APP_ENV`, `ADMIN_ROUTE` (Entwicklung `/werkstatt`), `PAYMENTS_DRIVER`, `EMAIL_DRIVER`, `STORAGE_DRIVER`, `TRANSLATION_DRIVER`, `CARRIER_DRIVER`, `PREVIEW_EXPORT`, `PREVIEW_PHASE`, `SEED_NOW`, `SEED_PREVIEW_MODE`, `NEXT_PUBLIC_SITE_URL`, `CRON_SECRET`; Cookies `pc_cart` und `pc_checkout`; Task-Slugs laut ARCHITEKTUR Anhang A.3 | – |
-| KA-16 | Knopf „ins Archiv“ (Konzeptseite) | umgesetzt als „Ausblenden“ (unverkauft) und Schalter „Im Archiv zeigen“ (verkauft) | – |
+| KA-16 | Knopf „ins Archiv“ (Konzeptseite) | umgesetzt als „Weglegen“ (unverkauft; seit V-34 auch „Aus dem Shop nehmen“ → „Nein“, früher „Ausblenden“) und Schalter „Im Archiv zeigen“ (verkauft) | – |
 | KA-17 | Kategorien | geklärt (Abgleich vom 26.09.2026): 6 feste Kategorien laut DATENMODELL inkl. `cap` und `sonstiges` (§2.2); die Startseite fasst `textil` + `cap` in einer Station zusammen | – |
 | KA-18 | Flash-Nummern | geklärt (Abgleich vom 26.09.2026): eigene Zahlenreihe, Anzeige `F-012` | – |
 | KA-19 | E-18 im Admin | Pflicht-Häkchen „eigene Figur“ je Stück | – |
@@ -2687,7 +2716,7 @@ Einträge mit „geklärt (Abgleich vom 26.09.2026)“ sind zwischen den Fachdok
 | KA-34 | Zahlung zu einer beendeten Kasse (§4.10, §4.11 S16) | Meldet Stripe eine bezahlte Session zu einer Kasse in `expired`, `cancelled` oder `failed`, entsteht **keine** Bestellung (die Stücke können längst anders verkauft sein); der Shop erstattet nicht automatisch, sondern schickt A12 mit Betrag und Stripe-Zahlungs-ID, Jutta erstattet im Stripe-Dashboard. Änderbar in `processPaymentEvent()` (z. B. automatische Erstattung wie S4) | Jutta (P11) |
 | KA-35 | Karte/PayPal bezahlt, obwohl Vorkasse bestellt (§4.10, §4.11 S17) | Keine zweite Bestellung; die Vorkasse-Bestellung bleibt `awaiting_prepayment` und erhält einen Hinweis (`adminAttention` mit Notiz); A12 empfiehlt, die Kartenzahlung im Stripe-Dashboard zu erstatten oder mit der Kundin zu klären. Kein automatisches Umbuchen auf „bezahlt“, weil Zahlart, Rechnung und Frist dann nicht zur Bestellung passen. Änderbar in `processPaymentEvent()` | Jutta (P11) |
 | KA-36 | Shop-Pause und laufende Kassen (§4.2) | `settings.shop.isOpen = false` sperrt nur neue Aktionen („In den Korb“, „Zur Kasse“); eine schon gestartete Kasse läuft weiter und kann bis zu ihrem Ablauf bezahlt werden (kein Abbruch mitten in der Zahlung). Änderbar in der Prüfung von `submitCheckout` | Jutta |
-| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Ausblenden“ (P13). Ebenso nach einem Widerruf vor dem Versand bzw. der Übergabe: Ist die Position des Stücks mit Grund `withdrawal` erstattet, gehen „Wieder verkaufen“ (P11) und „Ausblenden“ (P13) ohne „Ware zurück“ (P18.5). „Vor dem Versand“ gilt je Stück: Wurde der Rest der Bestellung danach verschickt bzw. abgeholt, zählt nur, ob dieses Stück dabei war (`orders.items[].handedOverAt`). Ein Stück, das nach einem Teil-Storno noch geliefert werden muss, bleibt verkauft. Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
+| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Weglegen“ (P13, früher „Ausblenden“). Ebenso nach einem Widerruf vor dem Versand bzw. der Übergabe: Ist die Position des Stücks mit Grund `withdrawal` erstattet, gehen „Wieder verkaufen“ (P11) und „Weglegen“ (P13) ohne „Ware zurück“ (P18.5). „Vor dem Versand“ gilt je Stück: Wurde der Rest der Bestellung danach verschickt bzw. abgeholt, zählt nur, ob dieses Stück dabei war (`orders.items[].handedOverAt`). Ein Stück, das nach einem Teil-Storno noch geliefert werden muss, bleibt verkauft. Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
 
 ## Anhang B – Recherche-Empfehlungen, die nicht gelten
 
@@ -2700,7 +2729,7 @@ nicht umgesetzt werden:
 | Klarna, Wero, SEPA-Lastschrift | zahlung-versand-betrieb, tech-stack | nur Karte/Apple Pay/Google Pay/PayPal + Vorkasse | E-20 |
 | „Vorkasse nicht anbieten“ | recht-shop (offene Frage) | Vorkasse mit Reservierung bis Ende des 5. Kalendertags | E-23 |
 | Drops, Countdown, Warteliste, Newsletter (Brevo), Rabattcodes, Direktkauf-Links | zahlung-versand-betrieb | nicht im Umfang | E-13, „Später“ |
-| Markt-Modus mit Marktkiste, QR-Bezahllink, Tap to Pay im Shop | zahlung-versand-betrieb | nur „Offline verkauft“ | E-28 |
+| Markt-Modus mit Marktkiste, QR-Bezahllink, Tap to Pay im Shop | zahlung-versand-betrieb | nur „Verkauft (Markt/privat)“ und Markt-Knopf (V-33 a: kein Zwischenzustand „sichtbar, nicht bestellbar“) | E-28 |
 | Automatische Artikelnummern (`PCT-KER-26-0042`, `PC-K-0042`) | tech-stack, produkt-compliance, recht-shop, design | reine Zahlen, von Jutta vergeben, UNIQUE, Vorschlag der nächsten | E-12 |
 | Varianten/Lagerartikel, „Collections/Drops“ | tech-stack | nur Unikate | E-10 |
 | Tattoo-Anfrageformular (mehrstufig, ALTCHA, Uploads, Kaution, Termine) | tattoo-bereich, design, claude-code-cloud | nur Mail-Knopf + kopierbare Adresse | E-51 |

@@ -165,7 +165,7 @@ export const SHOT_SPECS: readonly ShotSpec[] = [
   {
     id: 'dialog-offline-verkauft',
     kind: 'admin',
-    caption: 'Offline verkauft (Flohmarkt, Instagram)',
+    caption: 'Verkauft (Markt/privat) – Markt, Flohmarkt, Instagram',
     path: () => '/stuecke',
     act: (page) => openDialog(page, 'piece-sell-offline'),
     dialog: true,

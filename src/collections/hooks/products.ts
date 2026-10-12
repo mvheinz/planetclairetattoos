@@ -33,7 +33,7 @@ import {
   isReservedItemNumber,
   isValidItemNumber,
 } from '@/lib/products/itemNumber'
-import { pickLocale, type LocalizedValue } from '@/lib/products/localized'
+import { pickLocale } from '@/lib/products/localized'
 import { priceChangeSummary } from '@/lib/shop/priceChange'
 import { loadDeclarations, loadPublishContext } from '@/lib/products/publishReadiness'
 import {

@@ -457,10 +457,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     hint({
       id: 'products-review',
       tone: 'warning',
-      text:
-        n === 1
-          ? '1 Stück wartet auf deine Prüfung.'
-          : `${n} Stücke warten auf deine Prüfung.`,
+      text: n === 1 ? '1 Stück wartet auf deine Prüfung.' : `${n} Stücke warten auf deine Prüfung.`,
       href: '/stuecke?pruefen=1',
       linkLabel: 'Zu prüfen ansehen',
     })

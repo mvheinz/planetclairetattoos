@@ -57,9 +57,7 @@ export function PublishReadyButton() {
       const res = await fetch('/api/products/publish-ready', { credentials: 'include' })
       setCount(await readJson<Count>(res))
     } catch (err) {
-      setError(
-        err instanceof AdminActionError ? err.message : adminText('actionOffline'),
-      )
+      setError(err instanceof AdminActionError ? err.message : adminText('actionOffline'))
     }
   }
 

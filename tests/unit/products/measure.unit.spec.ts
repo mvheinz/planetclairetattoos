@@ -70,7 +70,9 @@ describe('V-15 Schätz-Vermerke (zentrale Liste, DE und EN)', () => {
       ['dimensions.note', 'en', 'estimated'],
       ['sizeLabel', 'de', 'vermutlich'],
     ])
-    expect(issues[0]!.message).toMatch(/^Bitte erst nachmessen: .*„Hinweis zu den Maßen“ \(Englisch\)/)
+    expect(issues[0]!.message).toMatch(
+      /^Bitte erst nachmessen: .*„Hinweis zu den Maßen“ \(Englisch\)/,
+    )
     expect(issues[1]!.message).toContain('„Größe“ (Deutsch)')
     // ein String (eine Sprache) gilt als Deutsch
     expect(measurementIssues({ dimensions: { note: 'Maße geschätzt' } })[0]!.locale).toBe('de')
@@ -95,7 +97,13 @@ describe('V-15 Schätz-Vermerke (zentrale Liste, DE und EN)', () => {
     }
     const ctx = {
       allowVisibleBlankBrands: false,
-      business: { legalName: 'J', street: 'S 1', postalCode: '10999', city: 'Berlin', email: 'j@x.de' },
+      business: {
+        legalName: 'J',
+        street: 'S 1',
+        postalCode: '10999',
+        city: 'Berlin',
+        email: 'j@x.de',
+      },
       images: [{ id: 1, alt: { de: 'Schale', en: 'Bowl' } }],
       declarations: [],
       now: new Date('2026-10-12T10:00:00Z'),

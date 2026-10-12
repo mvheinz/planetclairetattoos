@@ -101,7 +101,11 @@ async function loadEvidenceOptions(payload: Payload): Promise<{ id: number; labe
 }
 
 /** Nächster Entwurf in der Reihenfolge von „Meine Stücke“ (neueste Änderung zuerst) nach diesem Stand. */
-async function nextDraftId(payload: Payload, id: number, updatedAt: unknown): Promise<number | null> {
+async function nextDraftId(
+  payload: Payload,
+  id: number,
+  updatedAt: unknown,
+): Promise<number | null> {
   if (typeof updatedAt !== 'string') return null
   const result = await payload.find({
     collection: 'products',

@@ -173,8 +173,12 @@ Lieferzeit, Maße und Material.
 
 ### 3.5 Flohmärkte
 
-Verkauf vor Ort, Kartenzahlung dort über ein eigenes Terminal (z. B. SumUp). Der Shop markiert das Stück nur als
-„offline verkauft“; es gibt keine Kassenfunktion.
+Verkauf vor Ort, Kartenzahlung dort über ein eigenes Terminal (z. B. SumUp), Bargeld über eine offene Ladenkasse. Der
+Shop markiert das Stück nur als verkauft („Verkauft (Markt/privat)“ oder Markt-Knopf: Nummer eintippen, „verkauft“
+antippen), damit es online nicht ein zweites Mal verkauft wird. Optional lassen sich der Markt-Termin und der erzielte
+Preis eintragen; der Preis dient nur dem Zusammenzählen für die Kleinunternehmergrenze (Umsatz-Wächter). Es entstehen
+kein Beleg, keine Rechnung, keine Bestellung und kein Kassenbuch. Ob die Verwaltung dadurch zum elektronischen
+Aufzeichnungssystem nach § 146a AO wird, klärt die Mandantin mit ihrer Steuerberatung (J-45).
 
 ### 3.6 Instagram
 

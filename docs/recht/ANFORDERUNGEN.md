@@ -128,7 +128,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-036 | Zahlarten und Lieferbeschränkungen zu Beginn des Bestellvorgangs | P4 | e2e | nein | `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/checkout-compliance.e2e.spec.ts` |
 | R-040 | Block „Herstellerin & Produktsicherheit“ (GPSR) | P3 | e2e | nein | `tests/e2e/legal/gpsr.e2e.spec.ts`, `tests/unit/shop/product-info.unit.spec.ts` |
 | R-041 | Objektnummer als Produktkennung | P1 | unit, int | nein | `tests/unit/products/item-number.unit.spec.ts`, `tests/unit/shop/format.unit.spec.ts`, `tests/int/products/item-number.int.spec.ts` |
-| R-042 | Veröffentlichungs-Validierung je Kategorie | P1 | int | nein | `tests/unit/products/validate.unit.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
+| R-042 | Veröffentlichungs-Validierung je Kategorie | P1 | int | nein | `tests/unit/products/validate.unit.spec.ts`, `tests/unit/products/measure.unit.spec.ts`, `tests/int/products/publish-validation.int.spec.ts`, `tests/int/admin/drafts-review.int.spec.ts` |
 | R-043 | Textil: Faserzusammensetzung, Größe, Zustand, Second-Hand | P1, P3 | unit, e2e | nein | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/products/validate.unit.spec.ts`, `tests/unit/shop/format.unit.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
 | R-044 | Keramik: Lebensmittelkontakt-Status und Konformitätserklärung | P1, P3 | unit, int, e2e | ja | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/products/validate.unit.spec.ts`, `tests/unit/shop/product-state.unit.spec.ts`, `tests/int/collections/conformity.int.spec.ts` |
 | R-045 | Schmuck: Nickel-Nachweis, bleifreie Glasur, Kleinteile-Warnung | P1, P3 | int | ja | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/products/validate.unit.spec.ts`, `tests/int/products/publish-validation.int.spec.ts` |
@@ -172,7 +172,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-124 | Monatsexport ohne Kundendaten | P5 | int | nein | `tests/int/legal/datev-export.int.spec.ts`, `tests/int/legal/monthly-export.int.spec.ts` |
 | R-125 | Umsatz-Wächter Kleinunternehmergrenzen | P5 | unit, int | ja | `tests/unit/legal/revenue-guard.unit.spec.ts`, `tests/unit/email/templates/admin-mails.unit.spec.ts`, `tests/int/jobs/revenue-guard.int.spec.ts` |
 | R-126 | Kein Umsatzsteuerausweis im Kleinunternehmer-Modus | P3 | unit, e2e | nein | `tests/unit/seo/jsonld.unit.spec.ts`, `tests/unit/shop/price-note.unit.spec.ts`, `tests/e2e/seo/meta.e2e.spec.ts` |
-| R-127 | „Offline verkauft“ ohne Kassenfunktion | P5 | int | nein | `tests/int/legal/offline-sale.int.spec.ts` |
+| R-127 | „Verkauft (Markt/privat)“ und Markt-Knopf ohne Kassenfunktion | P5 | int | nein | `tests/int/legal/offline-sale.int.spec.ts`, `tests/int/products/offline-sale-tour.int.spec.ts`, `tests/int/products/market-sale.int.spec.ts` |
 | R-130 | Kein Speichern/Auslesen auf dem Endgerät vor Nutzeraktion | P2, P4 | e2e | nein | `tests/unit/behaviors/motion-toggle.unit.spec.ts`, `tests/e2e/motion-toggle.e2e.spec.ts`, `tests/e2e/privacy.e2e.spec.ts`, `tests/e2e/privacy/cart-cookie.e2e.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-131 | Keine Drittanbieter-Requests, CSP, selbst gehostete Schriften | P2 | unit, e2e | nein | `tests/unit/legal/services.unit.spec.ts`, `tests/unit/security/csp.unit.spec.ts`, `tests/unit/security/headers.unit.spec.ts`, `tests/unit/tooling/check-external.unit.spec.ts` |
 | R-132 | Statistik (Vercel Web Analytics) nur nach Freigabe | P10 | unit, e2e | ja | `tests/unit/analytics/before-send.unit.spec.ts`, `tests/e2e/privacy/analytics.e2e.spec.ts`, `tests/int/admin/settings-part3.int.spec.ts` |
@@ -543,11 +543,16 @@ Lücken in der Nummerierung sind Reserve.
   `safetyWarnings` DE (oder bewusst „Keine besonderen Warnhinweise“, wo erlaubt), `ownDesignConfirmed` (R-047),
   Entscheidung zur Abweichung (R-048), vollständige Herstellerangaben in `settings.business`. Kategorie-spezifisch:
   R-043 bis R-046. Die vollständige Regeltabelle steht in DATENMODELL §6.6.6 (`validateForPublish`); sie erfüllt
-  mindestens diese Anforderung. Fehlermeldungen nennen das fehlende Feld in einfachem Deutsch.
+  mindestens diese Anforderung. Fehlermeldungen nennen das fehlende Feld in einfachem Deutsch. **Maße ehrlich**
+  (V-15, U-93, P20.6): Steht im Maß-Hinweis oder in der Größe (DE oder EN) noch ein Schätz-Vermerk („geschätzt“,
+  „vermutlich“, „bitte nachmessen“, „estimated“ …), ist die Veröffentlichung gesperrt („Bitte erst nachmessen“) –
+  Maße sind zugesagte Beschaffenheit (§ 434 Abs. 2 BGB) und stehen im Bestell-Snapshot (R-013, R-063); ein schlichtes
+  „ca.“ bei gemessenen Werten bleibt erlaubt.
 - **Rechtsgrundlage:** Art. 19 GPSR; Art. 16 VO (EU) 1007/2011; § 10 BedGgstV; REACH Anhang XVII Nr. 27, 63;
-  § 476 BGB; E-15 bis E-18.
+  § 476 BGB; § 434 BGB (Maße); E-15 bis E-18.
 - **Abnahme:** `int` – je Kategorie: jedes Pflichtfeld einzeln leer → Veröffentlichung abgelehnt mit Feldname;
-  vollständig → erfolgreich; auch über die Local API.
+  vollständig → erfolgreich; auch über die Local API; Schätz-Vermerk im Maß-Hinweis (DE oder EN) → „Bitte erst
+  nachmessen“ (`tests/unit/products/measure.unit.spec.ts`, `tests/int/admin/drafts-review.int.spec.ts`).
 - **Phase:** P1 · **Owner:** nein
 
 #### R-043 · Textil: Faserzusammensetzung, Größe, Zustand, Second-Hand
@@ -1211,13 +1216,19 @@ Lücken in der Nummerierung sind Reserve.
 - **Abnahme:** `unit` – V-02-Scan der gerenderten Mails/PDF-Texte; `e2e` – V-02-Scan der gerenderten Seiten.
 - **Phase:** P3–P5 · **Owner:** nein
 
-#### R-127 · „Offline verkauft“ ohne Kassenfunktion
-- **Anforderung:** E-28. Der Knopf setzt nur `status = sold`, `soldChannel = offline`, `soldAt` (optional Notiz
-  `offlineSaleNote` ohne Preis). Kein Betrag, kein Beleg,
-  kein Kassenbuch, kein Tagesabschluss, keine Bestellung, keine Rechnung. Umsätze vom Markt nur als Monatssumme
-  (R-125).
-- **Rechtsgrundlage:** § 146a AO, KassenSichV (kein elektronisches Aufzeichnungssystem schaffen); E-28.
-- **Abnahme:** `int` – „offline verkauft“ erzeugt weder Bestellung noch Rechnung.
+#### R-127 · „Verkauft (Markt/privat)“ und Markt-Knopf ohne Kassenfunktion
+- **Anforderung:** E-28, angeglichen an U-60 und V-33 a (U-93). Der Knopf „Verkauft (Markt/privat)“ (früher „Offline
+  verkauft“) und der Markt-Knopf unter „Heute“ setzen über denselben Übergang (P9/P10) nur `status = sold`,
+  `soldChannel = offline`, `soldAt`, optional die Notiz `offlineSaleNote`, den Markt-Termin `offlineSaleTourDate` und den
+  erzielten Preis `offlineSalePriceCents` (U-60; ganze Cent, nur zum Zusammenzählen im Umsatz-Wächter, R-125; jederzeit
+  nachtragbar oder löschbar). Kein Beleg, kein Kassenbuch, keine Einzelaufzeichnung der Zahlungsart, kein
+  Tagesabschluss, keine Bestellung, keine Rechnung, kein `revenue-entries`-Eintrag (Markt-Verkäufe ohne Stück-Eintrag
+  bleiben Monatssumme `flohmarkt`). Ob das Antippen am Stand mit Preis die Verwaltung zu einem elektronischen
+  Aufzeichnungssystem nach § 146a AO macht, klärt die Steuerberatung (J-45, AUFGABEN A53); bis dahin bleibt der Preis
+  freiwillig und kann nach dem Markt eingetragen werden.
+- **Rechtsgrundlage:** § 146a AO, KassenSichV (kein elektronisches Aufzeichnungssystem schaffen); GoBD; E-28; U-60.
+- **Abnahme:** `int` – „Verkauft (Markt/privat)“ und Markt-Knopf erzeugen weder Bestellung noch Rechnung noch
+  Monatssumme; reservierte Stücke lehnt der Markt-Knopf ab.
 - **Phase:** P5 · **Owner:** nein
 
 ### 4.13 Datenschutz-Architektur (kein Cookie-Banner)

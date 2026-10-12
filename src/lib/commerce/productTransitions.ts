@@ -82,7 +82,7 @@ export interface ProductTransitionFacts {
   actor: ProductActor
   soldChannel?: SoldChannel | null
   reservationRef?: string | null
-  /** P3/P12: Gibt es (trotz Status `available`/`draft`) eine aktive Reservierung? Dann kein Offline-Nehmen/Ausblenden. */
+  /** P3/P12: Gibt es (trotz Status `available`/`draft`) eine aktive Reservierung? Dann kein „Aus dem Shop nehmen“. */
   activeReservation?: boolean
   /** Aktive Reservierung des Stücks mit Kassenstatus. */
   reservation?: {
@@ -126,7 +126,7 @@ export interface ProductTransitionInput {
   orderId?: number
   /** P7/P8: `online` (Versand) oder `pickup`. */
   channel?: 'online' | 'pickup'
-  /** P9/P10: Dialog „Offline verkauft“. */
+  /** P9/P10: Dialog „Verkauft (Markt/privat)“ bzw. Markt-Knopf (V-33 a, V-34). */
   note?: string | null
   /** P9/P10 (U-60): Markt-Termin des Verkaufs und erzielter Preis in Cent (zählt im Umsatz-Wächter). */
   tourDateId?: number | null
@@ -222,12 +222,12 @@ export function evaluateProductTransition(
     case 'P10':
       if (facts.reservation?.source === 'prepayment') {
         return no(
-          'Das Stück ist für eine Vorkasse-Bestellung reserviert – „Offline verkauft“ ist gesperrt.',
+          'Das Stück ist für eine Vorkasse-Bestellung reserviert – „Verkauft (Markt/privat)“ ist gesperrt.',
         )
       }
       if (!input.confirmReservedCheckout) {
         return no(
-          'Das Stück liegt gerade in einer Kasse. Bitte bestätigen, dass du es trotzdem offline verkauft hast.',
+          'Das Stück liegt gerade in einer Kasse. Bitte bestätigen, dass du es trotzdem verkauft hast (Markt oder privat).',
         )
       }
       if (facts.reservation?.checkoutStatus === 'confirming') {
@@ -256,7 +256,7 @@ export function evaluateProductTransition(
         !withdrawnBeforeDispatch(facts)
       ) {
         return no(
-          '„Ausblenden“ geht bei verkauften Stücken nur nach Erstattung mit Rücksendung oder nach Erstattung wegen Bruch bzw. wegen Widerruf vor dem Versand.',
+          '„Weglegen“ geht bei verkauften Stücken nur nach Erstattung mit Rücksendung oder nach Erstattung wegen Bruch bzw. wegen Widerruf vor dem Versand.',
         )
       }
       break

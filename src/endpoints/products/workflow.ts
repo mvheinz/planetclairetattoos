@@ -8,11 +8,7 @@ import { PRICE_CENTS_RANGE } from '@/lib/money'
 import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 import { formatItemNumber, isValidItemNumber } from '@/lib/products/itemNumber'
-import {
-  loadDraftViews,
-  readinessFor,
-  readinessOfProduct,
-} from '@/lib/products/publishReadiness'
+import { loadDraftViews, readinessFor, readinessOfProduct } from '@/lib/products/publishReadiness'
 import { addBerlinDays, berlinDayStart } from '@/lib/time'
 
 import { errorResponse, productAction, readJsonBody } from './actions'

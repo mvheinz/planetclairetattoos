@@ -9,7 +9,8 @@ import { expectNoSeriousViolations } from '../axe'
 import { adminPath, expect, test, testPayload } from '../fixtures'
 import { NO_CACHE, refresh } from '../shop/fresh'
 
-// P5.8 – „Meine Stücke“ (KONZEPT §7.5): Suche, Filter, Karten, Knöpfe je Status. „Offline verkauft“ mit Schalter an →
+// P5.8 – „Meine Stücke“ (KONZEPT §7.5): Suche, Filter, Karten, Knöpfe je Status. „Verkauft (Markt/privat)“ (V-34,
+// früher „Offline verkauft“) mit Schalter an →
 // fehlt im Shop, erscheint im Archiv mit sold-Stempel (Produktions-Build ≤ 5 s wie T-21); Schalter aus → auch nicht im
 // Archiv. Filter „reserviert“ zeigt ein Vorkasse-Fixture (analog S14/O13) mit Hinweis. Mini-Satz bleibt unverändert.
 // Daten ändernde Tests nur im Projekt desktop; Ansicht und axe bei 390 × 844 in allen Projekten.
@@ -141,9 +142,9 @@ test.describe('Meine Stücke (P5.8) @a11y', () => {
     await cardOf(page, shown.itemNumber).getByTestId('piece-sell-offline').click()
     const dialog = page.getByRole('dialog')
     await expect(dialog).toHaveAccessibleName(
-      `Nr. ${shown.itemNumber} als offline verkauft markieren?`,
+      `Nr. ${shown.itemNumber} als verkauft eintragen (Markt oder privat)?`,
     )
-    await expect(dialog).toHaveAccessibleDescription('Es verschwindet aus dem Shop.')
+    await expect(dialog).toHaveAccessibleDescription('Es verschwindet sofort aus dem Shop.')
     await expect(dialog.getByTestId('piece-sell-offline-archive')).toBeChecked()
     await dialog.getByTestId('confirm-dialog-ok').click()
     const sentAt = Date.now()
@@ -264,5 +265,80 @@ test.describe('Meine Stücke (P5.8) @a11y', () => {
         context: { seed: true },
       })
     }
+  })
+
+  test('V-34 „Aus dem Shop nehmen“ fragt „Kommt es wieder?“: Ja → Entwurf, Nein → weggelegt; Entwurf „Weglegen“; Markt-Preis nachtragen', async ({
+    adminPage: page,
+    fixtureProducts,
+    request,
+  }) => {
+    admin = await adminLogin()
+    const payload = await testPayload()
+    const back = await fixtureProducts.create('keramik', { title: 'Kommt wieder' })
+    const gone = await fixtureProducts.create('keramik', { title: 'Kommt nicht wieder' })
+    const draft = await fixtureProducts.create('keramik', { title: 'Entwurf weglegen' })
+    const sold = await fixtureProducts.create('keramik', { title: 'Markt-Schale' })
+    for (const p of [back, gone, sold])
+      await adminCall(request, admin, 'post', `/products/${p.id}/publish`)
+    await adminCall(request, admin, 'post', `/products/${sold.id}/sell-offline`, {})
+    const statusOf = async (id: number) =>
+      (await payload.findByID({ collection: 'products', id, depth: 0, overrideAccess: true }))
+        .status
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    // Online: nur noch ein Knopf statt „Offline nehmen“ und „Ausblenden“
+    await page.goto(adminPath(`/stuecke?q=${back.itemNumber}`))
+    const card = cardOf(page, back.itemNumber)
+    await expect(card.getByRole('button', { name: 'Offline nehmen' })).toHaveCount(0)
+    await expect(card.getByRole('button', { name: 'Ausblenden' })).toHaveCount(0)
+    await expect(card.getByTestId('piece-sell-offline')).toHaveText('Verkauft (Markt/privat)')
+    // per Tastatur öffnen, Escape bricht ab
+    await card.getByTestId('piece-take-off').focus()
+    await page.keyboard.press('Enter')
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toHaveAccessibleName(
+      `Nr. ${back.itemNumber} aus dem Shop nehmen – kommt es wieder?`,
+    )
+    await expect(dialog.getByTestId('piece-take-off-back')).toHaveAccessibleDescription(
+      'Es wird wieder ein Entwurf. Mit „Online stellen“ ist es zurück im Shop.',
+    )
+    await expectNoSeriousViolations(page, 'Dialog „Kommt es wieder?“')
+    await page.keyboard.press('Escape')
+    await expect(dialog).toHaveCount(0)
+    expect(await statusOf(back.id)).toBe('available')
+    // Ja → zurück zum Entwurf
+    await card.getByTestId('piece-take-off').click()
+    await page.getByRole('dialog').getByTestId('piece-take-off-back').click()
+    await expect(cardOf(page, back.itemNumber)).toHaveAttribute('data-status', 'draft')
+
+    // Nein → weggelegt (ausgeblendet)
+    await page.goto(adminPath(`/stuecke?q=${gone.itemNumber}`))
+    await cardOf(page, gone.itemNumber).getByTestId('piece-take-off').click()
+    await page.getByRole('dialog').getByTestId('piece-take-off-gone').click()
+    await expect(cardOf(page, gone.itemNumber)).toHaveAttribute('data-status', 'archived')
+    await expect(cardOf(page, gone.itemNumber)).toContainText('ausgeblendet')
+
+    // Entwurf: „Weglegen“ mit Rückfrage
+    await page.goto(adminPath(`/stuecke?q=${draft.itemNumber}`))
+    await cardOf(page, draft.itemNumber).getByTestId('piece-shelve').click()
+    await expect(page.getByRole('dialog')).toHaveAccessibleName(`Nr. ${draft.itemNumber} weglegen?`)
+    await page.getByRole('dialog').getByTestId('confirm-dialog-ok').click()
+    await expect(cardOf(page, draft.itemNumber)).toHaveAttribute('data-status', 'archived')
+
+    // Markt-Verkauf: Preis nachtragen (V-33 a)
+    await page.goto(adminPath(`/stuecke?q=${sold.itemNumber}`))
+    const soldCard = cardOf(page, sold.itemNumber)
+    await soldCard.getByTestId('piece-offline-price-edit').click()
+    await page.getByRole('dialog').getByTestId('piece-offline-price-input').fill('38,00')
+    await page.getByRole('dialog').getByTestId('confirm-dialog-ok').click()
+    await expect(soldCard.getByTestId('piece-offline-price')).toHaveText('Markt-Preis: 38,00 €')
+    const doc = await payload.findByID({
+      collection: 'products',
+      id: sold.id,
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect(doc.offlineSalePriceCents).toBe(3800)
+    await noHorizontalScroll(page)
   })
 })

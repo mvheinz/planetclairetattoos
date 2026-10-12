@@ -64,11 +64,7 @@ function CardChecks({ card }: { card: PieceCard }) {
         />
       ) : null}
       {readiness ? (
-        <p
-          className="pc-pieces__meta"
-          data-testid="piece-readiness"
-          data-ready={readiness.ready}
-        >
+        <p className="pc-pieces__meta" data-testid="piece-readiness" data-ready={readiness.ready}>
           {readiness.ready ? (
             <StatusBadge tone="success">{adminText('piecesReady')}</StatusBadge>
           ) : (
@@ -105,12 +101,13 @@ export async function PiecesListView({ adminRoute, req, searchParams }: AdminVie
 
   return (
     <div className="pc-pieces">
-      <p className="pc-admin-row">
+      {/* `div` statt `p`: der Dialog von „Alle fertigen online stellen“ darf nicht in einem Absatz stehen. */}
+      <div className="pc-admin-row">
         <a className="pc-admin-btn pc-admin-btn--primary" href={`${adminRoute}/neues-stueck`}>
           {adminText('shellNewPiece')}
         </a>
         {drafts > 0 ? <PublishReadyButton /> : null}
-      </p>
+      </div>
       <form
         method="get"
         action={`${adminRoute}/stuecke`}

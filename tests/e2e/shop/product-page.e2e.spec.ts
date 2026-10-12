@@ -82,6 +82,22 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
     await expect(page.locator('[data-product-price]')).toHaveAttribute('data-leash-loop', 'left')
   })
 
+  test('V-15 Größenvergleich: sehr kleines Stück (S26, 1,5 cm) mit festem Satz DE/EN, große Stücke ohne (S01)', async ({
+    page,
+    request,
+  }) => {
+    await openProduct(page, request, ANCHORS.S26.de)
+    const line = page.locator('[data-product-facts] [data-size-compare]')
+    await expect(line).toHaveText('Etwa so groß wie eine 1-Cent-Münze')
+    await expect(line).toHaveAttribute('data-size-compare', 'cent')
+    await openProduct(page, request, ANCHORS.S26.en)
+    await expect(page.locator('[data-product-facts] [data-size-compare]')).toHaveText(
+      'About the size of a 1-cent coin',
+    )
+    await openProduct(page, request, ANCHORS.S01.de)
+    await expect(page.locator('[data-size-compare]')).toHaveCount(0)
+  })
+
   test('KO-11 Knopftexte: „In den Korb“ / „Add to basket“, keine Kauf-Beschriftung aus R-064', async ({
     page,
     request,

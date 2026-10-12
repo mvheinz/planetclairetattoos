@@ -136,7 +136,11 @@ describe('V-31 Markierung „zu prüfen“', () => {
     const save = await rest(
       'PATCH',
       `/products/${p.id}?locale=de&depth=0`,
-      toSaveData(form, { priceCents: 4500, images: [fx.mediaId], locks: pieceLocks('draft', null) }),
+      toSaveData(form, {
+        priceCents: 4500,
+        images: [fx.mediaId],
+        locks: pieceLocks('draft', null),
+      }),
       auth(),
     )
     expect(save.status).toBe(200)

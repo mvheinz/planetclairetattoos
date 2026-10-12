@@ -18,9 +18,9 @@ describe('V-32 Stichworte „fehlt: …“', () => {
       'Nickel-Nachweis',
     )
     expect(readinessLabel({ field: 'fiberFreeText', message: 'x' })).toBe('Faserangabe')
-    expect(
-      readinessLabel({ field: 'dimensions.note', message: 'Bitte erst nachmessen: …' }),
-    ).toBe('nachmessen')
+    expect(readinessLabel({ field: 'dimensions.note', message: 'Bitte erst nachmessen: …' })).toBe(
+      'nachmessen',
+    )
     expect(
       readinessLabel({ field: 'sizeLabel', message: 'Bitte erst nachmessen: … „Größe“' }),
     ).toBe('nachmessen')
@@ -40,7 +40,8 @@ describe('V-32 Stichworte „fehlt: …“', () => {
   })
 
   it('jedes Stichwort ist kurz (Karte am Handy)', () => {
-    for (const label of Object.values(READINESS_LABELS)) expect(label.length).toBeLessThanOrEqual(28)
+    for (const label of Object.values(READINESS_LABELS))
+      expect(label.length).toBeLessThanOrEqual(28)
   })
 
   it('Doppel zusammengefasst, Reihenfolge der Prüfung; fertig nur ohne Meldung', () => {

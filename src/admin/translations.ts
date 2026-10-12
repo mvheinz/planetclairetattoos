@@ -329,8 +329,7 @@ export const ADMIN_CUSTOM_DE = {
   piecesTakeOffTitle: '{{nr}} aus dem Shop nehmen – kommt es wieder?',
   piecesTakeOffText: 'Das Stück verschwindet sofort aus dem Shop.',
   piecesTakeOffBack: 'Ja, später wieder anbieten',
-  piecesTakeOffBackHint:
-    'Es wird wieder ein Entwurf. Mit „Online stellen“ ist es zurück im Shop.',
+  piecesTakeOffBackHint: 'Es wird wieder ein Entwurf. Mit „Online stellen“ ist es zurück im Shop.',
   piecesTakeOffGone: 'Nein, weglegen',
   piecesTakeOffGoneHint:
     'Kaputt, verschenkt oder behalten: Es steht dann als „ausgeblendet“ in deiner Liste – nicht im Shop, nicht im Archiv. Mit „Wieder bearbeiten“ holst du es zurück.',
@@ -353,8 +352,7 @@ export const ADMIN_CUSTOM_DE = {
   piecesPublishReadyCounting: 'Ich zähle die fertigen Entwürfe …',
   piecesPublishReadyText:
     '{{ready}} von {{drafts}} Entwürfen sind fertig. Sie erscheinen sofort im Shop. Häkchen wie „nur eigene Figuren“ oder „nickelfrei“ setzt du weiter bei jedem Stück selbst – hier wird nichts angehakt.',
-  piecesPublishReadyNone:
-    'Gerade ist kein Entwurf fertig. Auf jeder Karte steht, was noch fehlt.',
+  piecesPublishReadyNone: 'Gerade ist kein Entwurf fertig. Auf jeder Karte steht, was noch fehlt.',
   piecesPublishReadyConfirm: 'Ja, {{n}} online stellen',
   piecesPublishReadyRunning: '{{done}} von {{total}} sind online …',
   piecesPublishReadyDone: '{{n}} Stücke sind jetzt online.',
@@ -979,7 +977,7 @@ export const ADMIN_CUSTOM_DE = {
   revenueShop: 'Shop',
   revenueOffline: 'Markt-Verkäufe (Stücke)',
   revenueOfflineHint:
-    'Stücke, die du bei „Offline verkauft“ mit Preis einträgst, zählen automatisch in der Spalte „Markt-Verkäufe (Stücke)“. Trage sie nicht noch einmal als Flohmarkt-Monatssumme ein – dort nur, was du ohne Stück-Eintrag verkauft hast.',
+    'Stücke, die du mit „Verkauft (Markt/privat)“ oder dem Markt-Knopf unter „Heute“ mit Preis einträgst, zählen automatisch in der Spalte „Markt-Verkäufe (Stücke)“. Trage sie nicht noch einmal als Flohmarkt-Monatssumme ein – dort nur, was du ohne Stück-Eintrag verkauft hast.',
   revenueSum: 'Summe',
   revenueEntryTitle: 'Monatssumme eintragen',
   revenueEntryHint:
