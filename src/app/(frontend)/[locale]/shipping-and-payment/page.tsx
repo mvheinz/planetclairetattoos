@@ -9,6 +9,7 @@ import type { ShippingSettings } from '@/lib/commerce/shipping'
 import { getShippingPaymentSettings } from '@/lib/data/shopSettings'
 import { getSnippet } from '@/lib/legal/snippets'
 import { localizedPath } from '@/lib/routes/paths'
+import { SHOP_FAQ_ANCHOR } from '@/lib/shop/listParams'
 import type { Locale } from '@/lib/routes/registry'
 import { routeMetadata } from '@/lib/seo/metadata'
 
@@ -22,7 +23,8 @@ export const generateMetadata = routeMetadata('R25')
 // Versandtabelle aus `settings.shipping.rates` über `computeShipping` (eine Quelle mit Korb und Kasse, E-25, R-031),
 // Regel „höchste Versandklasse“, Lieferzeit (E-31, R-035), Liefergebiet (E-24), Zahlarten (E-20, E-23), Zeitpunkt der
 // Belastung, Transportschäden (ohne Rügefrist, V-10/V-11), Rücksendekosten (E-27), Link R24 und die harmonisierte
-// Mitteilung zur Gewährleistung (R-049). Statisch mit Tag `settings` (neuer Klassenpreis nach ≤ 60 s sichtbar).
+// Mitteilung zur Gewährleistung (R-049) und ein Link zu den Fragen zum Shop (unten auf R02, V-19 der Analyse 12.10.).
+// Statisch mit Tag `settings` (neuer Klassenpreis nach ≤ 60 s sichtbar).
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const locale = (await params).locale as Locale
@@ -101,6 +103,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           <h2 id="sp-return">{t('returnHeading')}</h2>
           <p data-return-costs="">{getSnippet('withdrawal.returnCostsNote', locale).text}</p>
           <p>{t.rich('withdrawalLink', { link: withdrawalLink })}</p>
+          <p data-shop-faq-link="">
+            {t.rich('faqLink', {
+              link: (chunks) => (
+                <a href={`${localizedPath('R02', locale)}#${SHOP_FAQ_ANCHOR}`}>{chunks}</a>
+              ),
+            })}
+          </p>
         </section>
 
         <WarrantyNotice locale={locale} />

@@ -116,6 +116,13 @@ export const BESTAND_COLUMNS: readonly ExcelColumn[] = [
     width: 16,
     hint: 'Datum (z. B. 11.10.2026) oder „ja“, gern mit Preis und kurzer Notiz (z. B. „11.10.2026 35 € Markt“) – leer = noch da. Bitte keine Namen von Käufer:innen.',
   },
+  {
+    key: 'insArchiv',
+    header: 'ins Archiv',
+    width: 11,
+    list: [YES, NO],
+    hint: 'Nur bei verkauften Stücken: „ja“ = mit sold-Stempel im Archiv zeigen (bitte nur, wenn Maße und Angaben stimmen). Leer = nicht im Archiv.',
+  },
 ]
 
 const textile = (p: BestandProduct) => p.category === 'textil' || p.category === 'cap'
@@ -318,7 +325,19 @@ export function rowOf(p: BestandProduct): Record<string, CellValue> {
     pruefen: p.review.map((r) => `• ${r}`).join('\n'),
     notiz: p.ownerNote ?? '',
     verkauft: soldText(p.sold),
+    // V-11: nie vorangekreuzt – „ja“ nur, wenn Jutta es selbst angekreuzt hat
+    insArchiv: p.sold?.archive ? YES : '',
   }
+}
+
+/** „ins Archiv“ lesen: „ja“/„x“/Häkchen = angekreuzt; leer/„nein“ = nicht; anderes → `null` (Fehler). */
+function archiveTick(v: CellValue): boolean | null {
+  if (v === true) return true
+  if (v === false || v === null || v === undefined) return false
+  const t = fold(str(v))
+  if (!t || t === NO || t === 'no' || t === '-') return false
+  if (t === YES || t === 'x' || t === 'yes' || t === '✓' || t === '✔') return true
+  return null
 }
 
 export type ApplyReport = PflegeReport
@@ -356,6 +375,10 @@ export function canonical(key: string, v: CellValue, clock: number | SoldClock):
     }
     case 'secondHand':
       return v === true ? YES : v === false ? NO : fold(str(v))
+    case 'insArchiv': {
+      const tick = archiveTick(v)
+      return tick === null ? `?${str(v)}` : tick ? YES : ''
+    }
     case 'zustand': {
       const c = conditionOf(str(v))
       return c ? CONDITION_DE[c] : str(v)
@@ -746,8 +769,20 @@ function applyRow(
     if ('error' in parsed) bad('Verkauft', row.verkauft, parsed.error)
     else if (legal('verkauft', p.sold?.note ?? '', parsed.sold?.note ?? '', false)) {
       change('Verkauft', soldText(p.sold), soldText(parsed.sold ?? undefined))
-      if (parsed.sold) p.sold = parsed.sold
+      // Häkchen „ins Archiv“ bleibt beim Ändern von Datum/Preis/Notiz erhalten (V-11)
+      if (parsed.sold) p.sold = { ...parsed.sold, ...(p.sold?.archive ? { archive: true } : {}) }
       else delete p.sold
+    }
+  }
+  if (changed('insArchiv')) {
+    const tick = archiveTick(row.insArchiv)
+    if (tick === null) bad('ins Archiv', row.insArchiv, '„ja“ oder leer lassen')
+    else if (tick && !p.sold)
+      bad('ins Archiv', row.insArchiv, 'gilt nur für verkaufte Stücke (Spalte „Verkauft“)')
+    else if (p.sold && tick !== (p.sold.archive === true)) {
+      change('ins Archiv', p.sold.archive ? YES : '', tick ? YES : '')
+      if (tick) p.sold.archive = true
+      else delete p.sold.archive
     }
   }
   // Spalten nur zum Lesen: Änderungen melden, nie übernehmen (auch keine Rückfrage)

@@ -20,6 +20,7 @@ import { inquiryOfferHref, inquiryReplyHref, loadInquiryDetail } from './inquiry
 // und „Jetzt löschen“. Statuswechsel und Notizen setzen „zuletzt bearbeitet“, nie die Löschfrist (L-10). Mail-Protokoll
 // zur Anfrage (P6.19). Abschnitt „Angebot“ (R-161, P7.14): Vorlage `commission.offer` (Platzhalter bis zum Kanzleitext)
 // zum Kopieren bzw. als `mailto:` mit Referenz im Betreff, dazu der Hinweis auf die Monatssumme im Umsatz-Wächter (R-125).
+// V-20: kam die Anfrage über „Etwas Ähnliches anfragen“, steht unter „Gegenstand“ das Anlass-Stück (Link auf das Stück).
 
 export const INQUIRY_NOTES_MAX = 3000
 
@@ -78,6 +79,24 @@ export async function InquiryDetailView({ adminRoute, req, match }: AdminViewBod
           <dd>{detail.email}</dd>
           <dt>{adminText('inquiryObject')}</dt>
           <dd>{card.objectLabel}</dd>
+          {detail.similar ? (
+            <>
+              <dt>{adminText('inquirySimilar')}</dt>
+              <dd data-testid="inquiry-similar">
+                {detail.similar.productId ? (
+                  <a
+                    className="pc-admin-link"
+                    href={`${adminRoute}${adminViewPath('stueck', detail.similar.productId)}`}
+                  >
+                    {detail.similar.label}
+                    {detail.similar.title ? ` – ${detail.similar.title}` : ''}
+                  </a>
+                ) : (
+                  detail.similar.label
+                )}
+              </dd>
+            </>
+          ) : null}
           <dt>{adminText('inquiryIdea')}</dt>
           <dd className="pc-order__notes">{detail.idea}</dd>
           <dt>{adminText('inquiryTimeframe')}</dt>

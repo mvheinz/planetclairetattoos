@@ -43,6 +43,15 @@
   --pf-band: 6px;
 }
 
+/* V-13 a (U-93): Produktkarten auf dem Handy – unter 600 px das schmale Band der kleinen Vorschauen; das Foto bekommt
+   rund ein Fünftel mehr Fläche (Karte ≈ 173 px bei 390 px: Foto 161 × 204 statt 145 × 188 px). Ab 600 px der volle
+   Rahmen. */
+@media (max-width: 599.98px) {
+  .card {
+    --pf-band: 6px;
+  }
+}
+
 /* U-83 (P17.3): Galerie-Miniaturen ohne Rahmen – das ganze Feld zeigt das Foto, leicht gerundet. */
 .plain {
   --pf-band: 0px;

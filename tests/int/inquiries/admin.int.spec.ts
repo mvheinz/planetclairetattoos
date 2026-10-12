@@ -2,11 +2,11 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import { sql } from '@payloadcms/db-postgres'
-import type { Payload } from 'payload'
+import { createLocalReq, type Payload } from 'payload'
 import sharp from 'sharp'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { inquiryReplyHref } from '@/admin/views/inquiries/inquiryQuery'
+import { inquiryReplyHref, loadInquiryDetail } from '@/admin/views/inquiries/inquiryQuery'
 import { INQUIRY_STATUSES, type InquiryStatus } from '@/lib/enums'
 import { canTransitionInquiry, INQUIRY_TRANSITIONS } from '@/lib/inquiries/transitions'
 import { uploadStaticDir } from '@/lib/storage'
@@ -16,6 +16,12 @@ import { resetAdmin } from '../helpers/admin'
 import { dbOf } from '../helpers/commerce'
 import { ensureLegalTextFixtures } from '../helpers/legal'
 import { getTestPayload } from '../helpers/payload'
+import {
+  completeProduct,
+  createProduct,
+  createProductFixtures,
+  deleteProducts,
+} from '../helpers/products'
 import { rest } from '../helpers/rest'
 
 // P5.20 – „Anfragen“ in der Verwaltung (KONZEPT §7.11, §5.5): Matrix der Übergänge `INQUIRY_TRANSITIONS` über
@@ -151,6 +157,31 @@ describe('„Anfragen“ (P5.20)', () => {
     expect(after.adminNotes).toBe('Rückfrage zur Größe gestellt.')
     expect(after.deleteAfter).toBe(doc.deleteAfter)
     expect(after.lastActivityAt).not.toBe(doc.lastActivityAt)
+  })
+
+  it('V-20 Anlass „Etwas Ähnliches anfragen“: Detail zeigt Nummer, Namen und Verwaltungs-ID des Stücks', async () => {
+    const fx = await createProductFixtures(payload)
+    await deleteProducts(payload, [998])
+    const piece = await createProduct(payload, completeProduct('keramik', 998, fx))
+    try {
+      const req = await createLocalReq({}, payload)
+      const withPiece = await inquiry({ similarTo: 998 })
+      expect((await loadInquiryDetail(req, withPiece.id))?.similar).toEqual({
+        label: 'Nr. 998',
+        title: 'Teststück 998',
+        productId: piece.id,
+      })
+      // Stück inzwischen gelöscht → nur die Nummer
+      const gone = await inquiry({ similarTo: 12345 })
+      expect((await loadInquiryDetail(req, gone.id))?.similar).toEqual({
+        label: 'Nr. 12345',
+        title: null,
+        productId: null,
+      })
+      expect((await loadInquiryDetail(req, (await inquiry()).id))?.similar).toBeNull()
+    } finally {
+      await deleteProducts(payload, [998])
+    }
   })
 
   it('„Antworten“: mailto mit Betreff nach Sprache der Anfrage', () => {

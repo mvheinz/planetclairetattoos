@@ -54,6 +54,7 @@ import * as migration_20261009_150502_p14_merge_snapshot from './20261009_150502
 import * as migration_20261011_132759_p18_order_shipping_rates from './20261011_132759_p18_order_shipping_rates';
 import * as migration_20261011_153702_p18_order_item_handover from './20261011_153702_p18_order_item_handover';
 import * as migration_20261012_123105_p20_tattoo_booking from './20261012_123105_p20_tattoo_booking';
+import * as migration_20261012_145440_p20_inquiry_similar from './20261012_145440_p20_inquiry_similar';
 
 export const migrations = [
   {
@@ -334,6 +335,11 @@ export const migrations = [
   {
     up: migration_20261012_123105_p20_tattoo_booking.up,
     down: migration_20261012_123105_p20_tattoo_booking.down,
-    name: '20261012_123105_p20_tattoo_booking'
+    name: '20261012_123105_p20_tattoo_booking',
+  },
+  {
+    up: migration_20261012_145440_p20_inquiry_similar.up,
+    down: migration_20261012_145440_p20_inquiry_similar.down,
+    name: '20261012_145440_p20_inquiry_similar'
   },
 ];

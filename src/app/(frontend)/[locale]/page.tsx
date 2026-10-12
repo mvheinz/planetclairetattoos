@@ -16,7 +16,7 @@ import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { getHomeView } from '@/lib/data/home'
 import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
-import { listStationProducts } from '@/lib/data/products'
+import { listArchiveCategoryKeys, listStationProducts } from '@/lib/data/products'
 import { getTattooSettings, listFlash } from '@/lib/data/tattoo'
 import { listTourDates } from '@/lib/data/tour'
 import { kokoAsleep } from '@/lib/home/kokoSleep'
@@ -66,6 +66,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ),
   )
   const hasCards = shelves.some((p) => !!p?.length)
+  // Leere Kategorie-Station (V-11 a): „Ins Archiv“ nur, wenn dort Stücke der Kategorie wohnen.
+  const archiveCategories = shelves.some((p) => p !== null && p.length === 0)
+    ? await listArchiveCategoryKeys().catch(() => [])
+    : []
   const hasTattoo = (home?.stations ?? []).some((s) => s.stationId === 'tattoo')
   const [flash, tattooSettings] = hasTattoo
     ? await Promise.all([listFlash(locale), getTattooSettings(locale)])
@@ -160,6 +164,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 locale={locale}
                 products={shelves[i] ?? null}
                 tattoo={station.stationId === 'tattoo' ? tattoo : null}
+                archiveCategories={archiveCategories}
               />
             ))}
           </StaticHtml>

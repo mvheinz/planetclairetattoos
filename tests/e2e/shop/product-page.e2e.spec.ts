@@ -67,6 +67,17 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
     await expect(page.locator('[data-product-price] [data-delivery-time]')).toHaveText(
       'Lieferzeit: 2–5 Werktage (bei Vorkasse ab Zahlungseingang)',
     )
+    // V-10: Versandkosten direkt unter dem Preis (Keramik-Paket 8,90 €, Abholung an), „Versand nur einmal“
+    const shipAt = page.locator('[data-product-price] [data-shipping-at-price]')
+    await expect(shipAt).toHaveText(
+      '+ 8,90 € Versand · Abholung in Berlin nach Absprache kostenlos',
+    )
+    await expect(shipAt).toHaveAttribute('data-shipping-at-price', 'keramik')
+    await expect(page.locator('[data-product-price] [data-shipping-once]')).toHaveText(
+      'Mehrere Stücke? Versand zahlst du nur einmal.',
+    )
+    expect(await isBefore(tag, shipAt)).toBe(true)
+    expect(await isBefore(shipAt, page.locator('#price-footnote'))).toBe(true)
     expect(await page.content()).not.toMatch(/inkl\.?\s*MwSt/i)
     // Liefergebiet direkt am Kaufbereich (R-036)
     await expect(page.locator('[data-buy-area] [data-delivery-area]')).toHaveText(
@@ -80,6 +91,46 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
       'right',
     )
     await expect(page.locator('[data-product-price]')).toHaveAttribute('data-leash-loop', 'left')
+    // V-14: Kaufklausel (U-22) nach Beschreibung und Details, weiter sichtbar
+    const clause = page.locator('[data-ip-notice="purchase"]')
+    await expect(clause).toBeVisible()
+    expect(await isBefore(page.locator('[data-product-description]'), clause)).toBe(true)
+    expect(await isBefore(page.locator('[data-product-details]'), clause)).toBe(true)
+    expect(await isBefore(clause, page.locator('[data-product-safety]'))).toBe(true)
+    // EN: gleiche Zeile übersetzt
+    await openProduct(page, request, ANCHORS.S01.en)
+    await expect(page.locator('[data-shipping-at-price]')).toHaveText(
+      '+ €8.90 shipping · free pickup in Berlin by arrangement',
+    )
+    await expect(page.locator('[data-shipping-once]')).toHaveText(
+      'Several pieces? You only pay shipping once.',
+    )
+  })
+
+  test('V-14 Handy: Preis und Versandzeile im ersten Bildschirm, Titel etwas kleiner', async ({
+    page,
+    request,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'pixel-7', 'nur auf dem Handy')
+    await openProduct(page, request, ANCHORS.S01.de)
+    // Gemessen ohne das Band „Vorschau mit Beispieldaten“ (gibt es nur in der Vorschau, nicht auf der echten Seite)
+    const banner = await page
+      .locator('[data-preview-banner]')
+      .evaluateAll((els) => els.reduce((h, e) => h + e.getBoundingClientRect().height, 0))
+    const box = (sel: string) =>
+      page.locator(sel).evaluate((e) => {
+        const r = e.getBoundingClientRect()
+        return { top: r.top + scrollY, bottom: r.bottom + scrollY }
+      })
+    const vh = page.viewportSize()!.height
+    // Preisschild ganz, von der Versandzeile mindestens die erste Zeile bis zur Grundlinie (≈ 16 px bei 14 px Schrift)
+    // im ersten Bildschirm – für den Beispiel-Titel mit zwei Zeilen
+    expect((await box('[data-price-tag="pinned"]')).bottom - banner).toBeLessThanOrEqual(vh)
+    expect((await box('[data-shipping-at-price]')).top - banner).toBeLessThanOrEqual(vh - 16)
+    const size = await page
+      .locator('h1')
+      .evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize))
+    expect(size).toBeLessThanOrEqual(30)
   })
 
   test('V-15 Größenvergleich: sehr kleines Stück (S26, 1,5 cm) mit festem Satz DE/EN, große Stücke ohne (S01)', async ({
@@ -149,6 +200,9 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
       '/de/shop/kategorie/keramik',
     )
     await expect(area.getByRole('link', { name: 'Archiv' })).toHaveAttribute('href', '/de/archiv')
+    // V-10: verkauft → keine Versandzeile am Preis
+    await expect(page.locator('[data-shipping-at-price]')).toHaveCount(0)
+    await expect(page.locator('[data-shipping-once]')).toHaveCount(0)
   })
 
   test('AK-3-05 Textil (S11): Material, Größe, Zustand, Second-Hand und Abweichungs-Kasten vor „In den Korb“', async ({
@@ -218,6 +272,9 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
     )
     await expect(page.locator('[data-product-legal] [data-legal-note]')).toHaveCount(0)
     await expect(page.locator('[data-add-to-cart] button')).toHaveText('In den Korb')
+    // V-10: nur Abholung → kein Versandbetrag und kein „Versand nur einmal“
+    await expect(page.locator('[data-shipping-at-price]')).toHaveCount(0)
+    await expect(page.locator('[data-shipping-once]')).toHaveCount(0)
   })
 
   test('Fixture analog S29: fehlen EN-Texte, steht der DE-Text mit lang="de" (Schmuck)', async ({

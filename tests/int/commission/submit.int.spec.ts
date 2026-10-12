@@ -23,6 +23,12 @@ import type { EmailLog, Inquiry, PrivateUpload } from '@/payload-types'
 import { dbOf } from '../helpers/commerce'
 import { withBusiness } from '../helpers/invoices'
 import { getTestPayload } from '../helpers/payload'
+import {
+  completeProduct,
+  createProduct,
+  createProductFixtures,
+  deleteProducts,
+} from '../helpers/products'
 import { rest } from '../helpers/rest'
 
 // P7.12 – Anfrage absenden (KONZEPT §10, R-160, R-134, R-137, DATENMODELL §6.17, L-10): Honeypot und Zeitfalle →
@@ -209,6 +215,73 @@ describe('Anfrage absenden (P7.12)', () => {
       expect(adminMail, secret).not.toContain(secret)
     }
     expect(a05.attachments ?? []).toEqual([])
+  })
+
+  it('V-20 „Etwas Ähnliches anfragen“: öffentliche Nummer wird gespeichert, sonst still ignoriert; M11/A05 ohne Nummer', async () => {
+    const fx = await createProductFixtures(payload)
+    const day = new Date('2026-09-01T10:00:00.000Z').toISOString()
+    await deleteProducts(payload, [996, 997])
+    await createProduct(
+      payload,
+      completeProduct('keramik', 996, fx, {
+        status: 'sold',
+        firstPublishedAt: day,
+        soldAt: day,
+        soldChannel: 'offline',
+        showInArchiveAfterSale: true,
+      }),
+    )
+    // verkauft, aber nicht im Archiv → nicht öffentlich
+    await createProduct(
+      payload,
+      completeProduct('keramik', 997, fx, {
+        status: 'sold',
+        firstPublishedAt: day,
+        soldAt: day,
+        soldChannel: 'offline',
+        showInArchiveAfterSale: false,
+      }),
+    )
+    try {
+      const similarOf = async (nach: string) => {
+        clearMemoryOutbox()
+        const r = await submitCommission(
+          form({ nach, formToken: createCommissionFormToken(LOADED) }),
+          {
+            now: NOW,
+            ip: freshIp(),
+            payload,
+          },
+        )
+        if (!r.ok || r.spam || !r.inquiryId) throw new Error('nicht angelegt')
+        const q = (await payload.findByID({
+          collection: 'inquiries',
+          id: r.inquiryId,
+          overrideAccess: true,
+          depth: 0,
+        })) as Inquiry
+        return q
+      }
+      const hit = await similarOf('996')
+      expect(hit.similarTo).toBe(996)
+      const mails = getMemoryOutbox()
+        .map((m) => `${m.subject}\n${m.text}\n${m.html}`)
+        .join('\n')
+      expect(mails).not.toMatch(/996/)
+      for (const nach of ['997', '12345', 'abc', '0', '-5'])
+        expect((await similarOf(nach)).similarTo ?? null, nach).toBeNull()
+      // unveränderlich wie alle Angaben der Anfrage
+      await expect(
+        payload.update({
+          collection: 'inquiries',
+          id: hit.id,
+          data: { similarTo: 997 } as never,
+          overrideAccess: true,
+        }),
+      ).rejects.toThrow(/similarTo/)
+    } finally {
+      await deleteProducts(payload, [996, 997])
+    }
   })
 
   it('R-160 GET /api/inquiries ohne Admin → 403 (auch Einzelabruf und Anlegen)', async () => {

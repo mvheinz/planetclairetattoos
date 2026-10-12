@@ -29,6 +29,8 @@ import { auditPrivacyFlags } from './hooks/privacy'
 // (`inquiry_receipt`, `admin_inquiry_received`) folgen in P7; Statuswechsel nur über `INQUIRY_TRANSITIONS`
 // (`src/lib/inquiries/transitions.ts`) mit den Knöpfen der Ansicht „Anfragen“ (P5.20).
 // Löschung `createdAt + 6 Monate` (L-10), unabhängig vom Bearbeitungsstand; nur verkürzbar.
+// `similarTo` (V-20, U-93): öffentliche Nummer des verkauften Stücks, über dessen „Etwas Ähnliches anfragen“ die Anfrage
+// kam – nur eine Zahl, keine Personendaten; die Bestätigung M11 nennt sie nicht (U-91 a).
 
 const SLUG = 'inquiries'
 const fail = (message: string, path: string): never => failField(SLUG, message, path)
@@ -110,6 +112,7 @@ const guardInquiry: CollectionBeforeChangeHook = async ({ data, originalDoc, ope
       'objectTypeOther',
       'desiredTimeframe',
       'budget',
+      'similarTo',
       'locale',
       'privacyNoticeVersion',
     ],
@@ -244,6 +247,18 @@ export const Inquiries: CollectionConfig = {
     },
     { name: 'desiredTimeframe', type: 'text', label: 'Wunschzeitraum', maxLength: 120 },
     { name: 'budget', type: 'text', label: 'Budget', maxLength: 60 },
+    {
+      name: 'similarTo',
+      type: 'number',
+      label: 'Anlass: ähnlich wie Stück Nr.',
+      min: 1,
+      max: 99999,
+      admin: {
+        ...ro,
+        description:
+          'Die Anfrage kam über „Etwas Ähnliches anfragen“ bei diesem verkauften Stück (öffentliche Nummer).',
+      },
+    },
     {
       name: 'referenceImages',
       type: 'upload',

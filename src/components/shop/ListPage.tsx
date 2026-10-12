@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 
 import { JsonLd } from '@/components/seo/JsonLd'
+import { FaqList } from '@/components/content/FaqList'
 import { PageBlocks } from '@/components/content/PageBlocks'
-import { Icon } from '@/components/icons/Icon'
 import { StaticHtml } from '@/components/StaticHtml'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
@@ -14,17 +14,25 @@ import { getPublicPage } from '@/lib/data/pages'
 import {
   listArchiveCategoryKeys,
   listArchiveProducts,
+  listCategoryKeysWithContent,
   listShopProducts,
   type ProductPage,
   type PublicProduct,
 } from '@/lib/data/products'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
+import { listFaqs } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/enums'
 import { localizedPath } from '@/lib/routes/paths'
 import { breadcrumbItems } from '@/lib/seo/breadcrumbs'
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld'
 import { categoryTile, TILE_SIZE } from '@/lib/shop/categoryTiles'
-import { listSearch, variantKey, type ListParams } from '@/lib/shop/listParams'
+import {
+  LIST_ANCHOR,
+  listSearch,
+  SHOP_FAQ_ANCHOR,
+  variantKey,
+  type ListParams,
+} from '@/lib/shop/listParams'
 
 import styles from './ListPage.module.css'
 import { PriceFootnote } from './PriceFootnote'
@@ -32,13 +40,16 @@ import { EAGER_CARDS, ProductCard } from './ProductCard'
 import { statusLabelAttrs } from './statusLabels'
 
 // Listen-Seiten des Shops (KONZEPT §3.2, §3.3, §3.5; DESIGN KO-07, KO-08, KO-17, §9.7 `shopString`): Shop (R02),
-// Kategorie (R03) und Archiv (R05) teilen Aufbau und Verhalten – H1, Einleitung, Filter-Chips als echte Links
-// (`aria-current="page"` am aktiven), Hinweis „Shop pausiert“ über dem Raster (die Stücke bleiben sichtbar), Raster aus
-// Produktkarten (jede Karte ist eine Rasterzelle der Tuschelinie: Kringel zwischen den Zeilen, Coco läuft mit, U-44), „Mehr zeigen“ als Link
-// `?page=n+1`, Preis-Fußnote einmal je Seite (R-030) und Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll
-// bedienbar. Seiten > letzte Seite → 404. Verkaufte Stücke (R02/R03) nur als kurze Reihe unter der letzten Seite mit
-// Link „Archiv ansehen“ (U-57 c). JSON-LD `BreadcrumbList` (Start → Shop → Kategorie bzw. Start → Archiv,
-// P3.13).
+// Kategorie (R03) und Archiv (R05) teilen Aufbau und Verhalten – H1, Einleitung, Kategorie-Kacheln als echte Links
+// (`aria-current="page"` am aktiven; im Shop nur Kategorien mit Inhalt, V-11), Hinweis „Shop pausiert“ über dem Raster
+// (die Stücke bleiben sichtbar), Raster aus Produktkarten (jede Karte ist eine Rasterzelle der Tuschelinie: Kringel
+// zwischen den Zeilen, Coco läuft mit, U-44), Seiten-Leiste „Zurück · Seite 2 von 4 · Weiter (noch 26)“ als echte Links
+// mit Anker auf das Raster (V-12: die „wachsende“ Liste wurde mit 74 Karten gemessen und verworfen – Pfaddaten über
+// PF-10, LCP bei Direktaufruf deutlich später; OFFENE-PUNKTE P20.3), Preis-Fußnote einmal je Seite (R-030) und
+// Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll bedienbar. Seiten > letzte
+// Seite → 404. Verkaufte Stücke (R02/R03) nur als kurze Reihe unter der letzten Seite mit Link „Archiv ansehen“
+// (U-57 c). Ganz unten im Shop (R02) die Fragen zum Shop (V-19, FAQ-Kategorie `shop`). JSON-LD `BreadcrumbList`
+// (Start → Shop → Kategorie bzw. Start → Archiv, P3.13).
 
 export type ListRoute = 'R02' | 'R03' | 'R05'
 
@@ -66,12 +77,14 @@ function basePath(routeId: ListRoute, locale: Locale, category?: PublicCategory 
 export async function ListPage({ routeId, locale, list, category }: ListPageProps) {
   const archive = routeId === 'R05'
   const page = list.page ?? 1
-  const [t, tRoutes, settings, content] = await Promise.all([
+  const [t, tRoutes, settings, content, shopFaqs] = await Promise.all([
     getTranslations({ locale }),
     getTranslations({ locale, namespace: 'common.routes' }),
     getShopDisplaySettings(locale),
     routeId === 'R03' ? Promise.resolve(null) : getPublicPage(archive ? 'archive' : 'shop', locale),
+    routeId === 'R02' ? listFaqs('shop', locale) : Promise.resolve([]),
   ])
+  const shopFaqCount = shopFaqs.length
 
   let result: ProductPage
   let chips: Chip[]
@@ -99,41 +112,44 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
       })),
     ]
   } else {
-    const [res, navCategories] = await Promise.all([
+    const [res, navCategories, withContent] = await Promise.all([
       listShopProducts({
         locale,
         categoryKeys: category ? [category.key] : undefined,
-        availableOnly: list.available === true,
         page,
       }),
       listNavCategories(locale),
+      listCategoryKeysWithContent(),
     ])
     result = res
     soldRow = res.sold
-    const keep = listSearch({ available: list.available })
     chips = [
       {
         key: 'all',
         label: t('shop.list.all'),
-        href: `${localizedPath('R02', locale)}${keep}`,
+        href: localizedPath('R02', locale),
         current: routeId === 'R02',
       },
-      ...navCategories.map((c) => ({
-        key: c.key,
-        label: c.name,
-        href: `${localizedPath('R03', locale, { slug: c.slug })}${keep}`,
-        current: category?.key === c.key,
-      })),
+      // V-11: nur Kategorien mit Inhalt; die gerade offene (auch leer) bleibt stehen, damit man sieht, wo man ist.
+      ...navCategories
+        .filter((c) => withContent.includes(c.key) || category?.key === c.key)
+        .map((c) => ({
+          key: c.key,
+          label: c.name,
+          href: localizedPath('R03', locale, { slug: c.slug }),
+          current: category?.key === c.key,
+        })),
     ]
   }
   if (page > result.totalPages) notFound()
 
   const base = basePath(routeId, locale, category)
   const title = routeId === 'R03' && category ? category.name : tRoutes(routeId)
-  const availableHref = `${base}${listSearch({ available: list.available ? undefined : true })}`
-  const moreHref = result.hasNextPage
-    ? `${base}${listSearch({ ...list, category: archiveCategory?.slug, page: page + 1 })}`
-    : null
+  // V-12: Seiten-Leiste mit „Seite 2 von 4“; Zurück/Weiter landen per Anker beim Raster (auch ohne JavaScript).
+  const pageHref = (n: number) =>
+    `${base}${listSearch({ ...list, category: archiveCategory?.slug, page: n })}#${LIST_ANCHOR}`
+  const nextHref = result.hasNextPage ? pageHref(page + 1) : null
+  const prevHref = page > 1 ? pageHref(page - 1) : null
   const hasCards = result.docs.length > 0
   const hasSoldRow = soldRow.length > 0
   const archiveHref = `${localizedPath('R05', locale)}${listSearch({
@@ -211,26 +227,6 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
             )
           })}
         </ul>
-        {!archive ? (
-          <ul className={styles.options}>
-            <li>
-              <a
-                className={`${styles.chip} ${styles.toggle}`}
-                href={availableHref}
-                data-chip="available"
-                data-active={list.available ? '' : undefined}
-              >
-                <span className={styles.box} aria-hidden="true">
-                  {list.available ? <Icon name="check" size={16} /> : null}
-                </span>
-                {t('shop.list.availableOnly')}
-                {list.available ? (
-                  <span className="u-sr-only"> {t('shop.list.filterOn')}</span>
-                ) : null}
-              </a>
-            </li>
-          </ul>
-        ) : null}
       </nav>
 
       {!archive && !settings.isOpen ? (
@@ -242,7 +238,7 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
       ) : null}
 
       {hasCards ? (
-        <section className={styles.listing} aria-labelledby="list-heading">
+        <section id={LIST_ANCHOR} className={styles.listing} aria-labelledby="list-heading">
           <h2 id="list-heading" className="u-sr-only">
             {t('shop.list.heading')}
           </h2>
@@ -273,12 +269,25 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
               )}
             </ul>
           </div>
-          {moreHref ? (
-            <div className={styles.more}>
-              <Button variant="secondary" href={moreHref}>
-                {t('shop.list.more')}
-              </Button>
-            </div>
+          {result.totalPages > 1 ? (
+            <nav className={styles.pager} aria-label={t('shop.list.pagerLabel')} data-list-pager="">
+              {prevHref ? (
+                <Button variant="secondary" href={prevHref} data={{ 'data-list-prev': '' }}>
+                  {t('shop.list.prev')}
+                </Button>
+              ) : null}
+              <p className={styles.pageOf} data-list-page-of="">
+                {t('shop.list.pageOf', { page, total: result.totalPages })}
+              </p>
+              {nextHref ? (
+                <Button variant="secondary" href={nextHref} data={{ 'data-list-more': '' }}>
+                  {t('shop.list.next')}{' '}
+                  <span className={styles.moreCount}>
+                    {t('shop.list.moreCount', { count: result.remaining })}
+                  </span>
+                </Button>
+              ) : null}
+            </nav>
           ) : null}
         </section>
       ) : archive ? (
@@ -344,6 +353,20 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
             </p>
           ) : null}
         </footer>
+      ) : null}
+
+      {/* V-19: Fragen zum Shop ganz unten (eigener Platz, nicht die Seitenblöcke im Kopf); gepflegt wie alle Fragen
+          unter Texte → Fragen, Kategorie „Shop“. Ohne veröffentlichte Frage entfällt der Abschnitt. */}
+      {routeId === 'R02' && shopFaqCount > 0 ? (
+        <StaticHtml as="div" className={styles.faq}>
+          <FaqList
+            id={SHOP_FAQ_ANCHOR}
+            category="shop"
+            heading={t('shop.list.faqHeading')}
+            locale={locale}
+            data={{ 'data-shop-faq': '' }}
+          />
+        </StaticHtml>
       ) : null}
     </div>
   )

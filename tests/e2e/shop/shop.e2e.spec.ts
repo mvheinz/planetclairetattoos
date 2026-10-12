@@ -13,6 +13,8 @@ import { LIST_FIXTURE_RANGE, expect, test, testPayload } from '../fixtures'
 import { NO_CACHE, freshPage, holdListData, refresh } from './fresh'
 
 // P3.5 Shop-Übersicht R02 und Kategorie-Seiten R03 (KONZEPT §3.2, §3.3; DESIGN KO-07, KO-08, KO-17; R-030/R-031).
+// P20.3: Seiten-Leiste „Seite 2 von 4“ mit Zurück/Weiter (V-12, die wachsende Liste wurde gemessen und verworfen), kein
+// Schalter „nur verfügbare“ mehr, Fragen zum Shop unten (V-19).
 // Grundlage: Mini-Beispielbestand (Grund-Seed + S01, S06 sold/Archiv, S11, S15, S20, S26, S27 reserviert).
 // Eigene Stücke im erweiterten E2E-Bereich 975–999 (`LIST_FIXTURE_RANGE`, OFFENE-PUNKTE P3.1/P3.5), nur im Projekt
 // `desktop`, nacheinander und mit exklusivem Bereichs-Lock (die Projekt-Blöcke 980–999 anderer Tests warten so lange)
@@ -68,10 +70,12 @@ function locationOf(res: APIResponse): string {
 
 const shop = localizedPath('R02', 'de')
 const keramik = localizedPath('R03', 'de', { slug: 'keramik' })
-const cardNumbers = (page: import('@playwright/test').Page) =>
+const cardNumbers = (page: import('@playwright/test').Page, selector = '[data-product-card]') =>
   page
-    .locator('[data-product-card]')
+    .locator(selector)
     .evaluateAll((els) => els.map((e) => Number(e.getAttribute('data-item-number'))))
+/** Nur das Raster (ohne die Reihe verkaufter Stücke unter der letzten Seite, U-57 c). */
+const GRID_CARDS = 'section[aria-labelledby="list-heading"] [data-product-card]'
 
 test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
   holdListData(test, 'shared')
@@ -88,10 +92,8 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
     await expect(page.locator('[data-chip="all"]')).toHaveAttribute('aria-current', 'page')
     await expect(page.locator('[data-chip="keramik"]')).not.toHaveAttribute('aria-current', /.*/)
     await expect(page.locator('[data-chip="sonstiges"]')).toHaveCount(0) // showInNavigation = false
-    await expect(page.locator('[data-chip="available"]')).toHaveAttribute(
-      'href',
-      `${shop}?available=1`,
-    )
+    // V-12: der Schalter „nur verfügbare“ ist weg
+    await expect(page.locator('[data-chip="available"]')).toHaveCount(0)
     // Zustände KONZEPT §3.2: reserviert (S27, Nr. 927) mit Hinweis, verkauft (z. B. S24/S30 auf Seite 1) mit Stempel
     const reserved = page.locator('[data-product-card][data-item-number="927"]')
     await expect(reserved.locator('[data-badge="reserved"]')).toHaveText('reserviert')
@@ -118,6 +120,22 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
     expect(await page.locator('[data-leash-anchor="tag"]').count()).toBe(
       await page.locator('[data-product-card]').count(),
     )
+    // V-19: Fragen zum Shop ganz unten (nach Raster, verkaufter Reihe und Fußnote), als aufklappbare Fragen
+    const faq = page.locator('[data-shop-faq]')
+    await expect(faq.locator('h2')).toHaveText('Fragen zum Shop')
+    await expect(faq).toHaveAttribute('aria-labelledby', 'shop-fragen')
+    expect(await faq.locator('details').count()).toBeGreaterThanOrEqual(8)
+    await expect(faq.locator('summary', { hasText: 'Kann ich etwas zurückgeben?' })).toHaveCount(1)
+    const faqLast = await page.evaluate(() => {
+      const f = document.querySelector('[data-shop-faq]')!
+      return [...document.querySelectorAll('[data-product-card], #price-footnote')].every(
+        (el) => !!(el.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING),
+      )
+    })
+    expect(faqLast).toBe(true)
+    // nur auf der Shop-Übersicht, nicht auf den Kategorien
+    await page.goto(keramik)
+    await expect(page.locator('[data-shop-faq]')).toHaveCount(0)
   })
 
   test('Kategorie R03: H1 = Name, Einleitung aus categories.intro, Chip aktiv, Titel DE/EN', async ({
@@ -137,17 +155,24 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
     await expect(page.locator('h1')).toHaveText('Ceramics')
   })
 
-  test('AK-3-03 ?available=1: kein Stück mit Status sold; Chip „nur verfügbare“ eingeschaltet', async ({
+  test('AK-3-03 (V-12): im Raster nie sold; ?available=1 wird ignoriert (gleiche Seite, kanonisch ohne Parameter)', async ({
     page,
   }) => {
     await page.goto(`${shop}?available=1`)
     await expect(page.locator('[data-product-card]').first()).toBeVisible()
-    await expect(page.locator('[data-product-card][data-status="sold"]')).toHaveCount(0)
-    expect(await cardNumbers(page)).not.toContain(906)
-    const toggle = page.locator('[data-chip="available"]')
-    await expect(toggle).toHaveAttribute('data-active', '')
-    await expect(toggle).toHaveAttribute('href', shop)
-    await expect(toggle).toContainText('(eingeschaltet)')
+    await expect(
+      page.locator(
+        'section[aria-labelledby="list-heading"] [data-product-card][data-status="sold"]',
+      ),
+    ).toHaveCount(0)
+    await expect(page.locator('[data-chip="available"]')).toHaveCount(0)
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      new RegExp(`${shop}$`),
+    )
+    const withParam = await cardNumbers(page)
+    await page.goto(shop)
+    expect(await cardNumbers(page)).toEqual(withParam)
   })
 
   test('308 auf den Slug der Seitensprache (auch mit Parametern), unbekannter Slug → 404 mit Fußbereich', async ({
@@ -160,13 +185,13 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
     })
     expect(redirect.status()).toBe(308)
     expect(new URL(locationOf(redirect), 'http://x').pathname).toBe('/en/shop/category/ceramics')
-    const withQuery = await request.get('/de/shop/kategorie/ceramics?available=1', {
+    const withQuery = await request.get('/de/shop/kategorie/ceramics?page=2', {
       maxRedirects: 0,
       headers: NO_CACHE,
     })
     expect(withQuery.status()).toBe(308)
     const target = new URL(locationOf(withQuery), 'http://x')
-    expect(target.pathname + target.search).toBe('/de/shop/kategorie/keramik?available=1')
+    expect(target.pathname + target.search).toBe('/de/shop/kategorie/keramik?page=2')
 
     // Der Browser folgt der Weiterleitung
     await page.goto('/en/shop/category/keramik')
@@ -194,13 +219,13 @@ test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
     await page.goto(shop)
     await page.locator('[data-chip="all"]').focus()
     const order: string[] = []
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 6; i++) {
       order.push(
         (await page.evaluate(() => document.activeElement?.getAttribute('data-chip'))) ?? '',
       )
       await page.keyboard.press('Tab')
     }
-    expect(order).toEqual(['all', 'keramik', 'textil', 'cap', 'zeichnung', 'schmuck', 'available'])
+    expect(order).toEqual(['all', 'keramik', 'textil', 'cap', 'zeichnung', 'schmuck'])
     await page.locator('[data-chip="keramik"]').focus()
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(new RegExp(`${keramik}$`))
@@ -212,9 +237,15 @@ test.describe('Ohne JavaScript', () => {
   test.use({ javaScriptEnabled: false })
   holdListData(test, 'shared')
 
-  test('Filter, „nur verfügbare“ und Karten sind echte Links', async ({ page }) => {
+  test('Filter, Karten und die Fragen zum Shop funktionieren als echte Links bzw. <details>', async ({
+    page,
+  }) => {
     await freshPage(page)
     await page.goto(shop)
+    // V-19: Fragen zum Shop klappen ohne JavaScript auf
+    const question = page.locator('[data-shop-faq] details').first()
+    await question.locator('summary').click()
+    await expect(question).toHaveAttribute('open', '')
     await page.locator('[data-chip="keramik"]').click()
     await expect(page).toHaveURL(new RegExp(`${keramik}$`))
     // Harte Navigation mit View Transition (§9.8, auch ohne JavaScript): während des Übergangs (250 ms) trifft jeder
@@ -222,9 +253,6 @@ test.describe('Ohne JavaScript', () => {
     await expect
       .poll(() => page.evaluate(() => document.documentElement.matches(':active-view-transition')))
       .toBe(false)
-    await page.locator('[data-chip="available"]').click()
-    await expect(page).toHaveURL(new RegExp(`${keramik}\\?available=1$`))
-    await expect(page.locator('[data-product-card][data-status="sold"]')).toHaveCount(0)
     const card = page.locator('[data-product-card]').first()
     const href = await card.getAttribute('href')
     expect(href).toMatch(/^\/de\/shop\/\d{3,}-/)
@@ -253,7 +281,7 @@ test.describe('Shop R02/R03 – mit eigenen Stücken (nur desktop)', () => {
     }
   })
 
-  test('Paginierung mit 25 Stücken: 24 je Seite, „Mehr zeigen“ als Link ?page=2', async ({
+  test('V-12 Seiten-Leiste: 24 je Seite, „Seite 1 von 2“, Weiter (noch n) und Zurück mit Anker aufs Raster', async ({
     page,
     request,
   }) => {
@@ -266,20 +294,31 @@ test.describe('Shop R02/R03 – mit eigenen Stücken (nur desktop)', () => {
     await refresh(request, [shop, `${shop}?page=2`])
 
     await page.goto(shop)
-    const first = await cardNumbers(page)
+    const first = await cardNumbers(page, GRID_CARDS)
     expect(first).toHaveLength(24)
-    const more = page.getByRole('link', { name: 'Mehr zeigen' })
-    await expect(more).toHaveAttribute('href', `${shop}?page=2`)
-    await more.click()
-    await expect(page).toHaveURL(new RegExp(`${shop}\\?page=2$`))
-    await expect(page.locator('[data-product-card]').first()).toBeVisible()
-    const second = await cardNumbers(page)
-    expect(second.length).toBeGreaterThan(0)
+    const unsold = await countUnsold(payload)
+    const total = Math.ceil(unsold / 24)
+    const pager = page.locator('[data-list-pager]')
+    await expect(pager).toHaveAttribute('aria-label', 'Seiten')
+    await expect(pager.locator('[data-list-page-of]')).toHaveText(`Seite 1 von ${total}`)
+    await expect(pager.locator('[data-list-prev]')).toHaveCount(0)
+    const next = pager.locator('[data-list-more]')
+    await expect(next).toHaveAttribute('href', `${shop}?page=2#liste`)
+    await expect(next).toHaveText(`Weiter (noch ${unsold - 24})`)
+    await next.click()
+    await expect(page).toHaveURL(new RegExp(`${shop}\\?page=2#liste$`))
+    // erst die neue Seite abwarten (die URL wechselt schon beim Start der Navigation)
+    await expect(page.locator('[data-list-page-of]')).toHaveText(`Seite 2 von ${total}`)
+    await page.waitForLoadState('domcontentloaded')
+    const second = await cardNumbers(page, GRID_CARDS)
+    expect(second.length).toBe(Math.min(24, unsold - 24))
     for (const nr of PAGINATION) expect([...first, ...second], `Nr. ${nr}`).toContain(nr)
     expect(first.filter((n) => second.includes(n))).toEqual([])
-    // Die letzte Seite braucht keinen weiteren Link
-    if (first.length + second.length === (await countPublic(payload)))
-      await expect(page.getByRole('link', { name: 'Mehr zeigen' })).toHaveCount(0)
+    // Sprungziel: das Raster steht im Bild, nicht der Seitenkopf
+    await expect(page.locator('#liste [data-product-card]').first()).toBeInViewport()
+    await expect(page.locator('[data-list-prev]')).toHaveAttribute('href', `${shop}#liste`)
+    // Die letzte Seite braucht keinen „Weiter“-Link
+    if (total === 2) await expect(page.locator('[data-list-more]')).toHaveCount(0)
   })
 
   test('AK-3-04 sold mit showInArchiveAfterSale = false erscheint auf keiner Liste', async ({
@@ -294,7 +333,7 @@ test.describe('Shop R02/R03 – mit eigenen Stücken (nur desktop)', () => {
       offlineSaleNote: 'Flohmarkt',
       showInArchiveAfterSale: false,
     })
-    const urls = [shop, `${shop}?available=1`, keramik, `${keramik}?available=1`]
+    const urls = [shop, keramik]
     await refresh(request, urls)
     for (const url of urls) {
       await page.goto(url)
@@ -344,17 +383,11 @@ test.describe('Shop R02/R03 – mit eigenen Stücken (nur desktop)', () => {
   })
 })
 
-async function countPublic(payload: Payload): Promise<number> {
+/** Verfügbare und reservierte Stücke – nur sie zählen für die Seiten der Shop-Liste (U-57 c, V-12). */
+async function countUnsold(payload: Payload): Promise<number> {
   const res = await payload.count({
     collection: 'products',
-    where: {
-      or: [
-        { status: { in: ['available', 'reserved'] } },
-        {
-          and: [{ status: { equals: 'sold' } }, { showInArchiveAfterSale: { equals: true } }],
-        },
-      ],
-    },
+    where: { status: { in: ['available', 'reserved'] } },
     overrideAccess: true,
   })
   return res.totalDocs
@@ -406,6 +439,9 @@ test.describe('Shop R03 – Leerzustand (exklusiv)', () => {
       await expect(empty.locator('h2')).toHaveText('In dieser Ecke ist es gerade still.')
       await expect(empty.getByRole('link', { name: 'Alle Stücke' })).toHaveAttribute('href', shop)
       await expect(page.locator('[data-product-card]')).toHaveCount(0)
+      // V-11: leere Kategorie bleibt erreichbar (s. o.), steht aber nicht in der Sitemap
+      const sitemap = await request.get('/sitemap.xml', { headers: NO_CACHE })
+      expect(await sitemap.text()).not.toContain('/de/shop/kategorie/sonstiges<')
     } finally {
       await show(true)
       await refresh(request, [url, localizedPath('R03', 'en', { slug: 'other' })])

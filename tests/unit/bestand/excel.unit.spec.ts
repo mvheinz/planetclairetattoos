@@ -72,16 +72,63 @@ function recorded(rows: SheetRow[], next: readonly BestandProduct[]): ConsumedCe
 }
 
 describe('Bestandsliste als Excel (P18.1)', () => {
-  it('Blätter „Anleitung“ und „Bestand“, eine Zeile je Stück, „Verkauft“ am Ende, Listen-Nr. in der Datei', async () => {
+  it('Blätter „Anleitung“ und „Bestand“, eine Zeile je Stück, „Verkauft“ und „ins Archiv“ am Ende, Listen-Nr. in der Datei', async () => {
     const wb = await book()
     expect(wb.worksheets.map((w) => w.name)).toEqual(['Anleitung', 'Bestand'])
     const ws = wb.getWorksheet(BESTAND_SHEET)!
     expect(ws.rowCount).toBe(products.length + 1)
     expect(ws.getRow(1).getCell(col('verkauft')).value).toBe('Verkauft')
-    expect(BESTAND_COLUMNS.at(-1)!.key).toBe('verkauft') // U-86: am Ende
+    expect(ws.getRow(1).getCell(col('insArchiv')).value).toBe('ins Archiv')
+    // U-86 / V-11: „Verkauft“ und danach „ins Archiv“ am Ende
+    expect(BESTAND_COLUMNS.slice(-2).map((c) => c.key)).toEqual(['verkauft', 'insArchiv'])
     const { listId } = await roundTrip()
     expect(listId).toBe(SNAP.id)
     expect(SNAP.id).toMatch(/^B-2026-10-11-[0-9a-f]{6}$/)
+  })
+
+  it('V-11 „ins Archiv“: nie vorangekreuzt; „ja“ nur bei verkauften Stücken, bleibt beim Ändern von „Verkauft“', async () => {
+    // keine Zeile der ausgegebenen Liste ist angekreuzt
+    expect(products.every((p) => rowOf(p).insArchiv === '')).toBe(true)
+    const [bowl, cup] = products.filter((p) => p.category === 'keramik' && !p.sold)
+    const { rows } = await roundTrip((ws) => {
+      const b = rowFor(ws, bowl!.itemNumber)
+      b.getCell(col('verkauft')).value = '11.10.2026 Markt'
+      b.getCell(col('insArchiv')).value = 'ja'
+      // nicht verkauft → Häkchen gilt nicht
+      rowFor(ws, cup!.itemNumber).getCell(col('insArchiv')).value = 'ja'
+    })
+    const { products: next, report } = apply(rows)
+    expect(byKey(next, bowl!.key).sold).toEqual({
+      date: '2026-10-11',
+      note: 'Markt',
+      archive: true,
+    })
+    expect(byKey(next, cup!.key).sold).toBeUndefined()
+    expect(report.problems).toEqual([
+      `Nr. ${cup!.itemNumber}: ins Archiv „ja“ – gilt nur für verkaufte Stücke (Spalte „Verkauft“); nicht übernommen.`,
+    ])
+    expect(bestandSchema.safeParse(next).success).toBe(true)
+
+    // Datum ändern: Häkchen bleibt; Häkchen entfernen: nicht mehr im Archiv; Unsinn wird gemeldet
+    const snap = makeSnapshot('bestand', NOW, snapshotRowsOf(next))
+    const again = await roundTrip((ws) => {
+      rowFor(ws, bowl!.itemNumber).getCell(col('verkauft')).value = '12.10.2026 Markt'
+    }, next)
+    const moved = applyRows(next, again.rows, { year: 2026, base: snap.rows }).products
+    expect(byKey(moved, bowl!.key).sold?.archive).toBe(true)
+    const off = await roundTrip((ws) => {
+      rowFor(ws, bowl!.itemNumber).getCell(col('insArchiv')).value = ''
+    }, next)
+    expect(
+      byKey(applyRows(next, off.rows, { year: 2026, base: snap.rows }).products, bowl!.key).sold,
+    ).toEqual({ date: '2026-10-11', note: 'Markt' })
+    const odd = await roundTrip((ws) => {
+      rowFor(ws, bowl!.itemNumber).getCell(col('insArchiv')).value = 'vielleicht'
+    }, next)
+    const oddReport = applyRows(next, odd.rows, { year: 2026, base: snap.rows }).report
+    expect(oddReport.problems).toEqual([
+      `Nr. ${bowl!.itemNumber}: ins Archiv „vielleicht“ – „ja“ oder leer lassen; nicht übernommen.`,
+    ])
   })
 
   it('Rundweg ohne Änderung: keine Änderung, keine Meldung (mit und ohne gemerkten Stand)', async () => {

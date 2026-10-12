@@ -11,7 +11,8 @@ import {
 
 import { CARE_TEMPLATE_TEXTS, SAFETY_TEMPLATE_TEXTS } from '@/globals/settingsDefaults'
 import { writeAudit } from '@/lib/audit'
-import { revalidateProduct } from '@/lib/cache/revalidate'
+import { revalidateContent, revalidateProduct } from '@/lib/cache/revalidate'
+import { TAGS } from '@/lib/cache/tags'
 import { TransitionError } from '@/lib/commerce/transitionError'
 import { isProductTransition, productTransitionId } from '@/lib/commerce/productTransitions'
 import { findMediaReferences } from '@/lib/media/references'
@@ -685,6 +686,14 @@ export const afterProductChange: CollectionAfterChangeHook = async ({
   }
 
   revalidateProduct(doc.id, { context: ctx, category: doc.category, immediate: statusChanged })
+  // V-11 (P20.3): Menü und Kategorie-Kacheln zeigen nur Kategorien mit Inhalt. Nur wenn ein Stück öffentlich wird oder
+  // es nicht mehr ist (erste Veröffentlichung, Zurückziehen, Archivieren, Verkauf ohne Archiv …), `categories` erneuern
+  // (≤ 60 s) – nicht `products`, das jede Reservierung sofort erneuert und sonst jede Seite (Menü im Rahmen) mitrisse.
+  if (
+    isPublicProduct(doc as Doc) !== (previousDoc ? isPublicProduct(previousDoc as Doc) : false) ||
+    (isPublicProduct(doc as Doc) && previousDoc?.category && previousDoc.category !== doc.category)
+  )
+    revalidateContent(TAGS.categories, { context: ctx })
   if (previousDoc?.category && previousDoc.category !== doc.category) {
     revalidateProduct(doc.id, {
       context: ctx,
@@ -779,5 +788,18 @@ export const afterProductDelete: CollectionAfterDeleteHook = async ({ doc, req }
     summary: `${label} gelöscht (Nummer wieder frei)`,
   })
   revalidateProduct(doc.id, { context: ctx, category: doc.category })
+  if (isPublicProduct(doc as Doc)) revalidateContent(TAGS.categories, { context: ctx })
   return doc
+}
+
+/**
+ * Öffentlich sichtbar wie in der Shop-Leseregel (`loadCategoryKeysWithContent`): verfügbar, reserviert oder verkauft
+ * und im Archiv (V-11). Entscheidet nur, ob Menü und Kategorie-Kacheln neu berechnet werden müssen.
+ */
+function isPublicProduct(doc: Doc): boolean {
+  return (
+    doc.status === 'available' ||
+    doc.status === 'reserved' ||
+    (doc.status === 'sold' && doc.showInArchiveAfterSale === true)
+  )
 }

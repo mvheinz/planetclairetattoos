@@ -7,7 +7,8 @@ import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { InquiryStatus } from '@/lib/enums'
 import { INQUIRY_TRANSITIONS, isReopen } from '@/lib/inquiries/transitions'
 import { formatBerlin } from '@/lib/time'
-import type { Inquiry, PrivateUpload } from '@/payload-types'
+import { formatItemNumber } from '@/lib/products/itemNumber'
+import type { Inquiry, PrivateUpload, Product } from '@/payload-types'
 
 // Daten der Ansicht „Anfragen“ `/anfragen` und `/anfragen/:id` (PLAN P5.20, KONZEPT §7.11, DATENMODELL §6.17). Nur
 // lesend; Aktionen über `src/endpoints/inquiries/actions.ts` und `POST /api/inquiries/:id/notes`. Referenzbilder nur
@@ -91,6 +92,29 @@ export interface InquiryDetail {
   transitions: InquiryStatusOption[]
   history: { at: string; from: string | null; to: string | null; actor: string }[]
   legalHold: boolean
+  /**
+   * V-20: Anlass „Etwas Ähnliches anfragen“ – das verkaufte Stück (Nummer, Name, Verwaltungs-ID; `productId` `null`,
+   * wenn es das Stück nicht mehr gibt).
+   */
+  similar: { label: string; title: string | null; productId: number | null } | null
+}
+
+/** Das Stück hinter `similarTo` (auch verkauft/ausgeblendet; nur für die Verwaltung). */
+async function similarOf(req: PayloadRequest, nr: number | null | undefined) {
+  if (typeof nr !== 'number') return null
+  const res = await req.payload.find({
+    collection: 'products',
+    where: { itemNumber: { equals: nr } },
+    locale: 'de',
+    depth: 0,
+    limit: 1,
+    pagination: false,
+    overrideAccess: true,
+    select: { title: true },
+    req,
+  })
+  const p = res.docs[0] as Pick<Product, 'id' | 'title'> | undefined
+  return { label: formatItemNumber(nr, 'de'), title: p?.title ?? null, productId: p?.id ?? null }
 }
 
 const statusLabel = (s: string | null) =>
@@ -136,7 +160,10 @@ export async function loadInquiryDetail(
       thumbUrl: u.sizes?.thumb?.url ?? u.url!,
       filename: u.filename ?? '',
     }))
-  const history = await getStatusHistory('inquiries', i.id, { req })
+  const [history, similar] = await Promise.all([
+    getStatusHistory('inquiries', i.id, { req }),
+    similarOf(req, i.similarTo),
+  ])
   return {
     card: card(i),
     email: i.email,
@@ -160,6 +187,7 @@ export async function loadInquiryDetail(
       actor: ENUM_LABELS.ACTOR_TYPES[h.actorType]?.de ?? h.actorType,
     })),
     legalHold: Boolean(i.privacy?.legalHold),
+    similar,
   }
 }
 

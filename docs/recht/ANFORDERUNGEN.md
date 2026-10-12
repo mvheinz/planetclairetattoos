@@ -446,8 +446,10 @@ Lücken in der Nummerierung sind Reserve.
 - **Anforderung:** `/de/versand-und-zahlung` rendert die Versandklassen mit Preisen aus den Einstellungen (E-25:
   Brief 4,50 €, Paket klein 6,50 €, Keramik 8,90 €, Abholung 0 €), die Regel „im Warenkorb gilt die höchste
   Versandklasse“, das Liefergebiet, die Lieferzeit und die Zahlarten (Token `{{shippingTable}}`). Die Produktseite
-  nennt die Versandklasse des Stücks mit Preis und die Abholoption. Der Warenkorb zeigt die berechneten Versandkosten
-  vor dem Wechsel zur Kasse.
+  nennt die Versandklasse des Stücks mit Preis und die Abholoption; seit P20.3 (V-10) steht der Betrag zusätzlich direkt
+  unter dem Preis („+ 8,90 € Versand · Abholung in Berlin nach Absprache kostenlos“, Abhol-Teil nur bei eingeschalteter
+  Abholung) mit dem Satz „Mehrere Stücke? Versand zahlst du nur einmal.“ (E-25); der Link „zzgl. Versandkosten“ (R-030)
+  bleibt. Der Warenkorb zeigt die berechneten Versandkosten vor dem Wechsel zur Kasse.
 - **Rechtsgrundlage:** § 6 PAngV; Art. 246a § 1 Abs. 1 S. 1 Nr. 4 EGBGB; § 312j Abs. 1 BGB.
 - **Umsetzung:** Server-seitige Berechnung (höchste Klasse); Revalidierung der Seiten bei Änderung der Einstellungen.
 - **Abnahme:** `e2e` – Preis in den Einstellungen ändern → Versandseite und Produktseite zeigen den neuen Preis;
@@ -581,7 +583,9 @@ Lücken in der Nummerierung sind Reserve.
 #### R-044 · Keramik: Lebensmittelkontakt-Status und Konformitätserklärung
 - **Anforderung:** E-15. Feld `foodContact` ∈ {`deko`, `lebensmittelecht`}, Standard `deko`.
   - `deko`: Badge + Warnhinweis Baustein `product.ceramicsDecorative` („Dekorationsobjekt – nicht für
-    Lebensmittel geeignet“).
+    Lebensmittel geeignet“). Seit P20.3 (V-14, U-93) steht auf der Produktseite vor dem Knopf nur das Abzeichen „Deko –
+    nicht für Lebensmittel“ (einmal, nicht mehr mit gleichlautendem Satz darunter); der Warnhinweis-Baustein steht bei den
+    Warn- und Sicherheitshinweisen im Block „Herstellerin & Sicherheit“ (GPSR, R-040). Beides bleibt sichtbar.
   - `lebensmittelecht` ist nur **speicherbar** (Prüfung beim Speichern, nicht erst beim Veröffentlichen), wenn ≥ 1
     Konformitätserklärung verknüpft ist (`conformityDeclarations` → Collection `conformity-declarations`: Glasur,
     Hersteller, Laborbefund privat, Labor, Prüfdatum, öffentliches Erklärungs-PDF, Status `active`/`revoked`) und
@@ -1537,7 +1541,10 @@ Lücken in der Nummerierung sind Reserve.
   Datenschutzerklärung. **Keine** Einwilligungs-Checkbox (Rechtsgrundlage vorvertraglich), keine Altersabfrage, keine
   Zahlung, keine Preiszusage.
   Speicherung in `inquiries` (Nummer `AA-JJJJ-NNNN`; nur Admin-Zugriff, **nie** über die öffentliche API), Bilder im
-  privaten Speicher (`private-uploads`, R-136), Metadaten entfernt (R-135). Benachrichtigung an Jutta
+  privaten Speicher (`private-uploads`, R-136), Metadaten entfernt (R-135). Kommt die Anfrage über „Etwas Ähnliches
+  anfragen“ (P20.3, V-20), speichert sie zusätzlich die **öffentliche Nummer** des verkauften Stücks (`similarTo`, nur
+  öffentlich sichtbare Stücke; in der Datenschutzerklärung genannt, gleiche Löschfrist L-10); weder M11 noch A05 nennen
+  sie. Benachrichtigung an Jutta
   (`admin_inquiry_received`) nur mit Referenznummer, Gegenstand, Anzahl der Bilder und Admin-Link – **ohne** Namen,
   Freitext, Bilder oder E-Mail-Adresse. Automatische Antwort (`inquiry_receipt`, Baustein `inquiry.autoReply`):
   Eingang, Referenz, „noch kein Vertrag, keine Zahlung“, Löschung nach 6 Monaten, Link Datenschutz – ohne Bilder und

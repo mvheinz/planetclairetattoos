@@ -32,7 +32,8 @@ export function cocoSpriteFile(b: { file?: string }): string {
 // 4. SVG-Dateien: Coco-Sprite, Stationszeichnungen, Icons.
 // 5. Bild-Budgets (DESIGN §12.2, ARCHITEKTUR §7.7) – nur Bericht: Median der Größen `thumb`/`card` über den
 //    Beispielbestand (aus den `srcset`-Angaben von R02) und das im Profil Pixel 7 geladene LCP-Bild der Produktseite.
-// Seiten ab P3.16 zusätzlich mit Varianten und Zuständen (R02 „nur verfügbare“, R05 mit Kategorie, R04 reserviert/sold).
+// Seiten ab P3.16 zusätzlich mit Varianten und Zuständen (R05 mit Kategorie, R04 reserviert/sold; die R02-Variante „nur
+// verfügbare“ entfiel mit V-12, P20.3).
 //
 // Aufruf: `pnpm check:bundle [--budgets <datei>] [--dist <ordner>] [--base-url <url>] [--port <n>] [--no-pages]`.
 // Ohne `--base-url` startet das Skript selbst `next start` (Port `--port`, Standard 3100) und beendet ihn danach. `--no-pages` prüft nur 2–4 (ohne Server/Browser).
@@ -368,13 +369,6 @@ export const P4_SESSION_TARGETS: readonly PageTarget[] = (['de', 'en'] as const)
  * Varianten und Zustände der P3-Routen (Seed-Anker des Mini-Beispielbestands, SEED-SPEC): gleiche Budgets wie die Route.
  */
 export const P3_VARIANT_TARGETS: readonly PageTarget[] = [
-  {
-    routeId: 'R02',
-    locale: 'de',
-    path: '/de/shop?available=1',
-    status: 200,
-    variant: 'nur verfügbare',
-  },
   {
     routeId: 'R05',
     locale: 'en',

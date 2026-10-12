@@ -5,7 +5,7 @@ import { translatorFor } from '@/i18n/translator'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale, ProductCategory } from '@/lib/enums'
 import { formatTagPrice } from '@/lib/shop/priceTag'
-import { formatDimensions, productPath, type DimensionsInput } from '@/lib/shop/format'
+import { formatCardFacts, productPath, type DimensionsInput } from '@/lib/shop/format'
 import type { Media } from '@/payload-types'
 
 import { Badge } from './Badge'
@@ -15,7 +15,9 @@ import { PriceTag } from './PriceTag'
 // Produktkarte (DESIGN KO-07): die ganze Karte ist genau ein `<a>` (keine verschachtelten Bedienelemente), zugänglicher
 // Name „{Titel}, {Preis}{, gerade reserviert | , verkauft}“ (AK-DS-10). Aufbau: Foto 4:5 (Fokuspunkt, Dominanzfarbe als
 // Lade-Hintergrund, `srcset` aus `thumb`/`card`) → Faden-Anker der Schnur → Preisschild `hanging` (8 px Einzug) → Titel
-// (max. 2 Zeilen) → Meta „Keramik · Ø 14 cm“. `reserved`: Badge oben links auf dem Foto; `sold`: Foto gedämpft (0.82),
+// (bis 3 Zeilen, V-13 a – die Namen werden nicht gekürzt, U-77) → Meta „Keramik · ca. Ø 8,5 cm, H 5 cm“ (höchstens zwei
+// Maße bzw. bei Textil/Caps die Größe, ruhige Textschrift; `formatCardFacts`). Unter 600 px schmaleres Rahmenband
+// (`frameSize="card"`, V-13 a). `reserved`: Badge oben links auf dem Foto; `sold`: Foto gedämpft (0.82),
 // Stempel auf dem Schild, Text ungedämpft. Keine Info nur bei Hover (Hover löst nur MI-02 aus). Für den Live-Zustand
 // (`product-status`, P3.11) liegen Badge und Stempel verborgen im Markup; `gone` dämpft wie `sold`. Auf der Startseite
 // (KO-21, P3.12) ohne Schnur: Schild `pinned` am Kartenfuß (`tag="pinned"`).
@@ -33,6 +35,8 @@ export interface ProductCardData {
   status: string
   category: ProductCategory
   dimensions?: DimensionsInput | null
+  /** Größe bei Textil/Caps – steht auf der Karte anstelle der Maße (V-13 a). */
+  sizeLabel?: string | null
   images?: (number | Media)[] | null
 }
 
@@ -72,7 +76,7 @@ export function ProductCard({
     state === 'reserved' ? `, ${t('stateReserved')}` : state === 'sold' ? `, ${t('stateSold')}` : ''
   const label = ENUM_LABELS.PRODUCT_CATEGORIES[product.category]
   const categoryName = (locale === 'en' ? label.en : undefined) ?? label.de
-  const dims = formatDimensions(product.dimensions, locale)
+  const facts = formatCardFacts(product, locale)
   const photo = product.images?.find((m): m is Media => typeof m === 'object' && m !== null)
   const priceTag = (
     <PriceTag
@@ -104,6 +108,7 @@ export function ProductCard({
           sizes={CARD_IMAGE_SIZES}
           srcSizes={['thumb', 'card']}
           loading={!lazy && index < EAGER_CARDS ? 'eager' : 'lazy'}
+          frameSize="card"
           className={styles.image}
         />
         {state === 'sold' ? null : (
@@ -119,7 +124,9 @@ export function ProductCard({
       </span>
       {tag === 'hanging' ? priceTag : null}
       <span className={styles.title}>{title}</span>
-      <span className={styles.meta}>{dims ? `${categoryName} · ${dims}` : categoryName}</span>
+      <span className={styles.meta} data-card-facts="">
+        {facts ? `${categoryName} · ${facts}` : categoryName}
+      </span>
       {tag === 'pinned' ? priceTag : null}
     </a>
   )

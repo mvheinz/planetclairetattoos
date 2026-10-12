@@ -37,6 +37,11 @@ export const PRODUCT_ADMIN_FIELDS = [
 
 export type PublicProduct = Omit<Product, (typeof PRODUCT_ADMIN_FIELDS)[number]>
 
+/**
+ * Eine Listen-Seite mit 24 Stücken. V-12 (U-93, P20.3): Die „wachsende“ Liste (Seite n = Stücke 1 bis n × 24) wurde mit
+ * 74 Karten gemessen und verworfen (Pfaddaten über dem Budget PF-10, LCP bei Direktaufruf deutlich später) – es bleibt
+ * bei klassischen Seiten mit „Seite 2 von 4“, Zurück/Weiter und der Zahl der noch folgenden Stücke (`remaining`).
+ */
 export interface ProductPage {
   docs: PublicProduct[]
   page: number
@@ -44,6 +49,8 @@ export interface ProductPage {
   totalDocs: number
   totalPages: number
   hasNextPage: boolean
+  /** So viele Stücke kommen nach dieser Seite noch („noch 26“). */
+  remaining: number
 }
 
 const VISIBLE_UNSOLD: Where = { status: { in: ['available', 'reserved'] } }
@@ -70,8 +77,13 @@ function pageOf(docs: PublicProduct[], page: number, totalDocs: number): Product
     totalDocs,
     totalPages,
     hasNextPage: page < totalPages,
+    remaining: Math.max(0, totalDocs - page * SHOP_PAGE_SIZE),
   }
 }
+
+/** IDs der Stücke auf Seite `page` (24 je Seite). */
+const ofPage = (ids: number[], page: number) =>
+  ids.slice((page - 1) * SHOP_PAGE_SIZE, page * SHOP_PAGE_SIZE)
 
 const withCategories = (where: Where, keys?: readonly string[]): Where =>
   keys?.length ? { and: [where, { category: { in: [...keys] } }] } : where
@@ -110,8 +122,6 @@ async function byIds(ids: number[], locale: Locale): Promise<PublicProduct[]> {
 export interface ShopListQuery {
   locale: Locale
   categoryKeys?: readonly ProductCategory[]
-  /** Nur nicht verkaufte Stücke (`?available=1`, AK-3-03). */
-  availableOnly?: boolean
   page?: number
 }
 
@@ -119,34 +129,31 @@ export interface ShopListQuery {
 export const SHOP_SOLD_ROW = 4
 
 export interface ShopProductPage extends ProductPage {
-  /** Kurze Reihe verkaufter Stücke (Archiv) – nur auf der letzten Seite der verfügbaren und ohne `availableOnly`. */
+  /** Kurze Reihe verkaufter Stücke (Archiv) – nur auf der letzten Seite der verfügbaren. */
   sold: PublicProduct[]
   /** Anzahl aller verkauften Stücke mit Archiv in dieser Auswahl (für den Link „Archiv ansehen“). */
   soldTotal: number
 }
 
 /**
- * Shop-Liste R02/R03 (KONZEPT §3.2, U-57 c): `available` und `reserved` nach `firstPublishedAt` absteigend, 24 je
- * Seite; Seitenzahl nur nach diesen. Verkaufte (`sold` mit `showInArchiveAfterSale`, nach `soldAt` absteigend) werden
- * nicht mehr seitenweise angehängt: Die letzte Seite bekommt höchstens `SHOP_SOLD_ROW` davon als eigene Reihe, der
- * Rest steht im Archiv. `availableOnly` ohne `sold`.
+ * Shop-Liste R02/R03 (KONZEPT §3.2, U-57 c): `available` und `reserved` nach `firstPublishedAt` absteigend, 24 je Seite;
+ * Seitenzahl nur nach diesen. Verkaufte (`sold` mit `showInArchiveAfterSale`, nach `soldAt` absteigend) werden nicht
+ * angehängt: Die letzte Seite bekommt höchstens `SHOP_SOLD_ROW` davon als eigene Reihe, der Rest steht im Archiv. Der
+ * Schalter „nur verfügbare“ entfiel (V-12).
  */
 export async function loadShopProducts(query: ShopListQuery): Promise<ShopProductPage> {
   const page = normalizePage(query.page)
   const [unsold, sold] = await Promise.all([
     sortedIds(withCategories(VISIBLE_UNSOLD, query.categoryKeys), ['-firstPublishedAt', '-id']),
-    query.availableOnly
-      ? Promise.resolve([])
-      : sortedIds(withCategories(ARCHIVED_SOLD, query.categoryKeys), ['-soldAt', '-id']),
+    sortedIds(withCategories(ARCHIVED_SOLD, query.categoryKeys), ['-soldAt', '-id']),
   ])
-  const start = (page - 1) * SHOP_PAGE_SIZE
-  const result = pageOf([], page, unsold.length)
-  const soldRow = page === result.totalPages ? sold.slice(0, SHOP_SOLD_ROW) : []
+  const totalPages = Math.max(1, Math.ceil(unsold.length / SHOP_PAGE_SIZE))
+  const soldRow = page === totalPages ? sold.slice(0, SHOP_SOLD_ROW) : []
   const [docs, soldDocs] = await Promise.all([
-    byIds(unsold.slice(start, start + SHOP_PAGE_SIZE), query.locale),
+    byIds(ofPage(unsold, page), query.locale),
     byIds(soldRow, query.locale),
   ])
-  return { ...result, docs, sold: soldDocs, soldTotal: sold.length }
+  return { ...pageOf(docs, page, unsold.length), sold: soldDocs, soldTotal: sold.length }
 }
 
 export interface ArchiveListQuery {
@@ -162,8 +169,7 @@ export async function loadArchiveProducts(query: ArchiveListQuery): Promise<Prod
     withCategories(ARCHIVED_SOLD, query.categoryKey ? [query.categoryKey] : undefined),
     ['-soldAt', '-id'],
   )
-  const start = (page - 1) * SHOP_PAGE_SIZE
-  const docs = await byIds(ids.slice(start, start + SHOP_PAGE_SIZE), query.locale)
+  const docs = await byIds(ofPage(ids, page), query.locale)
   return pageOf(docs, page, ids.length)
 }
 
@@ -173,6 +179,23 @@ export async function loadArchiveCategoryKeys(): Promise<ProductCategory[]> {
   const res = await payload.find({
     collection: 'products',
     where: ARCHIVED_SOLD,
+    depth: 0,
+    pagination: false,
+    select: { category: true },
+  })
+  return [...new Set(res.docs.map((d) => d.category))]
+}
+
+/**
+ * Kategorien mit Inhalt (V-11, U-93): mindestens ein öffentliches Stück – verfügbar, reserviert oder verkauft und im
+ * Archiv. Nur diese Kategorien stehen als Kachel im Shop, im Menü und in der Sitemap; leere tauchen von selbst wieder
+ * auf, sobald das erste Stück online geht (Tag `products`). Ihre Adressen bleiben erreichbar (Leerzustand).
+ */
+export async function loadCategoryKeysWithContent(): Promise<ProductCategory[]> {
+  const payload = await getPublicPayload()
+  const res = await payload.find({
+    collection: 'products',
+    where: { or: [VISIBLE_UNSOLD, ARCHIVED_SOLD] },
     depth: 0,
     pagination: false,
     select: { category: true },
@@ -373,6 +396,11 @@ export const listArchiveProducts = cached(loadArchiveProducts, {
 
 export const listArchiveCategoryKeys = cached(loadArchiveCategoryKeys, {
   key: 'archive-category-keys',
+  tags: [TAGS.products],
+})
+
+export const listCategoryKeysWithContent = cached(loadCategoryKeysWithContent, {
+  key: 'category-content-keys',
   tags: [TAGS.products],
 })
 

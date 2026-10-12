@@ -211,3 +211,16 @@
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+/* V-20: „So etwas wie Nr. 115 …“ über dem Formular – kleines Foto des verkauften Stücks und ein Satz dazu. */
+.similar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.similarPhoto {
+  flex: none;
+  width: 72px;
+}

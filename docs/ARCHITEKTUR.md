@@ -1875,10 +1875,14 @@ Schwärzung, Stack ohne die Meldungszeile.
 | `sitemap.xml`, `robots.txt` | ISR | `sitemap` |
 | Verwaltung, `/api/*` | dynamisch | – |
 
-**Listen-Varianten bleiben statisch [Spike B-05]:** Query-Parameter (`?available=1`, `?page=2`, `?category=…`, `?kind=…`,
-KONZEPT §2.3) würden eine Seite dynamisch machen. Deshalb übersetzt der Proxy bekannte Parameter in einen internen Pfad
-(`…/shop/variant/available-1.page-2`, Schlüssel alphabetisch, Werte validiert) und schreibt intern dorthin um; die sichtbare
-und kanonische URL bleibt die Query-Form. Unbekannte Parameter werden verworfen. Die Varianten-Seiten nutzen
+**Listen-Varianten bleiben statisch [Spike B-05]:** Query-Parameter (`?page=2`, `?category=…`, `?kind=…`, `?available=1`
+nur noch bei Flash R12, KONZEPT §2.3) würden eine Seite dynamisch machen. Deshalb übersetzt der Proxy bekannte Parameter in
+einen internen Pfad (`…/archive/variant/category-keramik.page-2`, Schlüssel alphabetisch, Werte validiert) und schreibt
+intern dorthin um; die sichtbare und kanonische URL bleibt die Query-Form. Unbekannte Parameter werden verworfen (seit
+P20.3/V-12 auch `?available=1` auf R02/R03 – der Shop-Schalter entfiel). Variante `page-n` rendert die Stücke
+(n − 1) × 24 + 1 … n × 24 mit Seiten-Leiste „Seite n von m“ (`ProductPage.remaining` für „noch 26“, Anker `#liste`); eine
+wachsende Liste (Seite n = 1 … n × 24) wurde mit 74 Karten gemessen und wegen PF-10 (Pfaddaten wachsen je Karte um
+≈ 0,8 KB: Preisschild + verborgener Stempel) verworfen. Die Varianten-Seiten nutzen
 `generateStaticParams` für die bekannten Kombinationen und `dynamicParams = true` für den Rest. Rückfall: dynamisches
 Rendern mit gecachten Daten (§9.2) – nur zulässig, wenn T-10 (LCP) grün bleibt.
 
@@ -1894,7 +1898,8 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 
 | Ereignis | Tags | Aufruf | Sichtbar nach |
 |---|---|---|---|
-| Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Verkauft (Markt/privat)“, Markt-Knopf) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
+| Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Verkauft (Markt/privat)“, Markt-Knopf) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` – `products` erneuert seit P20.3 auch die Kategorie-Kacheln der Shop-Listen (`listCategoryKeysWithContent`, V-11) | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
+| Stück wird öffentlich oder hört auf, es zu sein (erste Veröffentlichung, Zurückziehen, Archivieren, Verkauf ohne Archiv, Löschen; Produkt-Hook) | zusätzlich `categories` – Menü im Seitenrahmen (`getSiteNavigation`) zeigt nur Kategorien mit Inhalt (V-11, P20.3). Bewusst nicht über `products`: Das Menü steht auf jeder Seite, und `products` erneuert jede Reservierung sofort | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Stück in der Verwaltung bearbeitet | wie oben | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Seite, FAQ, Texte, Einstellungen | `page:<key>`, `faqs`, `site-texts`, `settings` | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Flash, Galerie (auch gelöscht) | `flash`, `tattoo-gallery`, `home` – dieselben Tags erneuern seit P20.5 Menü (`getTattooAvailability` im Seitenrahmen), Unter-Navigation und Sitemap: Flash/Galerie erscheinen dort nur mit Inhalt (V-28 a) | `'max'` | ≤ 60 s |
@@ -1984,8 +1989,9 @@ Erwartete Last: ≤ 24 volle Läufe/Tag → Neon aktiv ≈ 2 h/Tag ≈ 15 CU-h/M
 **AK-A-9-01** Ein Tick ohne fälligen Weckzeitpunkt öffnet keine DB-Verbindung (Test mit Pool-Zähler) und antwortet 204.
 **AK-A-9-02** Reservierung anlegen → `job-alarm.json` enthält `nextDueAt ≤ expiresAt`; nach Vorstellen der Uhr und einem Tick
 ist das Stück wieder `available`.
-**AK-A-9-03** `/de/shop?available=1&page=2` liefert dieselbe HTML wie die interne Variante und wird ohne Funktionsaufruf aus dem
-Cache bedient (Produktions-Build: Antwort-Header `x-nextjs-cache: HIT` bzw. Prerender-Manifest enthält die Variante).
+**AK-A-9-03** `/de/archiv?category=keramik` (bis P20.3: `/de/shop?available=1&page=2`) liefert dieselbe HTML wie die interne
+Variante und wird ohne Funktionsaufruf aus dem Cache bedient (Produktions-Build: Antwort-Header `x-nextjs-cache: HIT` bzw.
+Prerender-Manifest enthält die Variante).
 
 ---
 
@@ -2768,8 +2774,10 @@ Jutta pflegt Bestand und Texte dauerhaft über Excel-Listen, die sie auf dem iPa
    uns das Vorjahr) oder „ja“/„x“ am Anfang, jeweils gern mit Preis („35 €“) und Notiz; leer, „nein“, „noch da“, „-“, „0“
    = nicht verkauft; anderer Text, eine reine Zahl oder ein Datum in der Zukunft = Meldung. Ergebnis: `sold` in
    `content/bestand/products.json`. `bestand:import` legt so ein Stück als Markt-Verkauf an (Status `sold`, Weg `offline`,
-   Verkaufstag 12:00 UTC, erzielter Preis sonst Listenpreis → Umsatz-Wächter, nicht im Archiv, Audit
-   `product_offline_sold`) – auch in der Vorschau-Datei nie „verfügbar“.
+   Verkaufstag 12:00 UTC, erzielter Preis sonst Listenpreis → Umsatz-Wächter, Audit `product_offline_sold`) – auch in der
+   Vorschau-Datei nie „verfügbar“. Ins Archiv (`showInArchiveAfterSale`) nur, wenn Jutta in der Spalte **„ins Archiv“**
+   „ja“ einträgt (`sold.archive`, V-11/U-93, P20.3; nie vorangekreuzt, „ja“ ohne „Verkauft“ = Meldung); sonst
+   ausgeblendet, damit ungeprüfte Angaben nicht online gehen.
 7. **Englisch** (U-00): Wurde das Deutsche geschrieben und das Englische nicht, nennt der Bericht die Stelle unter
    „Englisch zu ergänzen“; die Sitzung schreibt das Englische vor dem Commit.
 8. **Dateien:** geschrieben wird nur, was sich ändert; Format wie im Repo (`content/` ohne Prettier, sonst Prettier), damit

@@ -49,6 +49,67 @@ export function formatDimensions(d: DimensionsInput | null | undefined, locale: 
   return parts.join(', ')
 }
 
+/** Hinweis auf geschätzte Maße in der Maß-Notiz („– geschätzt“, „ca.“, „estimated“, „approx.“). */
+const ESTIMATED_RE = /geschätzt|geschaetzt|estimated|\bca\.|approx|ungefähr|etwa\b/i
+
+const ABOUT: Record<Locale, string> = { de: 'ca.', en: 'approx.' }
+
+/** Höchstens so viele Maße stehen auf einer Produktkarte (V-13 a). */
+export const CARD_FACTS_MAX = 2
+
+export interface CardFactsInput {
+  category: string
+  dimensions?: DimensionsInput | null
+  /** Größe bei Textil/Caps (`sizeLabel` in der Sprache der Seite). */
+  sizeLabel?: string | null
+}
+
+/** Höchstens `max` Maße (Ø, H, B, T), geschätzt → „ca.“/„approx.“ davor; ohne Zahlen `''`. */
+function dimensionFacts(
+  d: DimensionsInput | null | undefined,
+  locale: Locale,
+  max: number,
+): string {
+  if (!d) return ''
+  const parts: string[] = []
+  if (d.diameterCm) parts.push(`Ø ${formatNumber(d.diameterCm, locale)}${NBSP}cm`)
+  for (const key of ['heightCm', 'widthCm', 'depthCm'] as const) {
+    const v = d[key]
+    if (v) parts.push(`${DIM_ABBR[key][locale]} ${formatNumber(v, locale)}${NBSP}cm`)
+  }
+  if (parts.length === 0) return ''
+  const note = [pickLocale(d.note, locale), pickLocale(d.note, 'de')].filter(Boolean).join(' ')
+  const facts = parts.slice(0, max).join(', ')
+  return ESTIMATED_RE.test(note) ? `${ABOUT[locale]} ${facts}` : facts
+}
+
+/**
+ * Kurzangabe unter dem Namen einer Produktkarte (V-13 a, U-93): Textil und Caps zeigen die Größe; sonst höchstens zwei
+ * Maße in der Reihenfolge Ø, H, B, T („Ø 8,5 cm, H 5 cm“). Steht in der Maß-Notiz, dass die Maße geschätzt sind, kommt
+ * „ca.“ davor („ca. H 7 cm“). Die Notiz selbst steht nur auf der Produktseite; ohne Zahlen → `''`.
+ */
+export function formatCardFacts(input: CardFactsInput, locale: Locale): string {
+  const textile = input.category === 'textil' || input.category === 'cap'
+  const size = input.sizeLabel?.trim()
+  if (textile && size) return size
+  return dimensionFacts(input.dimensions, locale, CARD_FACTS_MAX)
+}
+
+/**
+ * Maße in den Kurzdaten der Produktseite (V-14, P20.3): mit Zahlen höchstens zwei Maße wie auf der Karte („ca. Ø 8,5 cm,
+ * H 5 cm“) – alle Maße samt Notiz stehen ohne Klick in der Details-Tabelle; ohne Zahlen die Notiz (z. B. „Brustweite ca.
+ * 50 cm …“), damit nichts fehlt.
+ */
+export function formatShortDimensions(
+  d: DimensionsInput | null | undefined,
+  locale: Locale,
+): { text: string; fromNote: boolean } {
+  const facts = dimensionFacts(d, locale, CARD_FACTS_MAX)
+  if (facts) return { text: facts, fromNote: false }
+  const note = pickLocale(d?.note, locale)
+  return note ? { text: note, fromNote: true } : { text: '', fromNote: false }
+}
+
 /**
  * Faserzusammensetzung (R-043): je Komponente absteigend nach Anteil, amtliche deutsche Bezeichnung; auf `/en`
  * zusätzlich die englische in Klammern. Regeln aus `src/lib/products/fibers.ts`.

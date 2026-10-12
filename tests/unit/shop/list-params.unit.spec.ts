@@ -14,24 +14,25 @@ import {
   variantKey,
 } from '@/lib/shop/listParams'
 
-// P3.2 Spike B-05: Listen-Parameter → statische Varianten (ARCHITEKTUR §9.1, KONZEPT §2.3, AK-A-9-03).
+// P3.2 Spike B-05: Listen-Parameter → statische Varianten (ARCHITEKTUR §9.1, KONZEPT §2.3, AK-A-9-03). V-12 (P20.3):
+// Der Schalter „nur verfügbare“ entfiel im Shop – `available` gilt nur noch für Flash (R12), auf R02/R03 wird er wie
+// jeder unbekannte Parameter ignoriert (kanonisch die Seite ohne Parameter).
 
 const ROOT = path.resolve(import.meta.dirname, '../../..')
 
 describe('parseListParams (KONZEPT §2.3)', () => {
   it('bekannte Parameter je Liste; unbekannte entfallen', () => {
-    expect(parseListParams('R02', '?available=1&page=2&foo=bar')).toEqual({
-      available: true,
-      page: 2,
-    })
-    expect(parseListParams('R03', 'page=3')).toEqual({ page: 3 })
-    // `category` nur im Archiv, `available` nicht im Archiv.
+    // V-12: `available` im Shop ignoriert
+    expect(parseListParams('R02', '?available=1&page=2&foo=bar')).toEqual({ page: 2 })
+    expect(parseListParams('R03', 'page=3&available=1')).toEqual({ page: 3 })
+    // `category` nur im Archiv, `available` nur bei Flash.
     expect(parseListParams('R02', 'category=keramik')).toEqual({})
     expect(parseListParams('R05', 'category=keramik&available=1&page=2')).toEqual({
       category: 'keramik',
       page: 2,
     })
-    expect(parseListParams('R02', { available: ['1', '0'], page: undefined })).toEqual({
+    expect(parseListParams('R02', { available: ['1', '0'], page: undefined })).toEqual({})
+    expect(parseListParams('R12', { available: ['1', '0'], page: '2' })).toEqual({
       available: true,
     })
   })
@@ -66,15 +67,20 @@ describe('variantKey / parseVariantKey', () => {
     expect(variantKey({})).toBe('')
     expect(variantKey({ page: 1 })).toBe('')
     // Reihenfolge der Query egal → gleicher Schlüssel.
-    expect(variantKey(parseListParams('R02', 'page=2&available=1'))).toBe('available-1.page-2')
-    expect(variantKey(parseListParams('R02', 'available=1&page=2'))).toBe('available-1.page-2')
+    expect(variantKey(parseListParams('R05', 'page=2&category=caps'))).toBe('category-caps.page-2')
+    expect(variantKey(parseListParams('R05', 'category=caps&page=2'))).toBe('category-caps.page-2')
+    // V-12: `available` fällt im Shop weg
+    expect(variantKey(parseListParams('R02', 'available=1&page=2'))).toBe('page-2')
   })
 
   it('nur kanonische Schlüssel sind gültig (sonst 404)', () => {
-    expect(parseVariantKey('R02', 'available-1.page-2')).toEqual({ available: true, page: 2 })
+    expect(parseVariantKey('R02', 'page-2')).toEqual({ page: 2 })
     expect(parseVariantKey('R05', 'category-caps.page-3')).toEqual({ category: 'caps', page: 3 })
+    expect(parseVariantKey('R12', 'available-1')).toEqual({ available: true })
     for (const bad of [
       '',
+      'available-1.page-2',
+      'available-1',
       'page-2.available-1',
       'page-1',
       'page-0',
@@ -110,17 +116,23 @@ describe('decideListVariant (Proxy, ARCHITEKTUR §9.1)', () => {
   it('R02/R03/R05 mit Parametern → interner Pfad (Ordner = EN-Pfade)', () => {
     expect(decideListVariant('/de/shop', '?available=1&page=2')).toEqual({
       kind: 'rewrite',
-      pathname: '/de/shop/variant/available-1.page-2',
+      pathname: '/de/shop/variant/page-2',
       routeId: 'R02',
-      key: 'available-1.page-2',
+      key: 'page-2',
     })
     expect(decideListVariant('/en/shop/category/ceramics', '?page=2')).toMatchObject({
       kind: 'rewrite',
       pathname: '/en/shop/category/ceramics/variant/page-2',
       routeId: 'R03',
     })
-    expect(decideListVariant('/de/shop/kategorie/keramik', '?available=1')).toMatchObject({
-      pathname: '/de/shop/category/keramik/variant/available-1',
+    // V-12: `?available=1` allein → keine Variante, die Grundform (kanonisch ohne Parameter)
+    expect(decideListVariant('/de/shop/kategorie/keramik', '?available=1')).toEqual({
+      kind: 'none',
+    })
+    expect(decideListVariant('/de/tattoo/flash', '?available=1')).toMatchObject({
+      kind: 'rewrite',
+      routeId: 'R12',
+      key: 'available-1',
     })
     expect(decideListVariant('/de/archiv', '?page=2&category=caps')).toMatchObject({
       pathname: '/de/archive/variant/category-caps.page-2',

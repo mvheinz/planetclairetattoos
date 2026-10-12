@@ -165,6 +165,10 @@ export function CommissionForm(props: CommissionFormProps) {
         >
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="formToken" value={state.token} />
+          {flow.similarTo ? (
+            // V-20: Bezug auf das verkaufte Stück (nur die öffentliche Nummer; `COMMISSION_SIMILAR_FIELD`)
+            <input type="hidden" name="nach" value={flow.similarTo} />
+          ) : null}
           {images
             .filter((i) => i.status === 'done' && i.uploaded)
             .map((i) => (

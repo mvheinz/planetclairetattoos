@@ -185,7 +185,7 @@ describe('bestand:import (P16.2)', () => {
   )
 
   it(
-    'aus der Excel-Liste (U-85, U-86): verkauft → Markt-Verkauf (auch in der Vorschau), Notiz, Metallteile',
+    'aus der Excel-Liste (U-85, U-86, V-11): verkauft → Markt-Verkauf (auch in der Vorschau), ins Archiv nur mit Häkchen, Notiz, Metallteile',
     async () => {
       await cleanup()
       const now = new Date('2026-10-12T08:00:00.000Z')
@@ -249,6 +249,16 @@ describe('bestand:import (P16.2)', () => {
       expect(d.soldAt).toBe(now.toISOString())
       expect(d.offlineSalePriceCents).toBe(bowl.priceCents)
       expect(d.offlineSaleNote ?? null).toBeNull()
+      expect(d.showInArchiveAfterSale).toBe(false)
+
+      // V-11: mit Häkchen „ins Archiv“ steht der Markt-Verkauf mit sold-Stempel im Archiv
+      await cleanup()
+      const archived = all.map((p) =>
+        p.key === bowl.key ? { ...p, sold: { date: '2026-10-11', archive: true as const } } : p,
+      )
+      await importBestand(payload, archived, { only: [bowl.key], now })
+      const a = (await productOf(bowl))!
+      expect(a).toMatchObject({ status: 'sold', showInArchiveAfterSale: true })
     },
     SLOW,
   )

@@ -6,12 +6,14 @@ import { createLocalReq, getPayload, type Payload } from 'payload'
 import { z } from 'zod'
 
 import { INQUIRY_MAX_IMAGES } from '@/collections/Inquiries'
+import { COMMISSION_SIMILAR_FIELD, parseSimilarTo } from '@/lib/commission/link'
 import { dbFor } from '@/lib/db/tx'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
 import { INQUIRY_OBJECT_TYPES, LOCALES, type Locale } from '@/lib/enums'
 import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
+import { toPublicPayload } from '@/lib/payload/public'
 import { inTransaction } from '@/lib/payload/transaction'
 import { ipHash } from '@/lib/security/ipHash'
 import { hashRateLimitKey, hit, retryAfterSeconds, windowStart } from '@/lib/security/rateLimit'
@@ -35,6 +37,8 @@ import {
 //    anhängen (`attached`, `relatedInquiry`, gleiche Frist über die Fristregel L-10), M11 und A05 in die Outbox; dazu
 //    eine Einmal-Marke je Formular-Nonce (doppeltes Absenden → kein zweiter Datensatz).
 // 6. Nach dem Commit M11, dann A05 sofort ausführen (Fehler holt der Outbox-Job nach).
+// Feld `nach` (V-20): Nummer des verkauften Stücks bei „Etwas Ähnliches anfragen“ – gespeichert nur, wenn das Stück
+// öffentlich ist (sonst stillschweigend ignoriert); M11 und A05 nennen sie nicht.
 // Keine Personendaten in Logs (nur IDs/Referenz, R-137); IP nur als täglich wechselnder Hash im Rate-Limit.
 
 const log = createLogger()
@@ -157,6 +161,26 @@ export function validImageIds(value: unknown, token: CommissionFormToken): numbe
   return ids
 }
 
+/**
+ * Bezug „Etwas Ähnliches anfragen“ (V-20): nur die öffentliche Nummer eines öffentlich sichtbaren Stücks (gleiche
+ * Leseregel wie die Webseite: verfügbar, reserviert oder verkauft im Archiv; ohne Beispieldaten außerhalb der Vorschau).
+ * Unbekannt, ungültig oder nicht öffentlich → `null`, ohne Fehlermeldung.
+ */
+export async function publicSimilarTo(payload: Payload, value: unknown): Promise<number | null> {
+  const nr = parseSimilarTo(value)
+  if (nr === undefined) return null
+  try {
+    const { totalDocs } = await toPublicPayload(payload).count({
+      collection: 'products',
+      where: { itemNumber: { equals: nr } },
+    })
+    return totalDocs > 0 ? nr : null
+  } catch (e) {
+    log.warn('commission.similar_lookup_failed', { reason: errorSummary(e) })
+    return null
+  }
+}
+
 async function responseTime(payload: Payload, locale: Locale): Promise<string | null> {
   try {
     const texts = (await payload.findGlobal({
@@ -217,6 +241,7 @@ export async function submitCommission(
   const imageIds = validImageIds(raw[COMMISSION_IMAGES_FIELD], token)
   const receivedAt = now.toISOString()
   const reply = await responseTime(payload, value.locale)
+  const similarTo = await publicSimilarTo(payload, raw[COMMISSION_SIMILAR_FIELD])
 
   const req = await createLocalReq({ context: { system: true, now: receivedAt } }, payload)
   const nonceKey = hashRateLimitKey(token.nonce)
@@ -260,6 +285,7 @@ export async function submitCommission(
           idea: value.idea,
           desiredTimeframe: value.desiredTimeframe,
           budget: value.budget,
+          similarTo,
           locale: value.locale,
           referenceImages: uploads,
           // Eingang = Serverzeit der injizierten Uhr (Grundlage der Löschung L-10)

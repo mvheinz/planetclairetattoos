@@ -4,6 +4,8 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import type { ProductCategory } from '@/lib/enums'
 import { resetEnvCache } from '@/lib/env'
 import { getCategoryBySlug, listNavCategories } from '@/lib/data/categories'
+import { loadNavigation } from '@/lib/data/navigation'
+import { loadSitemapData } from '@/lib/data/sitemap'
 import {
   PRODUCT_ADMIN_FIELDS,
   SHOP_PAGE_SIZE,
@@ -11,6 +13,7 @@ import {
   getPublicProductByItemNumber,
   isProductGone,
   listArchiveProducts,
+  loadCategoryKeysWithContent,
   loadPublicProductSlugs,
   listRelatedProducts,
   listShopProducts,
@@ -131,13 +134,11 @@ describe('Status-/Archiv-Kombinationen (AK-3-03, AK-3-04, AK-3-09, DM-PROD-07)',
     expectNoAdminFields([...res.docs, ...res.sold])
   })
 
-  it('AK-3-03 availableOnly liefert kein sold; Kategorie-Filter (R03)', async () => {
+  it('AK-3-03 (V-12): das Raster enthält nie sold – verkaufte nur in der eigenen Reihe; Kategorie-Filter (R03)', async () => {
     setEnv({ SEED_PREVIEW_MODE: 'false' })
     await createMix()
-    const onlyAvailable = await listShopProducts({ locale: 'de', availableOnly: true, page: 1 })
-    expect(numbers(onlyAvailable.docs)).toEqual([981, 982, 980])
-    expect(onlyAvailable.docs.every((d) => d.status !== 'sold')).toBe(true)
-    expect(onlyAvailable.sold).toEqual([])
+    const all = await listShopProducts({ locale: 'de', page: 1 })
+    expect(all.docs.every((d) => d.status !== 'sold')).toBe(true)
     const textil = await listShopProducts({ locale: 'de', categoryKeys: ['textil'], page: 1 })
     expect(numbers(textil.docs)).toEqual([982])
     expect(numbers(textil.sold)).toEqual([984])
@@ -149,7 +150,7 @@ describe('Status-/Archiv-Kombinationen (AK-3-03, AK-3-04, AK-3-09, DM-PROD-07)',
     const hidden = [985, 986, 987]
     const lists = [
       (await listShopProducts({ locale: 'de', page: 1 })).docs,
-      (await listShopProducts({ locale: 'en', availableOnly: true, page: 1 })).docs,
+      (await listShopProducts({ locale: 'en', page: 1 })).docs,
       (await listArchiveProducts({ locale: 'de', page: 1 })).docs,
       await listStationProducts(['keramik', 'textil'], 10, 'de'),
       await listRelatedProducts({ id: -1, category: 'keramik' }, 10, 'de'),
@@ -222,21 +223,32 @@ describe('P3.7 Produktseite: 404-Variante und statische Parameter (KONZEPT §2.3
   })
 })
 
-describe('Paginierung (KONZEPT §3.2: 24 je Seite)', () => {
-  it('25 Stücke → 2 Seiten, Seite 2 mit dem ältesten; ungültige Seite → 1', async () => {
+describe('Paginierung (KONZEPT §3.2: 24 je Seite; V-12: „Seite 2 von 4“ mit „noch n“)', () => {
+  it('25 Stücke → 2 Seiten, Seite 2 mit dem ältesten; „noch 1“ auf Seite 1; ungültige Seite → 1', async () => {
     setEnv({ SEED_PREVIEW_MODE: 'false' })
     for (let i = 0; i < 25; i++) await piece(975 + i, available(1 + i))
     const p1 = await listShopProducts({ locale: 'de', page: 1 })
     expect(p1.docs).toHaveLength(SHOP_PAGE_SIZE)
-    expect(p1).toMatchObject({ totalDocs: 25, totalPages: 2, hasNextPage: true })
+    expect(p1).toMatchObject({ totalDocs: 25, totalPages: 2, hasNextPage: true, remaining: 1 })
     expect(p1.docs[0]!.itemNumber).toBe(999)
     const p2 = await listShopProducts({ locale: 'de', page: 2 })
     expect(numbers(p2.docs)).toEqual([975])
-    expect(p2).toMatchObject({ page: 2, hasNextPage: false })
+    expect(p2).toMatchObject({ page: 2, hasNextPage: false, remaining: 0 })
     const p0 = await listShopProducts({ locale: 'de', page: 0 })
     expect(p0.page).toBe(1)
     const p3 = await listShopProducts({ locale: 'de', page: 3 })
     expect(p3.docs).toEqual([])
+  })
+
+  it('Archiv genauso: 24 je Seite, „noch n“', async () => {
+    setEnv({ SEED_PREVIEW_MODE: 'false' })
+    for (let i = 0; i < 25; i++) await piece(975 + i, sold(1, 1 + i))
+    const a1 = await listArchiveProducts({ locale: 'de', page: 1 })
+    expect(a1).toMatchObject({ totalPages: 2, hasNextPage: true, remaining: 1 })
+    expect(a1.docs).toHaveLength(SHOP_PAGE_SIZE)
+    const a2 = await listArchiveProducts({ locale: 'de', page: 2 })
+    expect(numbers(a2.docs)).toEqual([975])
+    expect(a2).toMatchObject({ remaining: 0, hasNextPage: false })
   })
 
   it('U-57 c: verkaufte nicht seitenweise – höchstens 4 auf der letzten Seite, Seitenzahl nur nach verfügbaren', async () => {
@@ -286,6 +298,28 @@ describe('Seed-Filter (DATENMODELL §1.4 Regel 4)', () => {
 })
 
 describe('Kategorien (KONZEPT §3.3, §2.4)', () => {
+  it('V-11 Kategorien mit Inhalt: verfügbar, reserviert oder im Archiv – nicht Entwurf, ausgeblendet oder sold ohne Archiv', async () => {
+    setEnv({ SEED_PREVIEW_MODE: 'false' })
+    await piece(985, sold(3, 11, false), 'zeichnung')
+    await piece(986, { status: 'draft' }, 'schmuck')
+    await piece(987, { status: 'archived', firstPublishedAt: day(1), archivedAt: day(5) }, 'cap')
+    expect(await loadCategoryKeysWithContent()).toEqual([])
+    await piece(980, available(1), 'keramik')
+    await piece(981, sold(1, 10), 'textil')
+    expect((await loadCategoryKeysWithContent()).sort()).toEqual(['keramik', 'textil'])
+    // Menü (showInNavigation und Inhalt) und Sitemap führen nur diese Kategorien; die Adressen bleiben erreichbar
+    expect((await loadNavigation('de')).categories.map((c) => c.key).sort()).toEqual([
+      'keramik',
+      'textil',
+    ])
+    const sitemap = await loadSitemapData()
+    expect(sitemap.categories.map((c) => (c.slug as { de: string }).de).sort()).toEqual([
+      'keramik',
+      'textil',
+    ])
+    expect(await getCategoryBySlug('de', 'zeichnungen')).not.toBeNull()
+  })
+
   it('getCategoryBySlug: eigener Slug direkt, Slug der anderen Sprache mit redirect, unbekannt → null', async () => {
     const own = await getCategoryBySlug('en', 'ceramics')
     expect(own).toMatchObject({ canonicalSlug: 'ceramics', redirect: false })

@@ -41,9 +41,9 @@ test.describe('Shop-Liste: verkaufte nur als kurze Reihe (U-57 c)', () => {
       'href',
       `${localizedPath('R05', 'de')}?category=keramik`,
     )
-    // „nur verfügbare“: keine Reihe
+    // V-12: `?available=1` gibt es nicht mehr – die Seite bleibt dieselbe, mit Reihe
     await page.goto(`${shop}?available=1`)
-    await expect(page.locator('[data-sold-row]')).toHaveCount(0)
+    await expect(page.locator('[data-sold-row]')).toHaveCount(1)
 
     await page.goto(localizedPath('R02', 'en'))
     await expect(page.locator('[data-sold-row] [data-archive-link]')).toHaveText('View the archive')
@@ -74,7 +74,8 @@ test.describe('Produktseite: Frage-Link, „Ähnliches anfragen“, Größenverg
     await expect(page.locator('[data-product-ask]')).toHaveCount(0)
     const similar = page.locator('[data-buy-area] [data-ask-similar]')
     await expect(similar).toHaveText('Etwas Ähnliches anfragen')
-    await expect(similar).toHaveAttribute('href', localizedPath('R10', 'de'))
+    // V-20: mit Bezug auf das verkaufte Stück
+    await expect(similar).toHaveAttribute('href', `${localizedPath('R10', 'de')}?nach=906`)
   })
 
   test('Foto zum Größenvergleich steht als letztes Bild mit Beschriftung (DE/EN)', async ({

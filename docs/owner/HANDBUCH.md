@@ -361,6 +361,11 @@ eine kurze Mail mit der Nummer, ohne Namen und ohne Inhalt. Den Inhalt siehst du
 - **Status** setzen, damit du den Überblick behältst, und **Notizen** schreiben (nur für dich).
 - **Jetzt löschen:** löscht Anfrage und Bilder sofort.
 - Ohne dein Zutun löscht der Shop jede Anfrage **6 Monate nach Eingang**. Das steht auch so in der Datenschutzerklärung.
+- **Anlass: so etwas wie …** (seit P20.3): Hat jemand bei einem verkauften Stück auf „Etwas Ähnliches anfragen“
+  getippt, steht in der Anfrage unter „Gegenstand“, welches Stück das war – mit Nummer und Namen. Ein Tipp darauf (am
+  iPad) bzw. ein Klick (am Computer) öffnet das Stück. Die Art des Gegenstands ist dann meist schon passend ausgewählt.
+  Auch auf der Startseite gibt es so einen Weg: Solange keine Zeichnung im Shop ist, zeigt die Station „Zeichnungen“
+  den Knopf „Zeichnung auf Anfrage“, und im Formular ist „Zeichnung“ schon ausgewählt.
 
 Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst in deiner Antwort, was du anbietest.
 
@@ -463,6 +468,18 @@ und Zahlung) sind etwas Besonderes:
   keine Änderung“.
 
 Schreibe in Rechtstexten nie selbst um, was die Kanzlei geliefert hat.
+
+**Fragen zum Shop** (seit P20.3): Ganz unten auf der Shop-Seite stehen jetzt acht Fragen und Antworten („Gibt es das
+nochmal?“, „Sind die Shirts neu?“, „Kann ich abholen?“ …), auch verlinkt bei „Versand & Rückgabe“ auf jeder
+Produktseite. Es sind Vorschläge von Claude in deinem Ton – ändern, ergänzen oder ausblenden kannst du sie wie alle Fragen:
+
+- **Am iPad (oder Handy):** Verwaltung öffnen → unten „Mehr“ → „Texte“ (iPad quer: „Texte“ links in der Seitenleiste)
+  → nach unten zu „Häufige Fragen (FAQ)“ → Abschnitt „Shop“. Frage antippen, ändern, „Speichern“.
+- **Am Computer (Mac oder PC):** Verwaltung im Browser öffnen → links in der Seitenleiste „Texte“ → nach unten zu
+  „Häufige Fragen (FAQ)“ → Abschnitt „Shop“. Frage anklicken, ändern, „Speichern“.
+
+Bei „Kann ich etwas zurückgeben?“ bitte nichts versprechen, was über die Widerrufsbelehrung hinausgeht, und nie
+schreiben, dass Handgemachtes ausgeschlossen sei – im Zweifel Claude oder die Kanzlei fragen.
 
 **Neue Stücke – passen die Texte noch?** Nach jedem Schwung neuer Stücke (oder wenn eine Stückart ausverkauft ist) schau
 kurz auf die Startseite und die Kategorien im Shop: Nennen die Texte noch, was es wirklich gibt (V-21)? Ändern kannst du

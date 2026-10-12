@@ -173,16 +173,27 @@ test.describe('Abholung ausgeschaltet (exklusiv, nur desktop)', () => {
     )
   })
 
-  test('Produktseite: nur_abholung nicht bestellbar – Knopf aus mit Hinweis, keine Kauf-Leiste, kein Cookie', async ({
+  test('Produktseite: nur_abholung nicht bestellbar – Knopf aus mit Hinweis, keine Kauf-Leiste, kein Cookie; Versandzeile ohne Abholung (V-10)', async ({
     page,
     request,
   }) => {
     const p = await createOwn(payload, 999, 'sonstiges', { shippingClass: 'nur_abholung' })
-    used = [p.id]
+    const a = await createOwn(payload, 998, 'keramik')
+    used = [p.id, a.id]
     restore = await setPickup(payload, false)
     const url = await pathOf(p.itemNumber, 'de')
+    const urlA = await pathOf(a.itemNumber, 'de')
     try {
+      // V-10: Versand am Preis, aber kein „Abholung … kostenlos“, solange Abholung aus ist
+      await openProduct(page, request, urlA)
+      await expect(page.locator('[data-shipping-at-price]')).toHaveText('+ 8,90 € Versand')
+      await expect(page.locator('[data-shipping-at-price-pickup]')).toHaveCount(0)
+      await expect(page.locator('[data-shipping-once]')).toHaveText(
+        'Mehrere Stücke? Versand zahlst du nur einmal.',
+      )
       await openProduct(page, request, url)
+      await expect(page.locator('[data-shipping-at-price]')).toHaveCount(0)
+      await expect(page.locator('[data-shipping-once]')).toHaveCount(0)
       await expect(page.locator('[data-buy-area]')).toHaveAttribute('data-buy-state', 'closed')
       await expect(page.locator('[data-pickup-blocked]')).toContainText(
         'Gerade nicht bestellbar – Abholung ist im Moment nicht möglich.',
@@ -194,7 +205,7 @@ test.describe('Abholung ausgeschaltet (exklusiv, nur desktop)', () => {
       // Die Seite des Stücks mit dem zurückgesetzten Schalter neu erzeugen (Produktions-Build).
       await restore?.()
       restore = undefined
-      await refresh(request, [url])
+      await refresh(request, [url, urlA])
     }
   })
 

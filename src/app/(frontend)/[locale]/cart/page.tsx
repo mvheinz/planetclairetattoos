@@ -21,7 +21,6 @@ import type { CartBlocker } from '@/lib/commerce/evaluateCart'
 import { getCartMedia } from '@/lib/data/cart'
 import { activeCheckoutCountdown } from '@/lib/data/checkout'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
-import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import { localizedPath } from '@/lib/routes/paths'
@@ -134,10 +133,6 @@ export default async function Page({
   const delivery = evaluation.delivery
   const highest = totals?.shippingClass ?? null
   const carrier = highest === 'brief' ? 'Deutsche Post' : 'DHL'
-  const classLabel = highest ? ENUM_LABELS.SHIPPING_CLASSES[highest] : null
-  const className = classLabel
-    ? ((locale === 'en' ? classLabel.en : undefined) ?? classLabel.de)
-    : null
   const blockerText = (b: CartBlocker) =>
     b === 'shop_closed'
       ? closedText
@@ -233,9 +228,11 @@ export default async function Page({
               {t('deliveryApply')}
             </Button>
           ) : null}
-          {className ? (
-            <p className={styles.small} data-shipping-class-line={highest ?? ''}>
-              {t('shippingClassLine', { shippingClass: className })}
+          {/* V-10: statt der Fachzeile zur Versandklasse – Versand gibt es je Bestellung nur einmal (E-25: die größte
+              Klasse zählt). */}
+          {highest && highest !== 'nur_abholung' ? (
+            <p className={styles.small} data-shipping-once={highest}>
+              {t('shippingOnce')}
             </p>
           ) : null}
         </form>
