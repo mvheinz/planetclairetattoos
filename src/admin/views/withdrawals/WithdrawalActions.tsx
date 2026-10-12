@@ -16,7 +16,7 @@ import { adminText } from '../../translations'
 // Knöpfe im Widerrufs-Detail `/widerrufe/:id` (PLAN P6.9, KONZEPT §7.10, R-094): „Bestellung zuordnen“ (W2, Suche nach
 // Nummer, E-Mail, Name), „Stücke zuordnen“ (Teil-Widerruf nur im Freitext; nichts vorab angehakt), „Ware ist zurück“
 // (W3/O12 mit Zustandsnotiz und optional Fotos `return_photo`), „Rücksendenachweis liegt vor“, „Ohne Erstattung abschließen“ (W5, Grund Pflicht), „Ablehnen“ (W7, nur manuell,
-// Begründung Pflicht), „Als Test/Spam markieren“ und je Stück „wieder verkaufen“ (P11) bzw. „ausblenden“ (P13). Jede
+// Begründung Pflicht), „Als Test/Spam markieren“ und je Stück „wieder verkaufen“ (P11) bzw. „weglegen“ (P13, V-34). Jede
 // Aktion mit Bestätigungsdialog; danach lädt die Ansicht neu. Der Server prüft alles noch einmal.
 
 export interface WithdrawalActionItem {

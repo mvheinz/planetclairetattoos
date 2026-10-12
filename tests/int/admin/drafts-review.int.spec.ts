@@ -2,10 +2,12 @@ import { sql } from '@payloadcms/db-postgres'
 import type { Payload, PayloadRequest } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
+import { loadOrderDetail } from '@/admin/views/orders/orderQuery'
 import { toSaveData, formFromDoc, pieceLocks } from '@/admin/views/pieces/pieceForm'
 import { parsePiecesQuery, queryPieces } from '@/admin/views/pieces/piecesQuery'
 import { getTodaySummary } from '@/lib/admin/today'
 import { transitionProduct } from '@/lib/commerce/productTransitions'
+import { itemsUnassignedNote } from '@/lib/commerce/withdrawalHold'
 
 import { adminReq, resetAdmin } from '../helpers/admin'
 import { createOrder, dbOf, deleteCommerce, orderData } from '../helpers/commerce'
@@ -193,6 +195,61 @@ describe('V-31 Markierung „zu prüfen“', () => {
     expect(doc.adminAttention).toMatchObject({ flag: false })
     const no = await rest('POST', `/orders/${system.id}/attention-done`, {}, auth())
     expect(no.status).toBe(409)
+
+    // „Stücke zuordnen“ eines offenen Teil-Widerrufs (Grund `manual`, vom System gesetzt): kein „Erledigt“
+    const ref = 'WR-2026-90133'
+    const held = await createOrder(
+      payload,
+      orderData(90_133, [p], {
+        seed: true,
+        adminAttention: { flag: true, reason: 'manual', note: itemsUnassignedNote(ref) },
+      }),
+      { seed: true },
+    )
+    await payload.create({
+      collection: 'withdrawals',
+      data: {
+        reference: ref,
+        receivedAt: new Date().toISOString(),
+        status: 'received',
+        channel: 'online_form',
+        locale: 'de',
+        seed: true,
+        name: 'Mia Beispiel',
+        email: 'mia@example.com',
+        contractIdentification: 'PC-2026-90133',
+        itemsText: 'die graue Cap',
+        matchStatus: 'manually_matched',
+        order: held.id,
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    expect((await loadOrderDetail(req, held.id as number))!.attention).toMatchObject({
+      manual: false,
+    })
+    const kept = await rest('POST', `/orders/${held.id}/attention-done`, {}, auth())
+    expect(kept.status).toBe(409)
+    expect(((await kept.json()) as { error: string }).error).toContain(ref)
+    const heldDoc = await payload.findByID({
+      collection: 'orders',
+      id: held.id as number,
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect(heldDoc.adminAttention).toMatchObject({ flag: true, reason: 'manual' })
+    // eine echte Markierung von Hand zeigt „Erledigt“
+    const other = await createOrder(
+      payload,
+      orderData(90_134, [p], {
+        seed: true,
+        adminAttention: { flag: true, reason: 'manual', note: 'Kundin ruft zurück' },
+      }),
+      { seed: true },
+    )
+    expect((await loadOrderDetail(req, other.id as number))!.attention).toMatchObject({
+      manual: true,
+    })
   })
 })
 
@@ -282,6 +339,17 @@ describe('V-32 „was fehlt noch?“ und „Alle fertigen online stellen“', ()
     const b = await byId(noNickel.id)
     expect(a).toMatchObject({ status: 'draft', ownDesignConfirmed: false })
     expect(b).toMatchObject({ status: 'draft', nickelFreeConfirmed: false })
+
+    // nur die im Dialog gezählten und bestätigten Stücke (`ids`): ein danach fertig gewordener Entwurf bleibt
+    const counted2 = await draft()
+    const late = await draft()
+    const only = (await (
+      await rest('POST', '/products/publish-ready', { ids: [counted2.id] }, auth())
+    ).json()) as { published: { id: number }[]; remaining: number }
+    expect(only.published.map((r) => r.id)).toEqual([counted2.id])
+    expect(only.remaining).toBe(0)
+    expect((await byId(late.id)).status).toBe('draft')
+    await transitionProduct(req, late.id, 'publish')
 
     // nichts mehr fertig → leerer Bericht (zweiter Tipp ohne Wirkung)
     const again = (await (await rest('POST', '/products/publish-ready', {}, auth())).json()) as {

@@ -72,3 +72,20 @@ export async function unassignedWithdrawalOf(
 ): Promise<string | null> {
   return (await unassignedWithdrawals(req, [orderId])).get(orderId) ?? null
 }
+
+/**
+ * Ist der Hinweis an der Bestellung der „Stücke zuordnen“-Hinweis eines noch offenen Teil-Widerrufs? Den setzt das
+ * System (Grund `manual`, Notiz `itemsUnassignedNote`) und nimmt ihn beim Zuordnen selbst wieder weg – „Erledigt“
+ * (V-31) darf ihn nicht vorher löschen. `unassignedRef` = Ergebnis von `unassignedWithdrawalOf`.
+ */
+export function isUnassignedWithdrawalHint(
+  attention: { flag?: boolean | null; reason?: string | null; note?: string | null } | null,
+  unassignedRef: string | null,
+): boolean {
+  return (
+    !!attention?.flag &&
+    attention.reason === 'manual' &&
+    unassignedRef !== null &&
+    attention.note === itemsUnassignedNote(unassignedRef)
+  )
+}

@@ -19,7 +19,8 @@ import { errorResponse, productAction, readJsonBody } from './actions'
 // - `GET|POST /api/products/publish-ready` – „Alle fertigen online stellen“ (V-32): GET zählt die fertigen Entwürfe
 //   (dieselbe Prüfung wie beim Online-Stellen), POST stellt höchstens `PUBLISH_READY_BATCH` davon nacheinander online
 //   (je Stück eigener Übergang P2 mit Veröffentlichungsprüfung; Bestätigungen wie „nur eigene Figuren“ oder „nickelfrei“
-//   setzt die Sammelaktion nie – R-047, V-03) und meldet Erfolge und Fehler. `skip` = Stücke, die schon scheiterten.
+//   setzt die Sammelaktion nie – R-047, V-03) und meldet Erfolge und Fehler. `ids` = die im Dialog gezählten und
+//   bestätigten Stücke (nur diese gehen online), `skip` = Stücke, die schon scheiterten.
 // - `GET /api/products/:id/readiness` – „Was fehlt noch?“ im Formular (nach jedem Speichern neu).
 // - `GET|POST /api/products/market-sale` – Markt-Knopf unter „Heute“ (V-33 a): Nummer → Stück (GET zeigt es an),
 //   POST verkauft es über denselben Übergang wie „Verkauft (Markt/privat)“ (P9, Statusautomat, Umsatz-Wächter) mit
@@ -103,6 +104,9 @@ export async function readyDrafts(
   return { drafts: views.length, ready }
 }
 
+const idsOf = (v: unknown): number[] =>
+  (Array.isArray(v) ? v : []).map(Number).filter((n) => Number.isSafeInteger(n) && n > 0)
+
 const messagesOf = (err: unknown): string => {
   if (err instanceof ValidationError) {
     const list = (err.data?.errors ?? []).map((e) => e.message).filter(Boolean)
@@ -133,12 +137,11 @@ export const publishReadyEndpoints: Endpoint[] = [
       if (!isAdminRequest(req)) return forbidden()
       try {
         const body = await readJsonBody(req)
-        const skip = new Set(
-          (Array.isArray(body.skip) ? body.skip : [])
-            .map(Number)
-            .filter((n) => Number.isSafeInteger(n) && n > 0),
-        )
-        const { ready } = await readyDrafts(req, skip)
+        const skip = new Set(idsOf(body.skip))
+        // Nur die Stücke, die der Dialog gezählt und Jutta bestätigt hat (`ids`); ohne `ids` alle fertigen.
+        const only = Array.isArray(body.ids) ? new Set(idsOf(body.ids)) : null
+        const { ready: all } = await readyDrafts(req, skip)
+        const ready = only ? all.filter((p) => only.has(p.id)) : all
         const batch = ready.slice(0, PUBLISH_READY_BATCH)
         const published: PieceRef[] = []
         const failed: (PieceRef & { message: string })[] = []

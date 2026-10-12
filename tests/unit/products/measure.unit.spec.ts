@@ -26,6 +26,8 @@ describe('V-15 Schätz-Vermerke (zentrale Liste, DE und EN)', () => {
     ['Geschätzte Höhe 7 cm', 'geschätzt'],
     ['Höhe geschaetzt 7 cm', 'geschätzt'],
     ['Höhe 7 cm (Schätzung)', 'Schätzung'],
+    ['Höhe 7 cm (Schätzwert)', 'Schätzwert'],
+    ['Schätzwerte: 7 × 9 cm', 'Schätzwert'],
     ['vermutlich 7 cm hoch', 'vermutlich'],
     ['Höhe bitte nachmessen', 'nachmessen'],
     ['Kordellänge noch messen', 'noch messen'],
@@ -39,6 +41,8 @@ describe('V-15 Schätz-Vermerke (zentrale Liste, DE und EN)', () => {
     ['height to be measured', 'to be measured'],
     ['length not yet measured', 'not measured'],
     ['length TBD', 'tbd'],
+    ['height about 7 cm (guessed)', 'guessed'],
+    ['my best guess: 7 cm', 'guessed'],
   ])('„%s“ → Vermerk „%s“', (text, label) => {
     expect(findEstimateMarker(text)?.label).toBe(label)
   })
@@ -48,6 +52,8 @@ describe('V-15 Schätz-Vermerke (zentrale Liste, DE und EN)', () => {
     'Höhe etwa 7 cm, ungefähr 5 cm breit',
     'approx. 40 cm, about 7 cm, roughly 5 cm',
     'nach meiner Einschätzung sehr stabil',
+    'Wertschätzung für Handarbeit',
+    'a guest favourite, 7 cm',
     'Brustweite 52 cm, Länge 70 cm',
     'Einheitsgröße, verstellbar 54–60 cm',
     '',

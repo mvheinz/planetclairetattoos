@@ -33,6 +33,7 @@ export const ESTIMATE_MARKERS: readonly EstimateMarker[] = [
   // Deutsch
   marker('de-geschaetzt', 'geschätzt', `(?<!${L})gesch(?:ä|ae)tzt`),
   marker('de-schaetzung', 'Schätzung', `(?<!${L})sch(?:ä|ae)tzung`),
+  marker('de-schaetzwert', 'Schätzwert', `(?<!${L})sch(?:ä|ae)tzwert`),
   marker('de-vermutlich', 'vermutlich', `(?<!${L})vermutlich(?!${L})`),
   marker('de-nachmessen', 'nachmessen', `(?<!${L})nach(?:zu)?messen(?!${L})`),
   marker('de-noch-messen', 'noch messen', `(?<!${L})noch\\s+(?:zu\\s+)?messen(?!${L})`),
@@ -49,6 +50,7 @@ export const ESTIMATE_MARKERS: readonly EstimateMarker[] = [
     `(?<!${L})(?:not\\s+(?:yet\\s+)?measured|unmeasured|re-?measure)(?!${L})`,
   ),
   marker('en-tbd', 'tbd', `(?<!${L})tbd(?!${L})`),
+  marker('en-guess', 'guessed', `(?<!${L})guess(?:ed|es|timated?)?(?!${L})`),
 ]
 
 /** Erster Schätz-Vermerk im Text (`null` = keiner). */

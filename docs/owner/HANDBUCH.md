@@ -269,7 +269,7 @@ ist), steht an der Bestellung **„Nicht mehr versenden – Widerruf: Nr. …“
 Stücke packst und versendest du ganz normal; Packzettel und Versandmail nennen nur sie. Versandart, Hinweise, Checkliste
 und Verpackung richten sich dann nur nach diesen Stücken: Bleibt zum Beispiel nur eine Postkarte übrig, geht sie als
 Brief, und die Sendungsnummer ist freiwillig. Das nicht verschickte Stück kannst du nach der Erstattung wieder verkaufen
-oder ausblenden, auch wenn der Rest schon unterwegs ist. Steht dort **„Noch nicht versenden – … erst Stücke
+oder weglegen, auch wenn der Rest schon unterwegs ist. Steht dort **„Noch nicht versenden – … erst Stücke
 zuordnen!“**, lies Kapitel 8.
 
 ![Die Liste „Versendet“](img/handbuch/versendet.webp)

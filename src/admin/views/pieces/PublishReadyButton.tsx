@@ -77,7 +77,11 @@ export function PublishReadyButton() {
           published?: PieceRef[]
           failed?: Failed[]
           remaining?: number
-        }>('/api/products/publish-ready', { skip: failed.map((f) => f.id) })
+        }>('/api/products/publish-ready', {
+          // genau die gezählten und bestätigten Stücke – kein Entwurf, der erst danach fertig wurde
+          ids: count.ready.map((p) => p.id),
+          skip: failed.map((f) => f.id),
+        })
         published += r.published?.length ?? 0
         failed.push(...(r.failed ?? []))
         setProgress({ done: published, total })

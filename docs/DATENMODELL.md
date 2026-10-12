@@ -1141,7 +1141,7 @@ veröffentlichter Stücke, Ändern der Nummer nach der ersten Veröffentlichung.
 | `POST /api/products/:id/adopt` | Seed-Stück übernehmen (`seed = false`, §13.4) |
 | `POST /api/products/:id/attention-done` | „Erledigt“ (V-31): `adminAttention` mit Grund `manual` leeren; Systemgrund → 409; ohne Markierung `{ unchanged: true }` |
 | `GET /api/products/:id/readiness` | „Was fehlt noch?“ (V-32): `{ readiness: { ready, missing[], issues[], hints[] } }` – dieselbe Prüfung wie §6.6.6 |
-| `GET` · `POST /api/products/publish-ready` (`{ skip?: number[] }`) | „Alle fertigen online stellen“ (V-32): GET zählt Entwürfe und fertige; POST stellt höchstens 10 fertige nacheinander online (je P2) und antwortet `{ published, failed, remaining }` |
+| `GET` · `POST /api/products/publish-ready` (`{ ids?: number[], skip?: number[] }`) | „Alle fertigen online stellen“ (V-32): GET zählt Entwürfe und fertige; POST stellt höchstens 10 fertige nacheinander online (je P2; mit `ids` nur die im Dialog gezählten und bestätigten) und antwortet `{ published, failed, remaining }` |
 | `GET /api/products/market-sale?nr=` · `POST /api/products/market-sale` (`{ itemNumber, priceCents? }`) | Markt-Knopf (V-33 a): Stück zur Nummer anzeigen bzw. per P9 verkaufen (Datum heute, heutiger Markt-Termin nur wenn genau einer); `reserved`/`draft`/`archived` → 409 mit Meldung; schon offline verkauft → `{ unchanged: true }` |
 
 #### 6.6.11 Indizes & Constraints
@@ -1312,7 +1312,7 @@ sind gefilterte Listen dieser Collection.
 | `dispute.status` | select `DisputeStatus` | S | – | `none` | – | – |
 | `dispute.stripeDisputeId` | text | S | – | – | – | – |
 | `adminAttention.flag` | checkbox | – | – | `false` | – | roter Hinweis im Dashboard |
-| `adminAttention.reason` | select `AttentionReason` | – | – | – | Pflicht bei `flag` | `manual` löscht „Erledigt“ in der Bestellung (`POST /api/orders/:id/attention-done`, V-31); Systemgründe nur das System |
+| `adminAttention.reason` | select `AttentionReason` | – | – | – | Pflicht bei `flag` | `manual` löscht „Erledigt“ in der Bestellung (`POST /api/orders/:id/attention-done`, V-31); Systemgründe nur das System – ebenso den Hinweis „Stücke zuordnen“ eines offenen Teil-Widerrufs (Grund `manual`, §6.11; „Erledigt“ → 409) |
 | `adminAttention.note` | textarea | – | – | – | ≤ 500 | – |
 | `timestamps.placedAt` | date | S, R | – | = `checkouts.submittedAt` (Klick auf „Zahlungspflichtig bestellen“) | – | – |
 | `timestamps.paidAt` … `disputedAt` | date | S | – | – | je ein Feld pro Zielstatus: `paidAt`, `packedAt`, `shippedAt`, `deliveredAt`, `readyForPickupAt`, `pickedUpAt`, `withdrawalReceivedAt`, `returnReceivedAt`, `refundedAt`, `cancelledAt`, `disputedAt` | – |

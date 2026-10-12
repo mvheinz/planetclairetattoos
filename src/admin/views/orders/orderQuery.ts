@@ -22,7 +22,7 @@ import {
   type PackingHint,
 } from '@/lib/commerce/packing'
 import { resendOptions, type ResendOption } from '@/lib/commerce/resendEmail'
-import { unassignedWithdrawals } from '@/lib/commerce/withdrawalHold'
+import { isUnassignedWithdrawalHint, unassignedWithdrawals } from '@/lib/commerce/withdrawalHold'
 import { defaultCarrierFor, type CarrierCode } from '@/lib/carrier'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { OrderStatus, ShippingClass } from '@/lib/enums'
@@ -341,9 +341,12 @@ export async function loadOrderDetail(
     statusLabel: ENUM_LABELS.EMAIL_STATUSES[m.status]?.de ?? m.status,
   }))
   const shipping = order.fulfillmentMethod === 'shipping'
+  const unassigned =
+    shipping || order.adminAttention?.reason === 'manual'
+      ? ((await unassignedWithdrawals(req, [order.id])).get(order.id) ?? null)
+      : null
   let packing: PackingDetail | null = null
   if (shipping) {
-    const unassigned = (await unassignedWithdrawals(req, [order.id])).get(order.id) ?? null
     const card = packingCard(order, items, settings, unassigned)
     const packaging = packagingForOrder(order, settings)
     packing = {
@@ -398,7 +401,10 @@ export async function loadOrderDetail(
             ? ENUM_LABELS.ATTENTION_REASONS[order.adminAttention.reason].de
             : null,
           note: order.adminAttention.note ?? null,
-          manual: order.adminAttention.reason === 'manual',
+          // „Erledigt“ nur für echte Markierungen von Hand – nicht für „Stücke zuordnen“ eines offenen Teil-Widerrufs.
+          manual:
+            order.adminAttention.reason === 'manual' &&
+            !isUnassignedWithdrawalHint(order.adminAttention, unassigned),
         }
       : null,
     dispute: disputed

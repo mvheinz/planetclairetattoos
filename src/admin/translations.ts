@@ -696,11 +696,13 @@ export const ADMIN_CUSTOM_DE = {
   withdrawalSpamConsequence:
     'Der Widerruf gilt als abgelehnt und wird 30 Tage nach der Markierung gelöscht.',
   withdrawalPieceResell: 'Stück wieder verkaufen',
-  withdrawalPieceHide: 'Stück ausblenden',
+  // V-34 (P20.6): P13 heißt überall „Weglegen“ (früher „Ausblenden“)
+  withdrawalPieceHide: 'Stück weglegen',
   withdrawalPieceResellConfirm: '{{nr}} wieder verkaufen?',
   withdrawalPieceResellConsequence: 'Das Stück erscheint wieder im Shop.',
-  withdrawalPieceHideConfirm: '{{nr}} ausblenden?',
-  withdrawalPieceHideConsequence: 'Das Stück verschwindet aus dem Shop (z. B. beschädigt).',
+  withdrawalPieceHideConfirm: '{{nr}} weglegen?',
+  withdrawalPieceHideConsequence:
+    'Das Stück kommt nicht wieder in den Shop (z. B. beschädigt). Es steht dann als „ausgeblendet“ in deiner Liste.',
   withdrawalManualTitle: 'Widerruf manuell erfassen',
   withdrawalManualIntro:
     'Für Widerrufe, die per E-Mail oder Brief kamen. Maßgeblich ist der Zeitpunkt, an dem er bei dir angekommen ist.',

@@ -19,7 +19,8 @@ import { adminOrderAction, loadAdminOrder, OrderActionError, orderActionError } 
 // `POST /api/orders/:id/picked-up` – „Abgeholt“ (O9, P5.17),
 // `GET /api/orders/:id/packing-slip.pdf` – Packzettel ohne Preise (P5.12),
 // `POST /api/orders/:id/attention-done` – „Erledigt“ für eine Markierung von Hand (V-31, P20.6); Markierungen des
-// Systems (Anfechtung, gescheiterte Erstattung, Betrag stimmt nicht …) bleiben, bis die Ursache behoben ist.
+// Systems (Anfechtung, gescheiterte Erstattung, Betrag stimmt nicht …, auch „Stücke zuordnen“ eines offenen
+// Teil-Widerrufs) bleiben, bis die Ursache behoben ist.
 // Dienste werden dynamisch geladen (sie hängen über die Outbox bzw. die Reservierung an der Payload-Konfiguration).
 
 const log = createLogger()
@@ -178,6 +179,17 @@ const attentionDoneEndpoint = adminOrderAction('attention-done', async ({ req, o
     throw new OrderActionError(
       409,
       'Diese Markierung hat das System gesetzt – sie verschwindet, sobald die Ursache behoben ist.',
+    )
+  }
+  // „Stücke zuordnen“ eines offenen Teil-Widerrufs: auch mit Grund `manual` vom System gesetzt – verschwindet beim
+  // Zuordnen von selbst (sonst ginge der Hinweis verloren, solange Packen und Versand noch gesperrt sind).
+  const { isUnassignedWithdrawalHint, unassignedWithdrawalOf } =
+    await import('@/lib/commerce/withdrawalHold')
+  const ref = await unassignedWithdrawalOf(req, order.id)
+  if (isUnassignedWithdrawalHint(a, ref)) {
+    throw new OrderActionError(
+      409,
+      `Dieser Hinweis verschwindet von selbst, sobald du beim Widerruf ${ref} die Stücke zugeordnet hast (Widerrufe → ${ref} → „Stücke zuordnen“).`,
     )
   }
   const doc = await req.payload.update({
