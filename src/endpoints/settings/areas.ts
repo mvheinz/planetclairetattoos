@@ -8,6 +8,7 @@ import { EU_CHECKLIST_KEYS } from '@/lib/settings/rules'
 import { parseEuroInput } from '@/lib/money'
 import { inTransaction } from '@/lib/payload/transaction'
 import { requestNow } from '@/lib/payload/context'
+import { BOOKED_MONTH_RE } from '@/lib/tattoo/booking'
 import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { berlinDayStart } from '@/lib/time'
 
@@ -47,7 +48,7 @@ const rowId = (v: unknown): string | undefined =>
 
 /** Übersetzbare Texte (Fehlerpfade bekommen das Sprach-Suffix). */
 const LOCALIZED_PATH_RE =
-  /^(shop\.closedMessage|shipping\.deliveryTimeText|safetyTemplates\.\d+\.text|careTemplates\.\d+\.text|pickup\.instructions|emails\.signature|emails\.inquiryResponseTime|tattoo\.priceNote)$/
+  /^(shop\.closedMessage|shipping\.deliveryTimeText|safetyTemplates\.\d+\.text|careTemplates\.\d+\.text|pickup\.instructions|emails\.signature|emails\.inquiryResponseTime|tattoo\.priceNote|tattoo\.bookedNote)$/
 
 const INT_MESSAGE = 'Bitte eine ganze Zahl eingeben.'
 const EURO_MESSAGE = 'Bitte einen Betrag wie 12,50 eingeben.'
@@ -355,6 +356,43 @@ const AREAS: Record<SettingsArea, AreaBuilder> = {
       en: (doc) => {
         const t = obj(doc.tattoo)
         t.priceNote = loc(v.priceNote, 'en')
+        doc.tattoo = t
+      },
+    }
+  },
+
+  // Tattoo-Preise bestätigen (V-28 a): heutiges Datum; die Startprüfung R210-16 wird grün. Ändern sich die Beträge
+  // später, setzt der Hook des Globals die Bestätigung zurück.
+  tattooPricesConfirm: () => ({
+    de: (doc, now) => {
+      const t = obj(doc.tattoo)
+      t.pricesConfirmedAt = now.toISOString()
+      doc.tattoo = t
+    },
+  }),
+
+  // „Anfragen offen / ausgebucht bis …“ (V-64): Schalter, Monat (nur wenn aus; „offen“ leert ihn) und kurzer Hinweis
+  // DE/EN. Ein schon vergangener Monat lehnt der Hook des Globals ab.
+  tattooBooking: (v, c) => {
+    const open = bool(v.inquiriesOpen)
+    const month = str(v.bookedUntil).trim()
+    if (!open && month && !BOOKED_MONTH_RE.test(month)) {
+      c.errors.push({
+        path: 'tattoo.bookedUntil',
+        message: 'Monat im Format JJJJ-MM, z. B. 2027-02.',
+      })
+    }
+    return {
+      de: (doc) => {
+        const t = obj(doc.tattoo)
+        t.inquiriesOpen = open
+        t.bookedUntil = open || !month ? null : month
+        t.bookedNote = loc(v.bookedNote, 'de')
+        doc.tattoo = t
+      },
+      en: (doc) => {
+        const t = obj(doc.tattoo)
+        t.bookedNote = loc(v.bookedNote, 'en')
         doc.tattoo = t
       },
     }

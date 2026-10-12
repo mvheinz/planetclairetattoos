@@ -2075,19 +2075,36 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 - **Preise** sind Gesamtpreise mit Kleinunternehmer-Hinweis (Sternchen, gleiche Fußnote wie im Shop ohne Versandteil).
 - **Keine Gesundheitsdaten:** Mail-Vorlagen enthalten den Satz „Bitte keine Gesundheitsinfos – die klären wir persönlich.“
 - **Fotos von Kund:innen** nur mit Einwilligungs-Häkchen (E-42). Motive mit fremden Figuren (z. B. „Godzilla“) nur im
-  Portfolio, nie als Verkaufsware (E-18, Manifest).
+  Portfolio, nie als Verkaufsware (E-18, Manifest); Bildunterschriften nennen keine fremden Werke (U-77, P20.5).
+- **Anfragen offen / ausgebucht (P20.5, V-64):** Schalter in der Verwaltung (Tattoo → Texte; `settings.tattoo.inquiriesOpen`,
+  `bookedUntil` = letzter ausgebuchter Monat einschließlich, `bookedNote` DE/EN). Aus = ruhiger Hinweis „Gerade
+  ausgebucht“ auf allen Tattoo-Seiten (unter der Einleitung) und auf R10 über dem Formular (das Formular bleibt offen);
+  der Mail-Knopf der Tattoo-Anfrage (Kontakt-Block, Flash-Karten) weicht dem Hinweis, die E-Mail-Adresse und alle
+  Pflichtlinks bleiben. Ohne eigenen Hinweis: „Neue Anfragen nehme ich ab {Monat nach `bookedUntil`} wieder an.“ bzw.
+  „… bald wieder an“. Nach dem eingetragenen Monat (Europe/Berlin) verschwindet der Hinweis von selbst. Keine
+  Warteliste (E-Liste „Später“).
 
 ### 9.2 Seiten und Inhalte
 
 | Seite | Blöcke (Reihenfolge) | Leerzustand |
 |---|---|---|
-| R11 Übersicht | H1 „Tattoo“; **Mein Stil** (Fine Line, naiv, mit Humor – Text in Juttas Ton); 3 verfügbare Flash-Motive; 3 Bilder aus der Galerie (bevorzugt „healed“); Links zu allen Unterseiten mit je einem Satz; Kontakt-Block | Blöcke ohne Inhalt entfallen |
+| R11 Übersicht | H1 „Tattoo“; **Mein Stil** (Fine Line, naiv, mit Humor – Text in Juttas Ton); 3 verfügbare Flash-Motive; 3 Bilder aus der Galerie (bevorzugt „healed“); Links zu allen Unterseiten mit je einem Satz (Flash und Galerie nur mit Inhalt, P20.5); Kontakt-Block | Blöcke ohne Inhalt entfallen |
 | R12 Flash | Einleitung; Filter „alle“/„verfügbar“ (Links, `?available=1`); Raster der Motive (§9.3); Kontakt-Block | „Gerade keine Flash-Motive online – schreib mir deine eigene Idee“ |
-| R14 Preise | Mindestpreis; Flash: „Jedes Flash-Motiv hat einen Festpreis – steht direkt am Motiv“ + Link R12; Custom: Preisrahmen-Text; Anzahlung: Text (vereinbaren wir persönlich, außerhalb der Website); Kleinunternehmer-Fußnote; Kontakt-Block | – |
-| R15 Galerie | Filter „alle“/„fresh“/„healed“ (Links, `?kind=fresh|healed`); Raster; Bild antippen → Vollbild mit Bildunterschrift; Kontakt-Block | „Hier kommen bald Fotos“ |
+| R14 Preise | Mindestpreis; Flash: „Jedes Flash-Motiv hat einen Festpreis – steht direkt am Motiv“ + Link R12 (nur mit veröffentlichten Motiven, P20.5); Custom: Preisrahmen-Text; Anzahlung: Text (vereinbaren wir persönlich, außerhalb der Website); Kleinunternehmer-Fußnote; Kontakt-Block | – |
+| R15 Galerie | Filter „alle“/„fresh“/„healed“ (Links, `?kind=fresh|healed`); Raster; Bild antippen → Vollbild mit Bildunterschrift; Kontakt-Block | „Hier kommen bald Fotos“ (Weiter-Link zu Flash nur mit Motiven, sonst zum Ablauf) |
 | R16 Ablauf | 5 Schritte (Konzeptseite): **Anfrage → Termin → Anzahlung (offline) → Stechen → Aftercare**, je Schritt 1–3 Sätze; Hinweis „Tattoos erst ab 18“; Ort; Kontakt-Block | – |
 | R17 Aftercare | Phasen: direkt danach · Tag 1–3 · Woche 1–2 · Woche 3–6 · langfristig (Sonnenschutz); „Warnzeichen – wann zum Arzt“; Link auf die Safer-Tattoo-Checklisten des Bundesumweltministeriums (einfacher externer Link); druckfreundliche Darstellung (Druck-CSS) | – |
 | R18 FAQ | Fragen als aufklappbare Einträge (`<details>`), Reihenfolge pflegbar; Themen mindestens: ab 18, Privatstudio/Bezirk, Anzahlung, Absagen/Verschieben, Coco im Studio (Allergien), Farbe/Schwarz, Cover-ups, Instagram-DM vs. Mail | „Noch keine Fragen“ (nur im Admin sichtbar relevant) |
+
+**Flash und Galerie nur mit Inhalt (P20.5, U-93: V-28 a, V-11):** R12 erscheint in Menü, Unter-Navigation, den Links der
+Übersicht, auf der Preisseite und in der Sitemap erst, wenn mindestens ein veröffentlichtes Motiv existiert, das keine
+Beispieldaten sind (im Vorschau-Modus zählen die Beispiel-Motive, mit Stempel „Beispiel“); R15 genauso mit mindestens
+einem öffentlich sichtbaren Foto (§9.7). Die Adressen bleiben erreichbar und zeigen ihren Leerzustand (kein 404).
+Erstes Motiv bzw. letztes entferntes erneuert Menü, Seiten und Sitemap über die Tags `flash` und `tattoo-gallery`.
+**Beispiele markiert (V-28 a):** Flash-Motive und Galerie-Fotos aus den Beispieldaten tragen in Vorschau-Datei und
+Rundgang den Stempel „Beispiel“/„Example“ (DESIGN KO-20) – ihre Preise sind erfunden. Die Grundpreise in
+`settings.tattoo` (80 €, 150–400 €) hat Jutta bestätigt (U-93); bis sie das in der Verwaltung tut, bleibt die
+Startklar-Prüfung R210-16 rot (§9.6).
 
 ### 9.3 Flash (E-52)
 
@@ -2159,6 +2176,11 @@ Tattoo-Texten (Prüfung beim Speichern mit Warnung; Speichern bleibt möglich): 
 Anzahlungen (Rechtsrisiko laut Recherche) – die Regeln zur Anzahlung vereinbart Jutta individuell per Mail. Keine
 Online-Anzahlung (E-53).
 
+**Preise bestätigen (P20.5, V-28 a, PAngV):** Unter den Preisen in der Verwaltung (Tattoo → Texte) steht der Knopf
+„Preise stimmen – bestätigen“ (mit Rückfrage) → `settings.tattoo.pricesConfirmedAt`. Solange Beträge eingetragen und
+nicht bestätigt sind, ist der Startklar-Punkt R210-16 „Tattoo-Preise sind von dir bestätigt“ rot. Ändert sich ein Betrag,
+ist die Bestätigung weg (Hook des Globals).
+
 ### 9.7 Galerie mit Einwilligung und `SEED_PREVIEW_MODE`
 
 **Felder je Galerie-Eintrag** (`tattoo-gallery`, DATENMODELL §6.16): `image` (Pflicht) und `extraImages` (bis 4; Alt-Text
@@ -2189,7 +2211,8 @@ isPubliclyVisible(media) =
   ausgeliefert, damit ein Widerruf spätestens nach 24 h wirkt (L-20).
 - Die Regel gilt **überall**: Seitenabfragen, Startseiten-Teaser, OG-Bilder, Sitemap und die **Auslieferung der Bilddatei
   selbst** (nicht sichtbare Bilder → 404 für alle außer angemeldetem Admin). Ein erratener Datei-URL darf das Bild nicht liefern.
-- Seed-Tattoofotos (Manifest: `post-DOZTG7PjLAD.jpg` „3,5 years healed“, `post-DZqBCSZDDiE.jpg` „Godzilla and the bunnies“)
+- Seed-Tattoofotos (Manifest: `post-DOZTG7PjLAD.jpg` „3,5 years healed“, `post-DZqBCSZDDiE.jpg` mit Juttas Instagram-Titel;
+  die Bildunterschrift von G2 ist seit P20.5 neutral „Großes Monster, kleine Hasen“, U-77)
   werden mit `showsCustomer = true`, `consentGiven = false`, `seed = true` und `media.restricted = true` angelegt. Fotos,
   die Jutta zeigen (`post-DdHXUQsDjqm.jpg`, `profil.jpg`), werden **nie** importiert und nie als Zeichenvorlage genutzt;
   eigene Fotos von Jutta erscheinen erst ab P8 mit `media.ownerApproved` (R-181).

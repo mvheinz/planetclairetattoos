@@ -1765,6 +1765,9 @@ Lücken in der Nummerierung sind Reserve.
   13. `settings.shipping.enabledCountries` = nur DE (oder R-202-Bestätigungen vorhanden).
   14. `docs/recht/VVT.md` existiert.
   15. Kein öffentlich sichtbares Bild mit `showsPerson = jutta` ohne `media.ownerApproved` (R-181).
+  16. Tattoo-Preise in `settings.tattoo` (Mindestpreis, Preisrahmen) von Jutta bestätigt
+      (`settings.tattoo.pricesConfirmedAt`; P20.5, V-28 a – Preisangaben müssen echte Preise sein, PAngV/UWG); ohne
+      eingetragene Beträge nichts zu bestätigen.
   Fehlende Einstellungsfelder (u. a. `lucidNumber`, `packagingScheme`, `processorAgreements`, `analytics.*`,
   `tax.confirmedAt`) legt die Phase, die sie zuerst braucht, per Migration an (spätestens P10).
 - **Rechtsgrundlage:** Sammelprüfung der Anforderungen oben.

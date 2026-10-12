@@ -1262,7 +1262,9 @@
       "emptyTitle": "Noch keine Spuren auf dieser Seite",
       "emptyText": "Schau in der Zwischenzeit bei den Flash-Motiven vorbei.",
       "emptyAction": "Zu den Flash-Motiven",
-      "afterFlash": "nach Flash {number}"
+      "afterFlash": "nach Flash {number}",
+      "emptyTextNoFlash": "Schau in der Zwischenzeit, wie ein Tattoo bei mir abläuft.",
+      "emptyActionNoFlash": "Zum Ablauf"
     },
     "process": {
       "intro": "Vom ersten Wort bis zur verheilten Haut. Eine Online-Buchung gibt es nicht – alles beginnt mit einer Mail.",
@@ -1270,7 +1272,8 @@
       "steps": {
         "1": {
           "title": "Anfrage",
-          "text": "Schreib mir per Mail: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe."
+          "text": "Schreib mir per Mail: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.",
+          "textNoFlash": "Schreib mir per Mail: deine Idee, Stelle am Körper, ungefähre Größe."
         },
         "2": {
           "title": "Termin",
@@ -1330,6 +1333,17 @@
       "fieldTime": "Wunschzeitraum:",
       "health": "(Bitte keine Gesundheitsinfos – die klären wir persönlich.)",
       "closing": "Liebe Grüße"
+    },
+    "example": {
+      "label": "Beispiel",
+      "flashA11y": "Beispiel-Motiv nur für die Vorschau: Zeichnung, Nummer und Preis sind erfunden.",
+      "galleryA11y": "Beispiel-Foto nur für die Vorschau"
+    },
+    "booking": {
+      "title": "Gerade ausgebucht",
+      "textUntil": "Neue Anfragen nehme ich ab {month} wieder an. Danke für deine Geduld!",
+      "textOpenEnd": "Neue Anfragen nehme ich bald wieder an – schau gern später noch einmal vorbei.",
+      "commissionForm": "Das Formular bleibt offen: Schreib mir ruhig schon, ich melde mich, sobald wieder Platz ist."
     }
   },
   "commission": {

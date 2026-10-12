@@ -88,7 +88,14 @@ export interface GoliveSettings {
     lucidNumber?: string | null
     packagingScheme?: { name?: string | null; contractFrom?: string | null } | null
   } | null
-  tattoo?: { studioDistrict?: string | null } | null
+  tattoo?: {
+    studioDistrict?: string | null
+    minPriceCents?: number | null
+    customPriceFromCents?: number | null
+    customPriceToCents?: number | null
+    /** V-28 a: Jutta hat die angezeigten Tattoo-Preise bestätigt (Knopf unter Tattoo → Texte). */
+    pricesConfirmedAt?: string | null
+  } | null
   pickup?: { instructions?: string | null } | null
   payment?: {
     prepaymentEnabled?: boolean | null
@@ -162,7 +169,25 @@ function seedList(counts: Record<string, number>): string {
     .join(', ')
 }
 
-/** Alle Prüfpunkte einzeln (R-210 Nr. 1–15, KONZEPT §7.16, DATENMODELL §13.7). */
+/** Euro-Text für die Prüfmeldung („80 €“). */
+const euro = (cents: number) =>
+  `${new Intl.NumberFormat('de-DE', { maximumFractionDigits: 2 }).format(cents / 100)} €`
+
+/** Eingetragene Tattoo-Preise in Juttas Worten (für R210-16). */
+function tattooPriceList(t: NonNullable<GoliveSettings['tattoo']>): string[] {
+  const out: string[] = []
+  const amount = (v: number | null | undefined) => (typeof v === 'number' && v > 0 ? v : null)
+  const min = amount(t.minPriceCents)
+  const from = amount(t.customPriceFromCents)
+  const to = amount(t.customPriceToCents)
+  if (min) out.push(`Mindestpreis ${euro(min)}`)
+  if (from && to) out.push(`eigene Ideen ${euro(from)} bis ${euro(to)}`)
+  else if (from) out.push(`eigene Ideen ab ${euro(from)}`)
+  else if (to) out.push(`eigene Ideen bis ${euro(to)}`)
+  return out
+}
+
+/** Alle Prüfpunkte einzeln (R-210 Nr. 1–16, KONZEPT §7.16, DATENMODELL §13.7). */
 export function evaluateGolive(input: GoliveInput): GoliveReport {
   const { settings: s, env } = input
   const checks: GoliveCheck[] = []
@@ -430,6 +455,25 @@ export function evaluateGolive(input: GoliveInput): GoliveReport {
       (l) => `${l}. Bitte freigeben oder entfernen.`,
     ),
   )
+
+  // 16 Tattoo-Preise bestätigt (V-28 a, PAngV): Stehen Preise auf der Seite, müssen es Juttas echte sein.
+  const tattoo = s.tattoo ?? {}
+  const prices = tattooPriceList(tattoo)
+  const pricesOk = prices.length === 0 || Boolean(tattoo.pricesConfirmedAt)
+  checks.push({
+    id: 'R210-16',
+    group: 'business',
+    title: 'Tattoo-Preise sind von dir bestätigt',
+    ref: 'R-210 Nr. 16, V-28 a, PAngV',
+    ok: pricesOk,
+    detail: pricesOk
+      ? prices.length === 0
+        ? 'Es stehen keine Tattoo-Preise auf der Seite – nichts zu bestätigen.'
+        : `Du hast die Tattoo-Preise bestätigt (${prices.join(', ')}).`
+      : `Die Tattoo-Preise (${prices.join(', ')}) sind noch nicht bestätigt. In der Verwaltung unter Tattoo → ` +
+        'Reiter „Texte“ → „Preise“ prüfen und „Preise stimmen – bestätigen“ antippen (iPad) bzw. anklicken ' +
+        '(Computer). Änderst du einen Betrag, bestätigst du ihn danach neu.',
+  })
 
   const open = checks.filter((c) => !c.ok)
   return {

@@ -230,5 +230,12 @@ export const Flash: CollectionConfig = {
         return doc
       },
     ],
+    // Das letzte Motiv entfernt → Menü, Übersicht und Sitemap verlieren Flash (V-28 a; Tag `flash`).
+    afterDelete: [
+      ({ doc, req }) => {
+        revalidateContent(TAGS.flash, { context: getAppContext(req) })
+        return doc
+      },
+    ],
   },
 }

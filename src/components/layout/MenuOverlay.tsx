@@ -9,6 +9,7 @@ import { instagramUrl, type SiteNavigation } from '@/lib/data/navigation'
 import { WITHDRAWAL_LINK_LABEL } from '@/lib/legal/constants'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
+import { ALL_TATTOO_PAGES, visibleTattooPages, type TattooAvailability } from '@/lib/tattoo/pages'
 
 import { LanguageList } from './LanguageList'
 import styles from './MenuOverlay.module.css'
@@ -23,12 +24,22 @@ import { NavLinkView } from './NavLinkView'
 
 // Menü (DESIGN KO-03, KONZEPT §3.0.2): natives `<dialog id="menu">`, serverseitig gerendert; das Verhaltensmodul
 // `menu` öffnet es modal (Fokus, Tab-Falle, `Esc`, MI-05). Hauptliste in Spectral, unter „Shop“ die Kategorien
-// (`showInNavigation`), unter „Tattoo“ die Tattoo-Unterseiten; unten Sprachumschalter, Instagram und die Pflichtlinks
-// klein inkl. „Vertrag widerrufen“. Ohne JavaScript bleibt der Dialog zu, der Menü-Knopf führt zur Fußnavigation.
+// (`showInNavigation`), unter „Tattoo“ die Tattoo-Unterseiten (Flash und Galerie nur mit Inhalt, V-28 a/V-11); unten
+// Sprachumschalter, Instagram und die Pflichtlinks klein inkl. „Vertrag widerrufen“. Ohne JavaScript bleibt der Dialog
+// zu, der Menü-Knopf führt zur Fußnavigation.
 // Der Inhalt steht als statisches HTML im Dialog (`StaticHtml`): React hydriert ihn nicht – das sind gut
 // 100 Elemente weniger im Hydrations-Task jeder Seite (Lighthouse-TBT, P7). Was von der aktuellen Seite abhängt
 // (`aria-current` der Hauptlinks, Ziel des Sprachlinks), setzt das Modul `menu` beim Öffnen.
-export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNavigation }) {
+export async function MenuOverlay({
+  locale,
+  nav,
+  tattooPages = ALL_TATTOO_PAGES,
+}: {
+  locale: Locale
+  nav: SiteNavigation
+  /** Welche Tattoo-Unterseiten Inhalt haben (`getTattooAvailability`). */
+  tattooPages?: TattooAvailability
+}) {
   const [tMenu, tRoutes, tFooter] = await Promise.all([
     getTranslations({ locale, namespace: 'menu' }),
     getTranslations({ locale, namespace: 'common.routes' }),
@@ -95,7 +106,7 @@ export async function MenuOverlay({ locale, nav }: { locale: Locale; nav: SiteNa
                 ) : null}
                 {id === 'R11' ? (
                   <ul className={styles.sub}>
-                    {TATTOO_PAGES.map((sub) => (
+                    {visibleTattooPages(TATTOO_PAGES, tattooPages).map((sub) => (
                       <li key={sub}>
                         <a
                           href={localizedPath(sub, locale)}

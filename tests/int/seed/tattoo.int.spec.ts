@@ -179,7 +179,8 @@ describe('Galerie (SEED-SPEC §12.3)', () => {
       expect(byKey[k]).toMatchObject({ showsCustomer: false, published: true })
     }
     expect(byKey.G1).toMatchObject({ kind: 'healed', healedDurationMonths: 42, featured: true })
-    expect(byKey.G2!.caption).toBe('Godzilla and the bunnies')
+    // P20.5 (U-77): neutrale Bildunterschrift ohne fremden Figuren- bzw. Filmtitel
+    expect(byKey.G2!.caption).toBe('Großes Monster, kleine Hasen')
   })
 
   it('AK-SEED-11 / AK-9-04 / AK-1-03: ohne Vorschau-Modus fehlen G1/G2 in der öffentlichen API, ihre Bild-URLs liefern 404', async () => {

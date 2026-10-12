@@ -63,6 +63,9 @@ export const PUBLIC_SETTINGS_PATHS = [
   'tattoo.customPriceFromCents',
   'tattoo.customPriceToCents',
   'tattoo.priceNote',
+  'tattoo.inquiriesOpen',
+  'tattoo.bookedUntil',
+  'tattoo.bookedNote',
   'social.instagramHandle',
   'social.contactEmail',
 ] as const

@@ -303,6 +303,10 @@ Die Reihenfolge steht in [Z1](ANLEITUNGEN.md#z1).
 - [ ] **A34 · In der Verwaltung eintragen:** Admin-Passwort, Stammdaten, IBAN, LUCID-Nummer, Rechtstexte der
   Kanzlei, Nachweise (Nickel, Glasuren), technische Unterlagen je Produktart, Einwilligungen und die ersten Stücke
   - Warum: Das sind echte Daten statt Platzhalter. Erst damit wird die „Startklar“-Prüfung grün.
+  - Dazu gehört: **Tattoo-Preise bestätigen** (Mindestpreis 80 €, eigene Ideen 150–400 €). Am iPad: unten „Mehr“ →
+    „Tattoo“ (quer: links „Tattoo“) → Reiter „Texte“ → bei „Preise“ auf „Preise stimmen – bestätigen“ tippen. Am Computer: links „Tattoo“ →
+    Reiter „Texte“ → „Preise stimmen – bestätigen“ anklicken. Bis dahin bleibt der Startklar-Punkt dazu rot
+    ([Handbuch, Kapitel 10](HANDBUCH.md#10-tattoo-flash-und-galerie)).
   - Deine 74 Stücke aus den Fotos spielt Claude mit `pnpm bestand:import` als Entwürfe ein (rot markiert „bitte
     prüfen“). Du korrigierst sie mit deiner Liste aus A29, setzt den Haken „nur eigene Figuren“ und stellst sie online.
   - Aufwand: ca. 60 Min. plus ca. 10 Min. pro Stück

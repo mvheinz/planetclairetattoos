@@ -47,6 +47,7 @@ import {
 } from '@/lib/settings/rules'
 import { shopOpenBlockedMessage, startklarFromReport } from '@/lib/settings/readiness'
 import { isKnownServiceId } from '@/lib/legal/services'
+import { BOOKED_MONTH_RE, BOOKED_NOTE_MAX, monthHasPassed } from '@/lib/tattoo/booking'
 import { formatBerlin } from '@/lib/time'
 
 import {
@@ -651,6 +652,58 @@ const tattooGroup: Field = {
     moneyField('customPriceFromCents', { label: 'Eigene Idee ab' }),
     moneyField('customPriceToCents', { label: 'Eigene Idee bis' }),
     { name: 'priceNote', type: 'textarea', label: 'Preishinweis', localized: true, maxLength: 400 },
+    {
+      // V-28 a (U-93): Startprüfung R210-16 bleibt rot, bis Jutta die Beträge bestätigt; eine Änderung der Beträge
+      // setzt die Bestätigung zurück (Hook `validateSettings`).
+      name: 'pricesConfirmedAt',
+      type: 'date',
+      label: 'Tattoo-Preise bestätigt am',
+      admin: {
+        readOnly: true,
+        description:
+          'Setzt der Knopf „Preise stimmen – bestätigen“ unter Tattoo → Texte. Ändern sich die Beträge, ist die Bestätigung weg.',
+      },
+    },
+    {
+      // V-64 (U-93): „Anfragen offen / ausgebucht bis …“ – gilt für Tattoo-Seiten und Auftragsarbeiten.
+      type: 'collapsible',
+      label: 'Anfragen offen / ausgebucht',
+      admin: {
+        description:
+          'Aus = auf den Tattoo-Seiten und bei den Auftragsarbeiten steht ein ruhiger Hinweis „Gerade ausgebucht“. ' +
+          'Ist ein Monat eingetragen, verschwindet der Hinweis nach diesem Monat von selbst.',
+      },
+      fields: [
+        {
+          name: 'inquiriesOpen',
+          type: 'checkbox',
+          label: 'Anfragen offen',
+          defaultValue: true,
+        },
+        {
+          name: 'bookedUntil',
+          type: 'text',
+          label: 'Ausgebucht bis einschließlich (Monat)',
+          maxLength: 7,
+          admin: {
+            description:
+              'Format JJJJ-MM, z. B. 2027-02. Leer = bis du den Schalter wieder anmachst.',
+          },
+          validate: pattern(BOOKED_MONTH_RE, 'Monat im Format JJJJ-MM, z. B. 2027-02.'),
+        },
+        {
+          name: 'bookedNote',
+          type: 'text',
+          label: 'Kurzer Hinweis (optional)',
+          localized: true,
+          maxLength: BOOKED_NOTE_MAX,
+          admin: {
+            description:
+              'z. B. „Gerade ausgebucht – neue Anfragen ab März“. Leer = Standardsatz mit dem Monat danach.',
+          },
+        },
+      ],
+    },
   ],
 }
 
@@ -946,6 +999,9 @@ type Obj = Record<string, unknown>
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v)
 const group = (doc: unknown, name: string): Obj => (isObj(doc) && isObj(doc[name]) ? doc[name] : {})
 
+/** Beträge, deren Änderung die Bestätigung der Tattoo-Preise zurücksetzt (V-28 a). */
+const TATTOO_PRICE_KEYS = ['minPriceCents', 'customPriceFromCents', 'customPriceToCents'] as const
+
 /** Querschnittsregeln und abgeleitete Felder (DATENMODELL §7.1 Spalte „Validierung / Regel“). */
 const validateSettings: GlobalBeforeChangeHook = async ({ data, originalDoc, req }) => {
   const ctx = getAppContext(req)
@@ -1015,12 +1071,42 @@ const validateSettings: GlobalBeforeChangeHook = async ({ data, originalDoc, req
 
   // Tattoo-Preisrahmen
   const tattoo = group(data, 'tattoo')
+  const prevTattoo = group(originalDoc, 'tattoo')
   if (
     typeof tattoo.customPriceFromCents === 'number' &&
     typeof tattoo.customPriceToCents === 'number' &&
     tattoo.customPriceToCents < tattoo.customPriceFromCents
   ) {
     issues.push({ path: 'tattoo.customPriceToCents', message: '„Bis“ muss ≥ „ab“ sein.' })
+  }
+  // V-28 a: Die Bestätigung gilt für die bestätigten Beträge – ändert sich einer, ist sie weg (Startprüfung R210-16).
+  const amountChanged = TATTOO_PRICE_KEYS.some(
+    (k) => k in tattoo && (tattoo[k] ?? null) !== (prevTattoo[k] ?? null),
+  )
+  if (
+    amountChanged &&
+    (tattoo.pricesConfirmedAt ?? null) === (prevTattoo.pricesConfirmedAt ?? null)
+  ) {
+    tattoo.pricesConfirmedAt = null
+  }
+  // V-64: „ausgebucht bis“ nur mit einem Monat, der noch nicht vorbei ist (beim Ändern; ein abgelaufener Monat
+  // bleibt gespeichert und wirkt einfach nicht mehr).
+  const bookingChanged =
+    tattoo.bookedUntil !== prevTattoo.bookedUntil ||
+    tattoo.inquiriesOpen !== prevTattoo.inquiriesOpen
+  if (
+    bookingChanged &&
+    tattoo.inquiriesOpen === false &&
+    typeof tattoo.bookedUntil === 'string' &&
+    BOOKED_MONTH_RE.test(tattoo.bookedUntil) &&
+    monthHasPassed(tattoo.bookedUntil, now) &&
+    !ctx.seed
+  ) {
+    issues.push({
+      path: 'tattoo.bookedUntil',
+      message:
+        'Dieser Monat ist schon vorbei. Bitte einen kommenden Monat wählen oder das Feld leeren.',
+    })
   }
 
   // Umsatzwächter

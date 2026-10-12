@@ -18,12 +18,14 @@ import {
   listGallery,
 } from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
+import { visibleTattooPages } from '@/lib/tattoo/pages'
 
 // R11 Tattoo-Übersicht (KONZEPT §9.2, DESIGN KO-20, Preset `stencil`): H1 „Tattoo“, „Mein Stil“ (Textblöcke der Seite
 // `tattoo`), 3 verfügbare
 // Flash-Motive, 3 Galerie-Bilder (bevorzugt `healed`, nur sichtbare – `isPubliclyVisible`, P7.5), Links zu allen
-// Unterseiten mit je einem Satz, Kontakt-Block. Leere Blöcke entfallen. Statisch mit gezielter Erneuerung über die Tags
-// `flash`, `tattoo-gallery`, `page:tattoo`, `settings`.
+// Unterseiten mit je einem Satz, Kontakt-Block. Leere Blöcke entfallen; Flash und Galerie stehen nur mit Inhalt in der
+// Liste der Unterseiten (V-28 a, V-11). Statisch mit gezielter Erneuerung über die Tags `flash`, `tattoo-gallery`,
+// `page:tattoo`, `settings`.
 
 export const revalidate = 3600
 export const generateMetadata = tattooMetadata('R11')
@@ -48,6 +50,10 @@ export default async function TattooOverviewPage({
   const style = blocksOfType(page, 'richText')
   const available = flash.filter((f) => f.status === 'available').slice(0, 3)
   const photos = galleryTeaser(gallery, 3)
+  const subpages = visibleTattooPages(SUBPAGES, {
+    flash: flash.length > 0,
+    gallery: gallery.length > 0,
+  })
 
   return (
     <TattooShell locale={locale} routeId="R11" settings={settings} lead={<p>{t('lead')}</p>}>
@@ -134,7 +140,7 @@ export default async function TattooOverviewPage({
           {t('pagesHeading')}
         </h2>
         <ul className={styles.pageLinks}>
-          {SUBPAGES.map((id) => (
+          {subpages.map((id) => (
             <li key={id}>
               <a href={localizedPath(id, locale)} data-tattoo-link={id}>
                 {tRoutes(id)}

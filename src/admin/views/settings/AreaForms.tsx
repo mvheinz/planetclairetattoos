@@ -26,6 +26,8 @@ import {
   type SettingsArea,
   type ShippingValues,
   type ShopValues,
+  type TattooBookingValues,
+  type TattooPricesConfirmState,
   type TattooPricesValues,
   type TemplatesValues,
   type YearRow,
@@ -1227,6 +1229,135 @@ export function TattooPricesForm({
         }
       />
       <TattooWarnings texts={[v.priceNote.de, v.priceNote.en]} testId="tattoo-prices-warning" />
+    </AreaForm>
+  )
+}
+
+// --- Tattoo-Preise bestätigen (V-28 a) und „Anfragen offen / ausgebucht“ (V-64), Reiter „Texte“ -----------------------
+
+const TATTOO_CONFIRM_TEXT = {
+  hint:
+    'Stimmen die Preise oben so, wie sie online stehen sollen? Dann hier bestätigen. Erst danach wird der Punkt ' +
+    '„Tattoo-Preise sind von dir bestätigt“ der Startklar-Prüfung grün. Änderst du später einen Betrag, bestätigst du neu.',
+  button: 'Preise stimmen – bestätigen',
+  dialog: 'Tattoo-Preise bestätigen?',
+  consequence:
+    'Es wird das heutige Datum gespeichert: Du bestätigst, dass Mindestpreis und Preisrahmen deine echten Preise sind.',
+  confirmedAt: 'Bestätigt am {{date}}.',
+  never: 'Noch nicht bestätigt – die Startklar-Prüfung bleibt an dieser Stelle rot.',
+  noPrices: 'Es sind keine Beträge eingetragen – dann gibt es nichts zu bestätigen.',
+} as const
+
+/** Knopf „Preise stimmen – bestätigen“ mit Rückfrage; zeigt den Stand der Bestätigung. */
+export function TattooPricesConfirmForm({ state }: { state: TattooPricesConfirmState }) {
+  return (
+    <AreaForm
+      area="tattooPricesConfirm"
+      values={{}}
+      submitLabel={TATTOO_CONFIRM_TEXT.button}
+      confirm={{ title: TATTOO_CONFIRM_TEXT.dialog, consequence: TATTOO_CONFIRM_TEXT.consequence }}
+    >
+      <p className="pc-order__muted">{TATTOO_CONFIRM_TEXT.hint}</p>
+      <p data-testid="tattoo-prices-confirmed">
+        {state.confirmedAt
+          ? TATTOO_CONFIRM_TEXT.confirmedAt.replace('{{date}}', state.confirmedAt)
+          : state.hasPrices
+            ? TATTOO_CONFIRM_TEXT.never
+            : TATTOO_CONFIRM_TEXT.noPrices}
+      </p>
+    </AreaForm>
+  )
+}
+
+const TATTOO_BOOKING_TEXT = {
+  open: 'Anfragen offen',
+  openHint:
+    'Aus = auf allen Tattoo-Seiten und bei den Auftragsarbeiten steht ein ruhiger Hinweis „Gerade ausgebucht“. Der ' +
+    'Knopf „Mail schreiben“ für Tattoo-Anfragen weicht dem Hinweis, deine E-Mail-Adresse bleibt sichtbar. Das ' +
+    'Formular für Auftragsarbeiten bleibt offen. Eine Warteliste gibt es nicht.',
+  until: 'Ausgebucht bis einschließlich (Monat)',
+  untilHint:
+    'Format JJJJ-MM, z. B. 2027-02. Ab dem Monat danach verschwindet der Hinweis von selbst. Leer = bis du ' +
+    '„Anfragen offen“ wieder anhakst.',
+  note: 'Kurzer Hinweis (optional)',
+  noteHint:
+    'Zum Beispiel „Gerade ausgebucht – neue Anfragen ab März“. Leer = Standardsatz „Neue Anfragen nehme ich ab … ' +
+    'wieder an.“ mit dem Monat nach „ausgebucht bis“.',
+  nowOpen: 'Auf der Seite gerade: Anfragen offen.',
+  nowBooked: 'Auf der Seite gerade: „Gerade ausgebucht“.',
+  nowBookedUntil: 'Auf der Seite gerade: „Gerade ausgebucht“ bis einschließlich {{month}}.',
+  expired:
+    'Der Monat ist vorbei – auf der Seite sind Anfragen wieder offen. Hake „Anfragen offen“ an, damit es hier auch so steht.',
+} as const
+
+export type TattooBookingStatus =
+  { kind: 'open' } | { kind: 'booked'; untilLabel: string | null } | { kind: 'expired' }
+
+/** Schalter, Monat und kurzer Hinweis DE/EN mit „Übersetzen“; darüber der Stand auf der Seite. */
+export function TattooBookingForm({
+  initial,
+  status,
+  translateDisabled,
+}: {
+  initial: TattooBookingValues
+  status: TattooBookingStatus
+  translateDisabled: string | null
+}) {
+  const [v, setV] = useState(initial)
+  const statusText =
+    status.kind === 'open'
+      ? TATTOO_BOOKING_TEXT.nowOpen
+      : status.kind === 'expired'
+        ? TATTOO_BOOKING_TEXT.expired
+        : status.untilLabel
+          ? TATTOO_BOOKING_TEXT.nowBookedUntil.replace('{{month}}', status.untilLabel)
+          : TATTOO_BOOKING_TEXT.nowBooked
+  return (
+    <AreaForm area="tattooBooking" values={v}>
+      <p data-testid="tattoo-booking-status" data-status={status.kind}>
+        {statusText}
+      </p>
+      <CheckField
+        path="tattoo.inquiriesOpen"
+        label={TATTOO_BOOKING_TEXT.open}
+        hint={TATTOO_BOOKING_TEXT.openHint}
+        checked={v.inquiriesOpen}
+        onChange={(inquiriesOpen) => setV({ ...v, inquiriesOpen })}
+      />
+      {v.inquiriesOpen ? null : (
+        <>
+          <TextField
+            path="tattoo.bookedUntil"
+            label={TATTOO_BOOKING_TEXT.until}
+            hint={TATTOO_BOOKING_TEXT.untilHint}
+            type="month"
+            maxLength={7}
+            value={v.bookedUntil}
+            onChange={(bookedUntil) => setV({ ...v, bookedUntil })}
+          />
+          <LocalizedField
+            path="tattoo.bookedNote"
+            label={TATTOO_BOOKING_TEXT.note}
+            hint={TATTOO_BOOKING_TEXT.noteHint}
+            maxLength={160}
+            value={v.bookedNote}
+            onChange={(bookedNote) => setV({ ...v, bookedNote })}
+          />
+          <TranslateButton<{ text?: string }>
+            endpoint={null}
+            hasEnglish={v.bookedNote.en.trim() !== ''}
+            disabledReason={translateDisabled}
+            prepare={async () =>
+              v.bookedNote.de.trim()
+                ? `/api/globals/settings/translate?text=${encodeURIComponent(v.bookedNote.de)}`
+                : null
+            }
+            onTranslated={(r) =>
+              setV((cur) => ({ ...cur, bookedNote: { ...cur.bookedNote, en: r.text ?? '' } }))
+            }
+          />
+        </>
+      )}
     </AreaForm>
   )
 }

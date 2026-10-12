@@ -261,9 +261,10 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 | `src/lib/seed/schemas.ts` | zod-Schemas je Datei; Enum-Werte **nur** aus `src/lib/enums.ts` |
 | `src/art/placeholders/{typ}-{n}.svg` | Platzhalter (P8/P9, DESIGN §12.3); fehlt die Datei → `src/lib/seed/fallbackArt.ts` |
 
-Die Daten liegen unter `content/**`, damit der Verbotsmuster-Test (RECHT §5) sie prüft. Einziger Allowlist-Eintrag:
-der fremde Figurenname in `tattoo.json` (Galerie G2, Bildunterschrift aus dem Manifest) – mit Begründung „Tattoo-Portfolio,
-keine Verkaufsware (E-18)“ (offen: SE-04).
+Die Daten liegen unter `content/**`, damit der Verbotsmuster-Test (RECHT §5) sie prüft. Seit P20.5 (V-28 a, U-77) nennt
+die Bildunterschrift von G2 keinen fremden Figurennamen mehr; der Name steht nur noch in der Beschreibung des
+Instagram-Manifests (`content/seed/instagram/manifest.json`, Allowlist-Eintrag „Tattoo-Portfolio, keine Verkaufsware
+(E-18)“, SE-04).
 
 ### 2.2 Zeitausdrücke
 
@@ -459,7 +460,9 @@ und PLZ `00000` gelten als leer und werden durch Juttas Anschrift ersetzt (`LEGA
 | `tattoo.studioDistrict` | `[Bezirk folgt]` (KA-13) |
 | `tattoo.minPriceCents` | 8000 |
 | `tattoo.customPriceFromCents` / `customPriceToCents` | 15000 / 40000 |
-| `tattoo.priceNote` | DE „Alle Preise sind Endpreise. Flash hat einen Festpreis direkt am Motiv, eigene Ideen rechne ich nach Größe und Aufwand.“ · EN “All prices are final prices. Flash has a fixed price right on the design; custom ideas are priced by size and effort.” |
+| `tattoo.priceNote` | DE „Alle Preise sind Endpreise. Eigene Ideen rechne ich nach Größe und Aufwand.“ · EN “All prices are final prices. Ideas of your own I price by size and effort.” (P20.5, V-28 a: ohne Flash, weil Flash erst mit echten Motiven erscheint) |
+| `tattoo.pricesConfirmedAt` | – (leer; Jutta bestätigt die Preise selbst, sonst bleibt Startklar R210-16 rot) |
+| `tattoo.inquiriesOpen` / `bookedUntil` / `bookedNote` | `true` (Standard) / – / – (V-64) |
 | `social.instagramHandle` / `social.contactEmail` | `planet.claire.tattoos` / `jutta@planetclairetattoos.com` |
 | `packingChecklists` | §3.2 |
 | `safetyTemplates`, `careTemplates` | §3.2 |
@@ -1337,10 +1340,9 @@ Mail-Betreff (KONZEPT §9.4) z. B. `Flash-Anfrage F-907 – Winziger Planet` / `
 | G5 | ph:tattoo-03 | fresh | – | Oberarm / upper arm | F906 | false | false | true | false | 50 |
 | G6 | ph:tattoo-04 | healed | 8 / – | Schienbein / shin | F910 | false | false | true | false | 60 |
 
-`caption`: G1 DE „Fine Line am Unterarm, ein paar Jahre später“ · EN “Fine line on a forearm, a few years later” — G2 DE
-und EN = `title_de` von `post-DZqBCSZDDiE.jpg` aus dem Manifest, unverändert (Juttas eigene Bildunterschrift; enthält
-einen fremden Figurennamen → genau ein Allowlist-Eintrag für `tattoo.json`; Portfolio, keine Verkaufsware, E-18, R-047;
-offen: SE-04) — G3 „Hasen-Trio, frisch gestochen“ /
+`caption`: G1 DE „Fine Line am Unterarm, ein paar Jahre später“ · EN “Fine line on a forearm, a few years later” — G2
+„Großes Monster, kleine Hasen“ / “Big monster, little bunnies” (P20.5, U-77: neutral statt Juttas Instagram-Titel mit
+einem Filmtitel; keine Bezüge zu fremden Werken) — G3 „Hasen-Trio, frisch gestochen“ /
 “Bunny trio, freshly done” — G4 „Winziger Planet, ein Jahr später“ / “Tiny planet, one year on” — G5 „Coco sitzt – jetzt
 für immer“ / “Coco sitting – now forever” — G6 „Herz mit Beinen, acht Monate später“ / “Heart with legs, eight months on”.
 
@@ -1540,7 +1542,7 @@ Antworten:
 - **FAQ05** DE: Coco ist oft im Studio, schläft aber meistens in ihrem Körbchen. Wenn du Hunde nicht verträgst oder lieber ohne sie bist, sag's mir vorher – dann hat sie an dem Tag frei. · EN: Coco is often in the studio, but she mostly naps in her basket. If dogs don't agree with you or you'd rather be without her, tell me beforehand – she'll take the day off.
 - **FAQ06** DE: Mein Ding ist schwarze Fine Line. Kleine Farbtupfer gehen manchmal – frag einfach mit deiner Idee. · EN: My thing is black fine line. Small touches of colour sometimes work – just ask with your idea.
 - **FAQ07** DE: Eher selten, weil feine Linien wenig abdecken. Schick mir ein Foto vom alten Tattoo per Mail, dann sag ich dir ehrlich, ob es passt. · EN: Rarely, because fine lines don't cover much. Email me a photo of the old tattoo and I'll tell you honestly whether it works.
-- **FAQ08** DE: Schreib mir eine Mail. Dort geht nichts unter, und du kannst Bilder in Ruhe anhängen. Für Flash schick einfach die Nummer mit, zum Beispiel F-902. · EN: Send me an email. Nothing gets lost that way, and you can attach pictures easily. For flash, just include the number, for example F-902.
+- **FAQ08** DE: Mit einer Mail. Dort geht nichts verloren, und Bilder kannst du in Ruhe anhängen. Schreib kurz dazu, was du dir vorstellst, wo es hinsoll und wie groß es ungefähr werden darf. · EN: With an email. Nothing gets lost there, and you can attach pictures at your leisure. Add a few words on what you have in mind, where it should go and roughly how big it may be. (P20.5, V-28 a: ohne Flash-Nummer – Flash erscheint erst mit echten Motiven, und der Mail-Knopf der Flash-Karte setzt die Nummer selbst in den Betreff.)
 - **FAQ09** DE: Die Oberfläche ist meist nach zwei bis drei Wochen zu, ganz durch ist die Haut nach etwa vier bis sechs Wochen. Die Schritte stehen oben auf dieser Seite. · EN: The surface usually closes after two to three weeks; the skin is fully through after about four to six weeks. The steps are listed above on this page.
 - **FAQ10** DE: Weil es für meine Glasuren noch keine Konformitätserklärung gibt. Bis dahin steht bei jedem Stück: Deko – nicht für Lebensmittel. Für Schlüssel, Ringe, Pinsel und Kleinkram sind sie super. · EN: Because there's no declaration of conformity for my glazes yet. Until then, every piece says: decorative – not for food. They're great for keys, rings, brushes and odds and ends.
 - **FAQ11** DE: Zurzeit nur innerhalb Deutschlands. Was der Versand kostet, hängt vom Stück ab (Brief, kleines Paket oder Keramik-Paket) – im Warenkorb gilt immer die höchste Versandart. Alles Weitere steht unter Versand & Zahlung. Abholen in Berlin kostet nichts. · EN: Only within Germany for now. The shipping cost depends on the piece (letter, small parcel or ceramics parcel) – in the cart, the highest one applies. Details are on the Shipping & payment page. Pickup in Berlin is free.

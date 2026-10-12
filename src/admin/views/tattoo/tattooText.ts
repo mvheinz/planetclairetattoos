@@ -178,6 +178,8 @@ export const TATTOO_TEXT = {
 
   // Texte (P7.9)
   textsPrices: 'Preise',
+  textsPricesConfirm: 'Preise bestätigen',
+  textsBooking: 'Anfragen offen / ausgebucht',
   pageTitle: 'Titel der Seite',
   pageMetaTitle: 'Titel für Suchmaschinen (höchstens 60 Zeichen)',
   pageMetaDescription: 'Beschreibung für Suchmaschinen (höchstens 160 Zeichen)',

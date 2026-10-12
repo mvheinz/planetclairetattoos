@@ -45,7 +45,13 @@ function green(): GoliveInput {
         lucidNumber: 'DE1234567890123',
         packagingScheme: { name: 'Duales System GmbH', contractFrom: '2026-10-01' },
       },
-      tattoo: { studioDistrict: 'Neukölln' },
+      tattoo: {
+        studioDistrict: 'Neukölln',
+        minPriceCents: 8000,
+        customPriceFromCents: 15000,
+        customPriceToCents: 40000,
+        pricesConfirmedAt: '2026-10-12T10:00:00Z',
+      },
       pickup: { instructions: 'Nach Absprache' },
       payment: {
         prepaymentEnabled: true,
@@ -81,9 +87,9 @@ describe('R-210 Startklar-Prüfung', () => {
       expect(looksLikePlaceholder(v)).toBe(false)
   })
 
-  it('alles grün: 15 Punkte, bereit', () => {
+  it('alles grün: 16 Punkte, bereit', () => {
     const r = evaluateGolive(green())
-    expect(r.checks).toHaveLength(15)
+    expect(r.checks).toHaveLength(16)
     expect(r.openItems).toEqual([])
     expect(r.ready).toBe(true)
   })
@@ -124,7 +130,7 @@ describe('R-210 Startklar-Prüfung', () => {
 
   it('Nr. 3 Bezirk und Abholhinweis', () => {
     const a = green()
-    a.settings.tattoo = { studioDistrict: '' }
+    a.settings.tattoo = { ...a.settings.tattoo, studioDistrict: '' }
     expect(ids(a)).toEqual(['R210-03'])
     const b = green()
     b.settings.pickup = { instructions: ' ' }
@@ -257,6 +263,28 @@ describe('R-210 Startklar-Prüfung', () => {
     const b = green()
     b.galleryWithoutConsent = 1
     expect(ids(b)).toEqual(['R210-15'])
+  })
+
+  it('Nr. 16 V-28 a: Tattoo-Preise bleiben rot bis zur Bestätigung; ohne Beträge nichts zu bestätigen', () => {
+    const a = green()
+    a.settings.tattoo = { ...a.settings.tattoo, pricesConfirmedAt: null }
+    expect(ids(a)).toEqual(['R210-16'])
+    const detail = evaluateGolive(a).checks.find((c) => c.id === 'R210-16')!.detail
+    expect(detail).toContain('Mindestpreis 80 €')
+    expect(detail).toContain('eigene Ideen 150 € bis 400 €')
+    // beide Wege (U-94): iPad und Computer
+    expect(detail).toContain('Tattoo → Reiter „Texte“')
+    expect(detail).toMatch(/iPad/)
+    expect(detail).toMatch(/Computer/)
+    const b = green()
+    b.settings.tattoo = { studioDistrict: 'Neukölln', customPriceFromCents: 15000 }
+    expect(ids(b)).toEqual(['R210-16'])
+    const c = green()
+    c.settings.tattoo = { studioDistrict: 'Neukölln', minPriceCents: null, customPriceToCents: 0 }
+    expect(ids(c)).toEqual([])
+    expect(evaluateGolive(c).checks.find((x) => x.id === 'R210-16')!.detail).toContain(
+      'keine Tattoo-Preise',
+    )
   })
 
   it('Meldungen sind deutsch und nennen den offenen Punkt', () => {

@@ -4560,6 +4560,19 @@ export interface Setting {
     customPriceFromCents?: number | null;
     customPriceToCents?: number | null;
     priceNote?: string | null;
+    /**
+     * Setzt der Knopf „Preise stimmen – bestätigen“ unter Tattoo → Texte. Ändern sich die Beträge, ist die Bestätigung weg.
+     */
+    pricesConfirmedAt?: string | null;
+    inquiriesOpen?: boolean | null;
+    /**
+     * Format JJJJ-MM, z. B. 2027-02. Leer = bis du den Schalter wieder anmachst.
+     */
+    bookedUntil?: string | null;
+    /**
+     * z. B. „Gerade ausgebucht – neue Anfragen ab März“. Leer = Standardsatz mit dem Monat danach.
+     */
+    bookedNote?: string | null;
   };
   legal?: {
     reviewIntervalDays?: number | null;
@@ -4983,6 +4996,10 @@ export interface SettingsSelect<T extends boolean = true> {
         customPriceFromCents?: T;
         customPriceToCents?: T;
         priceNote?: T;
+        pricesConfirmedAt?: T;
+        inquiriesOpen?: T;
+        bookedUntil?: T;
+        bookedNote?: T;
       };
   legal?:
     | T

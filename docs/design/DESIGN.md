@@ -800,6 +800,18 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
 - **Angebotskarte:** Datums-Badge Spectral Italic 28 px, z. B. „12.10.“) in einem gezeichneten Kreis, Titel, Text, Preisinfo als Text.
 - **Kontakt-Block:** Knopf „Mail schreiben“ (kein Instagram-DM seit P12.7), E-Mail-Adresse als Text + „Adresse kopieren“ (Rückmeldung „Kopiert“ als Text, `aria-live`, 2 s).
 - **Galerie:** Raster wie Shop ohne Schnur/Preisschilder; nur Fotos mit Einwilligung (E-42).
+- **Stempel „Beispiel“/„Example“ (P20.5, V-28 a):** auf Flash-Motiven und Galerie-Fotos aus den Beispieldaten (`seed`,
+  öffentlich nur im Vorschau-Modus, also in Vorschau-Datei und Rundgang): kleines Etikett unten links auf dem Bild
+  (Plex Mono 12 px, Versalien, gestrichelter Rand `--stencil`, Grund `--paper`, −4°), deckt das Motiv nicht zu,
+  `aria-hidden`; den Text für Screenreader trägt die Karte („Beispiel-Motiv nur für die Vorschau: Zeichnung, Nummer und
+  Preis sind erfunden“) bzw. der Bild-Link. Auf der Startseite (96-px-Bilder) steht das Wort unter dem Titel.
+- **Hinweis „Gerade ausgebucht“ (P20.5, V-64):** Hinweis-Kasten KO-22 `info` (ruhig, ohne Warnfarbe) unter der
+  Einleitung jeder Tattoo-Seite und bei den Auftragsarbeiten über dem Formular; im Kontakt-Block ersetzt der Satz
+  „**Gerade ausgebucht.** …“ den Knopf „Mail schreiben“, auf Flash-Karten steht „Gerade ausgebucht“ statt
+  „Per Mail anfragen“. Die E-Mail-Adresse bleibt sichtbar.
+- **Flash und Galerie nur mit Inhalt (P20.5, V-28 a/V-11):** Unter-Navigation, Menü, Übersicht (Links zu den
+  Unterseiten) und Preisseite zeigen Flash bzw. Galerie erst mit einem veröffentlichten Motiv bzw. sichtbaren Foto; die
+  gerade offene Seite bleibt in der Unter-Navigation stehen (Leerzustand KO-17).
 - **Linie:** Preset `stencil` (§9.7): Konturen um Flash-Karten, tuscheschwarz (E-73).
 
 ### KO-21 Station (Startseite, `Station`)

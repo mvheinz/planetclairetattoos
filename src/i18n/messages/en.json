@@ -1262,7 +1262,9 @@
       "emptyTitle": "No traces on this page yet",
       "emptyText": "In the meantime, have a look at the flash designs.",
       "emptyAction": "To the flash designs",
-      "afterFlash": "after flash {number}"
+      "afterFlash": "after flash {number}",
+      "emptyTextNoFlash": "In the meantime, see how getting a tattoo with me works.",
+      "emptyActionNoFlash": "To the process"
     },
     "process": {
       "intro": "From the first word to healed skin. There is no online booking – everything begins with an email.",
@@ -1270,7 +1272,8 @@
       "steps": {
         "1": {
           "title": "Request",
-          "text": "Email me: your idea or the flash number, placement, rough size."
+          "text": "Email me: your idea or the flash number, placement, rough size.",
+          "textNoFlash": "Email me: your idea, placement, rough size."
         },
         "2": {
           "title": "Appointment",
@@ -1330,6 +1333,17 @@
       "fieldTime": "Preferred timeframe:",
       "health": "(Please no health information – we'll sort that out in person.)",
       "closing": "Best wishes"
+    },
+    "example": {
+      "label": "Example",
+      "flashA11y": "Example design for the preview only: drawing, number and price are made up.",
+      "galleryA11y": "Example photo for the preview only"
+    },
+    "booking": {
+      "title": "Fully booked right now",
+      "textUntil": "I'll take new requests again from {month}. Thanks for your patience!",
+      "textOpenEnd": "I'll take new requests again soon – feel free to check back later.",
+      "commissionForm": "The form stays open: feel free to write already, I'll get back to you as soon as I have room again."
     }
   },
   "commission": {

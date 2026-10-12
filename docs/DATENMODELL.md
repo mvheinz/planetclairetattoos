@@ -2442,6 +2442,10 @@ bei Steuermodus) und `revalidateTag('settings')`.
 | `tattoo.minPriceCents` | number | – | ✓ | – | Gesamtpreis |
 | `tattoo.customPriceFromCents` / `customPriceToCents` | number | – | ✓ | – | Preisrahmen Custom (E-53); `to ≥ from` |
 | `tattoo.priceNote` | textarea | ✓ | ✓ | – | ≤ 400 |
+| `tattoo.pricesConfirmedAt` | date | – | – | – | P20.5 (V-28 a): Knopf „Preise stimmen – bestätigen“ (Tattoo → Texte) setzt heute; eine Änderung von `minPriceCents`/`customPriceFromCents`/`customPriceToCents` setzt es zurück (Hook); Startklar R210-16 (§13.7 Nr. 12) |
+| `tattoo.inquiriesOpen` | checkbox | – | ✓ | `true` | P20.5 (V-64): aus = Hinweis „Gerade ausgebucht“ auf R11–R18 und R10, Mail-Knopf der Tattoo-Anfrage weicht; „an“ leert `bookedUntil` |
+| `tattoo.bookedUntil` | text | – | ✓ | – | `^\d{4}-(0[1-9]\|1[0-2])$` (letzter ausgebuchter Monat, einschließlich); danach endet der Hinweis von selbst (Europe/Berlin); beim Ändern kein schon vergangener Monat |
+| `tattoo.bookedNote` | text | ✓ | ✓ | – | ≤ 160; eigener kurzer Hinweis, sonst Standardsatz „Neue Anfragen nehme ich ab {Monat} wieder an.“ |
 | `social.instagramHandle` | text | – | ✓ | `planet.claire.tattoos` | `^[a-z0-9._]{1,30}$` |
 | `social.contactEmail` | email | – | ✓ | jutta@planetclairetattoos.com | Flash-Anfrage-Mails (E-51) |
 | `legal.reviewIntervalDays` | number | – | – | 365 | E-41, R-014: Erinnerung, wenn die aktive Fassung eines Typs bzw. seine letzte Prüfung so alt ist; danach alle 30 Tage erneut |
@@ -3118,6 +3122,8 @@ nutzen dieselbe Prüffunktion) nicht grün ist. Prüfpunkte mit Datenbezug, in d
 9. `tax.confirmedAt` ist gesetzt, und `revenueGuard.manualYearTotals` enthält das Vorjahr (auch 0 €).
 10. `shipping.enabledCountries = ['DE']` oder `shipping.euShippingAcknowledged = true`.
 11. Kein öffentlich abrufbares `media` mit `showsPerson = jutta` ohne `ownerApproved` (R-181).
+12. Sind Tattoo-Beträge eingetragen (`tattoo.minPriceCents`, `customPriceFromCents`, `customPriceToCents`), ist
+    `tattoo.pricesConfirmedAt` gesetzt (P20.5, V-28 a, PAngV; Prüfpunkt R210-16).
 
 Die Punkte ohne Datenbezug (Treiber, `ADMIN_ROUTE`, amtliche Grafik R-049, `docs/recht/VVT.md`) prüft dieselbe
 Funktion laut R-210. Die Fehlermeldung listet alle offenen Punkte.

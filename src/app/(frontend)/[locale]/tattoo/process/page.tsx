@@ -6,11 +6,17 @@ import styles from '@/components/tattoo/Tattoo.module.css'
 import { TattooShell } from '@/components/tattoo/TattooShell'
 import { tattooLocale, tattooMetadata } from '@/components/tattoo/tattooRoute'
 import { Callout } from '@/components/ui/Callout'
-import { blocksOfType, getTattooPage, getTattooSettings } from '@/lib/data/tattoo'
+import {
+  blocksOfType,
+  getTattooAvailability,
+  getTattooPage,
+  getTattooSettings,
+} from '@/lib/data/tattoo'
 
 // R16 Ablauf (KONZEPT §9.2): 5 Schritte aus dem Block `processSteps` der Seite `tattoo` (Anfrage → Termin → Anzahlung
 // (offline) → Stechen → Aftercare; ohne Block die Entwurfstexte aus den Nachrichten), Hinweis „Tattoos erst ab 18“,
-// Ort nur als Bezirk (E-50), Kontakt-Block mit Betreff „Tattoo-Anfrage – eigene Idee“. Keine Online-Buchung.
+// Ort nur als Bezirk (E-50), Kontakt-Block mit Betreff „Tattoo-Anfrage – eigene Idee“. Keine Online-Buchung. Ohne
+// veröffentlichte Flash-Motive nennt der Entwurfstext von Schritt 1 keine Flash-Nummer (V-28 a).
 
 export const revalidate = 3600
 export const generateMetadata = tattooMetadata('R16')
@@ -20,10 +26,11 @@ const FALLBACK_STEPS = ['1', '2', '3', '4', '5'] as const
 export default async function ProcessPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = tattooLocale((await params).locale)
   setRequestLocale(locale)
-  const [t, settings, page] = await Promise.all([
+  const [t, settings, page, availability] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.process' }),
     getTattooSettings(locale),
     getTattooPage(locale),
+    getTattooAvailability(locale),
   ])
   const block = blocksOfType(page, 'processSteps')[0]
   const steps =
@@ -31,7 +38,7 @@ export default async function ProcessPage({ params }: { params: Promise<{ locale
     FALLBACK_STEPS.map((n) => ({
       key: n,
       title: t(`steps.${n}.title`),
-      text: t(`steps.${n}.text`),
+      text: n === '1' && !availability.flash ? t('steps.1.textNoFlash') : t(`steps.${n}.text`),
     }))
 
   return (

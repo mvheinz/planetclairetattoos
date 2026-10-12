@@ -11,6 +11,7 @@ import { absoluteUrl } from './metadata'
 // dazu die öffentlichen Stücke (`available`, `reserved`, `sold` mit Archiv) und alle Kategorien – je Eintrag mit
 // `xhtml:link`-Alternates `de`, `en`, `x-default` (→ DE) und bei Stücken/Kategorien `lastmod` aus `updatedAt`. Korb,
 // Kasse und Token-Seiten stehen nie darin (`noindex`). Die Daten liefert `src/lib/data/sitemap.ts` (Tag `sitemap`).
+// Leere Tattoo-Unterseiten (`hiddenRoutes`: Flash ohne Motiv, Galerie ohne Foto) fehlen; erreichbar bleiben sie.
 
 export interface SitemapProduct {
   itemNumber: number
@@ -28,6 +29,8 @@ export interface SitemapCategory {
 export interface SitemapData {
   products: SitemapProduct[]
   categories: SitemapCategory[]
+  /** Seiten ohne Inhalt, die nicht in die Sitemap gehören (leere Tattoo-Unterseiten, V-28 a/V-11). */
+  hiddenRoutes?: readonly string[]
 }
 
 export const EMPTY_SITEMAP_DATA: SitemapData = { products: [], categories: [] }
@@ -57,8 +60,15 @@ export function buildSitemap(
   siteUrl?: string,
   data: SitemapData = EMPTY_SITEMAP_DATA,
 ): MetadataRoute.Sitemap {
+  const hidden = new Set(data.hiddenRoutes ?? [])
   const pages = pageRoutes()
-    .filter((r) => r.status === 'live' && r.robots === 'index' && !r.paths!.de.includes('['))
+    .filter(
+      (r) =>
+        r.status === 'live' &&
+        r.robots === 'index' &&
+        !r.paths!.de.includes('[') &&
+        !hidden.has(r.id),
+    )
     .flatMap((r) => localizedEntries(r.id, () => ({}), siteUrl))
   const categories = data.categories.flatMap((c) =>
     pickLocale(c.slug, DEFAULT_LOCALE)

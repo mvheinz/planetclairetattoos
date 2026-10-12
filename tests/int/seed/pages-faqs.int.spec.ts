@@ -203,8 +203,12 @@ describe('FAQ (SEED-SPEC §14)', () => {
     const en = await bySeedKey(payload, 'faqs', 'FAQ08', { locale: 'en' })
     expect(de.question).toBe('Wie frage ich ein Tattoo an?')
     expect(en.question).toBe('How do I request a tattoo?')
-    expect(plain(de.answer)).toContain('zum Beispiel F-902')
-    expect(plain(en.answer)).toContain('for example F-902')
+    // P20.5 (V-28 a): keine Flash-Nummer mehr – Flash erscheint erst mit echten Motiven.
+    expect(plain(de.answer)).toContain('wie groß es ungefähr werden darf')
+    expect(plain(en.answer)).toContain('roughly how big it may be')
+    for (const answer of [plain(de.answer), plain(en.answer)]) {
+      expect(answer).not.toMatch(/F-9\d\d|flash/i)
+    }
     expect(de.category).toBe('tattoo')
     expect(de.sortOrder).toBe(80)
   })

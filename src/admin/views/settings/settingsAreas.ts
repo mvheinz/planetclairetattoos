@@ -17,6 +17,8 @@ export const SETTINGS_AREAS = [
   'legal',
   'mailTexts',
   'tattooPrices',
+  'tattooPricesConfirm',
+  'tattooBooking',
 ] as const
 export type SettingsArea = (typeof SETTINGS_AREAS)[number]
 
@@ -186,6 +188,39 @@ export function initialTattooPrices(de: Obj, en: Obj): TattooPricesValues {
     customFrom: euro(t.customPriceFromCents),
     customTo: euro(t.customPriceToCents),
     priceNote: pair(t.priceNote, obj(en.tattoo).priceNote),
+  }
+}
+
+/** Bestätigung der Tattoo-Preise (V-28 a): Tag der letzten Bestätigung („12.10.2026“, Berlin) und ob Beträge da sind. */
+export interface TattooPricesConfirmState {
+  confirmedAt: string
+  hasPrices: boolean
+}
+
+export function initialTattooPricesConfirm(de: Obj): TattooPricesConfirmState {
+  const t = obj(de.tattoo)
+  const amount = (v: unknown) => typeof v === 'number' && v > 0
+  const day = dateKey(t.pricesConfirmedAt)
+  return {
+    confirmedAt: day ? day.split('-').reverse().join('.') : '',
+    hasPrices:
+      amount(t.minPriceCents) || amount(t.customPriceFromCents) || amount(t.customPriceToCents),
+  }
+}
+
+/** Schalter „Anfragen offen / ausgebucht bis …“ (V-64): `settings.tattoo.inquiriesOpen`, `bookedUntil`, `bookedNote`. */
+export interface TattooBookingValues {
+  inquiriesOpen: boolean
+  bookedUntil: string
+  bookedNote: Localized
+}
+
+export function initialTattooBooking(de: Obj, en: Obj): TattooBookingValues {
+  const t = obj(de.tattoo)
+  return {
+    inquiriesOpen: t.inquiriesOpen !== false,
+    bookedUntil: s(t.bookedUntil),
+    bookedNote: pair(t.bookedNote, obj(en.tattoo).bookedNote),
   }
 }
 
