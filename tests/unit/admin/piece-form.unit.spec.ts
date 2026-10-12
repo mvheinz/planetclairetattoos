@@ -119,5 +119,24 @@ describe('Formular „Neues Stück“ (P5.6)', () => {
     expect(fieldAnchor('dimensions.widthCm')).toBe('pf-dimensions')
     expect(fieldAnchor('images.0.alt')).toBe('pf-images')
     expect(fieldAnchor('settings.business')).toBe('')
+    // V-15 „Bitte erst nachmessen“ springt direkt in den Maß-Hinweis
+    expect(fieldAnchor('dimensions.note')).toBe('pf-dimensionsNote')
+  })
+
+  it('V-31: Speichern im Formular schreibt die Markierung „zu prüfen“ nie – weder setzen noch löschen', () => {
+    const doc = {
+      itemNumber: 101,
+      category: 'schmuck',
+      title: 'Ohrring',
+      adminAttention: { flag: true, reason: 'manual', note: 'Bitte prüfen' },
+    }
+    for (const category of ['keramik', 'textil', 'cap', 'schmuck', 'zeichnung', 'sonstiges'] as const) {
+      const form = { ...formFromDoc({ ...doc, category }, null), category }
+      const locks = pieceLocks('draft', null)
+      expect(Object.keys(toSaveData(form, { priceCents: 4500, images: [], locks }))).not.toContain(
+        'adminAttention',
+      )
+      expect(Object.keys(toEnData(form))).not.toContain('adminAttention')
+    }
   })
 })

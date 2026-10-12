@@ -75,7 +75,7 @@ describe('„Meine Stücke“ (P5.8)', () => {
     expect(card.actions).not.toContain('sellOfflineReserved')
   })
 
-  it('Knöpfe je Status (KONZEPT §7.5): Entwurf, online, offline verkauft, ausgeblendet', async () => {
+  it('Knöpfe je Status (KONZEPT §7.5, V-34): Entwurf, online („Aus dem Shop nehmen“), Markt-Verkauf (Preis nachtragen), weggelegt', async () => {
     const d = await piece(982)
     const a = await piece(983)
     await transitionProduct(req, a.id, 'publish')
@@ -86,8 +86,14 @@ describe('„Meine Stücke“ (P5.8)', () => {
     await transitionProduct(req, h.id, 'archive')
     const cards = new Map((await run({})).cards.map((c) => [c.itemNumber, c.actions] as const))
     expect(cards.get(982)).toEqual(['edit', 'publish', 'archive', 'delete'])
-    expect(cards.get(983)).toEqual(['edit', 'copyLink', 'sellOffline', 'unpublish', 'archive'])
-    expect(cards.get(984)).toEqual(['edit', 'toggleArchive', 'returnToStock', 'copyLink'])
+    expect(cards.get(983)).toEqual(['edit', 'copyLink', 'sellOffline', 'takeOff'])
+    expect(cards.get(984)).toEqual([
+      'edit',
+      'toggleArchive',
+      'returnToStock',
+      'copyLink',
+      'offlinePrice',
+    ])
     expect(cards.get(985)).toEqual(['edit', 'restore'])
     expect(d.id).toBeGreaterThan(0)
   })
@@ -106,7 +112,9 @@ describe('„Meine Stücke“ (P5.8)', () => {
       q: '',
       status: null,
       category: null,
+      review: false,
       page: 1,
     })
+    expect(parsePiecesQuery({ pruefen: '1' }).review).toBe(true)
   })
 })

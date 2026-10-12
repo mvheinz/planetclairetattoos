@@ -210,6 +210,8 @@ describe('getTodaySummary (P5.28, KONZEPT §7.3)', () => {
     expect(order!.text).toContain('Betrag stimmt nicht')
     expect(hint(summary, `attention-order-${ids.noflag}`)).toBeUndefined()
     expect(summary.hints.filter((h) => h.id.startsWith('attention-product-'))).toHaveLength(1)
+    // V-31: ohne Markierung „von Hand“ keine Sammelzeile „… warten auf deine Prüfung“
+    expect(hint(summary, 'products-review')).toBeUndefined()
   })
 
   it('Aufbewahrungssperren zur Prüfung: seit 7 Monaten → Hinweis; seit 5 Monaten oder vor 1 Monat geprüft → keiner', () => {
