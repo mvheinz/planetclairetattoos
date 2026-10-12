@@ -4,6 +4,8 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import type { ProductCategory } from '@/lib/enums'
 import { resetEnvCache } from '@/lib/env'
 import { getCategoryBySlug, listNavCategories } from '@/lib/data/categories'
+import { loadNavigation } from '@/lib/data/navigation'
+import { loadSitemapData } from '@/lib/data/sitemap'
 import {
   PRODUCT_ADMIN_FIELDS,
   SHOP_PAGE_SIZE,
@@ -314,6 +316,17 @@ describe('Kategorien (KONZEPT §3.3, §2.4)', () => {
     await piece(980, available(1), 'keramik')
     await piece(981, sold(1, 10), 'textil')
     expect((await loadCategoryKeysWithContent()).sort()).toEqual(['keramik', 'textil'])
+    // Menü (showInNavigation und Inhalt) und Sitemap führen nur diese Kategorien; die Adressen bleiben erreichbar
+    expect((await loadNavigation('de')).categories.map((c) => c.key).sort()).toEqual([
+      'keramik',
+      'textil',
+    ])
+    const sitemap = await loadSitemapData()
+    expect(sitemap.categories.map((c) => (c.slug as { de: string }).de).sort()).toEqual([
+      'keramik',
+      'textil',
+    ])
+    expect(await getCategoryBySlug('de', 'zeichnungen')).not.toBeNull()
   })
 
   it('getCategoryBySlug: eigener Slug direkt, Slug der anderen Sprache mit redirect, unbekannt → null', async () => {

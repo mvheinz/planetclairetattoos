@@ -186,7 +186,7 @@ test.describe('Startseite – Leerzustand (exklusiv)', () => {
   // Die Test-Kategorie `sonstiges` ist im Mini-Bestand leer; Fixture-Tests legen dort kurz Stücke an → exklusiv.
   holdListData(test, 'exclusive')
 
-  test('Kategorie ohne sichtbare Stücke → „Gerade ist hier nichts – …“ + Archiv-Link, keine Karten', async ({
+  test('Kategorie ohne sichtbare Stücke → Archiv-Link, sonst „Auf Anfrage“ bzw. „Zeichnung auf Anfrage“ (V-11 a), keine Karten', async ({
     page,
     request,
   }) => {
@@ -203,18 +203,27 @@ test.describe('Startseite – Leerzustand (exklusiv)', () => {
     ).docs[0]!
     type Block = { blockType: string; stationId?: string; link?: { category?: string | null } }
     const layout = (home.layout ?? []) as unknown as Block[]
-    const withCategory = (category: string) =>
+    const withCategory = (category: string, stations = ['schmuck']) =>
       layout.map((b) =>
-        b.blockType === 'station' && b.stationId === 'schmuck'
+        b.blockType === 'station' && stations.includes(b.stationId ?? '')
           ? { ...b, link: { ...b.link, category } }
           : b,
       )
-    const update = (category: string) =>
+    const update = (category: string, stations?: string[]) =>
       payload.update({
         collection: 'pages',
         id: home.id,
-        data: { layout: withCategory(category) } as never,
+        data: { layout: withCategory(category, stations) } as never,
         locale: 'de',
+        overrideAccess: true,
+        context: { seed: true },
+      })
+    // S30 (sonstiges, verkauft) im Archiv zeigen bzw. ausblenden
+    const archived = (on: boolean) =>
+      payload.update({
+        collection: 'products',
+        where: { and: [{ category: { equals: 'sonstiges' } }, { status: { equals: 'sold' } }] },
+        data: { showInArchiveAfterSale: on } as never,
         overrideAccess: true,
         context: { seed: true },
       })
@@ -224,6 +233,7 @@ test.describe('Startseite – Leerzustand (exklusiv)', () => {
       const schmuck = station(page, 'schmuck')
       await expect(schmuck.locator('[data-product-card]')).toHaveCount(0)
       const empty = schmuck.locator('[data-station-empty]')
+      await expect(empty).toHaveAttribute('data-station-empty', 'archive')
       await expect(empty).toContainText(
         'Gerade ist es hier still. Komm später wieder – oder wandere durchs Archiv.',
       )
@@ -231,11 +241,36 @@ test.describe('Startseite – Leerzustand (exklusiv)', () => {
         'href',
         '/de/archiv',
       )
+      // V-11: kein „Alle …“ ins Leere
+      await expect(schmuck.locator('[data-station-all]')).toHaveCount(0)
       // Die anderen Stationen zeigen weiter ihre Stücke.
       expect(await station(page, 'keramik').locator('[data-product-card]').count()).toBeGreaterThan(
         0,
       )
+
+      // V-11 a: auch das Archiv ist leer → „Auf Anfrage“; die Station „Zeichnungen“ → „Zeichnung auf Anfrage“
+      await archived(false)
+      await update('sonstiges', ['schmuck', 'zeichnungen'])
+      await openHome(page, request)
+      const request1 = station(page, 'schmuck').locator('[data-station-empty]')
+      await expect(request1).toHaveAttribute('data-station-empty', 'request')
+      await expect(request1.getByRole('link', { name: 'Auf Anfrage' })).toHaveAttribute(
+        'href',
+        '/de/auftragsarbeiten',
+      )
+      const drawings = station(page, 'zeichnungen')
+      await expect(drawings).toBeVisible()
+      await expect(drawings.locator('h2')).toHaveText('Zeichnungen')
+      const drawing = drawings.locator('[data-station-empty]')
+      await expect(drawing).toHaveAttribute('data-station-empty', 'drawing')
+      await expect(drawing).toContainText('Gerade ist keine Zeichnung zu haben.')
+      const ask = drawing.getByRole('link', { name: 'Zeichnung auf Anfrage' })
+      await expect(ask).toHaveAttribute('href', '/de/auftragsarbeiten?art=zeichnung')
+      await ask.click()
+      await expect(page.locator('#anfrage-objectType')).toHaveValue('zeichnung')
     } finally {
+      await archived(true)
+      // stellt alle Stationen wieder her (Grundlage ist die ursprüngliche Seite)
       await update('schmuck')
       await refresh(request, ['/de', '/en'])
     }

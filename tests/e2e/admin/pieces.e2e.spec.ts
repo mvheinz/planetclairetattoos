@@ -152,12 +152,11 @@ test.describe('Meine Stücke (P5.8) @a11y', () => {
       .poll(() => html(request, ARCHIVE), { timeout: LIMIT_MS, intervals: [100, 250, 500] })
       .toContain(`${marker(shown.itemNumber)} data-status="sold"`)
     expect(Date.now() - sentAt).toBeLessThanOrEqual(LIMIT_MS + 2_000)
-    // „Fehlt im Shop“: nicht mehr kaufbar – die Shop-Liste zeigt verkaufte Archiv-Stücke gedämpft mit Stempel
-    // (KONZEPT §3.2), die Liste „nur verfügbare“ (AK-3-03) gar nicht mehr.
+    // „Fehlt im Shop“: nicht mehr kaufbar – die Shop-Liste zeigt verkaufte Archiv-Stücke nur noch gedämpft mit Stempel
+    // in der kurzen Reihe unter dem Raster (KONZEPT §3.2, U-57 c; AK-3-03: nie im Raster).
     await expect
-      .poll(() => html(request, `${SHOP}?available=1`), { timeout: LIMIT_MS })
-      .not.toContain(marker(shown.itemNumber))
-    expect(await html(request, SHOP)).toContain(`${marker(shown.itemNumber)} data-status="sold"`)
+      .poll(() => html(request, SHOP), { timeout: LIMIT_MS })
+      .toContain(`${marker(shown.itemNumber)} data-status="sold"`)
     await page.goto(ARCHIVE)
     await expect(
       page.locator(`[data-product-card][data-item-number="${shown.itemNumber}"] [data-sold-stamp]`),

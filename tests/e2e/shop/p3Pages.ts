@@ -52,20 +52,14 @@ const byLocale = (fn: (locale: Locale) => Omit<GatePage, 'locale'>): GatePage[] 
 
 /** Alle festen P3-Seiten (ohne die Fixture-Variante „Zuhause“). */
 export const P3_PAGES: readonly GatePage[] = [
-  // R02 Shop und Variante „nur verfügbare“ (statisch vorgerendert, Spike B-05)
+  // R02 Shop (der Schalter „nur verfügbare“ entfiel mit V-12, P20.3)
   ...byLocale((l) => ({
     name: `R02 ${l}`,
     routeId: 'R02',
     path: localizedPath('R02', l),
     status: 200,
   })),
-  ...byLocale((l) => ({
-    name: `R02 nur verfügbare ${l}`,
-    routeId: 'R02',
-    path: `${localizedPath('R02', l)}?available=1`,
-    status: 200,
-  })),
-  // R03 je Kategorie (inkl. Leerzustand `sonstiges`) und eine Variante
+  // R03 je Kategorie (inkl. Leerzustand `sonstiges`)
   ...CATEGORY_SLUGS.flatMap((c) =>
     byLocale((l) => ({
       name: `R03 ${c.key} ${l}`,
@@ -74,12 +68,6 @@ export const P3_PAGES: readonly GatePage[] = [
       status: 200,
     })),
   ),
-  ...byLocale((l) => ({
-    name: `R03 keramik nur verfügbare ${l}`,
-    routeId: 'R03',
-    path: `${localizedPath('R03', l, { slug: l === 'de' ? 'keramik' : 'ceramics' })}?available=1`,
-    status: 200,
-  })),
   // R05 Archiv und Kategorie-Variante
   ...byLocale((l) => ({
     name: `R05 ${l}`,

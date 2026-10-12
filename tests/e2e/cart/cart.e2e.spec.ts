@@ -68,9 +68,15 @@ test.describe('Korb mit Seed-Ankern', () => {
       norm(euro(s01.priceCents)),
     )
 
-    await expect(page.locator('[data-shipping-class-line]')).toHaveText(
-      'Versandklasse: Keramik-Paket – die größte Klasse im Korb zählt',
+    // V-10: statt der Fachzeile zur Versandklasse – Versand nur einmal (die größte Klasse zählt, E-25)
+    await expect(page.locator('[data-shipping-once]')).toHaveText(
+      'Mehrere Stücke? Versand zahlst du nur einmal.',
     )
+    await expect(page.locator('[data-shipping-once]')).toHaveAttribute(
+      'data-shipping-once',
+      'keramik',
+    )
+    await expect(page.locator('[data-shipping-class-line]')).toHaveCount(0)
     await expect(page.locator('[data-delivery-option="shipping"]')).toContainText(
       'Versand innerhalb Deutschlands (DHL)',
     )
@@ -129,7 +135,10 @@ test.describe('Korb mit Seed-Ankern', () => {
     const cookie = (await context.cookies()).find((c) => c.name === 'pc_cart')!
     expect(decodeCartCookie(cookie.value)?.items.map((i) => i.id)).toEqual([s11.id])
     await expectAmount(page, '[data-cart-subtotal]', s11.priceCents)
-    await expect(page.locator('[data-shipping-class-line]')).toContainText('Paket klein')
+    await expect(page.locator('[data-shipping-once]')).toHaveAttribute(
+      'data-shipping-once',
+      'paket_klein',
+    )
 
     await page.locator('label[for="cart-delivery-pickup"]').click()
     await page.locator('[data-cart-delivery] button[type="submit"]').click()

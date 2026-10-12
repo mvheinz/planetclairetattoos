@@ -147,6 +147,7 @@ export async function HomeStation({
             </ul>
           ) : (
             <StationEmpty
+              stationId={station.stationId}
               categories={station.categories ?? []}
               archiveCategories={archiveCategories}
               locale={locale}
@@ -164,25 +165,31 @@ export async function HomeStation({
  * Vorauswahl), Kategorien mit Archiv-Stücken → „Ins Archiv“, sonst → „Auf Anfrage“ (R10, Vorauswahl wo eindeutig).
  */
 async function StationEmpty({
+  stationId,
   categories,
   archiveCategories,
   locale,
 }: {
+  stationId: string
   categories: readonly ProductCategory[]
   archiveCategories: readonly ProductCategory[]
   locale: Locale
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const first = categories[0]
-  const kind = categories.includes('zeichnung')
-    ? 'drawing'
-    : categories.some((c) => archiveCategories.includes(c))
-      ? 'archive'
-      : 'request'
+  const kind =
+    stationId === 'zeichnungen' || categories.includes('zeichnung')
+      ? 'drawing'
+      : categories.some((c) => archiveCategories.includes(c))
+        ? 'archive'
+        : 'request'
   const href =
     kind === 'archive'
       ? localizedPath('R05', locale)
-      : commissionHref(locale, { objectType: first ? objectTypeForProduct(first) : undefined })
+      : commissionHref(locale, {
+          objectType:
+            kind === 'drawing' ? 'zeichnung' : first ? objectTypeForProduct(first) : undefined,
+        })
   const text = {
     drawing: [t('stationEmptyDrawing'), t('stationDrawingRequest')],
     archive: [t('stationEmpty'), t('stationArchive')],

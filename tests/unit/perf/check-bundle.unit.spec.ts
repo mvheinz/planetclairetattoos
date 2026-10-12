@@ -145,7 +145,7 @@ describe('T-09 check:bundle – Seitenbudgets', () => {
     // T-09: R02–R05 mit Varianten und Zuständen (reserviert, sold) – Budget der Route (≤ 150 KB).
     const variants = targets.filter((t) => t.variant)
     expect(variants.map((t) => `${t.routeId} ${t.variant}`)).toEqual(
-      expect.arrayContaining(['R02 nur verfügbare', 'R04 reserviert', 'R04 sold', 'R05 Kategorie']),
+      expect.arrayContaining(['R04 reserviert', 'R04 sold', 'R05 Kategorie']),
     )
     for (const t of variants.filter((v) => !v.session))
       expect(firstLoadBudget(t.routeId, budgets), t.path).toBe(150_000)

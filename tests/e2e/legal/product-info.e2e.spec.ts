@@ -38,7 +38,7 @@ test.describe('Pflichtangaben je Kategorie', () => {
     expect(await isBefore(page.locator('[data-legal-row="size"]'), buyTarget(page))).toBe(true)
   })
 
-  test('R-044 Keramik Deko: Badge und Baustein, kein Wort aus V-13; Lebensmittel-Badge verlinkt nur mit gültiger Erklärung', async ({
+  test('R-044 Keramik Deko: ein Abzeichen vor dem Knopf, Baustein bei „Herstellerin & Sicherheit“, kein Wort aus V-13; Lebensmittel-Badge verlinkt nur mit gültiger Erklärung', async ({
     page,
     request,
     fixtureProducts,
@@ -48,7 +48,10 @@ test.describe('Pflichtangaben je Kategorie', () => {
     await expect(legal.locator('[data-badge="decorative"]')).toHaveText(
       'Deko – nicht für Lebensmittel',
     )
-    await expect(legal.locator('[data-legal-note="ceramicsDecorative"]')).toHaveText(
+    // V-14: nur einmal als Abzeichen – der Warnhinweis (Baustein) steht unter „Herstellerin & Sicherheit“ (GPSR)
+    await expect(page.locator('[data-product-page] [data-badge="decorative"]')).toHaveCount(1)
+    await expect(legal.locator('[data-legal-note="ceramicsDecorative"]')).toHaveCount(0)
+    await expect(page.locator('[data-product-safety] [data-safety="warnings"]')).toContainText(
       'Dekorationsobjekt – nicht für Lebensmittel geeignet.',
     )
     const text = await page.locator('[data-product-page]').innerText()
