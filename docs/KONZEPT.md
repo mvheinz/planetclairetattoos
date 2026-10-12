@@ -607,13 +607,19 @@ Kategorie ohne Inhalt bleibt unter ihrer Adresse erreichbar (Leerzustand KO-17),
 ### 3.6 Warenkorb (R06) [P4]
 
 Details in §4.2–4.3. Blöcke: H1 „Dein Korb“; Positionen (Foto, Titel, Nr., Preis, „Entfernen“, Status-Warnung);
-Lieferart-Wahl (Versand innerhalb Deutschlands / Abholung in Berlin) mit dem Satz „Mehrere Stücke? Versand zahlst du nur
-einmal.“ statt einer Fachzeile zur Versandklasse (V-10, P20.3); Versandkosten (automatisch); Summe; Steuerhinweis;
-Lieferzeit; Hinweis Liefergebiet („Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache.“);
-**akzeptierte Zahlarten** (Karte, Apple Pay, Google Pay, PayPal, Vorkasse – § 312j Abs. 1 BGB; Baustein
-`cart.paymentAndDeliveryInfo`, R-036); harmonisierte Mitteilung zur Gewährleistung (R-049); Knopf **„Zur Kasse“**.
-Ist Abholung oder Vorkasse in den Einstellungen aus, steht statt des Bausteins dieselbe Angabe aus den Einstellungen
-gebaut (ohne Abhol-Satz bzw. ohne „Vorkasse“, wie die Fußzeile U-58 c; P18.5), ebenso die Zahlarten-Zeile.
+Zwischensumme, **Versand** (automatisch, mit Preis) und Summe; darunter der Satz „Mehrere Stücke? Versand zahlst du nur
+einmal.“ statt einer Fachzeile zur Versandklasse (V-10, P20.3) und **„Abholung wählst du in der Kasse.“** – die Lieferart
+wählt man seit V-16 (U-93, P20.3) **nur noch in der Kasse**, der Korb hat keine Lieferart-Auswahl und keinen
+Übernehmen-Knopf mehr. Liegt ein Stück „nur zur Abholung“ im Korb, steht dort „Abholung in Berlin – 0,00 €“ und der
+Satz „Nr. … gibt es nur zur Abholung.“; hat die Kasse sich Abholung gemerkt (Cookie, §4.2), steht „Abholung in Berlin“
+mit „Versand oder Abholung wählst du in der Kasse.“; lässt sich der Versand nicht berechnen (fehlender Tarif), rechnet
+der Korb sichtbar mit Abholung (nie still 0 €) und die Kasse startet mit Abholung – ohne Abholung bleibt „Zur Kasse“
+gesperrt („Schreib mir bitte“). Dann Steuerhinweis; Lieferzeit; **eine** Zeile mit Liefergebiet und **akzeptierten
+Zahlarten** („Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache. Zahlarten: …“ – § 312j Abs. 1
+BGB; Baustein `cart.paymentAndDeliveryInfo`, R-036; die frühere zweite Zahlarten-Aufzählung entfällt, V-16); harmonisierte
+Mitteilung zur Gewährleistung (kompakt, R-049, U-73); Knopf **„Zur Kasse“**. Ist Abholung oder Vorkasse in den
+Einstellungen aus, steht statt des Bausteins dieselbe Angabe aus den Einstellungen gebaut (ohne Abhol-Satz bzw. ohne
+„Vorkasse“, wie die Fußzeile U-58 c; P18.5).
 Shop pausiert (`settings.shop.isOpen = false`, §4.2) → `settings.shop.closedMessage` über den Positionen, „Zur Kasse“
 gesperrt. Leer → Coco mit leerem Korb + „Zum Shop“. Tuschelinie still, Coco sitzt neben dem Korb (E-78).
 `noindex`. Kein Stripe.js auf dieser Seite.
@@ -786,7 +792,7 @@ Liste mit Stripe- und Admin-Cookies: ARCHITEKTUR §8.7):
 | Eigenschaft | `pc_cart` (Warenkorb) | `pc_checkout` (Kasse) |
 |---|---|---|
 | Entsteht | erstes „In den Korb“ (Nutzeraktion) | „Zur Kasse“ (POST) |
-| Inhalt | base64url-JSON `{"v":1,"items":[{"id":<productId>,"p":<Preis in Cent beim Hinzufügen>},…],"delivery":"shipping"\|"pickup"}`, ≤ 20 Stücke – nur Stück-IDs, Preis beim Hinzufügen (nur für den Hinweis „Preis wurde aktualisiert“) und Lieferart, keine Kennung, keine personenbezogenen Daten | zufälliger Kassen-Token (§2.3) |
+| Inhalt | base64url-JSON `{"v":1,"items":[{"id":<productId>,"p":<Preis in Cent beim Hinzufügen>},…],"delivery":"shipping"\|"pickup"}`, ≤ 20 Stücke – nur Stück-IDs, Preis beim Hinzufügen (nur für den Hinweis „Preis wurde aktualisiert“) und die zuletzt in der Kasse gewählte Lieferart (V-16: der Korb setzt sie nicht mehr; „In den Korb“ setzt bei einem Stück „nur Abholung“ `pickup`), keine Kennung, keine personenbezogenen Daten | zufälliger Kassen-Token (§2.3) |
 | Attribute | `Path=/`, `SameSite=Lax`, `Secure` (außer `localhost`), **nicht** `HttpOnly` (die Korb-Anzahl im Kopf wird clientseitig gelesen), `Max-Age=604800` (7 Tage) | `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`, `Max-Age=3600` (1 h) |
 | Löschen | wenn der Korb leer wird, nach abgeschlossener Bestellung (beim Aufruf der Danke-Seite) | nach abgeschlossener Bestellung (Danke-Seite); sonst Ablauf nach 1 h |
 
@@ -801,7 +807,7 @@ Laufzeit, kein Tracking. Ob stattdessen ein Server-Warenkorb mit Zufalls-ID nöt
 |---|---|---|---|
 | Hinzufügen | „In den Korb“ (POST/Server-Action) | Shop geöffnet (`settings.shop.isOpen = true`); Stück öffentlich, `available`, noch nicht im Korb, Korb < 20 Stücke | Cookie gesetzt/aktualisiert; Knopf wird zu „Liegt schon in deinem Korb“; Kopf-Anzahl +1; kurze Bestätigung „Liegt im Korb“ mit Link „Zum Korb“ (kein Seitenwechsel). Coco-Hüpfer (P9). |
 | Entfernen | „Entfernen“ im Korb | – | Cookie aktualisiert; aktive Kasse wird abgebrochen (Reservierung frei, §4.6) |
-| Lieferart wählen | Auswahl im Korb oder in der Kasse | Stück mit Versandklasse `nur_abholung` erzwingt `pickup`; `pickup` nur, solange `settings.shipping.pickupEnabled` an ist (sonst `pickup_disabled`, §4.3 Regel 7) | Cookie aktualisiert; Versandkosten neu; eine aktive Kasse wird neu gerechnet (Versandbetrag im Kassen-Snapshot und in der Stripe-Session aktualisiert oder Session neu angelegt, Mechanik ARCHITEKTUR §3.5) – **die Reservierung bleibt** |
+| Lieferart wählen | nur in der Kasse (V-16, U-93; der Korb zeigt Versand und „Abholung wählst du in der Kasse“) | Stück mit Versandklasse `nur_abholung` erzwingt `pickup`; `pickup` nur, solange `settings.shipping.pickupEnabled` an ist (sonst `pickup_disabled`, §4.3 Regel 7) | Cookie aktualisiert; Versandkosten neu; eine aktive Kasse wird neu gerechnet (Versandbetrag im Kassen-Snapshot und in der Stripe-Session aktualisiert oder Session neu angelegt, Mechanik ARCHITEKTUR §3.5) – **die Reservierung bleibt** |
 | Zur Kasse | Knopf „Zur Kasse“ (**POST**, nie durch Seitenaufruf oder Prefetch) | Shop geöffnet (`settings.shop.isOpen = true`); alle Stücke `available` oder bereits durch diese Kasse reserviert; höchstens `settings.shop.maxItemsPerCheckout` Stücke (Standard 10; der Korb selbst fasst bis zu 20), sonst Meldung „Höchstens {n} Stücke pro Bestellung“ | §4.6 Reservierung, Kasse anlegen, Cookie `pc_checkout` setzen, Weiterleitung auf R07 |
 
 **Anzeige je Position im Korb:** Foto, Titel, `Nr. 017`, Preis, „Entfernen“ und Zustand:
@@ -814,7 +820,7 @@ Laufzeit, kein Tracking. Ob stattdessen ein Server-Warenkorb mit Zufalls-ID nöt
 **Shop-Pause** (`settings.shop.isOpen = false`, Einstellungen → Shop, §7.14): „In den Korb“ (R04) und „Zur Kasse“ (R06)
 sind gesperrt, und R02–R04 sowie R06 zeigen den Text `settings.shop.closedMessage`; der Server lehnt beide Aktionen ab,
 auch bei veralteter Seite. Stücke, Archiv, Tattoo-Seiten und alle Pflichtseiten bleiben unverändert erreichbar; ein
-vorhandener Korb bleibt erhalten (Entfernen und Lieferart wählen gehen weiter). Bereits laufende Kassen werden nicht
+vorhandener Korb bleibt erhalten (Entfernen geht weiter). Bereits laufende Kassen werden nicht
 abgebrochen und können bis zu ihrem Ablauf bezahlt werden [Annahme KA-36].
 
 **AK-4-16** Mit `settings.shop.isOpen = false` sind „In den Korb“ und „Zur Kasse“ deaktiviert, `closedMessage` ist auf
@@ -848,7 +854,7 @@ nur DE, E-24) und `pickup` (Abholung in Berlin, 0,00 €, E-25/E-29).
    NL und LU gesperrt; GB und US sind nicht wählbar (E-24, R-060).
 6. Gesamtpreis = Summe der Stückpreise + Versandkosten. Keine Zahlungsgebühren/Aufschläge.
 7. Schalter „Abholung möglich“ aus (`settings.shipping.pickupEnabled = false`, P18.5): Korb und Kasse zeigen kein
-   Abhol-Radio, alle Dienste (Lieferart im Korb, Kassenstart, Lieferartwechsel, Absenden) lehnen `pickup` mit
+   Abhol-Radio, alle Dienste (Kassenstart, Lieferartwechsel, Absenden) lehnen `pickup` mit
    `pickup_disabled` ab und fallen auf `shipping` zurück (eine offene Kasse mit Abholung wird beim Aufruf zurück in den
    Korb geschickt und bei „Zur Kasse“ durch eine mit Versand ersetzt; eine laufende Zahlung bleibt unberührt). Stücke
    `nur_abholung` sind dann **nicht bestellbar**: „In den Korb“ aus mit „Gerade nicht bestellbar – Abholung ist im
@@ -856,7 +862,8 @@ nur DE, E-24) und `pickup` (Abholung in Berlin, 0,00 €, E-25/E-29).
    `PICKUP_ONLY_BLOCKED_WHEN_PICKUP_OFF` in `src/lib/shop/pickupPolicy.ts`, OFFENE-PUNKTE).
 
 **AK-4-01** Korb mit `brief` + `keramik` bei `shipping` → Versand 8,90 €; mit `pickup` → 0,00 €.
-**AK-4-02** Korb mit einem `nur_abholung`-Stück bietet `shipping` nicht an (Server lehnt `shipping` ab).
+**AK-4-02** Korb mit einem `nur_abholung`-Stück bietet `shipping` nicht an: Korb und Kasse zeigen Abholung mit dem Grund
+„Nr. … gibt es nur zur Abholung.“, das Versand-Radio der Kasse ist gesperrt, der Server lehnt `shipping` ab.
 **AK-4-03** Geänderte Klassenpreise in den Einstellungen wirken sofort auf neue Kassen, nicht auf laufende (Snapshot) –
 das gilt ohne Lieferartwechsel; wechselt die Lieferart in einer laufenden Kasse, werden Versand und Summen mit den dann
 gültigen Tarifen aus `settings.shipping.rates` neu berechnet (§4.2).
@@ -873,7 +880,7 @@ Pflichtfelder laut R-061.
 | Abschnitt | Feld (Label DE) | Name | Pflicht | Validierung / Regel |
 |---|---|---|---|---|
 | 1 Kontakt | E-Mail | `customer.email` | ja | gültige Adresse, ≤ 254 Zeichen, kleingeschrieben gespeichert; Hinweis „Hierhin schicken wir Bestätigung und Rechnung“ |
-| 2 Lieferung | Lieferart | `fulfillmentMethod` | ja | `shipping` \| `pickup` (aus dem Korb übernommen, hier änderbar → Versandkosten und Übersicht aktualisieren sich; die Reservierung bleibt bestehen, weil sich die Stücke nicht ändern) |
+| 2 Lieferung | Lieferart | `fulfillmentMethod` | ja | `shipping` \| `pickup` – **einzige Stelle der Wahl** (V-16): Start mit Versand, mit der zuletzt hier gewählten Lieferart (Cookie) bzw. Abholung bei einem Stück „nur Abholung“ (Versand-Radio gesperrt mit Grund); Wechsel → Versandkosten und Übersicht aktualisieren sich; die Reservierung bleibt bestehen, weil sich die Stücke nicht ändern |
 | | Vor- und Nachname | `customer.name` (bei `shipping` zugleich `shippingAddress.name`) | ja | ein Feld, 2–100 Zeichen |
 | | Straße und Hausnummer | `shippingAddress.addressLine1` | ja bei `shipping` | 3–100 Zeichen; Hinweis „Packstation: ‚Packstation 123‘ und Postnummer in Adresszusatz“ |
 | | Adresszusatz | `shippingAddress.addressLine2` | nein | ≤ 100 |
@@ -882,8 +889,10 @@ Pflichtfelder laut R-061.
 | | Land | `shippingAddress.country` | ja bei `shipping` | nur Länder aus `settings.shipping.enabledCountries`; Start: fest „Deutschland“ (Anzeige als Text, ohne Auswahl) |
 | | DHL-Benachrichtigung | `carrierEmailConsent` | nein, **nicht vorangekreuzt** | nur bei `shipping`; Text aus Baustein `checkout.dhlEmailConsent` (R-101; Wortlaut nur in RECHT ANFORDERUNGEN §6); Nachweis im `consent-log` |
 | | Abhol-Hinweis | – | – | nur bei `pickup`: „Privatstudio in Berlin-{Bezirk}. Ort und Termin sprechen wir per Mail ab.“ |
+| | Geschenk-Hinweis | – | – | nur bei `shipping` (V-18 b, U-93): „Ein Geschenk? Gib einfach die Adresse der beschenkten Person als Lieferadresse an – auf dem Packzettel steht kein Preis, die Rechnung kommt nur per E-Mail an dich.“ (beides stimmt: Packzettel ohne Preise, Rechnung nur als Mail-Anhang §4.13) |
+| | „Das ist ein Geschenk“ | `gift.isGift` | nein, **nicht vorangekreuzt** | bei Versand und Abholung; Hinweis „Dann lege ich eine Karte bei, die ich von Hand schreibe.“; angehakt → Feld „Dein Gruß für die Karte (freiwillig)“ `gift.message` (reiner Text, ≤ 300 Zeichen, Steuerzeichen entfernt) und bei Versand ohne abweichende Rechnungsadresse der Hinweis, das Häkchen „Rechnungsadresse weicht ab“ zu setzen (sonst stünde der Name der beschenkten Person auf der Rechnung); Übersicht „Geschenk: ja – …“; nur für Jutta sichtbar (Bestellung, „Zu packen“/„Abholung“, Checkliste „Geschenk: handgeschriebene Karte beilegen“ – auch auf dem Packzettel, ohne Gruß), **nie** in Mails an die Kundin; Löschung des Grußes 30 Tage nach Versand bzw. Abholung (LOESCHKONZEPT L-05 Stufe E) |
 | 3 Rechnungsadresse | „Rechnungsadresse weicht ab“ | `billingAddressDiffers` | – | nur bei `shipping`; Checkbox **nicht angehakt** (V-03); angehakt → Felder der Rechnungsadresse erscheinen |
-| | Name, Straße und Hausnr., Zusatz, PLZ, Ort, Land | `billingAddress.name`, `.addressLine1`, `.addressLine2`, `.postalCode`, `.city`, `.country` | ja bei `billingAddressDiffers`; bei `pickup` **immer** (R-061, Standard bis Kanzleifrage K-07) [Annahme KA-31] | Regeln wie Lieferadresse; Land fest „Deutschland“ |
+| | Name, Straße und Hausnr., Zusatz, PLZ, Ort, Land | `billingAddress.name`, `.addressLine1`, `.addressLine2`, `.postalCode`, `.city`, `.country` | ja bei `billingAddressDiffers`; bei `pickup` **immer** (R-061, Standard bis Kanzleifrage K-07) [Annahme KA-31] | Land als Auswahl aus EU und EWR (Island, Liechtenstein, Norwegen), Standard „Deutschland“, nicht Schweiz/Großbritannien (V-17, U-93; VO (EU) 2018/302 Art. 4 Abs. 1 lit. a, R-061); Hinweis „Rechnungsadressen gehen in der ganzen EU sowie in Island, Liechtenstein und Norwegen. Liefern kann ich nur innerhalb Deutschlands.“; PLZ in DE genau 5 Ziffern, sonst 3–10 Zeichen (Ziffern, Buchstaben, Leerzeichen, Bindestrich); Rechnung, PDF und Bestellmails nennen ein anderes Land als DE mit Namen |
 | 4 Zahlart | Zahlart | `paymentChoice` | ja | `stripe` („Karte, Apple Pay, Google Pay oder PayPal“) \| `prepayment` („Vorkasse per Überweisung“) |
 | | Stripe-Zahlungsfeld | – | bei `stripe` | Stripe Payment Element; zeigt je nach Gerät Karte, Apple Pay, Google Pay, PayPal |
 | | Vorkasse-Hinweis | – | – | bei `prepayment`: „Du bekommst unsere Bankverbindung per Mail.“ plus Baustein `checkout.vorkasseInfo` (Wortlaut nur in ANFORDERUNGEN §6; Frist nach §4.8) |
@@ -1053,7 +1062,7 @@ verkauft – bitte Geld zurücküberweisen“ und bietet „Rücküberweisung er
 
 ### 4.9 Abholung (E-29)
 
-- Lieferart `pickup` im Korb oder in der Kasse: 0,00 €, keine Lieferadresse, Name und Rechnungsadresse Pflicht (R-061,
+- Lieferart `pickup` (gewählt in der Kasse, V-16): 0,00 €, keine Lieferadresse, Name und Rechnungsadresse Pflicht (R-061,
   Standard bis Kanzleifrage K-07, KA-31).
 - Bezahlen wie beim Versand über Stripe oder Vorkasse. **Keine** Barzahlung bei Abholung [Annahme, Anhang A].
 - Nach Zahlung erscheint die Bestellung im Admin unter „Abholung“. Jutta tippt **„Bereit zur Abholung“**: Ein Textfeld ist
@@ -1788,7 +1797,10 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
   Datum, Fotos + `Nr.` der Stücke, Versandklasse, Name und Ort, Badges: „Keramik – Karton in Karton“, „Warenwert > 500 € –
   Transportversicherung buchen“ (`settings.shipping.insuranceHintThresholdCents`, DHL haftet bis 500 €, Konzeptseite),
   „Brief über 25 € – Einschreiben haftet nur bis 25 €“, „E-Mail an DHL: ja/nein“ (`carrierEmailConsent` ohne
-  `carrierEmailConsentRevokedAt`), „Nicht mehr versenden – Widerruf!“ (falls O11). Nach einem Teil-Widerruf bzw. einer
+  `carrierEmailConsentRevokedAt`), „Nicht mehr versenden – Widerruf!“ (falls O11), „Geschenk – Karte von Hand schreiben:
+  „…““ mit dem Gruß der Kundin (bzw. „(ohne Gruß)“; V-18 b – auch auf der Karte „Abholung“ und im Bestell-Detail; der
+  Gruß selbst steht nicht auf dem Packzettel, der ins Paket kommt, nur der Checklisten-Punkt „Geschenk: handgeschriebene
+  Karte beilegen“). Nach einem Teil-Widerruf bzw. einer
   Teil-Erstattung vor dem Versand gelten Versandklasse, Warenwert, Checkliste, Verpackungsvorlage, Versanddienst und
   Sendungsnummer-Pflicht nur für die Stücke, die noch in das Paket gehören (P18.5).
 - **Detail und Knöpfe:**

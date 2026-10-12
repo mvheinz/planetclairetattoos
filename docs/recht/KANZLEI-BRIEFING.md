@@ -193,6 +193,17 @@ auf der Website nur verlinkt, nicht eingebettet (K-29).
   genannt, da Privatstudio).
 - EU-Länder sind technisch vorbereitet, aber abgeschaltet (Grund: Bevollmächtigtenpflicht nach Art. 45 PPWR je
   Zielland); Schweiz vorbereitet, aus; Großbritannien und USA gesperrt.
+- **Rechnungsadresse aus der EU und dem EWR** (Island, Liechtenstein, Norwegen) ist erlaubt, geliefert wird trotzdem
+  nur innerhalb Deutschlands: Wer im EU-Ausland wohnt, kann in Berlin abholen oder an eine Adresse in Deutschland
+  schicken lassen. Damit wird niemand wegen des Wohnorts benachteiligt (Geoblocking-Verordnung VO (EU) 2018/302,
+  Art. 4 Abs. 1 lit. a; eine Pflicht, ins Ausland zu liefern, folgt daraus nicht, Art. 4 Abs. 2). Die Rechnungsadresse
+  ist bei Abholung weiterhin Pflicht (K-07) – auch mit ausländischer Anschrift. Schweiz und Großbritannien sind als
+  Rechnungsland nicht vorgesehen.
+- **Geschenke:** Die Kasse weist bei Versand darauf hin, dass man die Adresse der beschenkten Person als Lieferadresse
+  angeben kann (Packzettel ohne Preise, Rechnung nur per E-Mail an die Bestellerin). Ein freiwilliges, nicht
+  vorangekreuztes Häkchen „Das ist ein Geschenk“ öffnet ein Feld für einen kurzen Gruß (≤ 300 Zeichen), den die
+  Mandantin von Hand auf eine Karte schreibt; der Gruß wird 30 Tage nach Versand bzw. Abholung gelöscht (K-42).
+  Gutscheine gibt es nicht.
 - Website auf Deutsch und Englisch; vorgesehene Vertragssprache Deutsch (K-05).
 
 ## 5. Bestellablauf
@@ -403,7 +414,7 @@ Rechtsgrundlagen sind **Vorschläge** zur Prüfung.
 |---|---|---|---|---|---|---|
 | V1 | Aufruf der Website | Besucher:innen: IP, URL, User-Agent, Zeit | Auslieferung, Sicherheit | Art. 6 Abs. 1 lit. f | Vercel | Logs nach Anbieter-Plan, eigene ≤ 14 Tage |
 | V2 | Warenkorb und Kasse (Cookies), Einstellung „Animationen“ | Nummern der Stücke, Preis beim Hinzufügen, Lieferart; zufällige Kassen-Kennung; `pc-motion` (nur im Browser) | Warenkorb, Zuordnung des Bezahlvorgangs, Bewegungs-Einstellung | Art. 6 Abs. 1 lit. b; § 25 Abs. 2 Nr. 2 TDDDG (K-38) | Vercel | Warenkorb-Cookie 7 Tage, Kassen-Cookie 1 Stunde; kein serverseitiger Warenkorb |
-| V3 | Bestellung, Vertragsabwicklung, Bestellstatus-Link | Name, E-Mail, Adressen, Bestelldaten (kein Telefon) | Vertrag | Art. 6 Abs. 1 lit. b, c | Vercel, Neon, Lettermint | 6 Jahre (gestuft), Kassen-Daten (auch abgebrochene Vorgänge) 30 Tage |
+| V3 | Bestellung, Vertragsabwicklung, Bestellstatus-Link; Geschenk mit handgeschriebener Karte | Name, E-Mail, Adressen (Rechnungsland EU/EWR), Bestelldaten (kein Telefon); Häkchen „Geschenk“ und freiwilliger Gruß für die Karte; bei Geschenken Name und Anschrift der beschenkten Person als Lieferadresse | Vertrag; Karte beilegen | Art. 6 Abs. 1 lit. b, c; beschenkte Person: lit. f (K-42) | Vercel, Neon, Lettermint (der Gruß steht in keiner Mail) | 6 Jahre (gestuft), Kassen-Daten (auch abgebrochene Vorgänge) 30 Tage, Gruß 30 Tage nach Versand bzw. Abholung |
 | V4 | Zahlung | Name, E-Mail, Adresse, Betrag, Zahlungsdaten (nur beim Anbieter), Betrugssignale | Zahlung, Betrugsprävention | Art. 6 Abs. 1 lit. b, c, f | Stripe (AV und eigene Verantwortung), PayPal, Apple/Google (Wallets), Bank (Vorkasse) | beim Anbieter nach dessen Pflichten |
 | V5 | Versand | Name, Lieferadresse; E-Mail nur mit Einwilligung | Zustellung | Art. 6 Abs. 1 lit. b; lit. a (E-Mail) | DHL Paket GmbH / Deutsche Post AG (ohne Schnittstelle: die Mandantin überträgt die Daten selbst) | mit der Bestellung |
 | V6 | Transaktions-E-Mails | E-Mail, Name, Mailinhalt, Zustellprotokoll | Bestätigungen, Pflichtinformationen | Art. 6 Abs. 1 lit. b, c | Lettermint | Protokoll wie Bezugsobjekt |
@@ -454,7 +465,7 @@ kommen nur nach Entscheidung der Mandantin hinzu.
 | Warenkorb (nur Cookie im Browser) | 7 Tage; Kassen-Cookie 1 Stunde | L-01 |
 | Reservierungen (ohne Personendaten) | 7 Tage | L-02 |
 | Kassen-Daten (abgebrochene und abgeschlossene Bezahlvorgänge) | 30 Tage | L-03 |
-| Bestellungen inkl. Reklamationen | gestuft: Status-Link 180 Tage nach Abschluss, Pack- und Rückgabefotos 12 Monate nach Versand bzw. Rückgabe, Rest 6 Jahre ab Jahresende, dann anonymisiert | L-05, L-09 |
+| Bestellungen inkl. Reklamationen | gestuft: Status-Link 180 Tage nach Abschluss, Pack- und Rückgabefotos 12 Monate nach Versand bzw. Rückgabe, Gruß für eine Geschenkkarte 30 Tage nach Versand bzw. Abholung, Rest 6 Jahre ab Jahresende, dann anonymisiert | L-05, L-09 |
 | Stornierte Vorkasse-Bestellungen | nach 30 Tagen reduziert, 6 Jahre ab Jahresende | L-04 |
 | Rechnungen, Gutschriften | 10 Jahre ab Jahresende, umstellbar auf 8 Jahre (gesetzliche Mindestfrist; K-33) | L-06 |
 | Monatsexporte | 10 Jahre ab Jahresende | L-07 |
@@ -708,6 +719,16 @@ Zu jeder Frage steht in Klammern die **vorläufige Umsetzung**, die bis zu Ihrer
   genügt das? *(Rückfall zulässig nur auf statischen öffentlichen Seiten und in der Verwaltung, nur eigene Server;
   Kasse und übrige dynamische Seiten immer mit Einmal-Kennung; Ziel auch für die Verwaltung: Einmal-Kennung)*
 
+- **K-42** Geschenk-Hinweis und Gruß für die Karte (§4, V3): Bitte prüfen Sie (a) den Satz in der Kasse und auf „Versand
+  & Zahlung“: „Ein Geschenk? Gib einfach die Adresse der beschenkten Person als Lieferadresse an – auf dem Packzettel
+  steht kein Preis, die Rechnung kommt nur per E-Mail an dich.“ sowie „Dann lege ich eine Karte bei, die ich von Hand
+  schreibe.“; (b) den Absatz der Datenschutzerklärung zum Gruß (freiwillig, nur für die Karte, Löschung 30 Tage nach
+  Versand bzw. Abholung, Art. 6 Abs. 1 lit. b) und zur beschenkten Person (Name und Anschrift nur zur Zustellung,
+  Art. 6 Abs. 1 lit. f) – genügt das, oder braucht es eine Information der beschenkten Person nach Art. 14 DSGVO (etwa
+  ein Satz auf dem Packzettel)? (c) Ist es in Ordnung, dass der Gruß in keiner Mail an die Bestellerin wiederholt wird
+  und auf dem Packzettel (der im Paket liegt) nur „Geschenk: handgeschriebene Karte beilegen“ steht? *(Formulierungen
+  wie beschrieben; Gruß nur in der Verwaltung; Löschung nach 30 Tagen; keine Gutscheine)*
+
 **I. Sonstiges**
 - **K-34** Beispielbestand und Vorschau: Bestehen Bedenken gegen die interne Nutzung der zwei Tattoo-Fotos von
   Kund:innen (öffentlich auf Instagram) im privaten Repository und in der internen Vorschau-Datei? Brauchen
@@ -753,6 +774,7 @@ Briefing und die dort genannten Arbeitsfassungen; Abweichungen zwischen Briefing
 | 26.09.2026 | 1.3 | Warenkorb-Cookie mit Preis beim Hinzufügen (§5.1, §11.3, §11.4 V2, K-38); Empfänger-Tabelle wird vom System erzeugt, Platzhalterliste unverändert (§16.3); CSP-Rückfall auch für die Verwaltung (K-41) |
 | 02.10.2026 | 1.4 | An die Umsetzung angeglichen (P6.22): Widerrufsablauf mit Schritten, Feldern, Eingangsbestätigung und englischer Beschriftung (§8); Cookie-/Speicherliste mit den technischen Namen `payload-token` und `pc-motion` (§11.3); Verarbeitungen = Verzeichnis `VVT.md` inkl. V20 Verwaltung, Versand ohne Schnittstelle (§11.4); Speicherdauern mit Verweis auf Anlage C (§11.6); Formulare: Kasse mit Bestellknopf, Widerruf mit Auswahl, Anfrage ohne Einwilligungs-Checkbox mit höchstens 5 Bildern (§12); Empfänger-Tabelle als Komponente, Platzhalterliste unverändert geschlossen (§16.3); Anlage E (Bildschirmfotos) und F (VVT) (§18) |
 | 11.10.2026 | 1.5 | Datenschutz- und AGB-Prüfung (P18.5): Instagram kein Anfrageweg (§3.4); Reservierungsdauer als Platzhalter `{{reservationMinutes}}`, Erinnerung „vor Fristende“ (§5.1, §5.2, §16.3); Status-Link 180 Tage nach Abschluss (§5.3); Widerrufsbestätigung bei unbezahlter Vorkasse mit Hinweis auf Rückzahlung schon überwiesenen Geldes (§8); Teil-Widerruf nur im Freitext wird zugeordnet statt als ganzer Vertrag gebucht, Rest-Lieferung nach Teil-Widerruf (§8, K-11); Mail M11 ohne Freitexte, M10 ohne Shop-Link |
+| 12.10.2026 | 1.6 | P20.3 (U-93): §4 Rechnungsadresse aus EU/EWR mit Geoblocking-Verordnung (V-17, mit K-07) und Geschenk-Hinweis mit Gruß für eine handgeschriebene Karte (V-18 b); §11.4 V3, §11.6 Gruß 30 Tage; neue Frage K-42 |
 
 Für Rückfragen steht Ihnen die Mandantin gern zur Verfügung. Vielen Dank für Ihre Unterstützung.
 

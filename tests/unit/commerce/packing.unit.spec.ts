@@ -5,6 +5,7 @@ import {
   cleanComponents,
   defaultTemplateFor,
   euroLabel,
+  giftHint,
   handoverItems,
   packagingForOrder,
   packagingRecorded,
@@ -237,6 +238,27 @@ describe('Packen – Hinweise und Versandklassen (P5.10)', () => {
   })
 })
 
+describe('Geschenk-Hinweis (V-18 b)', () => {
+  it('mit Gruß, ohne Gruß (oder schon gelöscht) und ohne Geschenk', () => {
+    expect(giftHint({ gift: { isGift: true, message: '  Für dich!  ' } })).toBe(
+      'Geschenk – Karte von Hand schreiben: „Für dich!“',
+    )
+    expect(giftHint({ gift: { isGift: true, message: null } })).toBe(
+      'Geschenk – Karte von Hand schreiben (ohne Gruß)',
+    )
+    expect(giftHint({ gift: { isGift: false, message: 'egal' } })).toBeNull()
+    expect(giftHint({})).toBeNull()
+    const hints = packingHints(order({ gift: { isGift: true, message: 'Hallo' } }))
+    expect(hints.find((h) => h.key === 'gift')).toEqual({
+      key: 'gift',
+      text: 'Geschenk – Karte von Hand schreiben: „Hallo“',
+      tone: 'info',
+    })
+    // vor „E-Mail an DHL“, damit Jutta ihn neben den Pack-Hinweisen sieht
+    expect(hints.map((h) => h.key).slice(-2)).toEqual(['gift', 'carrierEmail'])
+  })
+})
+
 describe('Verpackungs-Checkliste (P5.11)', () => {
   it('Punkte je Versandklasse (höchste zuerst) plus gemeinsame Punkte, ohne Doppelungen und leere Texte; Häkchen aus dem Stand', () => {
     const list = packingChecklist(
@@ -279,6 +301,22 @@ describe('Verpackungs-Checkliste (P5.11)', () => {
     ])
     expect(
       packingChecklist({ shippingClass: 'paket_klein' }, { packingChecklists: null }),
+    ).toHaveLength(2)
+  })
+
+  it('V-18 b Geschenk: Checklisten-Punkt „Geschenk: handgeschriebene Karte beilegen“ vor den gemeinsamen Punkten; ohne Geschenk nicht', () => {
+    expect(
+      packingChecklist(
+        { shippingClass: 'paket_klein', gift: { isGift: true, message: 'Alles Liebe' } },
+        {},
+      ).map((i) => i.text),
+    ).toEqual([
+      'Geschenk: handgeschriebene Karte beilegen',
+      'Packzettel mit Beileger je Stück einlegen',
+      'zwei Fotos vor dem Zukleben',
+    ])
+    expect(
+      packingChecklist({ shippingClass: 'paket_klein', gift: { isGift: false } }, {}),
     ).toHaveLength(2)
   })
 
