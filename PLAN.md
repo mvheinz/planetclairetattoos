@@ -5692,6 +5692,15 @@ gemeinsamer Kern in `src/lib/pflege/` (Listen-Nr., gemerkter Stand, Dreiwege-Abg
   - Akzeptanz: je Punkt Unit-/Int-Test bzw. angepasster E2E-Test; Rechtstexte mit neuer Quelle (`sourceNote`); Einträge in `docs/OFFENE-PUNKTE.md`.
 - [x] **P18.4 Abschluss P18** – Prüfschleuse, Merge, Dateien an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
+## P20 – Feinschliff und Vorschläge aus der Analyse (12.10.2026)
+
+Verbindlich: `docs/UEBERARBEITUNG.md` ab U-92. Vor P19. Die Vorschläge aus Juttas Analyse-Auftrag (12.10.2026) kommen erst
+hierher, wenn Jutta sie ausgewählt hat (je Vorschlag eine Aufgabe P20.n mit U-Nummer).
+
+- [ ] **P20.1 Kürzere Wartepausen der kleinen Coco** (U-92) – Pausen zwischen den Warte-Aktionen je 1 s kürzer (`IDLE_PLAN` in `src/leash/cocoExtra.ts`: heute 3,2 · 2,3 · 2,5 · 3 · 1 · 3,3 · 8 s → 2,2 · 1,3 · 1,5 · 2 · 1 · 2,3 · 7 s; mindestens 1 s Standbild), Aktionen unverändert.
+  - Akzeptanz: Unit (Abstände = bisherige − 1 s, nie < 1 s; Aktionsdauern unverändert), E2E Warte-Aktionen (`leash`/`coco`) grün, reduzierte Bewegung unverändert, Kunst-QA-Kriterien zu Coco (CO-xx) grün.
+- [ ] **P20.9 Abschluss P20** – Prüfschleuse, Merge, Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+
 ## P19 – Pflege per Excel dauerhaft: in der Verwaltung (11.10.2026)
 
 Verbindlich: `docs/UEBERARBEITUNG.md` U-89, U-90. Für die Zeit nach dem Start (dann ist die Datenbank der Stand, nicht
