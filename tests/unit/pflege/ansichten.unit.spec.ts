@@ -7,6 +7,7 @@ import {
   RUNDGANG_CSS,
   RUNDGANG_LATER,
   RUNDGANG_ROUTES,
+  rundgangInventoryError,
   rundgangPlan,
 } from '../../../scripts/pflege/ansichten'
 import {
@@ -93,6 +94,12 @@ describe('Rundgang (PDF)', () => {
     // Mit Demo-Bestand nie (U-76: keine Demo-Stücke)
     const demo = rundgangPlan(report('demo', ['/de/danke/abc', '/de/bestellung/abc']), undefined)
     expect(demo.pages.some((p) => /danke|bestellung/.test(p.route))).toBe(false)
+  })
+
+  it('V-27/U-76: nur mit einer Vorschau aus echtem Bestand – Demo-Bestand und ältere Dateien ohne Angabe nie', () => {
+    expect(rundgangInventoryError({ inventory: 'bestand' })).toBeNull()
+    expect(rundgangInventoryError({ inventory: 'demo' })).toMatch(/Demo-Bestand/)
+    expect(rundgangInventoryError({})).toMatch(/älter als P16\.3/)
   })
 
   it('V-27: fehlende Seiten (z. B. Kasse ohne Korb, nicht gebaut) werden Vermerke statt Abbruch', () => {

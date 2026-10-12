@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest'
 
 import {
   DEFAULT_VIDEO_BASE_URL,
+  FFMPEG_HINT,
   ffmpegArgs,
+  ffmpegHint,
   findFfmpeg,
   parseVideoArgs,
   VIDEO_DEVICES,
@@ -85,6 +87,11 @@ describe('pflege:videos – ffmpeg', () => {
     ).toBe(path.join('/usr/local/bin', 'ffmpeg'))
     expect(findFfmpeg({ PATH: '/bin' }, exe([]), 'linux')).toBeNull()
     expect(findFfmpeg({}, exe([]))).toBeNull()
+    // Hinweis nennt ein gesetztes, aber unbrauchbares FFMPEG_PATH ausdrücklich
+    expect(ffmpegHint({})).toBe(FFMPEG_HINT)
+    expect(ffmpegHint({ FFMPEG_PATH: '/fehlt/ffmpeg' })).toMatch(
+      /^Hinweis: FFMPEG_PATH=\/fehlt\/ffmpeg ist keine ausführbare Datei\. ffmpeg nicht gefunden/,
+    )
   })
 
   it('MP4 fürs iPad: H.264, yuv420p, +faststart, CRF 28, ohne Ton, gerade Kanten; leerer Anfang abgeschnitten', () => {

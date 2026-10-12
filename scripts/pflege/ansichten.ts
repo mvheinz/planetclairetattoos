@@ -201,6 +201,17 @@ export function blurFocus(): void {
   if (active && active !== document.body && typeof active.blur === 'function') active.blur()
 }
 
+/**
+ * Nie Demo-Stücke oder Testbilder zeigen (U-76): Der Rundgang braucht eine Vorschau mit echtem Bestand. Ohne Angabe
+ * `inventory` stammt die Datei aus der Zeit vor P16.3 – damals gab es nur den Demo-Bestand.
+ */
+export function rundgangInventoryError(report: { inventory?: 'bestand' | 'demo' }): string | null {
+  if (report.inventory === 'bestand') return null
+  return report.inventory === 'demo'
+    ? 'Die Vorschau-Datei zeigt den Demo-Bestand – für den Rundgang erst `pnpm preview:export` mit echtem Bestand.'
+    : 'Die Vorschau-Datei ist älter als P16.3 (Demo-Bestand) – für den Rundgang erst `pnpm preview:export` mit echtem Bestand.'
+}
+
 export interface RundgangPlan {
   /** Seiten mit Bildschirmfotos, in dieser Reihenfolge. */
   pages: RundgangRoute[]
@@ -292,11 +303,8 @@ export async function rundgang(root: string, browser: Browser, now: Date): Promi
     routes: { route: string; lang: string; status?: string }[]
     inventory?: 'bestand' | 'demo'
   }
-  // Nie Demo-Stücke oder Testbilder zeigen (U-76): Der Rundgang braucht eine Vorschau mit echtem Bestand.
-  if (report.inventory === 'demo')
-    throw new Error(
-      'Die Vorschau-Datei zeigt den Demo-Bestand – für den Rundgang erst `pnpm preview:export` mit echtem Bestand.',
-    )
+  const blocked = rundgangInventoryError(report)
+  if (blocked) throw new Error(blocked)
   const products = (await loadBestand(root)).filter((p) => !p.sold && p.category === 'keramik')
   const productRoute = report.routes.find(
     (r) => products[0] && r.route.startsWith(`/de/shop/${products[0].itemNumber}-`),

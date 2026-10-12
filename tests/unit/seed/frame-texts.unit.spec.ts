@@ -90,7 +90,7 @@ const CLAIMS: readonly { claim: string; re: RegExp; exists: (ps: Pieces) => bool
   { claim: 'Pferdeköpfe', re: /\bPferdeköpfe\b|\bhorse heads\b/i, exists: titled(/Pferd/) },
   {
     claim: 'Kette, Band oder Kordel',
-    re: /Kette, Band oder Kordel|chain, ribbon or cord/i,
+    re: /Kette, Band oder Kordel|chain or cord/i,
     exists: (ps) => [/kette/i, /\bBand\b/, /Kordel/].every((re) => jewelleryMaterial(re)(ps)),
   },
   {

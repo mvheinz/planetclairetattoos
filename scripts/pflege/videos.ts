@@ -1,6 +1,6 @@
 // Bewegungen als kurze Videos fürs iPad (V-66, U-93; PLAN P20.2). Die große Vorschau läuft am iPad nicht, und der
 // Rundgang ist fotografiert – Coco, Leine und Koko sieht Jutta nur als Video. Nach jeder Änderung an Bewegungen
-// schickt die Sitzung ihr die Videos (RUNBOOK §15, docs/owner/IPAD.md „F“).
+// schickt die Sitzung ihr die Videos (RUNBOOK §16, docs/owner/IPAD.md „F“).
 //   pnpm pflege:videos [shop] [start] [alle] [--url=http://localhost:3000] [--sekunden=40] [--geraet=handy|gross]
 //   → dist/videos/planet-claire-<szene>-<geraet>-<Tag>.mp4 (H.264, yuv420p, +faststart, ohne Ton)
 // Voraussetzung: ein laufender Server (`pnpm dev` oder `pnpm start`). Adresse aus `--url=`, sonst `VIDEO_BASE_URL`,
@@ -168,6 +168,14 @@ export const FFMPEG_HINT =
   'ffmpeg installieren (z. B. `sudo apt-get install ffmpeg` oder `brew install ffmpeg`) oder FFMPEG_PATH=/pfad/zu/ffmpeg ' +
   'setzen und `pnpm pflege:videos` noch einmal starten.'
 
+/** Hinweis ohne ffmpeg; ist `FFMPEG_PATH` gesetzt, aber nicht ausführbar, steht das zuerst da (kein stiller Rückfall). */
+export function ffmpegHint(env: Readonly<Record<string, string | undefined>>): string {
+  const explicit = env.FFMPEG_PATH?.trim()
+  return explicit
+    ? `Hinweis: FFMPEG_PATH=${explicit} ist keine ausführbare Datei. ${FFMPEG_HINT.replace(/^Hinweis: /, '')}`
+    : FFMPEG_HINT
+}
+
 /** Szene abspielen; `until` = Zeitpunkt (ms), bis zu dem die Aufnahme läuft. */
 async function play(page: Page, scene: VideoSceneKey, until: number): Promise<void> {
   const rest = () => Math.max(0, until - Date.now())
@@ -292,7 +300,7 @@ async function main(argv: readonly string[]): Promise<void> {
     const { size } = await stat(file)
     console.log(`${path.relative(root, file)} (${(size / 1024 / 1024).toFixed(1)} MB)`)
   }
-  if (!ffmpeg) console.log(FFMPEG_HINT)
+  if (!ffmpeg) console.log(ffmpegHint(process.env))
   console.log('An Jutta schicken (Chat, SendUserFile) – Videos nie committen.')
 }
 
