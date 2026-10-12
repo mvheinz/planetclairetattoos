@@ -166,7 +166,7 @@ test.describe('Menü @smoke', () => {
       ['Archiv', '/de/archiv'],
       ['Auftragsarbeiten', '/de/auftragsarbeiten'],
       ['Tattoo', '/de/tattoo'],
-      ['Über mich & Coco', '/de/ueber-mich'],
+      ['Jutta & Coco', '/de/ueber-mich'],
       ['Kontakt', '/de/kontakt'],
     ])
     await expect(d.locator('a[href^="/de/shop/kategorie/"]').first()).toBeVisible()

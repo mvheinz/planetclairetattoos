@@ -4,7 +4,7 @@ import { type Page } from '@playwright/test'
 import { expectNoSeriousViolations } from './axe'
 import { testPayload } from './fixtures'
 
-// P8.18 Über mich & Coco (R19, KONZEPT §3.12, SEED-SPEC §13.2, DESIGN §9.7 Preset `about`; gekürzt nach U-48, P13.9):
+// P8.18 Jutta & Coco (R19, KONZEPT §3.12, SEED-SPEC §13.2, DESIGN §9.7 Preset `about`; gekürzt nach U-48, P13.9):
 // Route DE/EN mit Inhalt aus `pages:about`, in der Sitemap, canonical + drei hreflang (AK-2-05), keine Abbildung von
 // Jutta ohne Freigabe (R-181), Instagram mit `rel="noopener noreferrer"` (R-139), Linie überdeckt keinen Text (DESIGN §9.9), reduzierte Bewegung →
 // Linie sofort vollständig und statisch (AK-DS-14), axe ohne serious/critical. Linien-Prüfungen brauchen

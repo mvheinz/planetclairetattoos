@@ -482,7 +482,7 @@ Betrag, bestätigst du ihn einfach neu.
 
 ![Die Ansicht „Texte“](img/handbuch/texte.webp)
 
-Hier änderst du, was auf der Website steht: Startseite, „Über mich & Coco“, Auftragsarbeiten, Kontakt, Tattoo,
+Hier änderst du, was auf der Website steht: Startseite, „Jutta & Coco“, Auftragsarbeiten, Kontakt, Tattoo,
 Pflegehinweise, häufige Fragen und die Texte zu Bestellung und Widerruf. Jeder Text hat eine deutsche und eine englische
 Fassung, mit einem Übersetzen-Knopf wie beim Stück.
 

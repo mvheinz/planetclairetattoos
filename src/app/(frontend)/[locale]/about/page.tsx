@@ -19,7 +19,7 @@ import styles from './About.module.css'
 export const generateMetadata = routeMetadata('R19')
 export const revalidate = 3600
 
-// R19 Über mich & Coco (KONZEPT §3.12, SEED-SPEC §13.2, DESIGN §9.7 Preset `about`), gekürzt nach U-48 (P13.9):
+// R19 Jutta & Coco (KONZEPT §3.12, SEED-SPEC §13.2, DESIGN §9.7 Preset `about`), gekürzt nach U-48 (P13.9):
 // H1 „Jutta & Coco“ mit kurzer Einleitung, das Foto von Jutta und Coco mit dem Text „Zu zweit“ und darunter „Sag
 // etwas“ (Kontaktwege). Die Blöcke der Seite `about` erscheinen in ihrer Reihenfolge; Text-, Bild- und Galerie-Blöcke,
 // die Jutta später in der Verwaltung ergänzt, werden weiter dargestellt – ohne gezeichnete Coco, ohne feste

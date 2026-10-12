@@ -20,7 +20,7 @@
       "R16": "Process",
       "R17": "Aftercare",
       "R18": "FAQ",
-      "R19": "About me & Coco",
+      "R19": "Jutta & Coco",
       "R20": "Contact",
       "R21": "Legal notice",
       "R22": "Privacy",
@@ -67,7 +67,7 @@
       "payment": "Pay by card, Apple Pay, Google Pay, PayPal or bank transfer in advance",
       "paymentNoPrepayment": "Pay by card, Apple Pay, Google Pay or PayPal",
       "shipping": "Shipping within Germany",
-      "pickup": "Pick-up in {city} by arrangement"
+      "pickup": "Pickup in {city} by arrangement"
     }
   },
   "legal": {
@@ -639,7 +639,7 @@
     "shippingUnknown": "not calculated yet",
     "info": {
       "delivery": "We only deliver within Germany.",
-      "pickup": "Collection in {city} by arrangement.",
+      "pickup": "Pickup in {city} by arrangement.",
       "payment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.",
       "paymentNoPrepayment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal."
     },

@@ -24,7 +24,7 @@ for (const [locale, text, link] of [
   ],
   [
     'en',
-    'Pay by card, Apple Pay, Google Pay, PayPal or bank transfer in advance · Shipping within Germany · Pick-up in Berlin by arrangement · Shipping & payment',
+    'Pay by card, Apple Pay, Google Pay, PayPal or bank transfer in advance · Shipping within Germany · Pickup in Berlin by arrangement · Shipping & payment',
     'Shipping & payment',
   ],
 ] as const) {

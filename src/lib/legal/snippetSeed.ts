@@ -76,7 +76,7 @@ const TEXTS: Record<LegalSnippetKey, LegalSnippetSeedText> = {
   ),
   'cart.paymentAndDeliveryInfo': draft(
     'Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache. Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung.',
-    'We only deliver within Germany. Collection in Berlin by arrangement. Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.',
+    'We only deliver within Germany. Pickup in Berlin by arrangement. Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.',
   ),
   'checkout.legalNotice': draft(
     'Es gelten unsere AGB. Informationen zu deinem Widerrufsrecht findest du in der Widerrufsbelehrung, Hinweise zum Datenschutz in der Datenschutzerklärung.',

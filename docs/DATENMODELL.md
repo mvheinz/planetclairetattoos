@@ -1943,7 +1943,7 @@ Freitext, keine Bilder; R-160). `afterChange` (update): jeder Statuswechsel schr
 
 ### 6.19 `pages` – Seiten
 
-**Zweck:** redaktionelle Seiten aus Blöcken (Startseite mit Stationen, Über mich & Coco, Tattoo, Aftercare,
+**Zweck:** redaktionelle Seiten aus Blöcken (Startseite mit Stationen, Jutta & Coco, Tattoo, Aftercare,
 Auftragsarbeiten, Kontakt …). Texte als Entwürfe von Claude in Juttas Ton (E-62). Routen legt der Code fest; die Seite
 wird über `key` gefunden. Es gibt **keine** eigenen Globals für einzelne Seiten (kein `homePage`, `aboutPage`,
 `commissionsPage`, `businessProfile`, `tattooPrices`): Stammdaten kommen aus `settings.business`, Tattoo-Preise aus
@@ -3023,7 +3023,7 @@ löschen; jede Aktion → `deletion-log` mit `trigger = privacy_request`.
 | Art | Inhalt | `seed` | Skript | Phase |
 |---|---|---|---|---|
 | **Grund-Seed** (bleibt) | Admin-Konto (aus `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD`, nur wenn noch keins existiert, nie in Produktion), 6 `categories`, `settings`-Defaults (§7.1), `site-texts` DE/EN, 6 `legal-texts` als aktive Platzhalter (`origin = placeholder`, damit `isPlaceholder = true`; Gliederung mit den Überschriften laut KANZLEI-BRIEFING §1, unter jeder Überschrift nur der Satz „Text folgt von der Kanzlei.“; Band „PLATZHALTER – nicht rechtsverbindlich“, R-002; nur Tokens aus §6.12; `validFrom = 2026-01-01`); ab P6 zusätzlich alle `LEGAL_SNIPPET_KEYS` als aktive `legal-snippets` Version 1 (§6.28) | `false` | `pnpm seed:base` (idempotent: nur fehlende Dokumente anlegen bzw. leere Felder füllen, nie Juttas Werte überschreiben) | P1 (Bausteine P6) |
-| **Beispielbestand** (entfernbar, E-63) | `pages` für alle `PAGE_KEYS` (Startseite mit Stationen, Über mich & Coco, Tattoo, Aftercare …), FAQ, Stücke, Kassen, Reservierungen, Bestellungen, Rechnungen, Widerrufe, Anfragen, ab P8 Reklamationen und Datenschutz-Anfragen, Flash, Angebote, Galerie, Umsätze, Medien, private Dateien, ab P8 Protokolle – **keine** Konformitätserklärungen | `true` | `pnpm seed:example` (idempotent über `seedKey`, SEED-SPEC §1.3) | P1 Mini-Satz, vollständig P8 (siehe unten) |
+| **Beispielbestand** (entfernbar, E-63) | `pages` für alle `PAGE_KEYS` (Startseite mit Stationen, Jutta & Coco, Tattoo, Aftercare …), FAQ, Stücke, Kassen, Reservierungen, Bestellungen, Rechnungen, Widerrufe, Anfragen, ab P8 Reklamationen und Datenschutz-Anfragen, Flash, Angebote, Galerie, Umsätze, Medien, private Dateien, ab P8 Protokolle – **keine** Konformitätserklärungen | `true` | `pnpm seed:example` (idempotent über `seedKey`, SEED-SPEC §1.3) | P1 Mini-Satz, vollständig P8 (siehe unten) |
 
 **Mini-Satz in P1** (W-21, SEED-SPEC §1.8, Plan P1.30): Seiten `home` und `contact`, die dafür nötigen Medien und eine
 kleine Auswahl Stücke, die jeden `ProductStatus` und jede Kategorie außer `sonstiges` (deren einziges Stück hängt an einer

@@ -242,7 +242,7 @@ der Cloud-Sandbox grün (nur lokales Postgres nötig).
 | R16 | Tattoo – Ablauf | `/de/tattoo/ablauf` | `/en/tattoo/process` | ja | P7 |
 | R17 | Tattoo – Aftercare | `/de/tattoo/aftercare` | `/en/tattoo/aftercare` | ja | P7 |
 | R18 | Tattoo – FAQ | `/de/tattoo/faq` | `/en/tattoo/faq` | ja | P7 |
-| R19 | Über mich & Coco | `/de/ueber-mich` | `/en/about` | ja | P8 |
+| R19 | Jutta & Coco | `/de/ueber-mich` | `/en/about` | ja | P8 |
 | R20 | Kontakt | `/de/kontakt` | `/en/contact` | ja | P6 (Gerüst P2) |
 | R21 | Impressum | `/de/impressum` | `/en/legal-notice` | ja | P6 (Gerüst P2) |
 | R22 | Datenschutz | `/de/datenschutz` | `/en/privacy` | ja | P6 (Gerüst P2) |
@@ -388,7 +388,7 @@ Seiten kommen aus `pages` (Feld `key` aus `PAGE_KEYS`), Stammdaten und Betriebsw
 4. Knopf **Menü** (EN: Menu), `aria-expanded`, `aria-controls`.
 
 **3.0.2 Menü** [P2] – „Papierseite“ mit handgeschriebenen Links, die Linie unterstreicht den Link unter Zeiger/Finger:
-Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt · Sprache DE/EN.
+Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Jutta & Coco · Kontakt · Sprache DE/EN.
 Fokus wird im Menü gehalten, `Esc` schließt, Fokus kehrt zum Menü-Knopf zurück. Ohne JavaScript ist das Menü als
 Link-Liste im Fuß erreichbar. Unter den Links das Nummernfeld **„Nr. aus dem Post“** (EN „No. from the post“, Knopf
 „Zeigen“/„Show“, V-60): GET-Formular auf `/nr` mit der Sprache der Seite (§2.4), kein Cookie.
@@ -711,7 +711,7 @@ Inhalt und Regeln in §9. Gemeinsam für alle Tattoo-Seiten:
 - **Tuschelinie:** wirkt wie die Kontur eines Stencils um die Flash-Motive, bleibt tuscheschwarz (E-73).
 - SEO: `{Seitentitel} · Tattoo · Planet Claire`.
 
-### 3.12 Über mich & Coco (R19) [P8]
+### 3.12 Jutta & Coco (R19) [P8]
 
 - **Blöcke:** H1 „Jutta & Coco“; Text über Jutta (Stil, Werkstatt, Flohmarkt, Planet-Claire-Name); Fotos von Jutta
   (`media.showsPerson = jutta`) **nur** mit Admin-Häkchen `media.ownerApproved = true` (R-181), sonst Zeichnungen. Bilder
@@ -1936,7 +1936,7 @@ Unterbereiche (Details §9):
 
 ### 7.13 Texte
 
-- **Seiten** (`pages`, gefunden über `key`): Startseite (`home`, Stationstexte), Über mich & Coco (`about`),
+- **Seiten** (`pages`, gefunden über `key`): Startseite (`home`, Stationstexte), Jutta & Coco (`about`),
   Auftragsarbeiten (`commissions`, inkl. Beispielbilder), Kontakt (`contact`), Shop- und Archiv-Einleitungen (`shop`,
   `archive`), Tattoo (`tattoo`, `tattoo_aftercare`), Danke/Bestellstatus (`thanks`, `order_status`), Widerruf-Hinweis
   (`withdrawal`), Konformität (`conformity`), 404-Text (`not_found`), SEO-Beschreibungen. Die Einleitung von Versand &
@@ -2436,7 +2436,7 @@ Dokument wiederholt keine Anzahlen, sondern legt fest, was der Bestand fachlich 
 | Datenschutz-Anfragen | Nummern `DS-2026-900N`, mindestens eine je Wert aus `PRIVACY_REQUEST_STATUSES` (verschiedene Arten und Eingangskanäle, Fristen passend zu `SEED_NOW`); Exportdateien nur, solange sie nach L-17 noch existieren würden |
 | Flash | Nummern ab 901 (Anzeige `F-901`); einmalige und wiederholbare Motive, darunter `claimed` |
 | Galerie | fresh und healed, darunter die Tattoofotos aus dem Manifest (`showsCustomer = true`, `consentGiven = false`) und Platzhalter |
-| Texte | alle Seiten (`pages`, jeder Wert aus `PAGE_KEYS`: Startseite mit Stationen, Über mich & Coco, Auftragsarbeiten, Kontakt, Shop, Archiv, Tattoo, Aftercare, Danke, Bestellstatus, Widerruf, Konformität, 404) und FAQ – **alles DE und EN ausformuliert** in Juttas Ton (E-62), kein „Lorem ipsum“ |
+| Texte | alle Seiten (`pages`, jeder Wert aus `PAGE_KEYS`: Startseite mit Stationen, Jutta & Coco, Auftragsarbeiten, Kontakt, Shop, Archiv, Tattoo, Aftercare, Danke, Bestellstatus, Widerruf, Konformität, 404) und FAQ – **alles DE und EN ausformuliert** in Juttas Ton (E-62), kein „Lorem ipsum“ |
 | Rechtstexte | **kein Beispielbestand:** der Grund-Seed (P1) legt je Typ eine Platzhalter-Fassung an (`seed = false`, `origin = placeholder`, `isPlaceholder = true`, `validFrom = 2026-01-01`), deutlich gekennzeichnet („PLATZHALTER – nicht rechtsverbindlich“), mit Tokens aus §7.13; sie bleiben beim Entfernen der Beispieldaten, bis echte Texte aktiv sind |
 | Einstellungen | Grund-Seed: erkennbare Platzhalter-Stammdaten laut SEED-SPEC (z. B. „[Adresse folgt]“), Beispiel-IBAN `DE36000000000000000000` (Prüfziffer gültig, keine echte Bank; Startklar-Prüfung und Go-live-Sperre melden genau diesen Wert als Platzhalter), Versandpreise laut E-25, Platzhalter-Bezirk, Abhol-Vorlage |
 | Umsatz-Wächter | Beispiel-Monatssummen der Quellen Tattoo und Flohmarkt für die Admin-Vorschau; trägt Jutta eine echte Summe für denselben Monat und dieselbe Quelle ein, ersetzt sie den Beispiel-Eintrag (der Beispiel-Eintrag wird gelöscht) |

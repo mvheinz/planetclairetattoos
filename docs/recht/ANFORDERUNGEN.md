@@ -94,7 +94,7 @@ In der Widerrufsbelehrung steht immer die kanonische URL `https://planetclaireta
 **Öffentliche Seitentypen** (Fixture `PUBLIC_PAGE_TYPES` für alle e2e-Rechtstests): Startseite, Shop-Übersicht,
 Produktseite (je Kategorie ein Stück), Archiv „sold“, Warenkorb (leer und gefüllt), Kasse, Danke-Seite,
 Bestellstatus, Widerrufsfunktion (Schritt 1, 2, Bestätigung), alle Rechtsseiten, Kontakt, Auftragsarbeiten,
-Tattoo-Seiten (alle), Über mich & Coco, Konformitätserklärungen (mit und ohne Einträge), 404, Fehlerseite.
+Tattoo-Seiten (alle), Jutta & Coco, Konformitätserklärungen (mit und ohne Einträge), 404, Fehlerseite.
 
 ## 3. Übersicht aller Anforderungen (maschinenlesbar)
 
