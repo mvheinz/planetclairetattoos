@@ -362,8 +362,8 @@
           "en": "Prices"
         },
         "content": {
-          "de": "Jedes Flash-Motiv hat einen Festpreis, der direkt am Motiv steht. Für eigene Ideen findest du oben meinen Preisrahmen. Die Anzahlung besprechen wir persönlich per Mail – auf dieser Website zahlst du nichts.",
-          "en": "Every flash design has a fixed price, shown right beside it. For ideas of your own you will find my price range above. We settle the deposit personally by email – you pay nothing on this website."
+          "de": "Für eigene Ideen findest du oben meinen Preisrahmen. Die Anzahlung besprechen wir persönlich per Mail – auf dieser Website zahlst du nichts.",
+          "en": "For ideas of your own you will find my price range above. We settle the deposit personally by email – you pay nothing on this website."
         }
       },
       {
@@ -379,8 +379,8 @@
               "en": "Request"
             },
             "text": {
-              "de": "Du schreibst mir eine Mail: Idee oder Flash-Nummer, Stelle am Körper, ungefähre Größe.",
-              "en": "You write me an email: your idea or the flash number, the place on your body, a rough size."
+              "de": "Du schreibst mir eine Mail: deine Idee, die Stelle am Körper, ungefähre Größe.",
+              "en": "You write me an email: your idea, the place on your body, a rough size."
             }
           },
           {

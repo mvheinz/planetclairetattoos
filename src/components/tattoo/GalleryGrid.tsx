@@ -85,6 +85,10 @@ export async function GalleryGrid({
           const flash =
             !loop && entry.flashNumber !== null ? flashLinks?.get(entry.flashNumber) : undefined
           const name = entry.image.alt ?? caption
+          // Im Vollbild ist der Stempel nicht zu sehen – dort steht „Beispiel“ in der Bildunterschrift.
+          const zoomCaption = entry.example
+            ? [caption, tExample('label')].filter(Boolean).join(' · ')
+            : caption
           const label = entry.example
             ? `${name} (${tExample('galleryA11y')}) – ${t('open')}`
             : `${name} – ${t('open')}`
@@ -104,7 +108,7 @@ export async function GalleryGrid({
                   data-zoom-src={zoom?.url}
                   data-zoom-w={zoom?.width}
                   data-zoom-h={zoom?.height}
-                  data-zoom-caption={caption}
+                  data-zoom-caption={zoomCaption}
                   aria-label={label}
                 >
                   <ResponsiveImage

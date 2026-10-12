@@ -804,7 +804,8 @@ Aufbau: Coco (`--coco-xl`, statisch; Boil 2 s nach Eintritt, dann Stillstand) ·
   öffentlich nur im Vorschau-Modus, also in Vorschau-Datei und Rundgang): kleines Etikett unten links auf dem Bild
   (Plex Mono 12 px, Versalien, gestrichelter Rand `--stencil`, Grund `--paper`, −4°), deckt das Motiv nicht zu,
   `aria-hidden`; den Text für Screenreader trägt die Karte („Beispiel-Motiv nur für die Vorschau: Zeichnung, Nummer und
-  Preis sind erfunden“) bzw. der Bild-Link. Auf der Startseite (96-px-Bilder) steht das Wort unter dem Titel.
+  Preis sind erfunden“) bzw. der Bild-Link. Auf der Startseite (96-px-Bilder) steht das Wort unter dem Titel, im
+  Vollbild der Galerie am Ende der Bildunterschrift („… · Beispiel“).
 - **Hinweis „Gerade ausgebucht“ (P20.5, V-64):** Hinweis-Kasten KO-22 `info` (ruhig, ohne Warnfarbe) unter der
   Einleitung jeder Tattoo-Seite und bei den Auftragsarbeiten über dem Formular; im Kontakt-Block ersetzt der Satz
   „**Gerade ausgebucht.** …“ den Knopf „Mail schreiben“, auf Flash-Karten steht „Gerade ausgebucht“ statt

@@ -50,6 +50,15 @@ test('V-28 a Beispiel-Stempel auf Flash und Galerie (DE/EN), Menü mit Flash und
     /Example photo for the preview only/,
   )
   await expectNoSeriousViolations(page, localizedPath('R15', 'en'))
+  // Im Vollbild ist der Stempel nicht zu sehen – „Example“ steht dort in der Bildunterschrift.
+  await page.locator('html[data-behaviors-ready]').waitFor({ state: 'attached' })
+  await g3.locator('a').first().click()
+  const lightbox = page.locator('dialog[data-lightbox]')
+  await expect(lightbox).toBeVisible()
+  await expect(lightbox.locator('[data-lightbox-caption]')).toHaveText(
+    /^Bunny trio, freshly done( · .+)? · Example$/,
+  )
+  await page.keyboard.press('Escape')
 })
 
 test.describe('ohne veröffentlichte Motive und Fotos', () => {

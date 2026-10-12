@@ -1942,6 +1942,9 @@ Widerrufserklärungen nur lesen (Notizen separat); keine Lösch-Knöpfe für ver
 13. `docs/recht/VVT.md` existiert.
 14. Kein öffentlich sichtbares Bild mit `showsPerson = jutta` ohne `media.ownerApproved`; keine veröffentlichten
     Galerie-Bilder mit Kund:innen ohne Einwilligung (R-181, E-42).
+15. Sind Tattoo-Beträge eingetragen (`settings.tattoo.minPriceCents`, Preisrahmen), hat Jutta sie bestätigt
+    (`settings.tattoo.pricesConfirmedAt`, Knopf „Preise stimmen – bestätigen“ unter Tattoo → Texte; P20.5, V-28 a,
+    Prüfpunkt R210-16, §9.6).
 
 **AK-7-04** Alle Handy-Ansichten sind bei 390×844 ohne horizontales Scrollen bedienbar; axe ohne „serious/critical“.
 **AK-7-05** E2E: Bestellung ohne Keramik `paid` → „Gepackt“ (Verpackung aus der Vorlage übernommen) → Sendungsnummer eingeben → „Versendet melden“ → Status `shipped`, M06 im Mail-Log, in ≤ 5 Taps plus Texteingabe.

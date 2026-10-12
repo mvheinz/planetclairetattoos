@@ -449,7 +449,8 @@ Einwilligung. Pro Foto gibt es in der Verwaltung ein Häkchen, und ohne Häkchen
 **Eine Freigabe für Instagram gilt nicht automatisch auch für die Website.**
 
 1. Such die Fotos aus, die du auf der Website zeigen willst (Fresh und Healed). Dazu gehören auch die zwei
-   Beispielfotos „3,5 years healed“ und „Godzilla and the bunnies“.
+   Beispielfotos „3,5 years healed“ und „Großes Monster, kleine Hasen“ (das frische Tattoo an der Wade mit dem
+   Fernsehturm).
 2. Schick der Person eine DM mit dem Text unten und häng das Foto an.
 3. Mach von der Antwort einen Screenshot.
 4. Speicher die Screenshots in einem Ordner auf deinem Computer, zum Beispiel „Einwilligungen Website“.

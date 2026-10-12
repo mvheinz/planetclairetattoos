@@ -261,6 +261,21 @@ describe('V-28 a Startklar R210-16: Tattoo-Preise bestätigen', () => {
     expect(check.ok).toBe(false)
     expect(check.detail).toContain('Mindestpreis 90 €')
   })
+
+  it('auch ein Teil-Update nur des Betrags (ohne Bestätigungsfeld in den Daten) setzt zurück', async () => {
+    expect((await save('tattooPricesConfirm', {})).status).toBe(200)
+    expect((await r21016()).ok).toBe(true)
+    await payload.updateGlobal({
+      slug: 'settings',
+      data: { tattoo: { minPriceCents: 9500 } } as never,
+      overrideAccess: true,
+      context: { skipAudit: true },
+    })
+    const t = await tattooOf()
+    expect(t.minPriceCents).toBe(9500)
+    expect(t.pricesConfirmedAt ?? null).toBe(null)
+    expect((await r21016()).ok).toBe(false)
+  })
 })
 
 describe('V-28 a Flash und Galerie nur mit Inhalt', () => {
