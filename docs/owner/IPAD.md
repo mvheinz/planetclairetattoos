@@ -12,7 +12,7 @@ U-85–U-89).
 
 | Datei | Wofür |
 |---|---|
-| **Bestandsliste** (`planet-claire-bestand-B-….xlsx`) | Alle deine Stücke mit kleinem Foto: Name, Preis, Maße, Material … und ganz rechts die Spalten **„Verkauft“** und **„ins Archiv“**. |
+| **Bestandsliste** (`planet-claire-bestand-B-….xlsx`) | Alle deine Stücke mit kleinem Foto: Name, Preis, Maße, Material, **„Ein Wort von mir“** mit Claudes Vorschlag, **„Pflege“** … und ganz rechts die Spalten **„Verkauft“** und **„ins Archiv“**. |
 | **Texte-Liste** (`planet-claire-texte-T-….xlsx`) | Alle Texte der Seite auf Deutsch und Englisch, nach Bereichen (Startseite, Shop, Tattoo …). Rechtstexte stehen nicht darin – die kommen von der Kanzlei. |
 | **Katalog** (`planet-claire-katalog-….pdf`) | Alle Stücke zum Anschauen und Weiterschicken. |
 | **Rundgang** (`planet-claire-rundgang-….pdf`) | So sieht die Seite gerade aus – Handy und großer Bildschirm, auch Korb, Kasse und „Vertrag widerrufen“. |
@@ -50,13 +50,25 @@ dann im Ordner **Downloads**.
    Archiv. Bei einem Stück, das noch da ist, gilt „ja“ nicht (Claude meldet das). Die Spalte zählt, wenn Claude das
    Stück zum ersten Mal in die Webseite übernimmt; ist es dort schon, nimmst du es in der Verwaltung ins Archiv bzw.
    wieder heraus: **Meine Stücke** → Stück → Schalter **„Im Archiv zeigen“** (am iPad antippen, am Computer anklicken).
-5. **Deine Notiz:** Alles, was du Claude sagen möchtest („Preis noch unsicher“, „Foto bitte tauschen“) – auch hier
+5. **Ein Wort von mir** (seit P20.4): ein, zwei Sätze von dir, die auf der Produktseite stehen. In der grauen Spalte
+   daneben, **„Vorschlag: Ein Wort von mir“**, hat Claude dir zu jedem Stück einen Satz in Ich-Form vorgeschlagen. So
+   entscheidest du:
+   - **Gefällt dir der Vorschlag:** in der Spalte **„Vorschlag übernehmen“** auf das Feld tippen und **ja** wählen (oder
+     „ja“ hineinschreiben). Das Englische kommt dann von selbst mit.
+   - **Lieber eigene Worte:** direkt in **„Ein Wort von mir“** schreiben (höchstens 280 Zeichen). Dein Text gilt immer –
+     auch wenn daneben „ja“ steht. Das Englische schreibt Claude dazu.
+   - **Kein Satz:** alles leer lassen. Ohne dein „ja“ oder deinen eigenen Text erscheint nichts.
+6. **Pflege** (seit P20.4): Für Keramik, Schmuck, Textil und Caps gibt es eine feste Pflegezeile je Stückart (z. B.
+   Keramik „Feucht abwischen und trocknen lassen, nicht in die Spülmaschine“). Lass die Spalte **leer**, dann gilt diese
+   Zeile. Nur wenn ein Stück etwas anderes braucht, schreib es hinein. Löschst du einen Text, gilt wieder die feste Zeile.
+7. **Deine Notiz:** Alles, was du Claude sagen möchtest („Preis noch unsicher“, „Foto bitte tauschen“) – auch hier
    keine Namen oder Kontaktdaten von Kund:innen.
-6. Bitte **nicht**: Zeilen löschen, Überschriften ändern, in grauen Feldern etwas ändern. Englisch musst du nicht
+8. Bitte **nicht**: Zeilen löschen, Überschriften ändern, in grauen Feldern etwas ändern. Englisch musst du nicht
    anfassen – Claude passt es an.
 
 **Am Computer:** Doppelklick auf die Datei – sie öffnet sich in **Excel**, am Mac auch in **Numbers**, am PC ohne
-Excel im kostenlosen **LibreOffice**. Alles andere wie oben.
+Excel im kostenlosen **LibreOffice**. Bei „Vorschlag übernehmen“ und „ins Archiv“ auf das Feld klicken, am kleinen Pfeil
+rechts **ja** auswählen (oder „ja“ tippen). Alles andere wie oben.
 
 ## C · Die Liste zurückschicken
 

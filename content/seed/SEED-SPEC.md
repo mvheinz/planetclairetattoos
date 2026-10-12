@@ -487,7 +487,11 @@ Deko-Hinweis für Keramik („Dekorationsobjekt – nicht für Lebensmittel geei
 **`careTemplates`:** textil DE „Links gewendet bei 30 °C waschen, nicht in den Trockner, Motiv nicht bügeln.“ · EN
 “Wash inside out at 30 °C, do not tumble dry, do not iron over the design.” — cap DE „Nicht in die Waschmaschine.
 Flecken mit einem feuchten Tuch vorsichtig abtupfen, an der Luft trocknen.“ · EN “Do not machine wash. Gently dab
-stains with a damp cloth and let it air dry.”
+stains with a damp cloth and let it air dry.” — keramik (P20.4, V-23) DE „Feucht abwischen und trocknen lassen, nicht in die
+Spülmaschine.“ · EN “Wipe with a damp cloth and let it dry; not dishwasher safe.” („Deko – nicht für Lebensmittel“ steht
+schon als eigene Angabe am Stück) — schmuck DE „Mit einem weichen, trockenen Tuch abwischen. Vor Wasser, Parfum und Creme
+schützen und einzeln aufbewahren.“ · EN “Wipe with a soft, dry cloth. Keep away from water, perfume and lotion, and store
+it on its own.” (ohne den Sicherheitshinweis zu wiederholen)
 
 **`packingChecklists`** (nur DE, KONZEPT §7.6):
 

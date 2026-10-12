@@ -309,7 +309,7 @@ Die Reihenfolge steht in [Z1](ANLEITUNGEN.md#z1).
     ([Handbuch, Kapitel 10](HANDBUCH.md#10-tattoo-flash-und-galerie)).
   - Deine 74 Stücke aus den Fotos spielt Claude mit `pnpm bestand:import` als Entwürfe ein (gelb markiert „zu
     prüfen“). Du korrigierst sie mit deiner Liste aus A29, **misst nach** (steht noch „geschätzt“ bei den Maßen, geht
-    das Stück nicht online), setzt den Haken „nur eigene Figuren“ und tippst „Erledigt“ (am Computer: klickst). Jede
+    das Stück nicht online), setzt den Haken „Motiv und Schriftzug sind von mir“ und tippst „Erledigt“ (am Computer: klickst). Jede
     Karte in „Meine Stücke“ zeigt „fertig“ oder was noch fehlt; „Alle fertigen online stellen“ stellt die fertigen auf
     einmal online ([Handbuch, Kapitel 4](HANDBUCH.md#4-meine-stücke)).
   - Aufwand: ca. 60 Min. plus ca. 10 Min. pro Stück

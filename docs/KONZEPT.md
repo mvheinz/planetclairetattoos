@@ -400,6 +400,9 @@ Link-Liste im Fuß erreichbar. Unter den Links das Nummernfeld **„Nr. aus dem 
 - Instagram-Link `https://www.instagram.com/planet.claire.tattoos/` (einfacher Link, kein Embed).
 - Sprachumschalter.
 - Hinweis-Kurzzeile zum Preis nur, wenn auf der Seite Preise stehen (steht dann ohnehin am Preis).
+- Eine Zeile Urheberrecht mit „kein KI-Training“ und Link „Mehr dazu im Impressum“ (Baustein `ip.copyrightNotice`, P20.4
+  V-44 a; der volle Vorbehalt nach § 44b UrhG steht im Impressum). „Kontakt“ steht nur bei den Pflichtlinks, nicht noch
+  einmal in der Fußnavigation (V-24: jede Aussage genau einmal).
 - Keine Animation darf diese Links verdecken oder verzögern (Konzeptseite „Pflicht und Service“).
 
 **3.0.4 Weitere globale Elemente**
@@ -687,7 +690,8 @@ widerrufen“ (vorbelegt mit Bestellnummer), Kontakt. Personenbezogene Daten gek
 - **Zweck:** Zeigen, was auf Anfrage geht, und Anfragen einsammeln (E-11). Nicht kaufbar.
 - **Blöcke:** H1 „Auftragsarbeiten“ (EN „Commissions“); Text „So läuft’s“ (Anfrage → Angebot per Mail → Bezahlung
   außerhalb des Shops → Anfertigung); Beispiele (3–9 Bilder mit Bildunterschrift); Formular (§10); Datenschutzhinweis;
-  Kontaktalternative (Mail).
+  Kontaktalternative (Mail). Der Pflichtsatz „bezahlt wird nicht hier im Shop … kein Online-Vertrag“ steht genau einmal
+  (Hinweis über dem Formular, `commission.notice`); „Fremde Figuren … male ich nicht“ steht nur in der FAQ (P20.4, V-24).
 - **Datenquelle:** `pages` mit `key = commissions` (Texte, Beispielbilder, Block `commissionForm`), Collection
   `inquiries` (schreiben nur über die Server-Action des Formulars, §10).
 - **Vorauswahl über die Adresse (P20.3):** `?art=<Gegenstand>` (z. B. „Zeichnung auf Anfrage“ von der Startseite, V-11 a)
@@ -1740,8 +1744,8 @@ Felder und dieselbe Validierung wie das Standardformular.
 | Kategorie | `category` | ja | eine der 6 Kategorien (§2.2); setzt Standard-Versandklasse und Vorbelegungen; änderbar nur im Entwurf |
 | Titel DE | `title` (DE) | ja | 2–80 Zeichen |
 | Beschreibung DE | `description` (DE) | ja | mehrzeiliges Textfeld, Absätze per Leerzeile, 20–4000 Zeichen |
-| „Jutta sagt“ | `juttaSays` | nein | ≤ 280 Zeichen |
-| „Übersetzen → EN“ | Knopf | – | füllt alle EN-Felder (Titel, Beschreibung, „Jutta sagt“, Material, Maß-Zusatz, Größe, Zustand, Faser-Freitext, Pflege, Metallteile, Warnhinweise, Abweichung, Alt-Texte) per DeepL/Mock (E-61); vorhandene geprüfte EN-Texte nur nach Rückfrage überschreiben; Ergebnis bleibt editierbar |
+| „Ein Wort von mir“ | `juttaSays` | nein | ≤ 280 Zeichen; darunter Claudes Vorschlag (`juttaSaysSuggestion`, nur Verwaltung) mit Knopf „Vorschlag übernehmen“ – kopiert DE und EN ins Feld, erscheint erst nach dem Speichern (P20.4, V-22 a, E-62) |
+| „Übersetzen → EN“ | Knopf | – | füllt alle EN-Felder (Titel, Beschreibung, „Ein Wort von mir“, Material, Maß-Zusatz, Größe, Zustand, Faser-Freitext, Pflege, Metallteile, Warnhinweise, Abweichung, Alt-Texte) per DeepL/Mock (E-61); vorhandene geprüfte EN-Texte nur nach Rückfrage überschreiben; Ergebnis bleibt editierbar |
 | Titel/Beschreibung EN | `title` (EN), `description` (EN) | nein (Badge „EN fehlt“) | EN-Seiten fallen auf DE zurück |
 | Preis | `priceCents` | ja | Eingabe „45“ oder „45,50“; 1,00–10.000,00 €; gesperrt bei `reserved`/`sold` |
 | Versandklasse | `shippingClass` | ja | vorbelegt aus Kategorie (§2.2); `nur_abholung` möglich; Warnung, wenn Keramik nicht `keramik`/`nur_abholung` |
@@ -1766,7 +1770,7 @@ Felder und dieselbe Validierung wie das Standardformular.
 | | Größe | `sizeLabel` | Pflicht, z. B. „M“, „Einheitsgröße, verstellbar 54–60 cm“ |
 | | Zustand | `condition` | Pflicht: `like_new` (wie neu) \| `very_good` (sehr gut) \| `good` (gut) \| `worn` (deutliche Gebrauchsspuren) + optional `conditionNote` |
 | | Second-Hand/Vintage | `isSecondHand` | Standard an (E-16), Anzeige „Second-Hand/Vintage“ |
-| | Pflegehinweise | `careInstructions` (DE/EN) | optional, vorbelegt aus `settings.careTemplates` |
+| | Pflegehinweise | `careInstructions` (DE/EN) | optional, vorbelegt aus `settings.careTemplates`; dasselbe Feld gibt es seit P20.4 (V-23) auch bei Keramik und Schmuck (feste Pflegezeile je Stückart, Pflege nie in der Beschreibung) |
 | | Fremdes Hersteller-Logo sichtbar | `blankBrandVisible` | Pflichtangabe, Standard aus; angehakt sperrt die Veröffentlichung, solange `settings.legal.allowVisibleBlankBrands = false` (Standard, R-047) |
 | `schmuck` | Material der Metallteile | `metalPartsMaterial` (DE/EN) | Pflicht, z. B. „Edelstahl 316L“ |
 | | Nickel-Nachweis | `nickelFreeConfirmed` + `nickelEvidence` | Häkchen „Metallteile nickelfrei, Nachweis liegt vor“ **und** hochgeladener Nachweis (privat) Pflicht (E-17, R-045) |
@@ -2211,9 +2215,9 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
 
 | Seite | Blöcke (Reihenfolge) | Leerzustand |
 |---|---|---|
-| R11 Übersicht | H1 „Tattoo“; **Mein Stil** (Fine Line, naiv, mit Humor – Text in Juttas Ton); 3 verfügbare Flash-Motive; 3 Bilder aus der Galerie (bevorzugt „healed“); Links zu allen Unterseiten mit je einem Satz (Flash und Galerie nur mit Inhalt, P20.5); Kontakt-Block | Blöcke ohne Inhalt entfallen |
-| R12 Flash | Einleitung; Filter „alle“/„verfügbar“ (Links, `?available=1`); Raster der Motive (§9.3); Kontakt-Block | „Gerade keine Flash-Motive online – schreib mir deine eigene Idee“ |
-| R14 Preise | Mindestpreis; Flash: „Jedes Flash-Motiv hat einen Festpreis – steht direkt am Motiv“ + Link R12 (nur mit veröffentlichten Motiven, P20.5); Custom: Preisrahmen-Text; Anzahlung: Text (vereinbaren wir persönlich, außerhalb der Website); Kleinunternehmer-Fußnote; Kontakt-Block | – |
+| R11 Übersicht | H1 „Tattoo“; **Mein Stil** (Fine Line, naiv, mit Humor – Text in Juttas Ton); 3 verfügbare Flash-Motive; 3 Bilder aus der Galerie (bevorzugt „healed“); Links zu allen Unterseiten mit je einem Satz („Wege zum Tattoo“; Flash und Galerie nur mit Inhalt, P20.5, und nicht, wenn sie oben schon mit eigenem Abschnitt und Knopf stehen, P20.4 V-24); Kontakt-Block | Blöcke ohne Inhalt entfallen |
+| R12 Flash | Einleitung (ohne zweites „Flash“ unter der H1, V-24); Hinweis „Nachstechen nur mit meiner schriftlichen Genehmigung – frag mich vorher gern per Mail“ (`ip.tattooFlashNotice`, nur hier, V-44 a); Filter „alle“/„verfügbar“ (Links, `?available=1`); Raster der Motive (§9.3); Kontakt-Block | „Gerade keine Flash-Motive online – schreib mir deine eigene Idee“ |
+| R14 Preise | Mindestpreis; Flash: „Jedes Flash-Motiv hat einen Festpreis – steht direkt am Motiv“ + Link R12 (nur mit veröffentlichten Motiven, P20.5; der Festpreis steht nur hier und am Motiv, V-24); Custom: Preisrahmen-Text; Anzahlung: Text (vereinbaren wir persönlich, außerhalb der Website – der Block `priceInfo` wiederholt das nicht, V-24); Kleinunternehmer-Fußnote; Kontakt-Block | – |
 | R15 Galerie | Filter „alle“/„fresh“/„healed“ (Links, `?kind=fresh|healed`); Raster; Bild antippen → Vollbild mit Bildunterschrift; Kontakt-Block | „Hier kommen bald Fotos“ (Weiter-Link zu Flash nur mit Motiven, sonst zum Ablauf) |
 | R16 Ablauf | 5 Schritte (Konzeptseite): **Anfrage → Termin → Anzahlung (offline) → Stechen → Aftercare**, je Schritt 1–3 Sätze; Hinweis „Tattoos erst ab 18“; Ort; Kontakt-Block | – |
 | R17 Aftercare | Phasen: direkt danach · Tag 1–3 · Woche 1–2 · Woche 3–6 · langfristig (Sonnenschutz); „Warnzeichen – wann zum Arzt“; Link auf die Safer-Tattoo-Checklisten des Bundesumweltministeriums (einfacher externer Link); druckfreundliche Darstellung (Druck-CSS) | – |

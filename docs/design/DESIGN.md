@@ -592,10 +592,12 @@ Jede Komponente: **Zweck · Aufbau · Maße · Zustände · Bewegung · Barriere
 - **Aufbau (DOM-Reihenfolge):**
   1. **„Vertrag widerrufen“** (EN „Withdraw from contract here“, R-090) als hervorgehobener Knopf-Link → R26. Optik: Rand 2px `--ink`, Grund `--paper`, Bricolage 600 16 px, Icon `withdraw`, Höhe ≥ 48 px, `--r-btn`. Keine Animation, kein Hover-Versatz, immer sichtbar (nie eingeklappt).
   2. Navigation Rechtliches: Impressum · Datenschutz · AGB · Widerrufsbelehrung · Versand & Zahlung · Kontakt · Konformitätserklärungen (Fußlink nur, wenn Erklärungen existieren; die Seite R27 selbst bleibt erreichbar, KONZEPT §3.0.3).
-  3. `<nav id="fussnavigation" aria-label="Seitenübersicht">`: Shop · Archiv · Tattoo · Auftragsarbeiten · Jutta & Coco · Instagram ↗ (externer Link, `rel="noopener"`).
+  3. `<nav id="fussnavigation" aria-label="Seitenübersicht">`: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Jutta & Coco · Instagram ↗ (externer Link, `rel="noopener"`). „Kontakt“ steht nur im Pflichtlink-Block (P20.4, V-24: jede Aussage einmal).
   4. Sprachumschalter.
   5. Schalter „Animationen: an/aus“ (§11.7).
   6. Preis-Fußnote nur auf Seiten mit Preisen (Text aus KONZEPT §3.4, Sternchen-Bezug).
+  6a. Eine Zeile Urheberrecht mit „kein KI-Training“ und Link „Mehr dazu im Impressum“ (Baustein `ip.copyrightNotice`,
+     R-140/R-141, P20.4 V-44 a – der volle Vorbehalt nach § 44b UrhG steht im Impressum).
   7. Zeile „© {Jahr} Planet Claire · Berlin“ in `--ink-2`.
 - **Optik:** Grund `--paper-2` (deckt die Zeilenlinien), obere Kante eine statische Handlinie `--ink` 1.5px; Links Bricolage 400 15 px in `--ink`, unterstrichen, Zielhöhe ≥ 44 px mobil; Spalten ab 768 (Rechtliches | Seiten | Sprache & Einstellungen).
 - **Linie:** Die Tuschelinie endet oberhalb des Fußbereichs oder verlässt die Seite am unteren Rand der Rinne; sie kreuzt nie einen Fußbereich-Link (§9.9).
