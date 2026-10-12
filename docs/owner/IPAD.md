@@ -47,7 +47,9 @@ dann im Ordner **Downloads**.
    Bitte **keine Namen** von Käufer:innen eintragen – die Listen werden dauerhaft gespeichert.
    **ins Archiv** (letzte Spalte, seit P20.3): Ein verkauftes Stück erscheint nur dann mit „sold“-Stempel im Archiv
    der Webseite, wenn du hier „ja“ einträgst. Bitte nur, wenn Maße und Angaben stimmen. Leer lassen heißt: nicht im
-   Archiv. Bei einem Stück, das noch da ist, gilt „ja“ nicht (Claude meldet das).
+   Archiv. Bei einem Stück, das noch da ist, gilt „ja“ nicht (Claude meldet das). Die Spalte zählt, wenn Claude das
+   Stück zum ersten Mal in die Webseite übernimmt; ist es dort schon, nimmst du es in der Verwaltung ins Archiv bzw.
+   wieder heraus: **Meine Stücke** → Stück → Schalter **„Im Archiv zeigen“** (am iPad antippen, am Computer anklicken).
 5. **Deine Notiz:** Alles, was du Claude sagen möchtest („Preis noch unsicher“, „Foto bitte tauschen“) – auch hier
    keine Namen oder Kontaktdaten von Kund:innen.
 6. Bitte **nicht**: Zeilen löschen, Überschriften ändern, in grauen Feldern etwas ändern. Englisch musst du nicht
