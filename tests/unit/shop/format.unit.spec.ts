@@ -14,6 +14,7 @@ import {
   formatDimensions,
   formatFibers,
   formatItemNumber,
+  formatShortDimensions,
   formatWeight,
   productPath,
 } from '@/lib/shop/format'
@@ -116,6 +117,24 @@ describe('formatCardFacts (V-13 a, Produktkarten)', () => {
     expect(
       formatCardFacts({ category: 'keramik', sizeLabel: 'M', dimensions: { heightCm: 5 } }, 'de'),
     ).toBe(`H 5${NB}cm`)
+  })
+})
+
+describe('formatShortDimensions (V-14, Kurzdaten der Produktseite)', () => {
+  it('mit Zahlen höchstens zwei Maße (geschätzt → „ca.“), ohne Zahlen die Notiz', () => {
+    expect(
+      formatShortDimensions(
+        { diameterCm: 8.5, heightCm: 5, note: 'Durchmesser ca. 8,5 cm, Höhe ca. 5 cm – geschätzt' },
+        'de',
+      ),
+    ).toEqual({ text: `ca. Ø 8,5${NB}cm, H 5${NB}cm`, fromNote: false })
+    expect(
+      formatShortDimensions({ note: { de: 'Brustweite 52 cm', en: 'Chest 52 cm' } }, 'en'),
+    ).toEqual({
+      text: 'Chest 52 cm',
+      fromNote: true,
+    })
+    expect(formatShortDimensions(null, 'de')).toEqual({ text: '', fromNote: false })
   })
 })
 

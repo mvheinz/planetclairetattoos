@@ -48,6 +48,7 @@ import {
   formatDimensions,
   formatFibers,
   formatItemNumber,
+  formatShortDimensions,
   productPath,
 } from '@/lib/shop/format'
 import { safetyWarningTexts, shippingPriceText } from '@/lib/shop/productInfo'
@@ -63,7 +64,7 @@ import {
 import styles from './ProductPage.module.css'
 
 // Produktseite R04, Blöcke 2–11 (KONZEPT §3.4) in verbindlicher DOM-Reihenfolge – Pflichtangaben stehen vor dem
-// Kaufknopf und nie hinter einem Klick (AK-3-05, AK-3-07): H1 → Kurzdaten (`Nr. 017` · „Unikat“ · Kategorie · Maße) →
+// Kaufknopf und nie hinter einem Klick (AK-3-05, AK-3-07): H1 → Kurzdaten (`Nr. 017` · „Unikat“ · Kategorie · höchstens zwei Maße, V-14) →
 // Preisschild `pinned`, direkt darunter die Versandkosten des Stücks („+ 8,90 € Versand · Abholung in Berlin nach
 // Absprache kostenlos“, „Mehrere Stücke? Versand zahlst du nur einmal.“, V-10) mit Steuer-/Versandhinweis und Lieferzeit
 // (R-030, R-031, R-035) → Pflichtangaben je Kategorie (R-043 bis R-046, Bausteine `product.*`; Deko-Keramik als ein
@@ -149,6 +150,9 @@ export async function ProductPage({
   const categoryName = category?.name || ((locale === 'en' ? label.en : undefined) ?? label.de)
   const dims = formatDimensions(product.dimensions, locale)
   const dimsLang = product.dimensions?.note ? de('dimensionsNote') : undefined
+  // V-14: Kurzdaten mit höchstens zwei Maßen (ganze Maße samt Notiz in der Details-Tabelle), damit der Preis früher kommt
+  const shortDims = formatShortDimensions(product.dimensions, locale)
+  const shortDimsLang = shortDims.fromNote ? dimsLang : undefined
   const now = new Date()
   const closed = !settings.isOpen && state !== 'sold'
   // Nur zur Abholung, Abholung gerade aus (P18.5): nicht bestellbar, Knopf aus mit Hinweis.
@@ -278,9 +282,9 @@ export async function ProductPage({
           <Badge locale={locale} kind="unique" />
         </li>
         <li>{categoryName}</li>
-        {dims ? (
-          <li className={styles.dims} lang={dimsLang}>
-            {dims}
+        {shortDims.text ? (
+          <li className={styles.dims} lang={shortDimsLang} data-product-dims="">
+            {shortDims.text}
           </li>
         ) : null}
       </ul>

@@ -520,7 +520,8 @@ Kategorie ohne Inhalt bleibt unter ihrer Adresse erreichbar (Leerzustand KO-17),
 - **Blöcke (Reihenfolge ist verbindlich, weil Pflichtangaben vor dem Knopf stehen müssen):**
   1. **Galerie:** 1–12 Fotos, wischbar (Scroll-Snap), Zoom per Tipp (Vollbild-Dialog, schließbar mit `Esc`/X), Punkte-Anzeige.
   2. **Titel** (H1).
-  3. **Kurzdaten:** `Nr. 017` · „Unikat“ · Kategorie · Maße (z. B. „Ø 14 cm, H 6 cm“).
+  3. **Kurzdaten:** `Nr. 017` · „Unikat“ · Kategorie · Maße (z. B. „Ø 14 cm, H 6 cm“; seit P20.3/V-14 höchstens zwei Maße,
+     geschätzte mit „ca.“ – alle Maße samt Notiz stehen ohne Klick in der Details-Tabelle, Nr. 8; ohne Zahlen die Notiz).
   4. **Preisschild:** Preis mit Sternchen; direkt darunter die Versandkosten des Stücks (V-10, P20.3): „+ 8,90 € Versand ·
      Abholung in Berlin nach Absprache kostenlos“ (Betrag der Versandklasse aus `settings.shipping.rates`, Zone DE, über
      `formatMoney`; der Abhol-Teil nur bei eingeschalteter Abholung, U-91 b) und „Mehrere Stücke? Versand zahlst du nur
