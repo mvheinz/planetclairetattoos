@@ -46,6 +46,7 @@ describe('pflege:videos – Aufruf', () => {
   it('Szenen, Länge und Gerät', () => {
     expect(parseVideoArgs(['start', 'shop']).scenes).toEqual(['shop', 'start'])
     expect(parseVideoArgs(['alle']).scenes).toEqual(['shop', 'start'])
+    expect(parseVideoArgs(['--', 'start']).scenes).toEqual(['start'])
     expect(parseVideoArgs(['--sekunden=12']).seconds).toBe(12)
     expect(parseVideoArgs(['--geraet=handy']).devices).toEqual(['handy'])
     expect(() => parseVideoArgs(['--sekunden=2'])).toThrow(/5 bis 120/)

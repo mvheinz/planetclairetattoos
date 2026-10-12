@@ -58,6 +58,7 @@ export function parseVideoArgs(
   let seconds: number | null = null
   let devices: VideoDeviceKey[] = VIDEO_DEVICES.map((d) => d.key)
   for (const arg of argv) {
+    if (arg === '--') continue // `pnpm pflege:videos -- …`
     const [flag, value] = arg.startsWith('--')
       ? [arg.slice(2).split('=')[0], arg.split('=').slice(1).join('=')]
       : []
