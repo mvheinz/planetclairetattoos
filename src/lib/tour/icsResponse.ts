@@ -37,7 +37,13 @@ export async function tourIcsResponse(
     now: new Date(),
   },
 ): Promise<Response> {
-  const match = FILE_RE.exec(file)
+  let name: string
+  try {
+    name = decodeURIComponent(file)
+  } catch {
+    return notFound() // kaputte %-Kodierung
+  }
+  const match = FILE_RE.exec(name)
   if (!match) return notFound()
   const id = Number(match[1])
   const locale = icsLocale(localeParam)

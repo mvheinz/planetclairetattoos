@@ -11,5 +11,5 @@ export async function GET(
 ): Promise<Response> {
   const { file } = await params
   const locale = new URL(request.url).searchParams.get('locale')
-  return tourIcsResponse(decodeURIComponent(file), locale, { now: new Date() })
+  return tourIcsResponse(file, locale, { now: new Date() })
 }

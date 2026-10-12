@@ -175,6 +175,7 @@ describe('V-60 Kalender-Datei GET /api/public/tour-dates/<id>.ics', () => {
     expect((await call('999999.ics')).status).toBe(404)
     expect((await call(`${doc.id}.txt`)).status).toBe(404)
     expect((await call('abc.ics')).status).toBe(404)
+    expect((await call('%E0%A4%A.ics')).status).toBe(404) // kaputte %-Kodierung → 404 statt 500
   })
 
   it('liest die gecachte Liste der Startseite (eine Quelle) – ohne Treffer 404', async () => {
