@@ -178,7 +178,7 @@ afterAll(async () => {
 
 describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
   it('R-151 alte Bestellung (Frist abgelaufen) gelöscht, neue eingeschränkt, Rechnung unverändert, Log-Einträge vorhanden', async () => {
-    const oldOrder = await order(0)
+    const oldOrder = await order(0, { gift: { isGift: true, message: 'Alter Gruß' } })
     const oldInvoice = await invoiceFor(oldOrder)
     await db().execute(sql`UPDATE orders SET status = 'delivered',
       timestamps_final_status_at = '2019-06-01T10:00:00Z', retain_until = '2026-01-01T00:00:00Z'
@@ -186,6 +186,7 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
     const fresh = await order(1, {
       notes: 'Bitte Geschenkpapier – Nachbarin Frau Dritte nimmt an',
       carrierEmailConsent: true,
+      gift: { isGift: true, message: 'Für Frau Dritte, alles Gute!' },
     })
     const freshInvoice = await invoiceFor(fresh)
     await finish(fresh)
@@ -273,6 +274,7 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
     expect(o1.privacy?.anonymizedAt).toBeTruthy()
     expect(o1.customer.email).toBe(ANONYMIZED_EMAIL)
     expect(o1.shippingAddress?.name ?? null).toBeNull()
+    expect(o1.gift?.message ?? null).toBeNull()
     // neue Bestellung: eingeschränkt, Notiz und Packfoto weg, DHL-Einwilligung widerrufen
     const o2 = (await payload.findByID({
       collection: 'orders',
@@ -283,6 +285,8 @@ describe('DSGVO: Löschen/Einschränken (P6.18)', () => {
     expect(o2.privacy?.processingRestricted).toBe(true)
     expect(o2.privacy?.restrictedAt).toBeTruthy()
     expect(o2.notes ?? null).toBeNull()
+    // V-18 b: der Gruß für die Geschenkkarte unterliegt keiner Aufbewahrungspflicht – mit der Einschränkung weg
+    expect(o2.gift).toMatchObject({ isGift: true, message: null })
     expect(o2.customer.email).toBe(EMAIL)
     expect(o2.carrierEmailConsentRevokedAt).toBeTruthy()
     expect(res.carrierConsentWithdrawn).toBe(true)

@@ -55,6 +55,7 @@ import * as migration_20261011_132759_p18_order_shipping_rates from './20261011_
 import * as migration_20261011_153702_p18_order_item_handover from './20261011_153702_p18_order_item_handover';
 import * as migration_20261012_123105_p20_tattoo_booking from './20261012_123105_p20_tattoo_booking';
 import * as migration_20261012_145440_p20_inquiry_similar from './20261012_145440_p20_inquiry_similar';
+import * as migration_20261012_185023_p20_checkout_gift_billing_country from './20261012_185023_p20_checkout_gift_billing_country';
 
 export const migrations = [
   {
@@ -340,6 +341,11 @@ export const migrations = [
   {
     up: migration_20261012_145440_p20_inquiry_similar.up,
     down: migration_20261012_145440_p20_inquiry_similar.down,
-    name: '20261012_145440_p20_inquiry_similar'
+    name: '20261012_145440_p20_inquiry_similar',
+  },
+  {
+    up: migration_20261012_185023_p20_checkout_gift_billing_country.up,
+    down: migration_20261012_185023_p20_checkout_gift_billing_country.down,
+    name: '20261012_185023_p20_checkout_gift_billing_country'
   },
 ];

@@ -4,7 +4,11 @@ import { redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import React from 'react'
 
-import { CheckoutForm, type CheckoutMessages } from '@/components/checkout/CheckoutForm'
+import {
+  CheckoutForm,
+  type CheckoutMessages,
+  type CountryOption,
+} from '@/components/checkout/CheckoutForm'
 import { CheckoutSummaryItems, CheckoutSummaryTotals } from '@/components/checkout/CheckoutSummary'
 import { LegalNotice } from '@/components/checkout/LegalNotice'
 import { ReservationCountdown } from '@/components/checkout/ReservationCountdown'
@@ -14,7 +18,7 @@ import { CHECKOUT_COOKIE, cartNoticeSearch } from '@/lib/commerce/checkout'
 import type { CheckoutChoice } from '@/lib/commerce/checkoutSchema'
 import { deviationSnippet } from '@/lib/commerce/submitCheckout'
 import { loadCheckoutPage } from '@/lib/data/checkout'
-import type { Locale } from '@/lib/enums'
+import { BILLING_COUNTRY_CODES, type Locale } from '@/lib/enums'
 import { ORDER_BUTTON_LABEL } from '@/lib/legal/constants'
 import { getSnippet } from '@/lib/legal/snippets'
 import { localizedPath } from '@/lib/routes/paths'
@@ -33,6 +37,15 @@ export const generateMetadata = routeMetadata('R07')
 // Preset `calm`: keine Animation, nur der Countdown wechselt seinen Text.
 
 const NOTICE_RE = /^[a-z_]{2,40}$/
+
+/** Länder der Rechnungsadresse (V-17): Deutschland zuerst, dann alphabetisch in der Sprache der Seite. */
+function billingCountryOptions(locale: Locale): CountryOption[] {
+  const names = new Intl.DisplayNames([locale], { type: 'region' })
+  const collator = new Intl.Collator(locale)
+  return BILLING_COUNTRY_CODES.map((c) => ({ value: c, label: names.of(c) ?? c })).sort((a, b) =>
+    a.value === 'DE' ? -1 : b.value === 'DE' ? 1 : collator.compare(a.label, b.label),
+  )
+}
 
 const listFormat = (locale: Locale, items: string[]) =>
   new Intl.ListFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
@@ -74,9 +87,12 @@ export default async function Page({
     .filter((i) => i.shippingClass === 'nur_abholung')
     .map((i) => formatItemNumber(i.itemNumber, locale))
   const highest = checkout.items.some((i) => i.shippingClass !== 'brief') ? 'DHL' : 'Deutsche Post'
+  // Die Beschriftungen gehen als Elemente an die Client-Komponente (RSC-Grenze) und landen dort in der Kinderliste des
+  // Labels – mit Schlüssel, sonst meldet React im Browser „Each child in a list should have a unique key“ (saubere Konsole,
+  // ARCHITEKTUR §7.2).
   const deliveryLabels = {
     shipping: (
-      <span data-delivery-option="shipping">
+      <span key="shipping" data-delivery-option="shipping">
         {t('fields.deliveryShipping', { carrier: highest })}
         {data.quotes.shipping !== null ? (
           <>
@@ -87,7 +103,7 @@ export default async function Page({
       </span>
     ),
     pickup: (
-      <span data-delivery-option="pickup">
+      <span key="pickup" data-delivery-option="pickup">
         {t('fields.deliveryPickup', { city })}
         {' – '}
         <MoneyAmount cents={0} locale={locale} />
@@ -141,6 +157,7 @@ export default async function Page({
         pickupAvailable={data.pickupAvailable}
         pickupCity={city}
         district={data.studioDistrict}
+        billingCountries={billingCountryOptions(locale)}
         defaults={{
           email: checkout.customer?.email ?? '',
           shippingAddress: shippingDefaults,

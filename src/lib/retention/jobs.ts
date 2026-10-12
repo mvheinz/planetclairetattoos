@@ -28,6 +28,7 @@ import {
   L_04_CANCELLED_PREPAYMENT_STAGE_1,
   L_05_ORDERS_STAGE_B,
   L_05_ORDERS_STAGE_C,
+  L_05_ORDERS_STAGE_E,
   retainUntil,
   type RetentionRule,
 } from './policy'
@@ -40,7 +41,7 @@ import {
 } from './runner'
 
 // Löschjobs Teil 1 (PLAN P6.14, LOESCHKONZEPT §2–§4, DATENMODELL §11/§12): Kassen (L-03), Minimierung der Bestellungen
-// (L-04 Stufe 1, L-05 Stufen B/C), Anonymisierung der Bestellungen (L-04 Stufe 2, L-05 Stufe D, L-09), Belege (L-06,
+// (L-04 Stufe 1, L-05 Stufen B/C/E – E: Gruß für die Geschenkkarte, V-18 b), Anonymisierung der Bestellungen (L-04 Stufe 2, L-05 Stufe D, L-09), Belege (L-06,
 // L-07) und Widerrufe (L-08). Fristen ausschließlich aus `policy.ts`; Datensätze mit Legal Hold fallen schon in der
 // Kandidaten-Abfrage heraus. Stufe A (Telefon) hat keine Wirkung – es gibt kein Telefonfeld (DM-28).
 
@@ -133,7 +134,7 @@ const cancelledMinimizeStep: RetentionStep = {
          AND timestamps_cancelled_at <= ${iso(eventCutoff(L_04_CANCELLED_PREPAYMENT_STAGE_1, until))}::timestamptz
          AND (shipping_address_name IS NOT NULL OR shipping_address_address_line1 IS NOT NULL
               OR billing_address_name IS NOT NULL OR billing_address_address_line1 IS NOT NULL
-              OR carrier_email_consent IS TRUE
+              OR carrier_email_consent IS TRUE OR gift_message IS NOT NULL
               OR EXISTS (SELECT 1 FROM consent_log c WHERE c.order_id = orders.id))
        ORDER BY timestamps_cancelled_at, id LIMIT ${limit}`)
     return byEvent(L_04_CANCELLED_PREPAYMENT_STAGE_1, res.rows, until)
@@ -163,8 +164,31 @@ const cancelledMinimizeStep: RetentionStep = {
         shipping_address_address_line2 = NULL, shipping_address_postal_code = NULL, shipping_address_city = NULL,
         billing_address_name = NULL, billing_address_address_line1 = NULL, billing_address_address_line2 = NULL,
         billing_address_postal_code = NULL, billing_address_city = NULL,
-        carrier_email_consent = false, updated_at = ${iso(now)}::timestamptz
+        carrier_email_consent = false, gift_message = NULL, updated_at = ${iso(now)}::timestamptz
        WHERE id = ${id}`)
+  },
+}
+
+/** Ereignis für den Gruß der Geschenkkarte: Versand, Abholung oder – ohne Übergabe (Storno, Erstattung) – Endstatus. */
+const GIFT_EVENT = sql`COALESCE(timestamps_shipped_at, timestamps_picked_up_at, timestamps_final_status_at)`
+
+const giftMessageStep: RetentionStep = {
+  ruleId: L_05_ORDERS_STAGE_E.id,
+  collection: 'orders',
+  action: 'anonymized',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, ${GIFT_EVENT} AS event_at FROM orders
+       WHERE gift_message IS NOT NULL AND ${NO_HOLD}
+         AND ${GIFT_EVENT} <= ${iso(eventCutoff(L_05_ORDERS_STAGE_E, until))}::timestamptz
+       ORDER BY event_at, id LIMIT ${limit}`)
+    return byEvent(L_05_ORDERS_STAGE_E, res.rows, until)
+  },
+  async apply(req, id, now) {
+    const db = await dbFor(req)
+    // nur der Gruß; „Geschenk: ja“ bleibt (ohne Personenbezug)
+    await db.execute(sql`
+      UPDATE orders SET gift_message = NULL, updated_at = ${iso(now)}::timestamptz WHERE id = ${id}`)
   },
 }
 
@@ -233,7 +257,8 @@ const EMPTY_ADDRESS = {
 }
 
 /**
- * Stufe D (LOESCHKONZEPT §3.1): Personenfelder leeren bzw. Platzhalter, Freitexte (auch im Statusverlauf) leeren,
+ * Stufe D (LOESCHKONZEPT §3.1): Personenfelder leeren bzw. Platzhalter, Freitexte (auch im Statusverlauf und den Gruß
+ * der Geschenkkarte) leeren,
  * DHL-Einwilligung und Status-Token entfernen; Pack- und Rückgabefotos, Reklamationen samt Fotos (L-09),
  * zugeordnete `email-log`- und `consent-log`-Einträge (L-12, L-19 a) löschen. Bleibt: Nummer, Daten, Statusverlauf
  * ohne Freitext, Positionen, Beträge, Zahlart-Typ, Belegverweise, Rechtstext- und Bausteinfassungen.
@@ -309,6 +334,7 @@ export async function anonymizeOrder(
         cancelNote: null,
         adminAttention: { ...(order.adminAttention ?? {}), note: null },
         carrierEmailConsent: false,
+        gift: { ...(order.gift ?? {}), message: null },
         statusHistory: (order.statusHistory ?? []).map((h) => ({ ...h, note: null })),
         statusTokenHash: null,
         statusTokenSealed: null,
@@ -957,7 +983,7 @@ export async function runLegalHoldReview(
 
 export const RETENTION_TASK_STEPS = {
   retentionAbandonedCheckouts: [checkoutsStep],
-  retentionOrderMinimize: [cancelledMinimizeStep, tokenStep, photosStep],
+  retentionOrderMinimize: [cancelledMinimizeStep, tokenStep, photosStep, giftMessageStep],
   retentionOrders: [anonymizeStep('L-04 Stufe 2', false), anonymizeStep('L-05 Stufe D', true)],
   retentionInvoices: [invoicesStep, monthlyExportsStep],
   retentionWithdrawals: [withdrawalsStep],

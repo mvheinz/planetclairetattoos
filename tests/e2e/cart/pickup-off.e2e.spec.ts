@@ -113,7 +113,7 @@ test.describe('Abholung ausgeschaltet (exklusiv, nur desktop)', () => {
     }
   })
 
-  test('Korb: kein Abhol-Radio, gemerkte Abholung wird Versand, nur_abholung gesperrt, Zahlarten ohne Abhol-Satz; Seitenaufruf setzt kein Cookie', async ({
+  test('Korb: keine Lieferart-Wahl (V-16), gemerkte Abholung wird Versand, nur_abholung gesperrt, Zahlarten ohne Abhol-Satz; Seitenaufruf setzt kein Cookie', async ({
     page,
     context,
   }) => {
@@ -130,10 +130,10 @@ test.describe('Abholung ausgeschaltet (exklusiv, nur desktop)', () => {
       const res = await page.goto(R06[locale])
       expect(res?.status()).toBe(200)
       expect(await res?.headerValue('set-cookie')).toBeNull()
-      await expect(page.locator('#cart-delivery-pickup')).toHaveCount(0)
-      await expect(page.locator('[data-delivery-option="pickup"]')).toHaveCount(0)
-      await expect(page.locator('#cart-delivery-shipping')).toBeChecked()
-      await expect(page.locator('[data-cart-delivery] button[type="submit"]')).toHaveCount(0)
+      // V-16: keine Lieferart-Wahl im Korb; ohne Abholung auch kein „Abholung wählst du in der Kasse“
+      await expect(page.locator('[data-delivery-option], input[name="method"]')).toHaveCount(0)
+      await expect(page.locator('[data-cart-shipping="shipping"]')).toBeVisible()
+      await expect(page.locator('[data-cart-delivery-note]')).toHaveCount(0)
       await expect(
         page.locator('[data-cart-summary] [data-delivery-time="shipping"]'),
       ).toBeVisible()
@@ -162,7 +162,7 @@ test.describe('Abholung ausgeschaltet (exklusiv, nur desktop)', () => {
     await expect(line.locator('[data-cart-line-note="pickup-blocked"]')).toHaveText(
       'Gerade nicht bestellbar – Abholung ist im Moment nicht möglich',
     )
-    await expect(page.locator('#cart-delivery-shipping')).toBeEnabled()
+    await expect(page.locator('[data-cart-shipping="shipping"]')).toBeVisible()
     await expect(page.locator('[data-blocker="pickup_disabled"]')).toHaveText(
       `Nr. ${p.itemNumber} gibt es nur zur Abholung, und Abholung ist im Moment nicht möglich. Nimm das Stück bitte aus dem Korb.`,
     )
@@ -226,7 +226,7 @@ test.describe('Abholung ausgeschaltet (exklusiv, nur desktop)', () => {
     await expect(page.locator('[data-cart-notice="pickup_disabled"]')).toContainText(
       'Abholung ist im Moment nicht möglich – ich schicke dir deine Stücke gern zu.',
     )
-    await expect(page.locator('#cart-delivery-pickup')).toHaveCount(0)
+    await expect(page.locator('[data-cart-shipping="shipping"]')).toBeVisible()
 
     await page.locator('[data-cart-checkout] button[type="submit"]').click()
     await page.waitForURL(new RegExp(`${R07.de}(\\?|$)`))

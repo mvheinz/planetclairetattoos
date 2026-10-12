@@ -12,6 +12,7 @@ import {
 import { isAdmin, none } from '@/access'
 import {
   addressFields,
+  giftFields,
   legalTextVersionsField,
   moneyField,
   privacyFields,
@@ -663,7 +664,11 @@ export const Orders: CollectionConfig = {
       label: 'Rechnungsadresse weicht ab',
       defaultValue: false,
     },
-    addressFields('billingAddress', { requiredWhen: billingRequired, label: 'Rechnungsadresse' }),
+    addressFields('billingAddress', {
+      requiredWhen: billingRequired,
+      label: 'Rechnungsadresse',
+      countries: 'billing',
+    }),
     select('shippingZone', 'Versandzone', SHIPPING_ZONES, ENUM_LABELS.SHIPPING_ZONES, {
       admin: ro,
     }),
@@ -849,6 +854,7 @@ export const Orders: CollectionConfig = {
       label: 'DHL-Einwilligung widerrufen am',
       admin: ro,
     },
+    giftFields(),
     {
       // Virtuell (DATENMODELL §6.8.1, PLAN P5.10): Text für „Adresse kopieren“ – E-Mail nur mit wirksamer
       // DHL-Einwilligung, nie Telefon (R-101).

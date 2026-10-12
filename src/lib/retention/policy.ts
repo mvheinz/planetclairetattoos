@@ -27,7 +27,7 @@ export type RetentionStart = 'event' | 'endOfYear'
 export type RetentionAction = 'delete' | 'anonymize' | 'minimize' | 'remind' | 'cookie'
 
 export interface RetentionRule {
-  /** Regel-ID wie im `deletion-log` (`^L-\d{2}( [a-i])?( Stufe [A-D12])?$`). */
+  /** Regel-ID wie im `deletion-log` (`^L-\d{2}( [a-i])?( Stufe [A-E12])?$`). */
   id: string
   duration: RetentionDuration
   start: RetentionStart
@@ -121,6 +121,15 @@ export const L_05_ORDERS_STAGE_C = rule({
   action: 'minimize',
   task: 'retentionOrderMinimize',
   from: 'shippedAt bzw. pickedUpAt; Rückgabefotos returnReceivedAt',
+})
+// V-18 b: Gruß für die Geschenkkarte – 30 Tage nach Versand bzw. Abholung (ohne Übergabe: nach dem Endstatus)
+export const L_05_ORDERS_STAGE_E = rule({
+  id: 'L-05 Stufe E',
+  duration: { days: 30 },
+  start: 'event',
+  action: 'minimize',
+  task: 'retentionOrderMinimize',
+  from: 'shippedAt bzw. pickedUpAt; ohne Übergabe finalStatusAt',
 })
 export const L_05_ORDERS_STAGE_D = rule({
   id: 'L-05 Stufe D',
@@ -378,6 +387,7 @@ export const RETENTION_RULES: readonly Readonly<RetentionRule>[] = [
   L_05_ORDERS_STAGE_B,
   L_05_ORDERS_STAGE_C,
   L_05_ORDERS_STAGE_D,
+  L_05_ORDERS_STAGE_E,
   L_06_INVOICES(),
   L_07_MONTHLY_EXPORTS,
   L_08_WITHDRAWALS,

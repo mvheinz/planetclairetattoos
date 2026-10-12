@@ -123,6 +123,21 @@ test.describe('R25 Versand & Zahlung – Grund-Seed-Preise', () => {
       await expect(page.locator('[data-section="area"] [data-delivery-area]')).toHaveText(
         texts.area,
       )
+      // V-17: Rechnungsadresse aus EU/EWR erlaubt; V-18 b: Geschenk-Hinweis (nur Wahres) und Karte mit Gruß
+      await expect(page.locator('[data-section="area"] [data-billing-area]')).toContainText(
+        locale === 'de'
+          ? 'Island, Liechtenstein oder Norwegen'
+          : 'Iceland, Liechtenstein or Norway',
+      )
+      await expect(page.locator('[data-section="gift"] [data-gift-hint]')).toHaveText(
+        locale === 'de'
+          ? 'Ein Geschenk? Gib einfach die Adresse der beschenkten Person als Lieferadresse an – auf dem Packzettel steht kein Preis, die Rechnung kommt nur per E-Mail an dich.'
+          : 'A gift? Simply enter the recipient’s address as the delivery address – the packing slip shows no prices, and the invoice only goes to you by email.',
+      )
+      await expect(page.locator('[data-section="gift"] [data-gift-card]')).toContainText(
+        locale === 'de' ? '„Das ist ein Geschenk“' : '“This is a gift”',
+      )
+      expect(await page.locator('main').innerText()).not.toMatch(/Gutschein|voucher/i)
       const stripe = page.locator('[data-payment-method="stripe"]')
       for (const part of texts.stripe) await expect(stripe).toContainText(part)
       const prepayment = page.locator('[data-payment-method="prepayment"]')

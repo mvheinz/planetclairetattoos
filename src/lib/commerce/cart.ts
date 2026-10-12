@@ -11,7 +11,7 @@ import { pickPublicSettings, toPublicPayload } from '@/lib/payload/public'
 import { ipHash } from '@/lib/security/ipHash'
 import { hit } from '@/lib/security/rateLimit'
 import { pickShopDisplaySettings } from '@/lib/shop/displaySettings'
-import { pickupEnabledIn, pickupOnlyOrderable, pickupSelectable } from '@/lib/shop/pickupPolicy'
+import { pickupOnlyOrderable } from '@/lib/shop/pickupPolicy'
 import type { Product } from '@/payload-types'
 
 import {
@@ -21,7 +21,6 @@ import {
   encodeCartCookie,
   type AddToCartResponse,
   type CartCookie,
-  type CartDelivery,
   type ProductLiveState,
 } from './cartCookie'
 import { cancelCheckout, findCheckoutByToken, type CheckoutDeps } from './checkout'
@@ -38,9 +37,10 @@ import { intArray } from './reservation'
 // Leseregel wie die Shop-Seiten, inkl. Seed-Filter) und `available`, noch nicht im Korb, Korb < 20 Stücke. Erst bei
 // Erfolg entsteht bzw. ändert sich das Cookie `pc_cart` (die Server-Action setzt es). Ein ungültiges oder manipuliertes
 // Cookie gilt als leerer Korb und wird neu geschrieben; `p` stammt immer aus der Datenbank. Die Lieferart bleibt, wie sie
-// ist (Standard `shipping`); ein Stück mit Versandklasse `nur_abholung` erzwingt `pickup`. Ist Abholung aus
-// (`settings.shipping.pickupEnabled`, P18.5), wird ein `nur_abholung`-Stück abgelehnt (`pickup_disabled`) und eine
-// gemerkte Abholung fällt auf `shipping` zurück.
+// ist (Standard `shipping`; seit V-16 merkt sie sich nur die Kasse). Ein Stück mit Versandklasse `nur_abholung` erzwingt
+// `pickup` in Korb-Bewertung und Kasse, ohne die gemerkte Lieferart zu ändern – nimmt man es wieder heraus, gilt wieder
+// die zuletzt in der Kasse gewählte. Ist Abholung aus (`settings.shipping.pickupEnabled`, P18.5), wird ein
+// `nur_abholung`-Stück abgelehnt (`pickup_disabled`) und eine gemerkte Abholung fällt auf `shipping` zurück.
 
 export interface AddToCartRequest {
   productId: number
@@ -184,7 +184,8 @@ export async function addToCart(
   const next: CartCookie = {
     v: 1,
     items: [...cart.items, { id: doc.id, p: doc.priceCents }],
-    delivery: pickupOnly ? 'pickup' : shop.pickupEnabled ? cart.delivery : 'shipping',
+    // V-16: `nur_abholung` erzwingt Abholung erst in `evaluateCart`/`startCheckout` – das Cookie merkt nur die Wahl der Kasse
+    delivery: shop.pickupEnabled ? cart.delivery : 'shipping',
   }
   return {
     response: { ok: true, added: true, count: next.items.length, state: 'available' },
@@ -212,14 +213,15 @@ export async function productStates(
   return out
 }
 
-// Warenkorb-Aktionen (KONZEPT §4.2, PLAN P4.7): Entfernen, Lieferart wählen, Bewertung für die Anzeige. Die
-// Server-Actions (`src/app/(frontend)/[locale]/cart/actions.ts`) setzen bzw. löschen das Cookie; hier nur Prüfung und
-// Wirkung auf eine laufende Kasse.
+// Warenkorb-Aktionen (KONZEPT §4.2, PLAN P4.7): Entfernen und Bewertung für die Anzeige. Die Lieferart wählt man nur in
+// der Kasse (V-16, U-93; `changeCheckoutDelivery` merkt sie sich im Cookie). Die Server-Actions
+// (`src/app/(frontend)/[locale]/cart/actions.ts`) setzen bzw. löschen das Cookie; hier nur Prüfung und Wirkung auf eine
+// laufende Kasse.
 
 /** Cookie-Wirkung einer Aktion: neuer Wert, löschen (Korb leer) oder unverändert (`null`). */
 export type CartCookieChange = { set: string } | { delete: true } | null
 
-export type CartActionCode = 'payment_running' | 'pickup_only' | 'pickup_disabled' | 'invalid'
+export type CartActionCode = 'payment_running' | 'invalid'
 
 export type CartActionOutcome =
   | { ok: true; cart: CartCookie; cookie: CartCookieChange }
@@ -228,7 +230,7 @@ export type CartActionOutcome =
       code: CartActionCode
       itemNumbers?: number[]
       cart: CartCookie
-      /** Meist unverändert; bei `pickup_disabled` fällt eine gemerkte Abholung auf Versand zurück. */
+      /** Unverändert. */
       cookie: CartCookieChange
     }
 
@@ -272,63 +274,6 @@ export async function removeFromCart(
     cart: next,
     cookie: next.items.length === 0 ? { delete: true } : { set: encodeCartCookie(next) },
   }
-}
-
-export interface SetDeliveryRequest {
-  method: CartDelivery
-  cookie: string | null | undefined
-}
-
-/**
- * Lieferart wählen: `shipping` wird abgelehnt, solange ein bestellbares Stück mit Versandklasse `nur_abholung` im Korb
- * liegt (AK-4-02); `pickup` wird abgelehnt, solange Abholung aus ist (`pickup_disabled`, P18.5) – eine gemerkte
- * Abholung fällt dann auf Versand zurück. Eine laufende Kasse rechnet selbst neu (P4.10b); die Reservierung bleibt
- * unberührt. Ohne Korb entsteht kein Cookie (erst „In den Korb“ setzt es).
- */
-export async function setDeliveryMethod(
-  req: SetDeliveryRequest,
-  payload?: Payload,
-): Promise<CartActionOutcome> {
-  const cart = readCart(req.cookie)
-  if (req.method !== 'shipping' && req.method !== 'pickup') {
-    return { ok: false, code: 'invalid', cart, cookie: null }
-  }
-  if (cart.items.length === 0) return { ok: true, cart, cookie: null }
-  payload ??= await getPayload({ config })
-  const [settings, res] = await Promise.all([
-    payload.findGlobal({ slug: 'settings', overrideAccess: true, depth: 0 }),
-    payload.find({
-      collection: 'products',
-      where: {
-        and: [
-          { id: { in: cart.items.map((i) => i.id) } },
-          { shippingClass: { equals: 'nur_abholung' } },
-        ],
-      },
-      depth: 0,
-      pagination: false,
-      overrideAccess: true,
-      select: { itemNumber: true },
-    }),
-  ])
-  const pickupEnabled = pickupEnabledIn(settings)
-  const pickupOnly = res.docs.map((d) => d.itemNumber).sort((a, b) => a - b)
-  if (req.method === 'pickup' && !pickupSelectable(pickupEnabled, pickupOnly.length > 0)) {
-    const fallback: CartCookie = { ...cart, delivery: 'shipping' }
-    return {
-      ok: false,
-      code: 'pickup_disabled',
-      cart: fallback,
-      cookie: cart.delivery === 'pickup' ? { set: encodeCartCookie(fallback) } : null,
-    }
-  }
-  // Solange Abholung aus ist, sind `nur_abholung`-Stücke ohnehin gesperrt (Korb-Hinweis) – Versand bleibt wählbar.
-  if (req.method === 'shipping' && pickupOnly.length > 0 && pickupOnlyOrderable(pickupEnabled)) {
-    return { ok: false, code: 'pickup_only', itemNumbers: pickupOnly, cart, cookie: null }
-  }
-  if (cart.delivery === req.method) return { ok: true, cart, cookie: null }
-  const next: CartCookie = { ...cart, delivery: req.method }
-  return { ok: true, cart: next, cookie: { set: encodeCartCookie(next) } }
 }
 
 type ReservationFacts = { id: number; reservationRef: string | null; reservedUntil: string | null }

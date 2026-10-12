@@ -62,6 +62,11 @@ export async function PickupListView({ adminRoute, req }: AdminViewBodyProps) {
                 </li>
               ))}
             </ul>
+            {card.gift ? (
+              <p className="pc-order__meta" data-testid="pickup-gift">
+                <StatusBadge tone="neutral">{card.gift}</StatusBadge>
+              </p>
+            ) : null}
             {card.warnings.length > 0 ? (
               <ul className="pc-order__hints" data-testid="pickup-warnings">
                 {card.warnings.map((text) => (

@@ -14,9 +14,13 @@ type Labels<T extends string | number> = Record<T, EnumLabel>
 const l = (de: string, en?: string): EnumLabel => (en === undefined ? { de } : { de, en })
 
 const countryNames = (lang: 'de' | 'en') => new Intl.DisplayNames([lang], { type: 'region' })
+const countryLabel = (c: string) => l(countryNames('de').of(c) ?? c, countryNames('en').of(c) ?? c)
 const COUNTRY_LABELS = Object.fromEntries(
-  E.COUNTRY_CODES.map((c) => [c, l(countryNames('de').of(c) ?? c, countryNames('en').of(c) ?? c)]),
+  E.COUNTRY_CODES.map((c) => [c, countryLabel(c)]),
 ) as Labels<E.CountryCode>
+const BILLING_COUNTRY_LABELS = Object.fromEntries(
+  E.BILLING_COUNTRY_CODES.map((c) => [c, countryLabel(c)]),
+) as Labels<E.BillingCountryCode>
 
 const FIBER_LABELS: Labels<E.TextileFiber> = {
   wool: l('Wolle', 'wool'),
@@ -384,6 +388,7 @@ export const ENUM_LABELS = {
     manual: l('von Hand markiert'),
   } satisfies Labels<E.AttentionReason>,
   COUNTRY_CODES: COUNTRY_LABELS,
+  BILLING_COUNTRY_CODES: BILLING_COUNTRY_LABELS,
   TAX_MODES: {
     kleinunternehmer: l('Kleinunternehmerin (§ 19 UStG)'),
     regelbesteuert: l('Regelbesteuerung'),
@@ -726,6 +731,7 @@ export const PUBLIC_ENUMS: readonly EnumName[] = [
   'ORDER_ITEM_STATUSES',
   'CARRIERS',
   'COUNTRY_CODES',
+  'BILLING_COUNTRY_CODES',
   'INVOICE_TYPES',
   'LEGAL_TEXT_TYPES',
   'WITHDRAWAL_STATUSES',

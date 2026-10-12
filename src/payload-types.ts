@@ -667,7 +667,9 @@ export interface Order {
           | 'SE'
           | 'SI'
           | 'SK'
-          | 'CH'
+          | 'IS'
+          | 'LI'
+          | 'NO'
         )
       | null;
   };
@@ -776,6 +778,13 @@ export interface Order {
     | null;
   carrierEmailConsent?: boolean | null;
   carrierEmailConsentRevokedAt?: string | null;
+  gift?: {
+    isGift?: boolean | null;
+    /**
+     * Wird 30 Tage nach Versand bzw. Abholung automatisch gelöscht.
+     */
+    message?: string | null;
+  };
   copyAddressText?: string | null;
   invoice?: (number | null) | Invoice;
   creditNotes?: {
@@ -1000,11 +1009,20 @@ export interface Checkout {
           | 'SE'
           | 'SI'
           | 'SK'
-          | 'CH'
+          | 'IS'
+          | 'LI'
+          | 'NO'
         )
       | null;
   };
   carrierEmailConsent?: boolean | null;
+  gift?: {
+    isGift?: boolean | null;
+    /**
+     * Wird 30 Tage nach Versand bzw. Abholung automatisch gelöscht.
+     */
+    message?: string | null;
+  };
   deviationAgreements?:
     | {
         product: number | Product;
@@ -3275,6 +3293,12 @@ export interface CheckoutsSelect<T extends boolean = true> {
         country?: T;
       };
   carrierEmailConsent?: T;
+  gift?:
+    | T
+    | {
+        isGift?: T;
+        message?: T;
+      };
   deviationAgreements?:
     | T
     | {
@@ -3504,6 +3528,12 @@ export interface OrdersSelect<T extends boolean = true> {
   legalSnippetVersions?: T;
   carrierEmailConsent?: T;
   carrierEmailConsentRevokedAt?: T;
+  gift?:
+    | T
+    | {
+        isGift?: T;
+        message?: T;
+      };
   copyAddressText?: T;
   invoice?: T;
   creditNotes?: T;

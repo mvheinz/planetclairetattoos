@@ -12,10 +12,11 @@ import {
 import { RESERVATION_EXPIRED_EVENT } from '@/behaviors/reservation-countdown'
 import { COCO_JOY_EVENT } from '@/behaviors/types'
 import { Checkbox, Radio } from '@/components/ui/Choice'
-import { Field, RequiredNote } from '@/components/ui/Field'
+import { Field, RequiredNote, Select } from '@/components/ui/Field'
 import {
   CHECKOUT_FIELD_IDS,
   CHECKOUT_FIELDS,
+  GIFT_MESSAGE_MAX,
   checkoutRawFromFormData,
   orderedCheckoutErrors,
   validateCheckoutInput,
@@ -38,6 +39,9 @@ import type { StripeConfirmInput, StripePaymentFieldHandle } from './StripePayme
 // Eingaben; Positionen, Versand und Summen kommen vom Server (Kassen-Snapshot). Knopf exakt „Zahlungspflichtig
 // bestellen“ (KO-11 „Bestellen (ruhig)“), Text ändert sich nie; Fortschritt in der `aria-live`-Zeile darunter. Ohne
 // JavaScript ist das Formular ein normales POST-Formular (Server-Action mit 303). Keine Checkbox ist vorangekreuzt.
+// V-16: Die Lieferart wählt man nur hier (nicht mehr im Korb). V-17: Die Rechnungsadresse darf in EU/EWR liegen (Auswahl,
+// Standard Deutschland), geliefert wird nur innerhalb Deutschlands. V-18 b: Geschenk-Hinweis bei Versand, Häkchen „Das
+// ist ein Geschenk“ (nie vorangekreuzt) mit freiwilligem Gruß für eine handgeschriebene Karte.
 
 export type CheckoutMessages = (typeof de)['checkout']
 
@@ -47,6 +51,13 @@ type Address = {
   addressLine2?: string | null
   postalCode?: string | null
   city?: string | null
+  country?: string | null
+}
+
+/** Land der Rechnungsadresse als Auswahl (Wert = ISO-Code, Label in der Sprache der Seite; V-17). */
+export interface CountryOption {
+  value: string
+  label: string
 }
 
 export interface CheckoutFormProps {
@@ -60,6 +71,8 @@ export interface CheckoutFormProps {
   pickupAvailable: boolean
   pickupCity: string
   district: string
+  /** EU/EWR-Länder der Rechnungsadresse, Deutschland zuerst (V-17). */
+  billingCountries: CountryOption[]
   defaults: {
     email: string
     shippingAddress: Address
@@ -135,6 +148,8 @@ function initialValues(props: CheckoutFormProps): Values {
 const fill = (s: string, vars: Record<string, string>) =>
   s.replace(/\{(\w+)\}/g, (m, k: string) => vars[k] ?? m)
 
+const DE = 'DE'
+
 const SECTION_FIRST_FIELD: Record<string, string> = {
   kontakt: ID.email,
   lieferung: ID.fulfillmentMethod,
@@ -155,6 +170,12 @@ export function CheckoutForm(props: CheckoutFormProps) {
   )
   const [method, setMethod] = useState<CheckoutFulfillment>(props.fulfillmentMethod)
   const [differs, setDiffers] = useState(false)
+  const [billingCountry, setBillingCountry] = useState<string>(
+    props.billingCountries.some((c) => c.value === props.defaults.billingAddress.country)
+      ? (props.defaults.billingAddress.country as string)
+      : DE,
+  )
+  const [gift, setGift] = useState(false)
   const [choice, setChoice] = useState<CheckoutChoice | null>(
     props.defaults.paymentChoice && props.paymentChoices.includes(props.defaults.paymentChoice)
       ? props.defaults.paymentChoice
@@ -201,6 +222,8 @@ export function CheckoutForm(props: CheckoutFormProps) {
   const onFormChange = (e: React.FormEvent<HTMLFormElement>) => {
     const target = e.target as HTMLInputElement
     if (target.name === F.billingAddressDiffers) setDiffers(target.checked)
+    if (target.name === F.billingCountry) setBillingCountry(target.value)
+    if (target.name === F.isGift) setGift(target.checked)
     if (target.name === F.paymentChoice) setChoice(target.value as CheckoutChoice)
     if (target.name === F.deviationAgreements) {
       const next = new Set(agreed)
@@ -382,12 +405,16 @@ export function CheckoutForm(props: CheckoutFormProps) {
 
   // --- Übersicht (live) ---
   const v = (name: string) => (values[name] ?? '').trim()
+  const countryLabel = (code: string) =>
+    props.billingCountries.find((c) => c.value === code)?.label ?? code
   const addressLines = (prefix: 'shippingAddress' | 'billingAddress', name: string) =>
     [
       name,
       v(`${prefix}.addressLine1`),
       v(`${prefix}.addressLine2`),
       [v(`${prefix}.postalCode`), v(`${prefix}.city`)].filter(Boolean).join(' '),
+      // V-17: Land nur nennen, wenn die Rechnungsadresse nicht in Deutschland liegt
+      prefix === 'billingAddress' && billingCountry !== DE ? countryLabel(billingCountry) : '',
     ].filter(Boolean)
   const missing = <span className={styles.missing}>{m.overview.missing}</span>
   const lines = (arr: string[]) =>
@@ -412,6 +439,11 @@ export function CheckoutForm(props: CheckoutFormProps) {
       ? lines(addressLines('billingAddress', v(F.billingName)))
       : m.overview.billingSame
     : lines(addressLines('billingAddress', name))
+  const giftBlock = gift
+    ? v(F.giftMessage)
+      ? m.overview.giftWithMessage
+      : m.overview.giftYes
+    : null
   const choiceLabel =
     choice === 'stripe'
       ? m.fields.paymentStripe
@@ -617,6 +649,36 @@ export function CheckoutForm(props: CheckoutFormProps) {
             <p hidden={shipping} className={styles.note} data-pickup-hint="">
               {fill(m.fields.pickupHint, { district: props.district })}
             </p>
+            <div className={styles.gift} data-gift="">
+              {/* V-18 b: nur wahre Aussagen – der Packzettel im Paket hat keine Preise, die Rechnung geht nur per Mail */}
+              <p hidden={!shipping} className={styles.note} data-gift-hint="">
+                {m.fields.giftHint}
+              </p>
+              <Checkbox
+                id={ID.isGift}
+                name={F.isGift}
+                value="on"
+                label={m.fields.gift}
+                hint={m.fields.giftCard}
+              />
+              <div hidden={!gift} data-gift-fields="">
+                <Field
+                  id={ID.giftMessage}
+                  name={F.giftMessage}
+                  label={m.fields.giftMessage}
+                  hint={m.fields.giftMessageHint}
+                  multiline
+                  rows={4}
+                  maxLength={GIFT_MESSAGE_MAX}
+                  error={gift ? errorText('giftMessage') : undefined}
+                />
+                {shipping && !differs ? (
+                  <p className={styles.note} data-gift-billing-hint="">
+                    {m.fields.giftBillingHint}
+                  </p>
+                ) : null}
+              </div>
+            </div>
           </section>
 
           <section id="rechnung" aria-labelledby="rechnung-titel" className={styles.section}>
@@ -676,8 +738,8 @@ export function CheckoutForm(props: CheckoutFormProps) {
                   label={m.fields.postalCode}
                   required
                   autoComplete="billing postal-code"
-                  inputMode="numeric"
-                  maxLength={5}
+                  inputMode={billingCountry === DE ? 'numeric' : 'text'}
+                  maxLength={billingCountry === DE ? 5 : 10}
                   defaultValue={props.defaults.billingAddress.postalCode ?? ''}
                   error={errorText('billingPostalCode')}
                 />
@@ -692,11 +754,17 @@ export function CheckoutForm(props: CheckoutFormProps) {
                   error={errorText('billingCity')}
                 />
               </div>
-              <p className={styles.country}>
-                <span className={styles.countryLabel}>{m.fields.country}</span>{' '}
-                <span>{m.fields.countryValue}</span>
-                <input type="hidden" name={F.billingCountry} value="DE" />
-              </p>
+              <Select
+                id={ID.billingCountry}
+                name={F.billingCountry}
+                label={m.fields.country}
+                hint={m.fields.billingCountryHint}
+                required
+                autoComplete="billing country"
+                options={props.billingCountries}
+                defaultValue={billingCountry}
+                error={errorText('billingCountry')}
+              />
             </div>
           </section>
 
@@ -823,6 +891,13 @@ export function CheckoutForm(props: CheckoutFormProps) {
                 <dd data-overview-value="">{billingBlock}</dd>
                 <dd>{change('rechnung', m.overview.billingAddress)}</dd>
               </div>
+              {giftBlock ? (
+                <div className={styles.block} data-overview-block="geschenk">
+                  <dt>{m.overview.gift}</dt>
+                  <dd data-overview-value="">{giftBlock}</dd>
+                  <dd>{change('lieferung', m.overview.gift)}</dd>
+                </div>
+              ) : null}
               <div className={styles.block} data-overview-block="kontakt">
                 <dt>{m.overview.email}</dt>
                 <dd data-overview-value="">{v(F.email) || missing}</dd>

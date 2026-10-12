@@ -150,6 +150,19 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
           <dd>{detail.paymentLabel}</dd>
           <dt>{adminText('orderLanguage')}</dt>
           <dd>{detail.locale}</dd>
+          {detail.gift ? (
+            <>
+              <dt>{adminText('orderGift')}</dt>
+              <dd data-testid="order-gift">
+                {adminText('orderGiftYes')}
+                <span className="pc-order__line">
+                  {detail.gift.message
+                    ? adminText('orderGiftMessage', { message: detail.gift.message })
+                    : adminText('orderGiftNoMessage')}
+                </span>
+              </dd>
+            </>
+          ) : null}
         </dl>
         <h3>{adminText('orderRecipient')}</h3>
         {p && !p.withdrawn ? (

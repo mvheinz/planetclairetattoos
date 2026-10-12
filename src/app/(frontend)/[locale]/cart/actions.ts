@@ -8,7 +8,6 @@ import {
   cartFromCookie,
   readCart,
   removeFromCart as removeFromCartService,
-  setDeliveryMethod as setDeliveryMethodService,
   type CartActionCode,
   type CartActionOutcome,
   type CartCookieChange,
@@ -59,7 +58,7 @@ export async function startCheckoutAction(formData: FormData): Promise<void> {
   redirect(localizedPath('R07', locale), RedirectType.push)
 }
 
-// Warenkorb-Aktionen (KONZEPT §4.2, PLAN P4.7). Aufruf per Formular (ohne JavaScript: 303 zurück auf den Korb, ggf. mit
+// Warenkorb-Aktionen (KONZEPT §4.2, PLAN P4.7; die Lieferart wählt man seit V-16 nur in der Kasse). Aufruf per Formular (ohne JavaScript: 303 zurück auf den Korb, ggf. mit
 // Hinweis) oder durch ein Verhaltensmodul (`via=script`: Antwort ohne Seitenwechsel). Das Cookie ist nur Merkliste;
 // geprüft wird im Dienst `src/lib/commerce/cart.ts`.
 
@@ -107,18 +106,6 @@ export async function removeFromCart(formData: FormData): Promise<CartActionResp
         { inServerAction: true },
       )
     : { ok: false, code: 'invalid', cart: readCart(jar.get(CART_COOKIE)?.value), cookie: null }
-  await applyCookie(outcome.cookie)
-  return respond(formData, outcome)
-}
-
-/** Lieferart wählen (`shipping` | `pickup`); `nur_abholung` erzwingt Abholung (AK-4-02). Reservierung bleibt. */
-export async function setDeliveryMethod(formData: FormData): Promise<CartActionResponse> {
-  const jar = await cookies()
-  const method = formData.get('method')
-  const outcome = await setDeliveryMethodService({
-    method: method === 'shipping' || method === 'pickup' ? method : ('invalid' as never),
-    cookie: jar.get(CART_COOKIE)?.value,
-  })
   await applyCookie(outcome.cookie)
   return respond(formData, outcome)
 }

@@ -12,7 +12,6 @@ import { PriceNote } from '@/components/shop/PriceNote'
 import { WarrantyNotice } from '@/components/shop/WarrantyNotice'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
-import { Radio } from '@/components/ui/Choice'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { evaluateCart, readCart } from '@/lib/commerce/cart'
 import { CART_COOKIE } from '@/lib/commerce/cartCookie'
@@ -27,7 +26,7 @@ import { localizedPath } from '@/lib/routes/paths'
 import { formatItemNumber } from '@/lib/shop/format'
 import { routeMetadata } from '@/lib/seo/metadata'
 
-import { setDeliveryMethod, startCheckoutAction } from './actions'
+import { startCheckoutAction } from './actions'
 import styles from './page.module.css'
 
 export const generateMetadata = routeMetadata('R06')
@@ -36,12 +35,13 @@ export const generateMetadata = routeMetadata('R06')
 // `Cache-Control: private, no-store` im Proxy), kein Stripe.js. Liest `pc_cart`/`pc_checkout` nur – der Seitenaufruf
 // setzt nie ein Cookie und reserviert nichts (EK-04); jede Position prüft `evaluateCart` serverseitig neu. Alle
 // Bedienelemente sind POST-Formulare mit Server-Actions (ohne JavaScript 303 zurück auf den Korb, ggf. mit Hinweis
-// `?hinweis=…`). Zahlarten und Liefergebiet (Baustein `cart.paymentAndDeliveryInfo`, R-036) stehen vor „Zur Kasse“;
-// ist Abholung oder Vorkasse ausgeschaltet, stimmt der Baustein nicht mehr – dann steht dort dieselbe Angabe aus den
-// Einstellungen gebaut (wie die Fußzeile, U-58 c; P18.5). Ohne Abholung (`settings.shipping.pickupEnabled`) kein
-// Abhol-Radio; `nur_abholung`-Stücke sind dann gesperrt (Hinweis an der Zeile und vor „Zur Kasse“).
-// Preset `calm`: keine Animation; Coco sitzt statisch neben der Summe. Countdown KO-15 (P4.9) nur, solange `pc_checkout`
-// auf eine laufende Kasse dieser Person mit aktiver Reservierung zeigt (V-17).
+// `?hinweis=…`). V-16 (U-93): Der Korb zeigt Stücke, Versand, Summe, eine Zeile Zahlarten und direkt „Zur Kasse“ – die
+// Lieferart wählt man nur noch in der Kasse („Abholung wählst du in der Kasse“). Zahlarten und Liefergebiet (Baustein
+// `cart.paymentAndDeliveryInfo`, R-036) stehen vor „Zur Kasse“; ist Abholung oder Vorkasse ausgeschaltet, stimmt der
+// Baustein nicht mehr – dann steht dort dieselbe Angabe aus den Einstellungen gebaut (wie die Fußzeile, U-58 c; P18.5).
+// `nur_abholung`-Stücke: Abholung ist gesetzt (Hinweis „Nr. … gibt es nur zur Abholung“); ohne Abholung sind sie gesperrt
+// (Hinweis an der Zeile und vor „Zur Kasse“). Preset `calm`: keine Animation; Coco sitzt statisch neben der Summe.
+// Countdown KO-15 (P4.9) nur, solange `pc_checkout` auf eine laufende Kasse dieser Person mit aktiver Reservierung zeigt.
 
 type Search = Promise<Record<string, string | string[] | undefined>>
 
@@ -90,15 +90,13 @@ export default async function Page({
       list.map((n) => formatItemNumber(n, locale)),
     )
   const noticeText = (n: CartNotice) =>
-    n.code === 'shipping' && !evaluation.pickupSelectable
-      ? t('shippingNoPickup')
-      : tNotes(n.code, {
-          items: numbers(n.itemNumbers),
-          count: n.itemNumbers.length,
-          max: n.max ?? evaluation.maxItemsPerCheckout,
-          // „schau in … Minuten nochmal“: Reservierungsdauer aus den Einstellungen (P18.5)
-          minutes: display.reservationMinutes,
-        })
+    tNotes(n.code, {
+      items: numbers(n.itemNumbers),
+      count: n.itemNumbers.length,
+      max: n.max ?? evaluation.maxItemsPerCheckout,
+      // „schau in … Minuten nochmal“: Reservierungsdauer aus den Einstellungen (P18.5)
+      minutes: display.reservationMinutes,
+    })
   const closedText = evaluation.closedMessage ?? tNotes('shop_closed')
   const noticeBlock = notice ? (
     <div role="status" data-cart-notice={notice.code}>
@@ -132,7 +130,6 @@ export default async function Page({
   const pickupOnly = evaluation.pickupOnly.length > 0
   const delivery = evaluation.delivery
   const highest = totals?.shippingClass ?? null
-  const carrier = highest === 'brief' ? 'Deutsche Post' : 'DHL'
   const blockerText = (b: CartBlocker) =>
     b === 'shop_closed'
       ? closedText
@@ -141,17 +138,25 @@ export default async function Page({
             items: numbers(evaluation.pickupBlocked),
             count: evaluation.pickupBlocked.length,
           })
-        : b === 'shipping' && !evaluation.pickupSelectable
-          ? t('shippingNoPickup')
-          : t(`blocked.${b}`, { max: evaluation.maxItemsPerCheckout })
-  const pickupSelectable = evaluation.pickupSelectable
-  const deliveryAction = setDeliveryMethod as unknown as (formData: FormData) => Promise<void>
-  const pickupOnlyHint = pickupOnly
-    ? tNotes('pickup_only', {
-        items: numbers(evaluation.pickupOnly),
-        count: evaluation.pickupOnly.length,
-      })
-    : undefined
+        : t(`blocked.${b}`, { max: evaluation.maxItemsPerCheckout })
+  // V-16: ein Satz unter der Summe sagt, wo die Lieferart gewählt wird (nur in der Kasse) bzw. warum Abholung gesetzt ist.
+  const deliveryNote: { key: string; text: string } | null = !totals
+    ? null
+    : pickupOnly
+      ? {
+          key: 'pickup_only',
+          text: tNotes('pickup_only', {
+            items: numbers(evaluation.pickupOnly),
+            count: evaluation.pickupOnly.length,
+          }),
+        }
+      : evaluation.pickupFallback
+        ? { key: 'pickup_fallback', text: t('deliveryNote.pickupFallback', { city }) }
+        : delivery === 'pickup'
+          ? { key: 'change_at_checkout', text: t('deliveryNote.changeAtCheckout') }
+          : evaluation.pickupSelectable
+            ? { key: 'pickup_at_checkout', text: t('deliveryNote.pickupAtCheckout') }
+            : null
 
   return (
     <div className={`u-container ${styles.page}`} data-cart-page="">
@@ -183,61 +188,6 @@ export default async function Page({
         </ul>
       </section>
 
-      {totals || pickupOnly ? (
-        <form action={deliveryAction} className={styles.delivery} data-cart-delivery="">
-          <input type="hidden" name="locale" value={locale} />
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>{t('deliveryLegend')}</legend>
-            <Radio
-              id="cart-delivery-shipping"
-              name="method"
-              value="shipping"
-              checked={delivery === 'shipping'}
-              disabled={pickupOnly}
-              hint={pickupOnlyHint}
-              label={
-                <span data-delivery-option="shipping">
-                  {t('deliveryShipping', { carrier })}
-                  {evaluation.shippingQuoteCents !== null ? (
-                    <>
-                      {' – '}
-                      <MoneyAmount cents={evaluation.shippingQuoteCents} locale={locale} />
-                    </>
-                  ) : null}
-                </span>
-              }
-            />
-            {pickupSelectable ? (
-              <Radio
-                id="cart-delivery-pickup"
-                name="method"
-                value="pickup"
-                checked={delivery === 'pickup'}
-                label={
-                  <span data-delivery-option="pickup">
-                    {t('deliveryPickup', { city })}
-                    {' – '}
-                    <MoneyAmount cents={0} locale={locale} />
-                  </span>
-                }
-              />
-            ) : null}
-          </fieldset>
-          {!pickupOnly && pickupSelectable ? (
-            <Button variant="secondary" type="submit">
-              {t('deliveryApply')}
-            </Button>
-          ) : null}
-          {/* V-10: statt der Fachzeile zur Versandklasse – Versand gibt es je Bestellung nur einmal (E-25: die größte
-              Klasse zählt). */}
-          {highest && highest !== 'nur_abholung' ? (
-            <p className={styles.small} data-shipping-once={highest}>
-              {t('shippingOnce')}
-            </p>
-          ) : null}
-        </form>
-      ) : null}
-
       {countdown ? (
         <ReservationCountdown
           locale={locale}
@@ -258,8 +208,8 @@ export default async function Page({
                 <MoneyAmount cents={totals?.subtotalCents ?? 0} locale={locale} />
               </dd>
             </div>
-            <div className={styles.row} data-cart-shipping="">
-              <dt>{t('shipping')}</dt>
+            <div className={styles.row} data-cart-shipping={delivery}>
+              <dt>{delivery === 'pickup' ? t('pickupRow', { city }) : t('shipping')}</dt>
               <dd>
                 {totals ? (
                   <MoneyAmount cents={totals.shippingCents} locale={locale} />
@@ -279,6 +229,18 @@ export default async function Page({
             <Coco pose="sitzen" size="m" />
           </div>
         </div>
+        {/* V-10: statt der Fachzeile zur Versandklasse – Versand gibt es je Bestellung nur einmal (E-25: die größte
+            Klasse zählt). */}
+        {highest && highest !== 'nur_abholung' && delivery === 'shipping' ? (
+          <p className={styles.small} data-shipping-once={highest}>
+            {t('shippingOnce')}
+          </p>
+        ) : null}
+        {deliveryNote ? (
+          <p className={styles.small} data-cart-delivery-note={deliveryNote.key}>
+            {deliveryNote.text}
+          </p>
+        ) : null}
         <PriceNote
           locale={locale}
           settings={taxSettingsFor(display.taxMode)}
@@ -307,9 +269,6 @@ export default async function Page({
                 .join(' ')}
             </p>
           )}
-          <p className={styles.methods} data-payment-methods="">
-            {evaluation.prepaymentEnabled ? t('paymentMethods') : t('paymentMethodsNoPrepayment')}
-          </p>
         </div>
         <form action={startCheckoutAction} className={styles.checkout} data-cart-checkout="">
           <input type="hidden" name="locale" value={locale} />

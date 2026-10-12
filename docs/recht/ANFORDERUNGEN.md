@@ -137,7 +137,7 @@ Lücken in der Nummerierung sind Reserve.
 | R-048 | Abweichende Beschaffenheit ausdrücklich und gesondert vereinbaren | P1, P4 | int, e2e | nein | `tests/e2e/legal/product-info.e2e.spec.ts`, `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/unit/components/ui.unit.spec.tsx`, `tests/unit/products/validate.unit.spec.ts` |
 | R-049 | Harmonisierte Mitteilung zur gesetzlichen Gewährleistung | P3, P6 | e2e | nein | `tests/e2e/shop/product-page.e2e.spec.ts`, `tests/e2e/legal/cart-info.e2e.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/e2e/legal/shipping-page.e2e.spec.ts`, `tests/unit/email/templates/order-confirmation.unit.spec.ts` |
 | R-060 | Liefergebiet und Länder-Whitelist | P4 | unit, int | nein | `tests/int/legal/eu-activation.int.spec.ts`, `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/unit/commerce/shipping.unit.spec.ts`, `tests/unit/commerce/totals.unit.spec.ts` |
-| R-061 | Gastbestellung mit minimalen Pflichtfeldern | P4 | e2e | nein | `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/int/invoices/pdf.int.spec.ts` |
+| R-061 | Gastbestellung mit minimalen Pflichtfeldern | P4 | e2e | nein | `tests/e2e/legal/checkout-fields.e2e.spec.ts`, `tests/unit/commerce/checkout-schema.unit.spec.ts`, `tests/int/invoices/pdf.int.spec.ts`, `tests/int/commerce/checkout-billing-gift.int.spec.ts`, `tests/e2e/checkout/checkout-form.e2e.spec.ts` |
 | R-062 | Stripe nur auf der Kasse, Zahlarten technisch begrenzt | P4 | unit, int, e2e | nein | `tests/unit/payments/checkout-session.unit.spec.ts`, `tests/unit/payments/stripe-params.unit.spec.ts`, `tests/unit/security/stripe-imports.unit.spec.ts`, `tests/int/adapters/payments.contract.int.spec.ts` |
 | R-063 | Bestellübersicht unmittelbar vor dem Button | P4 | e2e | nein | `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/e2e/checkout/overview.e2e.spec.ts` |
 | R-064 | Bestell-Button „Zahlungspflichtig bestellen“ | P4 | e2e | nein | `tests/e2e/legal/checkout-compliance.e2e.spec.ts`, `tests/e2e/checkout/overview.e2e.spec.ts`, `tests/e2e/shop/product-page.e2e.spec.ts` |
@@ -507,8 +507,9 @@ Lücken in der Nummerierung sind Reserve.
   Korb dieselbe Angabe aus den Einstellungen gebaut – ohne Abhol-Satz bzw. ohne „Vorkasse“ (wie die Fußzeile, U-58 c;
   P18.5).
 - **Rechtsgrundlage:** § 312j Abs. 1 BGB.
-- **Abnahme:** `e2e` – Warenkorb enthält beide Angaben oberhalb des Kassen-Buttons; mit Abholung aus fehlt der
-  Abhol-Satz (`tests/e2e/cart/pickup-off.e2e.spec.ts`).
+- **Abnahme:** `e2e` – Warenkorb enthält beide Angaben oberhalb des Kassen-Buttons, die Zahlarten genau einmal (V-16:
+  keine zweite Aufzählung, keine Lieferart-Wahl im Korb, „Abholung wählst du in der Kasse.“); mit Abholung aus fehlt der
+  Abhol-Satz (`tests/e2e/cart/pickup-off.e2e.spec.ts`, `tests/e2e/legal/cart-info.e2e.spec.ts`).
 - **Phase:** P4 · **Owner:** nein
 
 ### 4.5 Produktangaben
@@ -693,12 +694,24 @@ Lücken in der Nummerierung sind Reserve.
   Versand die Lieferadresse (Straße/Nr., PLZ, Ort; Land fest DE). Die Rechnungsadresse ist die Lieferadresse; weicht
   sie ab, setzt die Kund:in das **nicht vorangekreuzte** Häkchen „Rechnungsadresse weicht ab“
   (`billingAddressDiffers`) und gibt sie ein. Bei Abholung ist die Rechnungsadresse Pflicht (Standard bis K-07).
+  **Rechnungsadresse aus EU und EWR** (V-17, U-93): Das Land der Rechnungsadresse ist eine Auswahl aus den EU-Staaten
+  sowie Island, Liechtenstein und Norwegen (Standard Deutschland; nicht Schweiz, nie GB/US, R-060); PLZ in Deutschland
+  genau 5 Ziffern, sonst 3–10 Zeichen. Geliefert wird weiter nur innerhalb Deutschlands (R-060) – wer im EU-Ausland
+  wohnt, kann in Berlin abholen oder an eine Adresse in Deutschland schicken lassen. Rechnung, PDF und Bestellmails
+  nennen das Land, wenn es nicht Deutschland ist.
   Optional: Adresszusatz/Packstation. **Kein Telefonfeld**, **keine Anrede**, kein Firmen- oder Titelfeld, kein
   Geburtsdatum, kein Geschlecht, kein Passwort. Neben dem Formular ein Link auf die Datenschutzerklärung (R-138).
 - **Rechtsgrundlage:** Art. 5 Abs. 1 lit. c, Art. 6 Abs. 1 lit. b, Art. 13 DSGVO; DSK-Beschluss vom 24.03.2022
-  (Gastzugang); EuGH C-394/23 (Mousse, 09.01.2025: keine Pflicht-Anrede) [ergänzt]. Kanzlei: K-07.
+  (Gastzugang); EuGH C-394/23 (Mousse, 09.01.2025: keine Pflicht-Anrede) [ergänzt]; **Geoblocking-Verordnung
+  VO (EU) 2018/302, Art. 4 Abs. 1 lit. a** (keine unterschiedlichen Bedingungen wegen Staatsangehörigkeit, Wohnsitz oder
+  Niederlassung, wenn die Ware in einen Mitgliedstaat geliefert wird, in den der Shop liefert, oder an einem vereinbarten
+  Ort abgeholt wird; Art. 4 Abs. 2: keine Pflicht, in weitere Länder zu liefern) [ergänzt V-17, 12.10.2026]. Kanzlei:
+  K-07.
 - **Abnahme:** `e2e` – genau diese Pflichtfelder (`required`), kein Anrede- und kein Telefonfeld; „Rechnungsadresse
-  weicht ab“ ist beim Laden nicht angehakt; Abholbestellung ohne Rechnungsadresse wird abgelehnt.
+  weicht ab“ ist beim Laden nicht angehakt; Abholbestellung ohne Rechnungsadresse wird abgelehnt; Abholung mit
+  österreichischer Rechnungsadresse geht, Versand nach Österreich wird mit „Ich liefere nur innerhalb Deutschlands.“
+  abgelehnt, die Rechnung nennt „Österreich“ (`tests/int/commerce/checkout-billing-gift.int.spec.ts`,
+  `tests/e2e/checkout/checkout-form.e2e.spec.ts`, `tests/int/invoices/pdf.int.spec.ts`).
 - **Phase:** P4 · **Owner:** nein
 
 #### R-062 · Stripe nur auf der Kasse, Zahlarten technisch begrenzt
@@ -1266,7 +1279,7 @@ Lücken in der Nummerierung sind Reserve.
   | a | `localStorage['pc-motion']` | Klick auf den Schalter „Animationen“ | `reduced` oder `full` | bis zum nächsten Klick bzw. Löschen durch die Person |
   | b | Stripe-Cookies `__stripe_mid`, `__stripe_sid` | Aufruf der Kasse (R-062) | Stripe | laut Stripe (Kanzleifrage K-30 b) |
   | c | Admin-Cookie `payload-token` | Anmeldung unter `ADMIN_ROUTE` | Payload-Sitzung | ≤ 7 Tage, `HttpOnly`, `SameSite=Strict`, `Secure` (Produktion) |
-  | d | Cookie `pc_cart` | erstes „In den Korb“ | base64url-JSON nur mit `v`, `items` (≤ 20 Einträge, je nur Stück-ID `id` und Preis beim Hinzufügen `p` in Cent – nur für den Hinweis „Preis wurde aktualisiert“) und `delivery` (`shipping`/`pickup`); keine Kennung, keine Personendaten | `Max-Age` 7 Tage, `Path=/`, `SameSite=Lax`, `Secure` (außer `localhost`); **nicht** `HttpOnly` (Korb-Anzahl auf statischen Seiten) – zulässig, weil der Inhalt nichts Schützenswertes enthält |
+  | d | Cookie `pc_cart` | erstes „In den Korb“ | base64url-JSON nur mit `v`, `items` (≤ 20 Einträge, je nur Stück-ID `id` und Preis beim Hinzufügen `p` in Cent – nur für den Hinweis „Preis wurde aktualisiert“) und `delivery` (`shipping`/`pickup`, die zuletzt in der Kasse gewählte Lieferart – V-16); keine Kennung, keine Personendaten | `Max-Age` 7 Tage, `Path=/`, `SameSite=Lax`, `Secure` (außer `localhost`); **nicht** `HttpOnly` (Korb-Anzahl auf statischen Seiten) – zulässig, weil der Inhalt nichts Schützenswertes enthält |
   | e | Cookie `pc_checkout` | Klick auf „Zur Kasse“ (POST) | zufälliger Kassen-Token (ARCHITEKTUR §8.6) | `Max-Age` 3600 (1 h), `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/` |
 
   Es gibt **keinen** serverseitigen Warenkorb; der Server prüft bei jeder Aktion die Stücke neu. Jede weitere
@@ -1973,3 +1986,4 @@ Ergänzungen [ergänzt] vom 26.09.2026 (über `docs/research/` hinaus):
 | 26.09.2026 | 1.1 | Angleichung an ARCHITEKTUR/KONZEPT/DATENMODELL: Routen laut KONZEPT §2.2 und Widerrufs-URL `/de/vertrag-widerrufen` (§2, R-010, R-090, R-095); R-130 als Schutzziele mit abschließender Speicherliste (ARCHITEKTUR §8.7), neue Kanzleifrage K-38; Vorkasse-Frist und Task-Slugs (R-014, R-071, R-093, R-154); Rate-Limits (R-091, R-134); Rechnungsablage `private/invoices/` ohne Versionierung (R-122) und `settings.retention.invoiceYears` (R-123); Beispiel-Nummern `PC-2026-900NN`/`BSP-RE`/`BSP-GS` (R-121, R-180); `APP_ENV` (R-181); Verpackung nach E-47 unbedingt LUCID plus eigene Lizenz, Mengen je Sendung und Jahres-Export (R-200, R-201, R-210); Collection-Slugs `privacy-requests`, `deletion-log`, `email-log`; K-xx = Kanzleifrage, KONZEPT-Annahmen = KA-xx (§0) |
 | 26.09.2026 | 1.2 | Namen laut DATENMODELL (`legal-texts`/`legal-snippets` mit `origin`, `settings.business`/`tax`/`shipping`/`payment`, Produktfelder, `inquiries`, `tattoo-gallery`, Status `awaiting_prepayment`/`cancelled` + `cancelReason`, Mail-Schlüssel `EMAIL_TEMPLATES`); Kasse statt Bestellstatus vor der Zahlung (R-065); kanonische Token-Liste mit Zuordnung (R-012, neuer Baustein `withdrawal.returnCostsNote`); Statusseite ohne Rechnung mit Schutzgrund (R-067); Gastbestellung ohne Telefonfeld (R-061); vorläufige Regeln: Teilwiderruf mit Versand-Differenz (R-072, K-09), Packfoto als Rückfrage und Brief ohne Sendungsnummer (R-100, R-082, neue Kanzleifrage K-40), CSP-Rückfall (R-131, neue Kanzleifrage K-41); Browser-Fehler-Endpunkt standardmäßig aus (R-133); Reklamationsakte `complaints` (R-110, R-150, R-154); Umsatz-Wächter U0–U5 + U3a (R-125); Wartungsmodus (R-090); Anfrageformular 20–3000 Zeichen und Upload-Grenzen (R-160); Flash-Knöpfe (R-170); Angebote ohne gespeicherten Status (R-171); Kurz-URLs (§2, R-010); R-023 in P6 |
 | 26.09.2026 | 1.3 | Platzhalter-Wortlaut und Band (R-002); Empfänger-Tabelle als Komponente, Token-Liste geschlossen (R-012, R-155); Status-Token zusätzlich versiegelt für spätere Mails (R-067); Widerrufs-Übergänge exakt laut DATENMODELL §6.11 (R-093, R-094); Mail-Zuordnung M12–M16 (R-084, R-152); Exporte nie mit Beispieldaten (R-124, R-180, R-201); `pc_cart` mit Preis beim Hinzufügen (R-130); CSP-Rückfall auch im Kontext `admin`, Kern je Kontext (R-131); `tattoo-gallery` ohne Versionen (R-154, R-172) |
+| 12.10.2026 | 1.4 | P20.3 (U-93): R-061 Rechnungsadresse aus EU/EWR mit VO (EU) 2018/302 Art. 4 Abs. 1 lit. a, Lieferung weiter nur DE (V-17); R-036 Zahlarten nur einmal, Lieferart nur in der Kasse (V-16); R-130 d `delivery` aus der Kasse; Geschenk mit Gruß (V-18 b) ohne neue R-ID – Datenschutzerklärung, VVT V3, LOESCHKONZEPT L-05 Stufe E, Kanzleifrage K-42 |

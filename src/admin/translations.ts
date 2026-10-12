@@ -382,6 +382,12 @@ export const ADMIN_CUSTOM_DE = {
   orderCustomer: 'Kund:in',
   orderPayment: 'Zahlart',
   orderLanguage: 'Sprache der Bestellung',
+  // V-18 b: Geschenk mit Gruß für eine handgeschriebene Karte
+  orderGift: 'Geschenk',
+  orderGiftYes: 'Ja – bitte eine Karte von Hand schreiben und beilegen.',
+  orderGiftMessage: 'Gruß: „{{message}}“',
+  orderGiftNoMessage:
+    'Kein Gruß gespeichert (ohne Gruß bestellt oder 30 Tage nach Versand bzw. Abholung gelöscht).',
   orderAmounts: 'Beträge',
   orderSubtotal: 'Zwischensumme',
   orderShipping: 'Versand',

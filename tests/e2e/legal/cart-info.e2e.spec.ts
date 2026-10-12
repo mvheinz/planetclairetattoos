@@ -6,7 +6,8 @@ import { isBefore } from '../shop/productPage'
 import { expectWarrantyNotice } from './warranty'
 
 // P4.8 Pflichtangaben im Korb (RECHT R-031, R-035, R-036, R-049; KONZEPT §3.6): Versandkosten beziffert, Lieferzeit,
-// Zahlarten und Liefergebiet vor dem Kassenknopf, harmonisierte Mitteilung.
+// Zahlarten und Liefergebiet vor dem Kassenknopf, harmonisierte Mitteilung. V-16: Zahlarten nur einmal (Baustein R-036),
+// keine Lieferart-Wahl im Korb – „Abholung wählst du in der Kasse“.
 
 holdListData(test, 'shared')
 let release: ReleaseLock | undefined
@@ -55,14 +56,17 @@ test('R-036 Zahlarten und Liefergebiet stehen im DOM vor dem Kassenknopf', async
     await expect(info).toBeVisible()
     const text = await info.innerText()
     for (const m of ['Apple Pay', 'Google Pay', 'PayPal']) expect(text).toContain(m)
-    expect(text).toContain(locale === 'de' ? 'Vorkasse' : 'Payment in advance')
+    expect(text).toMatch(locale === 'de' ? /Vorkasse/ : /payment in advance/i)
     expect(text).toContain(
       locale === 'de' ? 'nur innerhalb Deutschlands' : 'only deliver within Germany',
     )
-    await expect(page.locator('[data-payment-methods]')).toHaveText(
-      locale === 'de'
-        ? 'Karte · Apple Pay · Google Pay · PayPal · Vorkasse'
-        : 'Card · Apple Pay · Google Pay · PayPal · Payment in advance',
+    // V-16: eine Zeile Zahlarten (der Baustein), keine zweite Aufzählung, keine Lieferart-Wahl im Korb
+    await expect(info.locator('p')).toHaveCount(1)
+    expect(text.match(/PayPal/g)).toHaveLength(1)
+    await expect(page.locator('[data-payment-methods]')).toHaveCount(0)
+    await expect(page.locator('[data-cart-delivery], input[name="method"]')).toHaveCount(0)
+    await expect(page.locator('[data-cart-delivery-note="pickup_at_checkout"]')).toHaveText(
+      locale === 'de' ? 'Abholung wählst du in der Kasse.' : 'You choose pickup at checkout.',
     )
     expect(await isBefore(info, page.locator('[data-cart-checkout] button'))).toBe(true)
   }

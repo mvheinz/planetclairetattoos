@@ -1790,7 +1790,7 @@ eigenen Proxy vertrauen (Konfiguration `TRUSTED_PROXY` entfällt, Caddy übersch
 
 | Name | Entsteht | Inhalt | Attribute |
 |---|---|---|---|
-| `pc_cart` | erstes „In den Korb“ (Nutzeraktion) | base64url-JSON `{"v":1,"items":[{"id":<productId>,"p":<priceCents>}…],"delivery":"shipping"\|"pickup"}`; `p` = Preis beim Hinzufügen (nur für den Hinweis „Preis wurde aktualisiert“, KONZEPT §4.2); ≤ 20 Stücke (das 21. wird abgelehnt; „Zur Kasse“ lehnt mehr als `settings.shop.maxItemsPerCheckout` ab); keine Personendaten, keine Kennung | `Path=/; SameSite=Lax; Secure` (außer `localhost`); `Max-Age=604800` (7 Tage); **nicht** `HttpOnly` (Korb-Anzahl auf statischen Seiten) |
+| `pc_cart` | erstes „In den Korb“ (Nutzeraktion) | base64url-JSON `{"v":1,"items":[{"id":<productId>,"p":<priceCents>}…],"delivery":"shipping"\|"pickup"}`; `p` = Preis beim Hinzufügen (nur für den Hinweis „Preis wurde aktualisiert“, KONZEPT §4.2); `delivery` = zuletzt in der Kasse gewählte Lieferart (seit V-16 keine Wahl im Korb; ein Stück „nur Abholung“ erzwingt Abholung in Korb und Kasse, ohne den Wert zu ändern); ≤ 20 Stücke (das 21. wird abgelehnt; „Zur Kasse“ lehnt mehr als `settings.shop.maxItemsPerCheckout` ab); keine Personendaten, keine Kennung | `Path=/; SameSite=Lax; Secure` (außer `localhost`); `Max-Age=604800` (7 Tage); **nicht** `HttpOnly` (Korb-Anzahl auf statischen Seiten) |
 | `pc_checkout` | „Zur Kasse“ (POST) | zufälliger Kassen-Token | `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=3600` |
 | `payload-token` | Admin-Anmeldung | Payload-Sitzung | `HttpOnly; SameSite=Strict; Secure` (Produktion) |
 | `__stripe_mid`, `__stripe_sid` | nur auf der Kasse durch Stripe.js (R-062) | Stripe | Stripe |

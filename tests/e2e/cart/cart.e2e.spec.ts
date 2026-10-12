@@ -11,7 +11,8 @@ import { sql } from '@payloadcms/db-postgres'
 import { cleanupCheckouts, db, startCheckoutFor } from '../checkout/checkoutHelpers'
 import { R06, euro, expectAmount, norm, productByNumber, setCart } from './cartHelpers'
 
-// P4.8 Warenkorb-Seite R06 (KONZEPT §3.6/§4.2, DESIGN KO-13, KO-17): Anzeige, Entfernen, Lieferart, Zustände
+// P4.8 Warenkorb-Seite R06 (KONZEPT §3.6/§4.2, DESIGN KO-13, KO-17): Anzeige, Entfernen, Versand (V-16: Lieferart nur
+// in der Kasse – „Abholung wählst du in der Kasse“, eine gemerkte Abholung zeigt der Korb als „Abholung in Berlin“), Zustände
 // reserviert/verkauft/Preis geändert mit Fixture-Stücken, Seed-Anker S01 + S11 (SEED-SPEC §17), leerer Korb, Shop
 // geschlossen, ohne JavaScript. Der Seitenaufruf setzt kein Cookie und reserviert nichts (EK-04); nur POST-Formulare
 // ändern etwas. Grund-Seed-Preise geteilt lesen (`holdShippingRates`), Bestand geteilt (`holdListData`); der Test mit
@@ -77,13 +78,12 @@ test.describe('Korb mit Seed-Ankern', () => {
       'keramik',
     )
     await expect(page.locator('[data-shipping-class-line]')).toHaveCount(0)
-    await expect(page.locator('[data-delivery-option="shipping"]')).toContainText(
-      'Versand innerhalb Deutschlands (DHL)',
+    // V-16: keine Lieferart-Wahl und kein Übernehmen-Knopf im Korb; Versand mit Preis, Abholung erst in der Kasse
+    await expect(page.locator('[data-delivery-option], input[name="method"]')).toHaveCount(0)
+    await expect(page.locator('[data-cart-shipping="shipping"] dt')).toHaveText('Versand')
+    await expect(page.locator('[data-cart-delivery-note="pickup_at_checkout"]')).toHaveText(
+      'Abholung wählst du in der Kasse.',
     )
-    expect(
-      norm(await page.locator('[data-delivery-option="shipping"] [data-money]').innerText()),
-    ).toBe(norm(euro(890)))
-    await expect(page.locator('#cart-delivery-shipping')).toBeChecked()
     await expectAmount(page, '[data-cart-subtotal]', 10_900)
     await expectAmount(page, '[data-cart-shipping]', 890)
     await expectAmount(page, '[data-cart-total]', 11_790)
@@ -119,37 +119,40 @@ test.describe('Korb mit Seed-Ankern', () => {
     expect(stripe).toEqual([])
   })
 
-  test('Entfernen und Lieferart (mit JavaScript): Cookie aktualisiert, Summen neu, Abholung 0,00 €', async ({
+  test('Entfernen (mit JavaScript): Cookie aktualisiert, Summen neu; gemerkte Abholung aus der Kasse zeigt „Abholung in Berlin“ mit 0,00 € (V-16)', async ({
     page,
     context,
   }) => {
     const s01 = await productByNumber(901)
     const s11 = await productByNumber(911)
-    await setCart(context, [
-      { id: s01.id, p: s01.priceCents },
-      { id: s11.id, p: s11.priceCents },
-    ])
-    await page.goto(R06.de)
-    await page.locator(`[data-cart-remove="${s01.id}"]`).click()
-    await expect(page.locator('[data-cart-line]')).toHaveCount(1)
-    const cookie = (await context.cookies()).find((c) => c.name === 'pc_cart')!
-    expect(decodeCartCookie(cookie.value)?.items.map((i) => i.id)).toEqual([s11.id])
-    await expectAmount(page, '[data-cart-subtotal]', s11.priceCents)
-    await expect(page.locator('[data-shipping-once]')).toHaveAttribute(
-      'data-shipping-once',
-      'paket_klein',
+    await setCart(
+      context,
+      [
+        { id: s01.id, p: s01.priceCents },
+        { id: s11.id, p: s11.priceCents },
+      ],
+      'pickup',
     )
-
-    await page.locator('label[for="cart-delivery-pickup"]').click()
-    await page.locator('[data-cart-delivery] button[type="submit"]').click()
-    await expect(page.locator('#cart-delivery-pickup')).toBeChecked()
+    await page.goto(R06.de)
+    await expect(page.locator('[data-cart-shipping="pickup"] dt')).toHaveText('Abholung in Berlin')
     await expectAmount(page, '[data-cart-shipping]', 0)
-    await expectAmount(page, '[data-cart-total]', s11.priceCents)
+    await expect(page.locator('[data-cart-delivery-note="change_at_checkout"]')).toHaveText(
+      'Versand oder Abholung wählst du in der Kasse.',
+    )
     await expect(page.locator('[data-cart-summary] [data-delivery-time="pickup"]')).toContainText(
       'Abholbereit: 2–5 Werktage',
     )
-    const after = (await context.cookies()).find((c) => c.name === 'pc_cart')!
-    expect(decodeCartCookie(after.value)?.delivery).toBe('pickup')
+    await expect(page.locator('[data-shipping-once]')).toHaveCount(0)
+
+    await page.locator(`[data-cart-remove="${s01.id}"]`).click()
+    await expect(page.locator('[data-cart-line]')).toHaveCount(1)
+    const cookie = (await context.cookies()).find((c) => c.name === 'pc_cart')!
+    const decoded = decodeCartCookie(cookie.value)
+    expect(decoded?.items.map((i) => i.id)).toEqual([s11.id])
+    // Der Korb ändert die gemerkte Lieferart nicht (nur die Kasse merkt sie sich, L-01)
+    expect(decoded?.delivery).toBe('pickup')
+    await expectAmount(page, '[data-cart-subtotal]', s11.priceCents)
+    await expectAmount(page, '[data-cart-total]', s11.priceCents)
 
     // Letztes Stück entfernen → Leerzustand, Cookie gelöscht.
     await page.locator(`[data-cart-remove="${s11.id}"]`).click()
@@ -258,9 +261,10 @@ test.describe('Zustände mit Fixture-Stücken', () => {
       { id: pickupOnly.id, p: 4500 },
     ])
     await page.goto(R06.de)
-    await expect(page.locator('#cart-delivery-shipping')).toBeDisabled()
-    await expect(page.locator('#cart-delivery-pickup')).toBeChecked()
-    await expect(page.locator('[data-cart-delivery]')).toContainText(
+    // V-16: keine Wahl im Korb – Abholung ist gesetzt, der Satz sagt warum
+    await expect(page.locator('[data-delivery-option], input[name="method"]')).toHaveCount(0)
+    await expect(page.locator('[data-cart-shipping="pickup"] dt')).toHaveText('Abholung in Berlin')
+    await expect(page.locator('[data-cart-delivery-note="pickup_only"]')).toHaveText(
       `Nr. ${pickupOnly.itemNumber} gibt es nur zur Abholung.`,
     )
     await expectAmount(page, '[data-cart-shipping]', 0)
@@ -370,7 +374,10 @@ test.describe('ohne JavaScript', () => {
   holdListData(test, 'shared')
   holdRates(test)
 
-  test('Formulare mit POST + 303: Lieferart wechseln und Entfernen', async ({ page, context }) => {
+  test('Formulare mit POST + 303: Entfernen; keine Lieferart-Wahl im Korb (V-16)', async ({
+    page,
+    context,
+  }) => {
     const s01 = await productByNumber(901)
     const s11 = await productByNumber(911)
     await setCart(context, [
@@ -378,16 +385,13 @@ test.describe('ohne JavaScript', () => {
       { id: s11.id, p: s11.priceCents },
     ])
     await page.goto(R06.de)
-    await page.locator('label[for="cart-delivery-pickup"]').click()
+    await expect(page.locator('form[data-cart-delivery], input[name="method"]')).toHaveCount(0)
+    await expectAmount(page, '[data-cart-total]', 10_900 + 890)
     const [post] = await Promise.all([
       page.waitForResponse((r) => r.request().method() === 'POST'),
-      page.locator('[data-cart-delivery] button[type="submit"]').click(),
+      page.locator(`[data-cart-remove="${s11.id}"]`).click(),
     ])
     expect(post.status()).toBe(303)
-    await expect(page.locator('#cart-delivery-pickup')).toBeChecked()
-    await expectAmount(page, '[data-cart-total]', 10_900)
-
-    await page.locator(`[data-cart-remove="${s11.id}"]`).click()
     await expect(page.locator('[data-cart-line]')).toHaveCount(1)
     expect(page.url()).toMatch(/\/de\/warenkorb$/)
   })

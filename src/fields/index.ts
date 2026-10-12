@@ -1,5 +1,6 @@
 // Gemeinsame Feldbausteine (DATENMODELL §5).
 export { addressFields, validatePostalCode, type AddressOptions } from './address'
+export { giftFields } from './gift'
 export { internalLinkFields } from './internalLink'
 export { EURO_INPUT_COMPONENT, moneyField, validateCents } from './money'
 export { privacyFields, validateLegalHoldReason } from './privacy'

@@ -273,6 +273,19 @@ So gehst du vor:
 8. **Versendet melden:** Ein Fenster sagt dir: „Die Kundin bekommt eine Versandmail mit Sendungsnummer.“ Tippst du auf
    „Ja“, geht die Mail raus. Erst dann.
 
+**Geschenke (mit Karte):** Hat die Kundin in der Kasse „Das ist ein Geschenk“ angekreuzt, steht auf der Karte
+**„Geschenk – Karte von Hand schreiben: „…““** mit ihrem Gruß (oder „ohne Gruß“ – dann schreibst du ein paar eigene
+Worte). Die Checkliste hat dann den Punkt „Geschenk: handgeschriebene Karte beilegen“. Den Gruß siehst du nur in der
+Verwaltung, nicht auf dem Packzettel – der liegt ja im Paket bei der beschenkten Person, ohne Preise. Die Rechnung
+bekommt nur die Kundin per Mail. Den Gruß musst du nicht abschreiben und aufheben: Der Shop löscht ihn 30 Tage nach dem
+Versand von selbst. Bei Abholung steht der Hinweis genauso auf der Karte unter „Abholung“.
+
+- **Am iPad (oder Handy):** „Packen“ öffnen → den Gruß auf der Karte lesen (tippst du die Bestellnummer an, steht er
+  im Bestell-Detail unter „Lieferung und Zahlung“ → „Geschenk“) → Karte schreiben → beim Packen den Checklisten-Punkt
+  abhaken.
+- **Am Computer (Mac oder PC):** links „Packen“ → Gruß auf der Karte lesen (Klick auf die Bestellnummer zeigt ihn im
+  Bestell-Detail) → Karte schreiben → Checklisten-Punkt anklicken.
+
 Steht an einer Bestellung **„Nicht mehr versenden – Widerruf!“**, hat die Kundin schon widerrufen (Kapitel 8).
 Hat sie nur einzelne Stücke widerrufen oder hast du einzelne Stücke schon erstattet (zum Beispiel weil eins zerbrochen
 ist), steht an der Bestellung **„Nicht mehr versenden – Widerruf: Nr. …“** bzw. **„– erstattet: Nr. …“**. Die übrigen
@@ -317,6 +330,10 @@ ist so lange für die Kundin reserviert. Unter **Vorkasse** siehst du die offene
 ![Die Liste „Abholung“](img/handbuch/abholung.webp)
 
 Bei Abholung zeigt die Liste, wie lange die Bestellung schon wartet. Länger als 14 Tage wird markiert.
+
+Auch Kundinnen aus dem EU-Ausland (zum Beispiel Touristinnen aus Österreich) können bei dir bestellen und abholen: Ihre
+Rechnungsadresse darf in der EU, in Island, Liechtenstein oder Norwegen liegen, die Rechnung nennt dann das Land. Geliefert
+wird weiter nur innerhalb Deutschlands – du musst also nichts ins Ausland schicken.
 
 ![Dialog „Abgeholt“](img/handbuch/dialog-abholung.webp)
 

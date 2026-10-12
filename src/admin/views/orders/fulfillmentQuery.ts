@@ -7,7 +7,7 @@ import {
   restDeliveryAllowed,
   restPickupPending,
 } from '@/lib/commerce/orderTransitions'
-import { handoverItems } from '@/lib/commerce/packing'
+import { giftHint, handoverItems } from '@/lib/commerce/packing'
 import { PICKUP_WAIT_WARN_DAYS, pickupTemplateText } from '@/lib/commerce/pickup'
 import { unassignedWithdrawals } from '@/lib/commerce/withdrawalHold'
 import { ENUM_LABELS } from '@/lib/enumLabels'
@@ -123,6 +123,8 @@ export interface PickupCard {
   /** Vorbelegter Abholtext (nur bei `paid`). */
   template: string | null
   messageText: string | null
+  /** „Geschenk – Karte von Hand schreiben“ samt Gruß (V-18 b), sonst `null`. */
+  gift: string | null
 }
 
 /** Berliner Kalendertage zwischen zwei Zeitpunkten. */
@@ -208,6 +210,7 @@ export async function loadPickupList(req: PayloadRequest, now: Date): Promise<Pi
       overdue: step === 'handover' && waitingDays > PICKUP_WAIT_WARN_DAYS,
       template,
       messageText: o.pickup?.messageText ?? null,
+      gift: giftHint(o),
     })
   }
   return cards.sort((a, b) => b.waitingDays - a.waitingDays)

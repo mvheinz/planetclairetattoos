@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { customerStatus } from '@/lib/commerce/orderStatusLine'
 import {
   checkoutRawFromFormData,
+  GIFT_MESSAGE_MAX,
+  normalizeGiftMessage,
   orderedCheckoutErrors,
   validateCheckoutInput,
   type CheckoutRawInput,
@@ -10,7 +12,8 @@ import {
 } from '@/lib/commerce/checkoutSchema'
 
 // P4.9 – gemeinsames Schema der Kasse (KONZEPT §4.4, R-060, R-061, R-048): Pflichtfelder je Lieferart, Grenzen, PLZ,
-// Land fest DE, Zahlwege, Abweichungs-Bestätigungen, Formular-Reihenfolge der Fehler.
+// Lieferland fest DE, Rechnungsland EU/EWR (V-17), Geschenk mit Gruß (V-18 b), Zahlwege, Abweichungs-Bestätigungen,
+// Formular-Reihenfolge der Fehler.
 
 const ctx: CheckoutSchemaContext = {
   deviationProductIds: [],
@@ -44,6 +47,8 @@ describe('checkoutSchema', () => {
       },
       billingAddressDiffers: false,
       carrierEmailConsent: false,
+      isGift: false,
+      giftMessage: null,
       paymentChoice: 'stripe',
       deviationAgreements: [],
     })
@@ -124,9 +129,146 @@ describe('checkoutSchema', () => {
     expect(!long.ok && long.errors.email).toBe('tooLong')
   })
 
-  it('R-060 Land nur Deutschland', () => {
+  it('R-060 Lieferland nur Deutschland – auch mit Rechnungsadresse in Österreich', () => {
     const r = validateCheckoutInput({ ...shipping, shippingCountry: 'AT' }, ctx)
     expect(!r.ok && r.errors).toEqual({ shippingCountry: 'country' })
+    const both = validateCheckoutInput(
+      {
+        ...shipping,
+        shippingCountry: 'AT',
+        shippingPostalCode: '1010',
+        billingAddressDiffers: 'on',
+        billingName: 'Erika Beispiel',
+        billingLine1: 'Ringstraße 1',
+        billingPostalCode: '1010',
+        billingCity: 'Wien',
+        billingCountry: 'AT',
+      },
+      ctx,
+    )
+    // Versand nach AT bleibt abgelehnt (Land), die österreichische Rechnungsadresse ist in Ordnung
+    expect(!both.ok && both.errors).toEqual({
+      shippingCountry: 'country',
+      shippingPostalCode: 'postalCode',
+    })
+  })
+
+  it('V-17 Abholung mit Rechnungsadresse in Österreich: PLZ 4 Ziffern, Land AT übernommen', () => {
+    const r = validateCheckoutInput(
+      {
+        email: 'a@b.at',
+        fulfillmentMethod: 'pickup',
+        name: 'Anna Alpen',
+        billingLine1: 'Ringstraße 1',
+        billingPostalCode: '1010',
+        billingCity: 'Wien',
+        billingCountry: 'at',
+        paymentChoice: 'stripe',
+      },
+      ctx,
+    )
+    expect(r.ok && r.value.billingAddress).toEqual({
+      name: 'Anna Alpen',
+      addressLine1: 'Ringstraße 1',
+      postalCode: '1010',
+      city: 'Wien',
+      country: 'AT',
+    })
+  })
+
+  it('V-17 Versand nach DE mit abweichender Rechnungsadresse in den Niederlanden, Island oder Norwegen', () => {
+    for (const [country, postalCode, expected] of [
+      ['NL', '1012 ab', '1012 AB'],
+      ['IS', '101', '101'],
+      ['NO', '0150', '0150'],
+      ['PL', '00-950', '00-950'],
+    ] as const) {
+      const r = validateCheckoutInput(
+        {
+          ...shipping,
+          billingAddressDiffers: 'on',
+          billingName: 'Rita Rechnung',
+          billingLine1: 'Weg 1',
+          billingPostalCode: postalCode,
+          billingCity: 'Stadt',
+          billingCountry: country,
+        },
+        ctx,
+      )
+      expect(r.ok, country).toBe(true)
+      expect(r.ok && r.value.billingAddress).toMatchObject({ country, postalCode: expected })
+      expect(r.ok && r.value.shippingAddress?.country).toBe('DE')
+    }
+  })
+
+  it('V-17 kein GB, keine Schweiz, kein Unsinn; PLZ im Ausland 3–10 Zeichen, in DE genau 5 Ziffern', () => {
+    const pickup = {
+      email: 'a@b.de',
+      fulfillmentMethod: 'pickup',
+      name: 'Erika Beispiel',
+      billingLine1: 'Weg 2',
+      billingPostalCode: '8001',
+      billingCity: 'Zürich',
+      paymentChoice: 'stripe',
+    }
+    for (const country of ['GB', 'CH', 'US', 'XX']) {
+      const r = validateCheckoutInput({ ...pickup, billingCountry: country }, ctx)
+      expect(!r.ok && r.errors.billingCountry, country).toBe('billingCountry')
+    }
+    for (const postalCode of ['12', '12345678901', '-1234', '1234-', '12_34']) {
+      const r = validateCheckoutInput(
+        { ...pickup, billingCountry: 'AT', billingPostalCode: postalCode },
+        ctx,
+      )
+      expect(!r.ok && r.errors, postalCode).toEqual({ billingPostalCode: 'postalCodeForeign' })
+    }
+    const de = validateCheckoutInput({ ...pickup, billingPostalCode: '1010' }, ctx)
+    expect(!de.ok && de.errors).toEqual({ billingPostalCode: 'postalCode' })
+  })
+
+  it('V-18 b Geschenk: Häkchen nie Pflicht, Gruß nur mit Häkchen, reiner Text, höchstens 300 Zeichen', () => {
+    const plain = validateCheckoutInput({ ...shipping, giftMessage: 'Alles Liebe!' }, ctx)
+    expect(plain.ok && [plain.value.isGift, plain.value.giftMessage]).toEqual([false, null])
+    const gift = validateCheckoutInput(
+      {
+        ...shipping,
+        isGift: 'on',
+        giftMessage: '  Alles Liebe,\r\n\r\n\r\n\r\ndeine Erika\u0007  ',
+      },
+      ctx,
+    )
+    expect(gift.ok && [gift.value.isGift, gift.value.giftMessage]).toEqual([
+      true,
+      'Alles Liebe,\n\ndeine Erika',
+    ])
+    const empty = validateCheckoutInput({ ...shipping, isGift: 'on', giftMessage: '   ' }, ctx)
+    expect(empty.ok && [empty.value.isGift, empty.value.giftMessage]).toEqual([true, null])
+    const max = validateCheckoutInput(
+      { ...shipping, isGift: 'on', giftMessage: 'x'.repeat(GIFT_MESSAGE_MAX) },
+      ctx,
+    )
+    expect(max.ok).toBe(true)
+    const long = validateCheckoutInput(
+      { ...shipping, isGift: 'on', giftMessage: 'x'.repeat(GIFT_MESSAGE_MAX + 1) },
+      ctx,
+    )
+    expect(!long.ok && long.errors).toEqual({ giftMessage: 'tooLong' })
+    // Abholung: Geschenk geht auch (Karte liegt bei der Übergabe bei)
+    const pickup = validateCheckoutInput(
+      {
+        email: 'a@b.de',
+        fulfillmentMethod: 'pickup',
+        name: 'Erika Beispiel',
+        billingLine1: 'Weg 2',
+        billingPostalCode: '12043',
+        billingCity: 'Berlin',
+        isGift: 'true',
+        paymentChoice: 'stripe',
+      },
+      ctx,
+    )
+    expect(pickup.ok && pickup.value.isGift).toBe(true)
+    expect(normalizeGiftMessage('a\tb\u0000c')).toBe('abc')
   })
 
   it('Zahlweg nur aus der erlaubten Menge (S13: ohne Session nur Vorkasse)', () => {

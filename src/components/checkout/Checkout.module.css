@@ -117,6 +117,19 @@
   margin: 0;
 }
 
+/* V-18 b: Geschenk-Hinweis, Häkchen und Gruß für die Karte */
+.gift {
+  display: grid;
+  gap: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--ink-3);
+}
+
+.gift > div {
+  display: grid;
+  gap: var(--space-3);
+}
+
 .countryLabel {
   font-weight: 500;
 }

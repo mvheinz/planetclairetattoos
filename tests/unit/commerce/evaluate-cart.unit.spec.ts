@@ -171,12 +171,37 @@ describe('Preis und Summen (KONZEPT §4.2)', () => {
     expect(forced.shippingQuoteCents).toBeNull()
   })
 
-  it('fehlender Versandtarif → kein stilles 0 €, „Zur Kasse“ gesperrt', () => {
-    const r = evaluate(cart([{ id: 1 }]), [product(1, { shippingClass: 'paket_klein' })])
+  it('fehlender Versandtarif ohne Abholung → kein stilles 0 €, „Zur Kasse“ gesperrt', () => {
+    const settings = { ...SETTINGS, shipping: { ...SETTINGS.shipping!, pickupEnabled: false } }
+    const r = evaluate(cart([{ id: 1 }]), [product(1, { shippingClass: 'paket_klein' })], {
+      settings,
+    })
     expect(r.totals).toBeNull()
     expect(r.shippingError).toBe('no_rate')
+    expect(r.pickupFallback).toBe(false)
     expect(r.blockers).toEqual(['shipping'])
     expect(r.canCheckout).toBe(false)
+  })
+
+  it('V-16 fehlender Versandtarif mit Abholung → sichtbar „Abholung“ (0 €), keine Sperre – gewählt wird in der Kasse', () => {
+    const r = evaluate(cart([{ id: 1 }]), [product(1, { shippingClass: 'paket_klein' })])
+    expect(r).toMatchObject({
+      delivery: 'pickup',
+      pickupFallback: true,
+      shippingError: 'no_rate',
+      shippingQuoteCents: null,
+      blockers: [],
+      canCheckout: true,
+    })
+    expect(r.totals?.shippingCents).toBe(0)
+    expect(r.totals?.totalCents).toBe(4500)
+  })
+
+  it('V-16 gemerkte Abholung (aus der Kasse) zählt; ohne Cookie-Wahl gilt Versand', () => {
+    expect(evaluate(cart([{ id: 1 }], 'pickup'), [product(1)]).delivery).toBe('pickup')
+    const r = evaluate(cart([{ id: 1 }]), [product(1)])
+    expect(r).toMatchObject({ delivery: 'shipping', pickupFallback: false, pickupSelectable: true })
+    expect(r.totals?.shippingCents).toBe(890)
   })
 })
 

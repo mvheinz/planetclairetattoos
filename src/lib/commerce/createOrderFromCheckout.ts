@@ -101,7 +101,7 @@ function resolvePayment(options: CreateOrderOptions): OrderPaymentInput {
 }
 
 /** Adressgruppe ohne leere Felder (Payload liefert Gruppen mit `null`-Werten). */
-function address(group: Checkout['shippingAddress']): Doc | undefined {
+function address(group: Checkout['shippingAddress'] | Checkout['billingAddress']): Doc | undefined {
   if (!group) return undefined
   const out = Object.fromEntries(
     Object.entries(group).filter(([, v]) => v !== null && v !== undefined && v !== ''),
@@ -315,6 +315,11 @@ export async function createOrderFromCheckout(
       legalTextVersions: checkout.legalTextVersions,
       legalSnippetVersions: checkout.legalSnippetVersions,
       carrierEmailConsent: shipping && checkout.carrierEmailConsent === true,
+      // V-18 b: Geschenk und Gruß für die Karte (Gruß wird 30 Tage nach Versand bzw. Abholung geleert, L-05 Stufe E)
+      gift: {
+        isGift: checkout.gift?.isGift === true,
+        message: checkout.gift?.isGift === true ? (checkout.gift?.message ?? null) : null,
+      },
       timestamps: { placedAt: placedAt.toISOString(), ...(paidAt ? { paidAt } : {}) },
       statusHistory: [
         {

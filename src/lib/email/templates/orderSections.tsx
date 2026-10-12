@@ -183,16 +183,22 @@ export function paidBlocks(d: OrderMailData, locale: Locale): Block[] {
   ]
 }
 
-function addressLines(a: MailAddress | null | undefined): string[] {
+/** Ländername in der Sprache der Mail (Rechnungsadresse im EU/EWR-Ausland, V-17); Deutschland bleibt ungenannt. */
+function countryLine(code: string | null | undefined, locale: Locale): string | null {
+  if (!code || code === 'DE') return null
+  try {
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(code) ?? code
+  } catch {
+    return code
+  }
+}
+
+function addressLines(a: MailAddress | null | undefined, locale: Locale): string[] {
   if (!a) return []
   const place = [a.postalCode, a.city].filter(Boolean).join(' ')
-  return [
-    a.name,
-    a.addressLine1,
-    a.addressLine2,
-    place,
-    a.country && a.country !== 'DE' ? a.country : null,
-  ].filter((x): x is string => typeof x === 'string' && x.trim() !== '')
+  return [a.name, a.addressLine1, a.addressLine2, place, countryLine(a.country, locale)].filter(
+    (x): x is string => typeof x === 'string' && x.trim() !== '',
+  )
 }
 
 /**
@@ -204,15 +210,15 @@ export function addressBlocks(d: OrderMailData, locale: Locale): Block[] {
   const t = c(locale)
   const out: Block[] = [block.h(t.addressHeading)]
   if (d.fulfillmentMethod === 'shipping') {
-    out.push(block.lines([`${t.shippingAddress}:`, ...addressLines(d.shippingAddress)]))
+    out.push(block.lines([`${t.shippingAddress}:`, ...addressLines(d.shippingAddress, locale)]))
     out.push(
       block.lines([
         `${t.billingAddress}:`,
-        ...(d.billingAddress ? addressLines(d.billingAddress) : [t.billingSame]),
+        ...(d.billingAddress ? addressLines(d.billingAddress, locale) : [t.billingSame]),
       ]),
     )
   } else {
-    out.push(block.lines([`${t.billingAddress}:`, ...addressLines(d.billingAddress)]))
+    out.push(block.lines([`${t.billingAddress}:`, ...addressLines(d.billingAddress, locale)]))
   }
   out.push(block.h(t.deliveryHeading))
   const deliveryTime = deliveryTimeOrDefault(d.deliveryTime, locale)

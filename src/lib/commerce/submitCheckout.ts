@@ -46,7 +46,8 @@ import { hashToken } from '@/lib/security/tokens'
 // Kassen-Snapshot (S6), Lieferart = Kasse, Pflichtfelder über das gemeinsame Schema (R-061), Land (R-060) und die
 // Abweichungs-Bestätigungen (R-048, fehlt eine → 400). Preise und Versand kommen immer aus dem Snapshot (S7). In **einer**
 // Transaktion speichert es die Eingaben samt Rechtsstand **an der Kasse** (R-013/R-065; keine Bestellung vor der
-// Zahlung): `customer.email`, Adressen, Einwilligungen, `deviationAgreements`, `paymentChoice`, `legalTextVersions`,
+// Zahlung): `customer.email`, Adressen, Einwilligungen, Geschenk und Gruß (V-18 b), `deviationAgreements`,
+// `paymentChoice`, `legalTextVersions`,
 // `legalSnippetVersions`, `submittedAt`; dazu `consent-log`-Einträge. Stripe: `open → confirming` + Weckzeit
 // `confirmingAt + 10 min` (Abgleich); Vorkasse: weiter mit `placePrepaymentOrder` (O2). Ein erneutes Absenden nach
 // `confirming → open` überschreibt Eingaben und `submittedAt`. Logs ohne Personendaten (R-137/V-22).
@@ -359,6 +360,8 @@ export async function submitCheckout(
         billingAddressDiffers: value.billingAddressDiffers,
         billingAddress: addressData(value.billingAddress),
         carrierEmailConsent: value.carrierEmailConsent,
+        // V-18 b: nur mit Häkchen gespeichert; ohne Häkchen wird ein früherer Gruß dieser Kasse überschrieben
+        gift: { isGift: value.isGift, message: value.isGift ? value.giftMessage : null },
         deviationAgreements: value.deviationAgreements.map((product) => ({
           product,
           agreedAt: at,

@@ -735,10 +735,10 @@ Gilt für Kasse, Auftragsarbeiten (R10), Vertrag widerrufen (R26), 404-Nummernfe
 
 ### KO-13 Warenkorb (R06)
 
-- **Aufbau** (KONZEPT §3.6): H1 „Dein Korb“ (Spectral) → Positionen → Lieferart → Summen → Hinweise → „Zur Kasse“.
+- **Aufbau** (KONZEPT §3.6): H1 „Dein Korb“ (Spectral) → Positionen → Summen → Hinweise → „Zur Kasse“ (V-16, U-93: keine Lieferart-Auswahl mehr im Korb).
 - **Position:** Foto 64×80 (4:5), Titel (Link), `Nr. 017 · Keramik` (Plex Mono `--ink-2`), Preis rechts (Plex Mono `--fs-price-mono`), Text-Knopf „Entfernen“. Nicht mehr verfügbar → Badge „gerade reserviert“ bzw. Stempel-Text „sold“ in `--fox` ≥ 24 px, Zeile gedämpft, aus der Summe ausgeschlossen, Hinweis oben, „Zur Kasse“ `aria-disabled` bis entfernt.
-- **Lieferart:** Radio-Gruppe „Versand innerhalb Deutschlands (DHL)“ mit Preis / „Abholung in Berlin – 0,00 €“. Darunter Versandklasse als Text („Versandklasse: Keramik – die größte Klasse im Korb zählt“).
-- **Summen:** Zwischensumme, Versand, **Gesamt** (Plex Mono `--fs-total`, Trennlinie 1.5 px `--ink` darüber); Steuerhinweis; Lieferzeit; Liefergebiet; akzeptierte Zahlarten als Text „Karte · Apple Pay · Google Pay · PayPal · Vorkasse“ (keine Anbieter-Logos).
+- **Lieferart (V-16):** gewählt wird nur in der Kasse (KO-14). Der Korb zeigt in den Summen „Versand“ mit Preis (bzw. „Abholung in Berlin“ 0,00 €, wenn ein Stück nur zur Abholung ist oder die Kasse sich Abholung gemerkt hat) und darunter klein „Mehrere Stücke? Versand zahlst du nur einmal.“ (V-10) und „Abholung wählst du in der Kasse.“ bzw. den Grund („Nr. 023 gibt es nur zur Abholung.“).
+- **Summen:** Zwischensumme, Versand, **Gesamt** (Plex Mono `--fs-total`, Trennlinie 1.5 px `--ink` darüber); Steuerhinweis; Lieferzeit; **eine** Zeile Liefergebiet und akzeptierte Zahlarten (Baustein R-036, Text, keine Anbieter-Logos; die frühere zweite Zeile „Karte · Apple Pay · …“ entfällt, V-16); darunter die kompakte harmonisierte Mitteilung (R-049, U-73).
 - **Tuschelinie:** Preset `calm` – eine stille, feine Linie (1.25 px) unter der H1, die rechts in einer kleinen Schleife neben Coco endet. **Coco sitzt neben der Summe** (Pose `sitzen`, `--coco-m`, erster Frame, **kein** Boil). Läuft bereits eine Reservierung (zurück aus der Kasse), steht dort der Countdown KO-15.
 - **Leer:** KO-17 „Korb leer“.
 - **Bewegung:** keine, außer MI-07 im Kopf.
@@ -747,7 +747,9 @@ Gilt für Kasse, Auftragsarbeiten (R10), Vertrag widerrufen (R26), 404-Nummernfe
 
 - **Aufbau** (KONZEPT §3.7): Countdown KO-15 ganz oben (nicht sticky) → Abschnitte 1 Kontakt · 2 Lieferung · 3 Rechnungsadresse · 4 Zahlart · 5 Übersicht → Hinweistext (AGB/Widerrufsbelehrung, Wortlaut RECHT) → Knopf „Zahlungspflichtig bestellen“ → kompakte Countdown-Wiederholung („Noch 24:12 reserviert“) → Fußbereich.
 - **Abschnitte:** nummerierte Überschriften (Plex Mono Kicker „1 Kontakt“ + Bricolage 700 H2 20 px; hier **kein** Spectral außer H1), Abschnitte als Kästen `--paper-2`, `--r-card`, Innenrand 16/24.
-- **Übersicht:** Positionen mit Foto 48×60, Titel, Nr., Preis; Versand; Gesamt; Lieferzeit; Adressen; Zahlart; je Block Text-Knopf „Ändern“ (springt zum Abschnitt und setzt Fokus).
+- **Übersicht:** Positionen mit Foto 48×60, Titel, Nr., Preis; Versand; Gesamt; Lieferzeit; Adressen (Rechnungsadresse im EU/EWR-Ausland mit Ländername, V-17); bei angehaktem Geschenk ein Block „Geschenk“ (V-18 b); Zahlart; je Block Text-Knopf „Ändern“ (springt zum Abschnitt und setzt Fokus).
+- **Lieferung (V-16/V-18 b):** einzige Stelle der Lieferart-Wahl (Radios Versand mit Preis / Abholung 0,00 €; bei „nur Abholung“ ist Versand gesperrt mit Grund). Am Ende des Abschnitts, durch eine feine Linie (`--ink-3`) getrennt: bei Versand der Geschenk-Satz (`--fs-small`), dann das Häkchen „Das ist ein Geschenk“ (KO-12, nie vorangekreuzt); angehakt erscheint das mehrzeilige Feld „Dein Gruß für die Karte (freiwillig)“ (4 Zeilen, `maxlength` 300) – ohne Animation.
+- **Rechnungsadresse (V-17):** „Land“ als natives `<select>` (KO-12, Deutschland zuerst, dann alphabetisch) mit Hinweis „… Liefern kann ich nur innerhalb Deutschlands.“; das PLZ-Feld ist bei Deutschland numerisch (5), sonst Text (10).
 - **Layout ab 1200:** Formular 7/12 links, Übersicht 5/12 rechts (sticky oben); Knopf unter der Übersicht.
 - **Tuschelinie:** `calm` – statische Linie 1.25 px entlang der linken Kante der Abschnitte (ab 768) bzw. unter der H1 (mobil). **Keine** Animation, keine View Transition, kein Boil.
 - **Bewegung auf der Kasse: keine.** Erlaubt ist nur der Sekundenwechsel des Countdowns (Textänderung) und der Fokusring. Keine CSS-Transitions (Test AK-DS-11).

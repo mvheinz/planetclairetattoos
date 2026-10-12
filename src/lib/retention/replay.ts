@@ -77,13 +77,15 @@ function needsReapply(entry: ReplayEntry, current: Record<string, unknown>): boo
   if (entry.ruleId === 'L-05 Stufe B') {
     return current.status_token_hash != null || current.status_token_sealed != null
   }
+  if (entry.ruleId === 'L-05 Stufe E') return current.gift_message != null
   if (entry.ruleId === 'L-04 Stufe 1') {
     return (
       current.shipping_address_name != null ||
       current.shipping_address_address_line1 != null ||
       current.billing_address_name != null ||
       current.billing_address_address_line1 != null ||
-      current.carrier_email_consent === true
+      current.carrier_email_consent === true ||
+      current.gift_message != null
     )
   }
   return current.privacy_anonymized_at == null
