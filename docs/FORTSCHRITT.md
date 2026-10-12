@@ -2,6 +2,23 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-12 – P20.5
+
+- Beispiel-Tattoos sind markiert: In Vorschau-Datei und Rundgang tragen die erfundenen Flash-Motive und Galerie-Fotos einen kleinen Stempel „Beispiel“ (EN „Example“), auch in der Großansicht.
+- Flash und Galerie erscheinen von selbst: Solange kein echtes Motiv bzw. Foto online ist, gibt es keinen Menüpunkt und keinen Link dorthin; die Texte versprechen kein Flash. Wer die Adresse direkt aufruft, sieht eine freundliche leere Seite.
+- Tattoo-Preise bestätigen: Deine Preise (ab 80 €, eigene Ideen 150–400 €) bleiben. In der Startklar-Prüfung bleibt ein Punkt rot, bis du sie bestätigst (iPad: unten „Mehr“ → „Tattoo“ → „Texte“; Computer: links „Tattoo“ → „Texte“). Änderst du später einen Betrag, bestätigst du neu.
+- Neuer Schalter „Anfragen offen / ausgebucht“ unter Tattoo → Texte: Mit einem Monat erscheint auf allen Tattoo-Seiten und bei den Auftragsarbeiten ein ruhiger Hinweis „Gerade ausgebucht – neue Anfragen ab …“ (DE/EN). Der Knopf „Mail schreiben“ für Tattoos weicht so lange, deine Mail-Adresse bleibt sichtbar, das Formular für Auftragsarbeiten bleibt offen. Nach dem Monat verschwindet der Hinweis von selbst.
+- Die Bildunterschrift, die einen Filmtitel nannte, heißt jetzt „Großes Monster, kleine Hasen“.
+- Tests: Unit (Datumslogik, Seiten), Integration (Einstellungen, Datenbank-Umstellung, Preis-Bestätigung wird bei Änderung zurückgesetzt), Browser-Tests Tattoo-Seiten, Galerie, Ausgebucht-Hinweis, leere Unterseiten, Verwaltung, Startklar-Liste (16 Punkte), am Computer und am Handy. Gegenprüfung durch einen zweiten Durchgang.
+
+## 2026-10-12 – P20.2
+
+- An der Kasse steht über „Zahlungspflichtig bestellen“ jetzt sauber „Versand: Keramik-Paket (DHL)“ statt „Keramik-Paket-Paket“ (EN „Shipping: Ceramics parcel (DHL)“). Danke-Seite und Bestellstatus nennen den echten Versanddienst („Versand per DHL“ bzw. „per Deutsche Post“) statt „mit der Post“.
+- Die Texte zu Keramik, Textil, Caps und Schmuck, die Stationen auf der Startseite und die Beschreibungen für Google passen jetzt zu deinen echten Stücken: kein „Öse aus Edelstahl“, kein „Kette nicht dabei“, keine Kleider, Tellerchen oder Planeten. Dein Satz „Tinte auf Haut, Ton und Papier“ bleibt. Du kannst jeden Text selbst ändern, am iPad oder am Computer.
+- Der Rundgang (PDF) zeigt jetzt auch Korb, Kasse, „Versand & Zahlung“, „Vertrag widerrufen“ und das Archiv, mit deinen Stücken. Der dunkle Kasten an den Überschriften und die Kaufleiste mitten im Bild sind weg. Danke-Seite und Bestellstatus siehst du ab dem Start.
+- Zu jeder Änderung an Bewegungen (Coco, Leine, Koko) bekommst du kurze Videos fürs Handy und für den großen Bildschirm (Anleitung Abschnitt F, am iPad und am Computer).
+- Tests: Unit (keine doppelten Wörter je Versandklasse DE/EN, Rahmentexte gegen den Bestand, Rundgang-Plan, Video-Befehle), Integration (Grund-Seed ersetzt nur unveränderte alte Texte), Browser-Tests Kasse, Shop, Seiten, Startseite; Danke-/Statusseite laufen in der Abschluss-Prüfung gegen den fertigen Build. Gegenprüfung durch einen zweiten Durchgang.
+
 ## 2026-10-12 – P20.1
 
 - Die kleine Coco an der Leine macht zwischen ihren Warte-Aktionen (Hecheln, Ohr zucken, Kratzen, Gähnen, Verbeugung, Wedeln, Hinlegen) jetzt je 1 Sekunde kürzere Pausen: 2,2 · 1,3 · 1,5 · 2 · 1 · 2,3 · 7 s statt 3,2 · 2,3 · 2,5 · 3 · 1 · 3,3 · 8 s. Die Aktionen selbst sind gleich geblieben, mindestens 1 Sekunde Standbild bleibt.
