@@ -4,8 +4,13 @@
 //                                                   Preis, Maße, Material, Beschreibung; ohne interne Prüfpunkte)
 //   → dist/pflege/planet-claire-rundgang-<Tag>.pdf  Bildschirmfotos der wichtigsten Seiten (Handy und großer
 //                                                   Bildschirm) aus dist/planet-claire-vorschau.html (vorher
-//                                                   `pnpm preview:export`). Ohne Vorschau-Banner, ohne Tattoo-Galerie;
-//                                                   Fotos von Kund:innen (Galerie-Einträge) sind ausgeblendet.
+//                                                   `pnpm preview:export`, echter Bestand). Ohne Vorschau-Banner, ohne
+//                                                   Tattoo-Galerie; Fotos von Kund:innen (Galerie-Einträge) sind
+//                                                   ausgeblendet. Seit P20.2 (V-27) mit Korb und Kasse (deine Stücke aus
+//                                                   dem Korb der Vorschau), „Versand & Zahlung“, „Vertrag widerrufen“
+//                                                   und Archiv; ohne Fokus-Kasten an der Überschrift und ohne Kaufleiste.
+//                                                   Danke- und Statusseite brauchen eine echte Bestellung → Vermerk
+//                                                   „ab dem Start sichtbar“.
 // Beide offline erzeugt (Chromium von Playwright), Schriften der Seite eingebettet.
 import { existsSync } from 'node:fs'
 import { mkdir, readFile } from 'node:fs/promises'
@@ -17,6 +22,7 @@ import sharp from 'sharp'
 
 import { bestandPhotoPath, loadBestand } from '../../src/lib/bestand/schema'
 import { berlinDay } from '../../src/lib/pflege/snapshot'
+import { localizedPath } from '../../src/lib/routes/paths'
 
 import { CATEGORY_LABEL_DE, catalogFacts, markdownToHtml } from './ansichtenText'
 
@@ -130,12 +136,25 @@ article h2{font-size:13pt;line-height:1.2;margin:1mm 0}
   return out
 }
 
-/** Seiten des Rundgangs (ohne Tattoo-Galerie: Fotos von Kund:innen). */
-export const RUNDGANG_ROUTES: readonly { route: string; title: string }[] = [
+export interface RundgangRoute {
+  route: string
+  title: string
+}
+
+/**
+ * Seiten des Rundgangs (ohne Tattoo-Galerie: Fotos von Kund:innen). Korb und Kasse zeigen die Stücke, die der Vorschau-
+ * Export wie eine Kundin in den Korb legt – mit echtem Bestand deine Stücke (U-76, `cartAnchors`); V-27 (P20.2).
+ */
+export const RUNDGANG_ROUTES: readonly RundgangRoute[] = [
   { route: '/de', title: 'Startseite' },
   { route: '/de/shop', title: 'Shop' },
   { route: '/de/shop/kategorie/keramik', title: 'Shop – Keramik' },
   { route: 'PRODUCT', title: 'Ein Stück' },
+  { route: localizedPath('R06', 'de'), title: 'Korb' },
+  { route: localizedPath('R07', 'de'), title: 'Kasse' },
+  { route: localizedPath('R25', 'de'), title: 'Versand & Zahlung' },
+  { route: localizedPath('R26', 'de'), title: 'Vertrag widerrufen' },
+  { route: localizedPath('R05', 'de'), title: 'Archiv' },
   { route: '/de/tattoo', title: 'Tattoo' },
   { route: '/de/tattoo/flash', title: 'Tattoo – Flash' },
   { route: '/de/auftragsarbeiten', title: 'Auftragsarbeiten' },
@@ -143,10 +162,87 @@ export const RUNDGANG_ROUTES: readonly { route: string; title: string }[] = [
   { route: '/de/kontakt', title: 'Kontakt' },
 ]
 
-/** Für die Fotos: Banner weg, Galerie-Fotos (Kund:innen) verdeckt, keine Bewegung. */
+/** Pfad-Anfang einer Seite mit Token (Danke- bzw. Statusseite), z. B. `/de/danke/`. */
+const tokenPrefix = (id: 'R08' | 'R09') => localizedPath(id, 'de', { token: 'T' }).replace(/T$/, '')
+
+/**
+ * Seiten, die nur zu einer echten Bestellung gehören (Token-Link). Mit Beispiel-Bestellungen zeigten sie Demo-Stücke
+ * (U-76) – deshalb nur, wenn die Vorschau mit echtem Bestand eine solche Seite enthält, sonst ein Vermerk.
+ */
+export const RUNDGANG_LATER: readonly { prefix: string; title: string; note: string }[] = [
+  {
+    prefix: tokenPrefix('R08'),
+    title: 'Danke-Seite',
+    note: 'Nach dem Bezahlen sieht deine Kundin die Danke-Seite: Bestellnummer, ihre Stücke, Summe, Lieferart mit Versanddienst und wie es weitergeht. Sie gehört zu einer echten Bestellung – mit deinen Stücken siehst du sie ab dem Start.',
+  },
+  {
+    prefix: tokenPrefix('R09'),
+    title: 'Bestellstatus',
+    note: 'Den Link zum Bestellstatus bekommt deine Kundin per Mail: Dort sieht sie, ob bezahlt, verpackt oder unterwegs, dazu die Sendungsnummer. Auch diese Seite gehört zu einer echten Bestellung und ist ab dem Start sichtbar.',
+  },
+]
+
+/**
+ * Für die Fotos: Banner weg, Galerie-Fotos (Kund:innen) verdeckt, keine Bewegung (`reducedMotion`); die Kaufleiste der
+ * Produktseite (`position: fixed`) läge im langen Bildschirmfoto mitten im Bild (V-27).
+ */
 export const RUNDGANG_CSS = `#pv-banner{display:none!important}
+[data-buy-bar]{display:none!important}
 [data-gallery-entry] img,[data-gallery-entry] picture{visibility:hidden!important}
 [data-gallery-entry]{background:#d6d3c2!important}`
+
+/**
+ * Im Browser vor jedem Foto: Der Router der Vorschau fokussiert nach jedem Seitenwechsel die Überschrift (für
+ * Tastatur und Screenreader) – auf dem Foto wäre das ein dunkler Kasten, den es beim normalen Besuch nicht gibt (V-27).
+ * Eigenständig, weil Playwright nur den Quelltext der Funktion in die Seite schickt.
+ */
+export function blurFocus(): void {
+  const active = document.activeElement as HTMLElement | null
+  if (active && active !== document.body && typeof active.blur === 'function') active.blur()
+}
+
+export interface RundgangPlan {
+  /** Seiten mit Bildschirmfotos, in dieser Reihenfolge. */
+  pages: RundgangRoute[]
+  /** Seiten ohne Foto, mit Vermerk im PDF. */
+  notes: { title: string; note: string }[]
+}
+
+/**
+ * Welche Seiten der Rundgang fotografiert (rein, testbar): nur Seiten, die die Vorschau-Datei enthält; „Ein Stück“ =
+ * `productRoute`; Danke-/Statusseite nur mit echtem Bestand, sonst Vermerk „ab dem Start sichtbar“. Fehlt eine Seite in
+ * der Vorschau (z. B. Kasse, wenn der Korb beim Export leer blieb), steht ein Vermerk statt eines Abbruchs im PDF.
+ */
+export function rundgangPlan(
+  report: {
+    routes: readonly { route: string; lang: string; status?: string }[]
+    inventory?: 'bestand' | 'demo'
+  },
+  productRoute: string | undefined,
+): RundgangPlan {
+  const built = report.routes.filter((r) => r.lang === 'de' && (r.status ?? 'ok') === 'ok')
+  const has = (route: string) => built.some((r) => r.route === route)
+  const pages: RundgangRoute[] = []
+  const notes: RundgangPlan['notes'] = []
+  for (const r of RUNDGANG_ROUTES) {
+    const route = r.route === 'PRODUCT' ? productRoute : r.route
+    if (route && has(route)) pages.push({ ...r, route })
+    else
+      notes.push({
+        title: r.title,
+        note: 'Diese Seite fehlt in der aktuellen Vorschau-Datei – sie kommt mit der nächsten wieder dazu.',
+      })
+  }
+  for (const later of RUNDGANG_LATER) {
+    const found =
+      report.inventory === 'bestand'
+        ? built.find((r) => r.route.startsWith(later.prefix))
+        : undefined
+    if (found) pages.push({ route: found.route, title: later.title })
+    else notes.push({ title: `${later.title} – ab dem Start sichtbar`, note: later.note })
+  }
+  return { pages, notes }
+}
 
 const DEVICES: { key: string; label: string; options: BrowserContextOptions }[] = [
   {
@@ -193,15 +289,19 @@ export async function rundgang(root: string, browser: Browser, now: Date): Promi
   if (!existsSync(file))
     throw new Error(`${PREVIEW_FILE} fehlt – erst \`pnpm preview:export\` ausführen.`)
   const report = JSON.parse(await readFile(path.join(root, PREVIEW_REPORT), 'utf8')) as {
-    routes: { route: string; lang: string }[]
+    routes: { route: string; lang: string; status?: string }[]
+    inventory?: 'bestand' | 'demo'
   }
+  // Nie Demo-Stücke oder Testbilder zeigen (U-76): Der Rundgang braucht eine Vorschau mit echtem Bestand.
+  if (report.inventory === 'demo')
+    throw new Error(
+      'Die Vorschau-Datei zeigt den Demo-Bestand – für den Rundgang erst `pnpm preview:export` mit echtem Bestand.',
+    )
   const products = (await loadBestand(root)).filter((p) => !p.sold && p.category === 'keramik')
   const productRoute = report.routes.find(
     (r) => products[0] && r.route.startsWith(`/de/shop/${products[0].itemNumber}-`),
   )?.route
-  const routes = RUNDGANG_ROUTES.map((r) =>
-    r.route === 'PRODUCT' ? { ...r, route: productRoute ?? '/de/shop' } : r,
-  )
+  const { pages: routes, notes } = rundgangPlan(report, productRoute)
   const url = pathToFileURL(file).href
   const shots = new Map<string, Buffer>()
   for (const d of DEVICES) {
@@ -240,6 +340,7 @@ export async function rundgang(root: string, browser: Browser, now: Date): Promi
         )
         .catch(() => undefined)
       await page.waitForTimeout(500)
+      await page.evaluate(blurFocus)
       const png = await page.screenshot({ fullPage: true, type: 'png' })
       const width = d.key === 'desktop' ? DESK_WIDTH : PHONE_WIDTH
       shots.set(
@@ -272,6 +373,12 @@ export async function rundgang(root: string, browser: Browser, now: Date): Promi
           .join('')}</div></section>`,
       )
   }
+  if (notes.length > 0)
+    sections.push(
+      `<section class="notes"><h2>Ohne Bildschirmfoto</h2>${notes
+        .map((n) => `<h3>${escapeHtml(n.title)}</h3><p>${escapeHtml(n.note)}</p>`)
+        .join('')}</section>`,
+    )
   const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Planet Claire – Rundgang</title><style>
 ${await fontFaces(root)}
 ${BASE_CSS}
@@ -284,10 +391,14 @@ section h2 span{font-family:Bricolage,sans-serif;font-weight:400;font-size:9pt;c
 .desk img{width:100%;display:block;border:1px solid var(--line)}
 .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;align-items:start}
 .cols img{width:100%;display:block;border:1px solid var(--line)}
+.notes h3{font-size:12pt;margin:5mm 0 1mm}
+.notes p{margin:0;max-width:150mm}
 </style></head><body>
 <header class="cover"><h1>Planet Claire – Rundgang</h1>
-<p class="muted">So sieht die Seite gerade aus (Stand ${stand}, noch nicht online). Je Seite links der große Bildschirm, rechts das Handy. Inhalte teils Beispiele; Fotos von Kund:innen sind ausgeblendet.</p></header>
-<ol class="toc">${routes.map((r) => `<li>${escapeHtml(r.title)}</li>`).join('')}</ol>
+<p class="muted">So sieht die Seite gerade aus (Stand ${stand}, noch nicht online). Je Seite zuerst der große Bildschirm, dann das Handy. Korb und Kasse zeigen deine Stücke so, wie eine Kundin sie in den Korb gelegt hat – bestellt wurde nichts. Inhalte teils Beispiele (z. B. Tattoo-Motive und Termine); Fotos von Kund:innen sind ausgeblendet.</p></header>
+<ol class="toc">${routes.map((r) => `<li>${escapeHtml(r.title)}</li>`).join('')}${notes
+    .map((n) => `<li class="muted">${escapeHtml(n.title)}</li>`)
+    .join('')}</ol>
 ${sections.join('\n')}
 </body></html>`
   const out = path.join(root, ANSICHTEN_OUT, `planet-claire-rundgang-${berlinDay(now)}.pdf`)

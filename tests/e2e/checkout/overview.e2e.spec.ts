@@ -98,7 +98,10 @@ test('R-063 AK-4-05 Übersicht vor dem Knopf: Positionen mit Nr., Eigenschaften,
   expect(norm(await overview.locator('[data-overview-shipping] dd').innerText())).toBe(
     norm(euro(890)),
   )
-  await expect(overview.locator('[data-overview-shipping] dt')).toContainText('Keramik')
+  // V-09 (P20.2): „Versand: Keramik-Paket (DHL)“ – nicht „Keramik-Paket-Paket“
+  await expect(overview.locator('[data-overview-shipping] dt')).toHaveText(
+    'Versand: Keramik-Paket (DHL)',
+  )
   expect(norm(await overview.locator('[data-overview-total] dd').innerText())).toBe(
     norm(euro(11790)),
   )

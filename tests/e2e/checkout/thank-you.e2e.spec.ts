@@ -71,6 +71,8 @@ test('R-066 AK-4-12 S10 „wartet“ → „bezahlt“ nach der nächsten Abfrag
   await expect(page.locator('[data-order-item]')).toHaveCount(1)
   await expect(page.locator('[data-price-tag="mini"]')).toHaveCount(1)
   await expect(page.getByText('Ich packe dein Stück in den nächsten Tagen')).toBeVisible()
+  // V-09 (P20.2): Lieferart nennt den echten Versanddienst (Keramik-Paket → DHL), nie „mit der Post“
+  await expect(page.locator('[data-order-delivery="shipping"]')).toHaveText('Versand per DHL')
   const withdraw = page.getByRole('link', { name: 'Vertrag widerrufen' }).first()
   await expect(withdraw).toHaveAttribute('href', /\/de\/vertrag-widerrufen\?order=PC-\d{4}-\d{5}/)
   await expectAccessible(page)
