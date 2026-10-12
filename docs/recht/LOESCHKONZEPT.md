@@ -1,6 +1,6 @@
 # Löschkonzept – planetclairetattoos.com
 
-> **Stand:** 11.10.2026 · **Version:** 1.6 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
+> **Stand:** 12.10.2026 · **Version:** 1.8 · **Status:** verbindliches Fachdokument (Rang wie ANFORDERUNGEN.md)
 > **Zweck:** Aufbewahrungs- und Löschfristen je Datenkategorie (L-xx), die automatischen Löschjobs und das Verfahren
 > für Anfragen betroffener Personen. Grundlage für R-150 bis R-154, die Datenschutzerklärung (Kanzlei) und das
 > Verzeichnis von Verarbeitungstätigkeiten (R-156).
@@ -51,6 +51,10 @@
    Einwilligungsangaben und Kundenfotos; ohne Versionen wirkt ein Widerruf bzw. eine Löschung sofort vollständig.
 7. **Anbieter-Logs:** Wo Dienstleister eigene Protokolle führen (Vercel, Lettermint, Sentry), wird die kürzeste
    verfügbare Aufbewahrung eingestellt und in P11 in DIENSTE.md dokumentiert.
+8. **Werkstatt-Rückblick** (V-40, P20.6): Der Umsatz-Wächter zählt abgebrochene Kassen (L-03) der letzten 30 Tage je
+   Stück („fast gekauft“). Gelesen werden nur Status, Anlagezeit und die Stück-Bezüge der Kasse, nie Namen, E-Mail oder
+   Adressen; gespeichert wird nichts (keine neue Kopie, kein neues Feld) – mit dem Löschen der Kasse nach 30 Tagen
+   verschwindet der Eintrag auch aus der Zählung. Die Zahl je Stück ist keine personenbezogene Angabe.
 
 ## 2. Aufbewahrungs- und Löschfristen je Datenkategorie
 
@@ -399,3 +403,4 @@ Die Verwaltung unterstützt jeden Schritt (R-150 bis R-153). Antworten in der Sp
 | 11.10.2026 | 1.5 | Datenschutz-Prüfung P18.5: Einwilligungsnachweise der Kasse hängen an der Bestellung (Stufe D statt 30 Tage); Galerie-Eintrag nach Widerruf: Löschschutz, Bilder freigeben bzw. löschen, Eintrag nach L-19 b löschen (§3.5, §4); neue Regel L-13 i für gescheiterte, hängende oder verwaiste Mail-Jobs (`payload-jobs`, §2, §4); Auskunft nur mit eigenen bzw. bestätigten Treffern, Mail-Jobs als Bereich (§5.4); Löschplan ohne Einschränkung laufender Bestellungen, M15 meldet den tatsächlichen Zustand (§5.6) |
 | 11.10.2026 | 1.6 | Prüfung P18.5, Nachträge: L-04 Stufe 1 löscht auch die Einwilligungs- und Abweichungsnachweise der stornierten, nie bezahlten Bestellung (L-19 a, §4); §5.6 Nr. 3 laufender Vertrag auch bei Widerruf/Rücksendung/Anfechtung nach der Zustellung, ausstehender Erstattung oder offenem Widerruf, Nachlauf schränkt nach Abschluss automatisch ein, alle Entscheidungen vor der ersten Aktion geprüft; §5.6 Nr. 4 DHL-Einwilligung bei jeder Löschanfrage widerrufen |
 | 12.10.2026 | 1.7 | P20.3 (U-93): V-18 b Gruß für die Geschenkkarte an Kasse (L-03) und Bestellung – neue Stufe E in §3.1 (30 Tage nach Versand bzw. Abholung, Task `retentionOrderMinimize`), L-04 Stufe 1, Stufe D und Einschränkung (§5.7) leeren ihn mit; Auskunft enthält ihn (§5.4, `daten.json`). V-16: `pc_cart` merkt sich die Lieferart nur noch aus der Kasse (L-01) |
+| 12.10.2026 | 1.8 | P20.6 (U-93): V-40 Werkstatt-Rückblick zählt abgebrochene Kassen je Stück ohne Personendaten und ohne neue Speicherung (§1 Nr. 8, L-03 unverändert) |

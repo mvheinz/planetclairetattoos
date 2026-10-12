@@ -67,6 +67,17 @@ Mitteilungen; wichtige Dinge meldet die Verwaltung dir per Mail.
 **Unten in der Leiste** findest du immer vier Punkte: **Heute**, **Neues Stück**, **Packen** und **Mehr**. „Mehr“ führt zu
 allem anderen. Am Laptop steht dieselbe Liste als Seitenleiste links.
 
+**Das Menü „Mehr“ ist kürzer** (seit P20.6, V-37): Es hat zehn Punkte und passt auf einen Bildschirm. Die fünf
+Bestell-Listen (Zu packen, Vorkasse offen, Versendet, Abholung, Widerrufe) stehen dort als **ein** Punkt
+**Bestellungen**; oben in der Liste wechselst du über **Reiter** zwischen ihnen.
+
+- **Am iPad (oder Handy):** unten „Mehr“ → „Bestellungen“ (iPad quer: „Bestellungen“ links in der Seitenleiste) → oben
+  den Reiter antippen, zum Beispiel „Vorkasse offen“.
+- **Am Computer (Mac oder PC):** links in der Seitenleiste „Bestellungen“ → oben auf den Reiter klicken.
+
+Darunter folgt wie bisher „Alle Daten“ mit den technischen Listen. Du brauchst es nur noch für die Kategorie-Texte
+(Kapitel 11); sobald es dafür einen eigenen Platz gibt, verschwindet „Alle Daten“ aus dem Menü.
+
 ## 2. Heute: dein Start
 
 ![Die Ansicht „Heute“ mit Kacheln und Hinweisen](img/handbuch/heute.webp)
@@ -82,6 +93,11 @@ Beim Öffnen siehst du, was ansteht:
 - **Die letzten fünf Bestellungen** und der Knopf **Neues Stück**.
 
 Wenn hier nichts Rotes steht, ist alles in Ordnung.
+
+**Rechtstexte in einer Zeile** (seit P20.6, V-37): Weiter unten steht nur noch **„Rechtstexte: alles aktuell“**. Tippst
+(am Computer: klickst) du darauf, klappt die Tabelle mit Version, Datum und Herkunft auf. Ist etwas fällig – ein Text
+fehlt, ist noch nicht von der Kanzlei oder die jährliche Prüfung steht an –, steht dort zum Beispiel „Rechtstexte:
+2 Texte brauchen deine Aufmerksamkeit“, und die Tabelle ist schon offen.
 
 **„… Stücke warten auf deine Prüfung“** (seit P20.6): Stücke, die zum Prüfen markiert sind (zum Beispiel alle Stücke aus
 deiner Bestandsliste), stehen nicht mehr einzeln in Rot da, sondern als **eine gelbe Zeile** mit der aktuellen Zahl. Der
@@ -175,6 +191,22 @@ nickelfrei“ setzt du trotzdem bei jedem Stück selbst.
 Nach dem Online-Stellen erscheint eine Erfolgsseite mit **Link kopieren** und **Kurzlink kopieren** (zum Beispiel
 `…/nr/17`), praktisch für Instagram.
 
+**Knopf „Für Instagram“** (seit P20.6, V-39): Auf derselben Erfolgsseite steht der Kasten **Für Instagram** mit einem
+fertigen Text (Name, Nummer, „42 € zzgl. Versand“, ein kurzer Satz, Deutsch und Englisch, Kurzlink). Bei einem Stück,
+das schon im Shop ist, findest du ihn oben im Stück unter „Für Instagram“ (antippen bzw. anklicken zum Aufklappen).
+
+- **Am iPad (oder Handy):** auf **Für Instagram** tippen. Der Text kommt zuerst in die Zwischenablage, dann geht das
+  Teilen-Menü mit dem Foto auf → „Instagram“ wählen → im Beitrag das Textfeld lange drücken → „Einsetzen“. Mit
+  **Story-Bild (Hochformat)** teilst du ein Bild im Story-Format (Foto, Name, Nummer, Preis); in der Story setzt du
+  dann den Link-Sticker mit dem Kurzlink.
+- **Am Computer (Mac oder PC):** auf **Für Instagram** klicken. Der Text ist kopiert, das Foto wird gespeichert (im
+  Ordner „Downloads“). „Story-Bild (Hochformat)“ speichert das Story-Bild. Beides kannst du dann aufs Handy schicken
+  oder in Instagram im Browser hochladen.
+
+Ging das Kopieren nicht, steht der Text im Feld darunter zum Markieren und Kopieren. Der Text nennt keine
+Mehrwertsteuer (solange du Kleinunternehmerin bist, ist „zzgl. Versand“ richtig) und fordert niemanden auf, dir eine Nachricht zu
+schreiben – gekauft wird im Shop. Instagram selbst bekommt von der Verwaltung keine Daten; du teilst nur, was du willst.
+
 **Für Instagram (V-60):** Schreib in deinen Post einfach „Nr. 17“. Im Shop und im Menü der Website gibt es das Feld
 „Nr. aus dem Post“ – wer die Nummer dort eintippt, landet direkt beim Stück. Ein neues Stück trägt 14 Tage lang den
 gezeichneten Stempel **„frisch im Shop“** (nicht „neu“, weil deine Textilien Second-Hand sind). Das passiert von selbst,
@@ -249,7 +281,9 @@ nach kurzer Zeit von selbst ab.
 
 ![Die Liste „Zu packen“](img/handbuch/packen.webp)
 
-Sobald eine Kundin bezahlt hat, erscheint die Bestellung unter **Packen**. Die älteste steht oben. Auf der Karte siehst du
+Sobald eine Kundin bezahlt hat, erscheint die Bestellung unter **Packen**. Die älteste steht oben. „Zu packen“,
+„Versendet“, „Vorkasse offen“, „Abholung“ und „Widerrufe“ sind seit P20.6 Reiter unter dem Menüpunkt **Bestellungen**
+(Kapitel 1); unten in der Leiste führt „Packen“ weiter direkt hierher. Auf der Karte siehst du
 die Stücke, die Versandart und Hinweise, zum Beispiel „Keramik: Karton in Karton“.
 
 ![Packen: Checkliste und „Gepackt“](img/handbuch/packen-gepackt.webp)
@@ -440,7 +474,11 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   Einwilligung lässt sich nicht einfach löschen – nutze erst „Einwilligung widerrufen“. Eine Vorlage für die
   Einwilligung findest du in den [Anleitungen](ANLEITUNGEN.md#e1).
 
-Preise, Ablauf, Pflegehinweise und häufige Fragen bearbeitest du unter „Texte“ (nächstes Kapitel).
+Preise und „Anfragen offen / ausgebucht“ bearbeitest du hier im Reiter „Texte“. Die **Texte der Tattoo-Seiten**
+(Ablauf, Preise-Text, Pflegehinweise) und die **Tattoo- und Aftercare-Fragen** stehen seit P20.6 (V-37) nur noch an
+**einer** Stelle: unter „Texte“ → „Seiten und FAQ“ (nächstes Kapitel). Im Reiter „Texte“ von „Tattoo“ führen Links
+direkt dorthin („Seite „Tattoo“ bearbeiten“, „Seite „Aftercare“ bearbeiten“, „FAQ Tattoo“, „FAQ Aftercare“) – am iPad
+antippen, am Computer anklicken.
 
 **Flash und Galerie erscheinen von selbst** (seit P20.5): Solange kein Flash-Motiv online ist, zeigt die Seite keinen
 Menüpunkt „Flash“, keinen Link darauf und keinen Flash-Hinweis bei den Preisen. Mit deinem ersten echten Motiv ist alles
@@ -517,15 +555,31 @@ kurz auf die Startseite und die Kategorien im Shop: Nennen die Texte noch, was e
 sie hier – Kategorie-Texte unter **Shop → Kategorien**, die Texte der Startseite unter **Inhalte → Seiten →
 Startseite**, am iPad wie am Computer gleich. Oder du schreibst Claude kurz, was nicht mehr passt.
 
+**Jede Sache an einer Stelle** (seit P20.6, V-37): Alle Seitentexte und alle häufigen Fragen bearbeitest du hier unter
+„Seiten und FAQ“ – auch die der Tattoo-Seiten. Doppelte Wege gibt es nicht mehr.
+
 **Lieber mit Listen?** Bestand und alle Texte der Seite kannst du auch als Excel-Liste bearbeiten – vom iPad, mit der
 kostenlosen App Numbers. Wie das geht, steht in `docs/owner/IPAD.md` (Listen holen, ändern, zurückschicken). Ändert sich
-dasselbe Feld an zwei Stellen, wird nichts überschrieben, sondern nachgefragt.
+dasselbe Feld an zwei Stellen, wird nichts überschrieben, sondern nachgefragt. Seit P20.6 (V-36) ist die Texte-Liste
+aufgeräumt: keine Zeilen mehr, die nirgends auf der Seite erscheinen; die Spalte „Wo auf der Seite“ sagt es in deinen
+Worten („Startseite – Text unter Koko“); oben in jedem Blatt stehen die wichtigsten Texte. Schickst du eine ältere
+Liste zurück, in der noch eine entfallene Zeile steht, ist das kein Fehler – im Bericht steht dann „entfällt“.
 
 ## 12. Einstellungen
 
 ![Die Ansicht „Einstellungen“](img/handbuch/einstellungen.webp)
 
-Alles, was selten geändert wird, liegt hier. Die wichtigsten Bereiche:
+Seit P20.6 (V-37) sind die Einstellungen in **zwei Gruppen** geteilt. Oben stehen beide Gruppen mit ihren Bereichen als
+Links – am iPad antippen, am Computer anklicken:
+
+- **Alltag:** Shop (auf/zu), Vorlagen, Benachrichtigungen, Konto, Versand, Umsatz-Wächter.
+- **Einrichtung (einmal):** Stammdaten, Steuer, Zahlung, Kosten, Datenschutz & Dienste, Rechtstexte, Beispieldaten,
+  System, Produktsicherheit. Das trägst du einmal beim Start ein und brauchst es danach selten.
+
+Jede Sache steht an genau einer Stelle: Die **Jahressummen vor dem Shop** trägst du nur im
+[Umsatz-Wächter](#13-umsatz-wächter) ein (unter „Steuer“ steht ein Link dorthin).
+
+Die wichtigsten Bereiche:
 
 - **Stammdaten & Impressum:** Name, Anschrift, E-Mail, Telefon, Steuernummer. Die Steuernummer erscheint nie öffentlich.
   Deine Anschrift (Jutta Dollmann, Anklamer Straße 28, 10115 Berlin) ist schon eingetragen; Impressum, Datenschutz,
@@ -560,11 +614,24 @@ Alles, was selten geändert wird, liegt hier. Die wichtigsten Bereiche:
 Als Kleinunternehmerin darfst du bestimmte Umsatzgrenzen im Jahr nicht überschreiten, sonst ändert sich die Steuer.
 Der Wächter rechnet **alles** zusammen, nicht nur den Shop: Tattoo, Flohmarkt, Auftragsarbeiten und Sonstiges.
 
-- **Jeden Monat** trägst du die Einnahmen außerhalb des Shops ein (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges). Den
-  Shop-Umsatz kennt die Verwaltung selbst. Stücke, die du mit „Verkauft (Markt/privat)“ oder dem Feld „Markt“ unter
-  „Heute“ mit Preis eingetragen hast, stehen
-  automatisch in der Spalte „Markt-Verkäufe (Stücke)“ – die zählst du bei „Flohmarkt“ nicht noch einmal mit.
-- Zu Jahresbeginn gibst du den **Umsatz des Vorjahres** ein, falls der Shop später startet.
+- **Jeden Monat einmal: „Monat abschließen“** (seit P20.6, V-38). Ein Formular mit vier Feldern – Tattoo, Flohmarkt,
+  Auftragsarbeiten, Sonstiges – und ein Knopf. Leeres Feld heißt 0 €. Darüber steht „Markt-Verkäufe schon erfasst: …“:
+  Stücke, die du mit „Verkauft (Markt/privat)“ oder dem Feld „Markt“ unter „Heute“ mit Preis eingetragen hast, zählt
+  die Verwaltung selbst – die trägst du bei „Flohmarkt“ nicht noch einmal ein. Den Shop-Umsatz kennt die Verwaltung
+  ohnehin. Nach dem Tipp ist der gelbe Hinweis „Monatssummen fehlen“ unter „Heute“ weg. Vertippt? Einfach den Monat noch
+  einmal wählen, Betrag ändern, wieder „Monat abschließen“.
+  - **Am iPad (oder Handy):** Am Monatsanfang kommt die Mail „Monatsexport … ist bereit“. Den Link **Monat abschließen**
+    darin antippen – das Formular öffnet sich mit dem richtigen Monat. Ohne Mail: unten „Mehr“ → „Einstellungen“ →
+    „Umsatz-Wächter“ → nach unten zu „Monat abschließen“.
+  - **Am Computer (Mac oder PC):** den Link in der Mail anklicken, oder links „Einstellungen“ → „Umsatz-Wächter“ →
+    „Monat abschließen“.
+- Zu Jahresbeginn gibst du den **Umsatz des Vorjahres** ein, falls der Shop später startet („Umsätze vor dem Shop“,
+  nur hier).
+- **Rückblick** (seit P20.6, V-40): Weiter unten zeigt der Umsatz-Wächter, was sich verkauft – nur aus deinen eigenen
+  Verkäufen, ganz ohne Besucher-Statistik: Verkäufe der letzten zwölf Monate je Kategorie und Weg (online, Abholung,
+  Markt), wie lange ein Stück im Schnitt online war, die Liste „Liegt seit über 60 Tagen im Shop“ (gute Kandidaten für
+  den nächsten Markt) und „Fast gekauft“: wie oft ein Stück in den letzten 30 Tagen in einer Kasse lag, die nicht
+  bezahlt wurde – nur die Zahl, ohne Namen.
 - Erreicht die Summe eine Stufe, zeigt „Heute“ einen gelben oder roten Hinweis, und du bekommst eine Mail. Dann sprichst
   du mit der Steuerberatung. Der Shop sperrt sich nicht von allein. Die Entscheidung bleibt bei dir und deiner
   Steuerberatung.
@@ -576,6 +643,15 @@ Der Wächter rechnet **alles** zusammen, nicht nur den Shop: Tattoo, Flohmarkt, 
 **Monatsexport für die Buchhaltung:** Monat wählen, dann „Herunterladen“. Du bekommst eine Tabelle (CSV-Datei, öffnet sich
 in Excel oder Numbers) mit allen Rechnungen, Gutschriften, Zahlungen und Gebühren des Monats, ohne Namen und Adressen.
 Dazu gibt es alle Rechnungen als ZIP-Datei. Beides schickst du an deine Buchhaltung. Beispieldaten sind nie enthalten.
+
+**Einnahmen außerhalb des Shops** (seit P20.6, V-65): Eine zweite Tabelle mit deinen Markt-Verkäufen (Datum, Nummer,
+Stück, Preis) und den Monatssummen aus „Monat abschließen“ (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges). Sie steckt
+auch im ZIP – so hat deine Steuerberatung alle Einnahmen auf einmal.
+
+- **Am iPad (oder Handy):** unten „Mehr“ → „Export und Datenschutz“ → Monat wählen → „Einnahmen außerhalb des Shops
+  (CSV)“ antippen. Die Datei landet in „Dateien“ → „Downloads“; von dort teilst du sie per Mail.
+- **Am Computer (Mac oder PC):** links „Export und Datenschutz“ → Monat wählen → „Einnahmen außerhalb des Shops (CSV)“
+  anklicken; die Datei liegt im Ordner „Downloads“.
 
 **Verpackungsmengen** (für das Verpackungsregister LUCID und dein duales System, siehe [Anleitungen](ANLEITUNGEN.md#l1)):
 Jahr wählen und herunterladen. Du meldest die Mengen des Vorjahres bis zum **1. Juni**.

@@ -364,7 +364,8 @@ Lücken in der Nummerierung sind Reserve.
   wenn ein Typ fehlt, `origin ≠ lawyer` oder die letzte Aktivierung/Prüfung älter als 365 Tage ist. Task
   `legalReviewReminder` (täglich, ARCHITEKTUR Anhang A.3) schickt beim Erreichen von 365 Tagen **eine** Mail
   (`admin_legal_review_due`) an `settings.adminNotificationEmail` und danach alle 30 Tage erneut, bis eine neue Fassung
-  aktiviert oder „geprüft, keine Änderung“ gesetzt wurde.
+  aktiviert oder „geprüft, keine Änderung“ gesetzt wurde. *Umsetzungsnotiz P20.6 (V-37):* Die Kachel ist eingeklappt
+  („Rechtstexte: alles aktuell“) und klappt bei einer Warnung von selbst auf; sie wird nicht entfernt.
 - **Rechtsgrundlage:** E-41; Sorgfalt (Rechtsänderungen wie § 356a BGB 2026).
 - **Umsetzung:** Payload-Task; Prüfstand je Typ in `settings.legal.reviews[]` {`type`, `reviewedAt`,
   `lastReminderSentAt`} (DATENMODELL §7.1).
@@ -1200,6 +1201,10 @@ Lücken in der Nummerierung sind Reserve.
   byte-identische Datei. **Nie Beispieldaten:** Monats-CSV, DATEV-Stapel und Rechnungs-ZIP (ebenso der
   Verpackungs-Export, R-201) enthalten keine Datensätze mit `seed = true` und keine Belege der Serien
   `BSP-RE`/`BSP-GS` – auch nicht bei wirksamem `SEED_PREVIEW_MODE` (R-180).
+  **[ergänzt P20.6, V-65/U-93:]** zweite Tabelle „Einnahmen außerhalb des Shops“ (Markt-Verkäufe von Stücken mit Preis,
+  Datum und Nummer; Monatssummen Tattoo/Flohmarkt/Auftragsarbeiten/Sonstiges), gleiche Formatregeln, ohne
+  Personendaten und ohne Beispieldaten, auch im Rechnungs-ZIP – damit die Steuerberatung alle Einnahmen für die EÜR
+  (E-04) auf einmal hat.
 - **Rechtsgrundlage:** § 147 AO, GoBD (maschinelle Auswertbarkeit); Art. 5 Abs. 1 lit. c DSGVO.
 - **Abnahme:** `int` – Export eines Monats aus Test-Fixtures (`seed = false`, nur Test-DB) entspricht der erwarteten
   Datei; kein `@` und kein Kundenname im CSV; mit geladenem Beispielbestand und `SEED_PREVIEW_MODE=true` enthält der
@@ -1221,6 +1226,9 @@ Lücken in der Nummerierung sind Reserve.
   - U4 ≥ 95.000 €: „Nur noch {Rest} € bis 100.000 € – Steuerberatung jetzt kontaktieren.“
   - U5 > 100.000 €: Alarm „Ab diesem Umsatz gilt sofort die Regelbesteuerung – Steuermodus umstellen“ (R-032).
   - U0 am 1. Januar: war das Vorjahr > 25.000 €, Alarm „Kleinunternehmerregelung gilt dieses Jahr nicht“.
+  **[ergänzt P20.6, V-38/U-93:]** Die vier Monatssummen erfasst Jutta in einem Formular „Monat abschließen“ (leer = 0 €,
+  idempotent); die Monatsmail A11 verlinkt direkt dorthin. Der Rückblick im Umsatz-Wächter (V-40) nutzt nur eigene
+  Verkaufsdaten und zählt abgebrochene Kassen ohne Personendaten.
 - **Rechtsgrundlage:** § 19 Abs. 1 UStG i. d. F. ab 01.01.2025 (25.000 € Vorjahr, 100.000 € laufendes Jahr).
 - **Abnahme:** `unit` – Stufen bei 19.999/20.000/25.001/80.000/90.000/95.000/100.001 €; `int` – Neujahrsprüfung,
   keine doppelten Mails.

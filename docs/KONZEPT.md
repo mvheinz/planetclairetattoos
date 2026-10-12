@@ -1657,7 +1657,7 @@ Admin-Ansicht. Keine Kund:innen-Freitexte, keine Anfrage-Bilder.
 | A08 | `admin_refund_failed` | Refund `failed` (Webhook `refund.failed`) | ACHTUNG: Erstattung fehlgeschlagen – PC-2026-00017 | Betrag, Fehlermeldung, Link zur Bestellung |
 | A09 | `admin_revenue_guard` | Task `revenueGuardCheck` | Umsatz-Wächter: {Schwelle} erreicht | Stand, Schwelle, Erklärung, Handlungsempfehlung (§8.4) |
 | A10 | `admin_legal_review_due` | Task `legalReviewReminder` | Jährliche Erinnerung: Rechtstexte prüfen lassen | betroffene Texte mit Datum, Link „Texte“ |
-| A11 | `admin_monthly_close` | Task `monthlyClose` | Monatsexport {Monat JJJJ} ist bereit | Summen, Link „Export“; Hinweis, falls manuelle Monatssummen (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) fehlen |
+| A11 | `admin_monthly_close` | Task `monthlyClose` | Monatsexport {Monat JJJJ} ist bereit | Summen, Link „Export“; Link **„Monat abschließen“** direkt ins Formular für diesen Monat (`/einstellungen/umsatz-waechter?monat=JJJJ-MM#monat-abschliessen`, V-38) mit Hinweis, falls manuelle Monatssummen (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) fehlen |
 | A12 | `admin_alert` | technischer Fehler (Zahlung, Bestellung, Mail M08 ab dem 2. Fehlversuch und nach 24 h, Prüfsumme, Job); Zahlung zu einer beendeten Kasse bzw. Karte/PayPal bezahlt trotz Vorkasse (§4.11 S16/S17); Konformitätserklärung widerrufen – Stücke offline (§5.1 P3) | Technisches Problem: {Kurzbeschreibung} | Was betroffen ist, was automatisch passiert ist, was zu tun ist; höchstens 1 Mail je Fehlerart und Stunde (Ausnahme: beide M08-Alarme und jede Meldung zu S16/S17 gehen immer, weil Geld zu erstatten ist) |
 | A13 | `admin_withdrawal_deadline` | Task `withdrawalDeadlines` | Erstattungsfrist läuft ab: WR-2026-00003 (noch 4 Tage) | Bestellung, Frist, Link |
 | A14 | `admin_privacy_request_due` | Task `privacyRequestsDeadlineReminder` (7 Tage und 1 Tag vor Frist, R-153) | Datenschutz-Anfrage DS-2026-0001: Frist endet am {Datum} | Art der Anfrage, Frist, Link „Datenschutz-Anfragen“ |
@@ -1695,6 +1695,11 @@ Admin-Ansicht. Keine Kund:innen-Freitexte, keine Anfrage-Bilder.
 - **Handy:** Leiste unten mit 4 Einträgen: **Heute** · **Neues Stück** · **Packen** · **Mehr**. „Mehr“ listet alle Ansichten
   aus §7.3–7.15 und „Alle Daten“ (Standard-Payload).
 - **Laptop:** Seitenleiste mit allen Ansichten; Standard-Payload-Navigation unter „Alle Daten“.
+- **Kürzeres Menü** (V-37, U-93; P20.6): Die fünf Bestell-Listen (§7.6–§7.10) stehen in „Mehr“ und in der Seitenleiste
+  als **ein** Punkt „Bestellungen“ (→ „Zu packen“); in jeder dieser Listen führt eine Reiterzeile zu den anderen vier.
+  Das Menü hat damit zehn Punkte. Die Pfade bleiben (Direktlinks aus Mails und Kacheln). „Alle Daten“ bleibt sichtbar,
+  bis es für die Kategorie-Texte einen eigenen Platz gibt (sonst nur dort änderbar); ausgeblendet würde über die eigene
+  Navigation, nie über `admin.hidden` an Sammlungen.
 - Jede Ansicht hat eine eigene URL unter dem Admin-Pfad (Vorschlag: `/heute`, `/neues-stueck`, `/stuecke`, `/packen`,
   `/vorkasse`, `/versendet`, `/abholung`, `/widerrufe`, `/anfragen`, `/tattoo`, `/termine`, `/texte`, `/einstellungen`,
   `/export`; die Datenschutz-Werkzeuge aus §7.15 liegen unter `/export`; die Markt-Termine „on Tour“ sind seit U-60/P14.11
@@ -1716,6 +1721,9 @@ Admin-Ansicht. Keine Kund:innen-Freitexte, keine Anfrage-Bilder.
   (≥, Standard 30 €, E-05); **Beispieldaten vorhanden**
   (Anzahl, Link zu Einstellungen → Beispieldaten); Startklar-Prüfung nicht grün (nur Anzeige).
 - **Letzte 5 Bestellungen** (Nummer, Betrag, Status).
+- **Rechtstexte** (R-014): eingeklappt als eine Zeile „Rechtstexte: alles aktuell“; aufgeklappt je Typ Version, gültig
+  ab, Herkunft, Alter. Ist etwas fällig (kein aktiver Text, nicht von der Kanzlei, Prüfung überfällig), nennt die Zeile
+  die Zahl und die Tabelle ist offen (V-37; die Kachel bleibt, sie wird nur eingeklappt).
 - Schnellknopf „Neues Stück“.
 - **Markt** (V-33 a, U-93; P20.6): Nummer eintippen (die Verwaltung zeigt das Stück), „verkauft“ antippen → derselbe
   Übergang wie „Verkauft (Markt/privat)“ (§5.1 P9): sofort aus dem Shop, `soldAt` = jetzt (Datum heute, Europe/Berlin),
@@ -1799,6 +1807,16 @@ hochzuladen; das Häkchen `nickelFreeConfirmed` bleibt je Stück.
 Reihenfolge von §7.5, V-32) · „Vorschau“ (Produktseite im Entwurfsmodus, nur für Admin) · **„Online stellen“** →
 Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren“ (`planetclairetattoos.com/nr/17`) und
 „Noch ein Stück“. Das Formular schreibt `adminAttention` nie (weder setzen noch löschen).
+
+**„Für Instagram“** (V-39, U-93; P20.6) auf der Erfolgsseite und – aufklappbar – bei Stücken im Shop: Knopf „Für
+Instagram“ kopiert **zuerst** einen fertigen Text in die Zwischenablage (Titel, `Nr. 017 · 42 € zzgl. Versand` bzw.
+„· nur Abholung in Berlin“, ein kurzer Satz, dasselbe auf Englisch, Kurzlink `…/nr/17`; Anführungszeichen aus dem Titel
+entfallen, U-77; nie ein Mehrwertsteuer-Zusatz im Kleinunternehmer-Modus, R-030; kein Aufruf zu Direktnachrichten, U-15/U-42) und öffnet dann das
+Teilen-Menü mit dem ersten Foto als Datei (Web Share API, nur in der Verwaltung; ohne Datei-Teilen, z. B. am Computer,
+wird das Foto gespeichert). Dazu „Story-Bild (Hochformat)“: PNG 1080 × 1920 mit Foto, Titel, Nummer und Preisschild
+(„Endpreis zzgl. Versand“) über den OG-Renderer (satori), Platz für den Link-Sticker. Admin-Endpunkte
+`GET /api/products/:id/instagram-photo.jpg` (1080 × 1350) und `…/instagram-story.png`, `private, no-store`. Keine
+Meta-Schnittstelle, keine Anfrage an Instagram aus der Verwaltung.
 
 **AK-7-01** Ein Keramik-Stück mit `lebensmittelecht` ohne aktive Konformitätserklärung lässt sich schon als Entwurf nicht speichern; ein Schmuck-Stück ohne `nickelFreeConfirmed`, `nickelEvidence` oder `leadFreeGlazeConfirmed` nicht online stellen; ein Textil/Cap ohne Faserangabe (auch mit „Etikett fehlt“), ohne `deviationDecision` oder mit `blankBrandVisible` (bei `allowVisibleBlankBrands = false`) nicht online stellen; ein Foto ohne EN-Alt-Text verhindert das Online-Stellen.
 **AK-7-02** Ein hochgeladenes Foto mit GPS-EXIF wird ohne GPS-Daten ausgeliefert (alle Bildgrößen, auch Original).
@@ -1930,9 +1948,11 @@ Unterbereiche (Details §9):
   `consentNote`, optional Nachweis `consentEvidence`; E-42); „Veröffentlichen“ ohne vollständige Einwilligung ist bei
   `showsCustomer` gesperrt mit Hinweis „Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“; Knopf
   „Einwilligung widerrufen“ nimmt das Foto sofort offline (R-172).
-- **Preise, Stil, Ablauf, Aftercare, FAQ:** Zahlen in `settings.tattoo.*`, Texte in den Seiten `tattoo` und
-  `tattoo_aftercare` (`pages`, Blöcke `priceInfo`, `processSteps`, `aftercareSteps`, `faqList`) und `faqs`; DE/EN mit
-  Übersetzen-Knopf.
+- **Preise, Stil, Ablauf, Aftercare, FAQ:** Zahlen in `settings.tattoo.*` (Reiter „Texte“: Preise, „Anfragen offen /
+  ausgebucht“), Texte in den Seiten `tattoo` und `tattoo_aftercare` (`pages`, Blöcke `priceInfo`, `processSteps`,
+  `aftercareSteps`, `faqList`) und `faqs`; DE/EN mit Übersetzen-Knopf. Seit V-37 (P20.6) bearbeitet Jutta die Seitentexte
+  und die Fragen nur an **einer** Stelle, in §7.13 „Seiten und FAQ“ (ein Speichern-Weg für Fragen, `POST
+  /api/faqs/texts-save`); der Reiter „Texte“ verlinkt dorthin.
 
 ### 7.13 Texte
 
@@ -1941,7 +1961,7 @@ Unterbereiche (Details §9):
   `archive`), Tattoo (`tattoo`, `tattoo_aftercare`), Danke/Bestellstatus (`thanks`, `order_status`), Widerruf-Hinweis
   (`withdrawal`), Konformität (`conformity`), 404-Text (`not_found`), SEO-Beschreibungen. Die Einleitung von Versand &
   Zahlung ist der Rechtstext `versand-zahlung`. Alle DE/EN, Übersetzen-Knopf (E-62).
-- **FAQ** (`faqs`) – sortierbare Einträge Frage/Antwort DE/EN.
+- **FAQ** (`faqs`) – sortierbare Einträge Frage/Antwort DE/EN, alle Kategorien (auch Tattoo/Aftercare, V-37).
 - **Rechtstexte** (`legal-texts`, E-41), Typen `impressum`, `datenschutz`, `agb`, `widerrufsbelehrung`,
   `widerrufsformular`, `versand-zahlung`:
   - „Neue Version“ → Text einfügen (DE, optional EN), Herkunft `origin` wählen (`draft` Arbeitsfassung, `lawyer` Kanzlei;
@@ -1974,6 +1994,11 @@ Unterbereiche (Details §9):
 
 Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Änderung erzeugt einen Audit-Eintrag.
 
+Seit V-37 (U-93, P20.6) in zwei Gruppen: **Alltag** (Shop, Vorlagen, Benachrichtigungen, Konto; Unterseiten Versand und
+Umsatz-Wächter) und **Einrichtung (einmal)** (Stammdaten, Steuer, Zahlung, Kosten, Datenschutz & Dienste, Rechtstexte,
+Beispieldaten; Unterseiten System und Produktsicherheit). Jede Sache ist an genau einer Stelle änderbar: die
+Jahressummen vor dem Shop nur im Umsatz-Wächter (unter „Steuer“ ein Link dorthin).
+
 | Bereich | Inhalte |
 |---|---|
 | Stammdaten & Impressum | `settings.business.*`: Name (`legalName`), Geschäftsbezeichnung (`tradeName`, „Planet Claire“), Straße, PLZ, Ort, Land (Privatadresse, E-40; kein Postfach), E-Mail, Telefon, Steuernummer (`taxNumber`, nie öffentlich, E-46), W-IdNr./USt-IdNr. (`economicId`/`vatId`, optional), Rücksendeadresse (`returnAddress`, leer = Geschäftsadresse); dazu Bezirk des Privatstudios (`settings.tattoo.studioDistrict`, E-50) und Instagram-Handle (`settings.social.instagramHandle`); dienen Impressum, GPSR-Block, Rechnung, Packzettel, Etikett |
@@ -1983,7 +2008,7 @@ Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Ände
 | Zahlung | `settings.payment.*`: Vorkasse an/aus, Kontoinhaberin, IBAN (Prüfziffer wird geprüft; Beispiel-IBAN gilt als Platzhalter), BIC, Bank; Reservierungsdauer (`reservationMinutes`, 30–60); Anzeige des Zahlungsanbieters (Mock/Test/Live) ohne Schlüssel; Vorkasse-Fristen (`prepaymentReminderHours` Standard 72 h, `prepaymentDays` Standard 5 → Storno nach 23:59:59 Berlin am 5. Kalendertag nach dem Bestelltag; E-23, §4.8) |
 | Shop | Schalter „Shop geöffnet“ `settings.shop.isOpen` (aus = Shop-Pause: „In den Korb“ und „Zur Kasse“ gesperrt, Pausen-Text sichtbar, §4.2; einschalten in Produktion erst, wenn die Startklar-Prüfung grün ist, DATENMODELL §13.7), Pausen-Text `closedMessage` (DE/EN), `maxItemsPerCheckout` (Standard 10) |
 | Benachrichtigungen | `settings.adminNotificationEmail` (Startwert `ADMIN_NOTIFY_EMAIL`, Standard jutta@planetclairetattoos.com) |
-| Umsatz-Wächter | manuelle Monatssummen (`revenue-entries`) je Monat und Quelle: Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges (E-45); Jahressummen vor dem Shop (`settings.revenueGuard.manualYearTotals`); Grenzen und Stufen `settings.revenueGuard.*` (§8.4); Verlauf |
+| Umsatz-Wächter | Formular „Monat abschließen“ (V-38): je Monat die vier Summen Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges (`revenue-entries`, E-45) auf einmal, leer = 0 €, mit „Markt-Verkäufe schon erfasst“; Jahressummen vor dem Shop (`settings.revenueGuard.manualYearTotals`, nur hier); Grenzen und Stufen `settings.revenueGuard.*` (§8.4); Rückblick (V-40, §8.4); Verlauf |
 | Rechtstexte | je Typ Stand, Herkunft, Datum der letzten Prüfung und der letzten Erinnerung (`settings.legal.reviews`, Intervall `settings.legal.reviewIntervalDays`, R-014); Knopf „geprüft, keine Änderung“; Schalter `settings.legal.allowVisibleBlankBrands` (Standard aus, nur nach Kanzleifrage K-13) |
 | Datenschutz & Dienste | Auftragsverarbeitungsverträge `settings.processorAgreements` je Dienst aus DIENSTE.md (R-155); Statistik `settings.analytics.enabled` nur mit dokumentierter Entscheidung (`confirmedAt`, `note`) und zusätzlich `NEXT_PUBLIC_ANALYTICS_ENABLED=true` (R-132) |
 | Kosten | Budget und Warnschwelle (`settings.costs.*`, E-05), Monatswerte |
@@ -2002,7 +2027,14 @@ Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Ände
   byte-identische Datei (feste Sortierung, feste Formatierung). Gebühren und Auszahlungen aus Stripe (Mock: Fixtures).
 - **DATEV-Buchungsstapel** (optional, E-04): erst aktiv, wenn in den Einstellungen Konten hinterlegt sind (Erlöskonto,
   Geldtransitkonto Stripe, Bankkonto, Gebührenkonto; mit Steuerberatung festlegen) – bis dahin ausgegraut.
-- **Rechnungen als ZIP** je Monat (alle Beleg-PDFs des Monats).
+- **Rechnungen als ZIP** je Monat (alle Beleg-PDFs des Monats, die Monats-CSV und die Tabelle „Einnahmen außerhalb des
+  Shops“).
+- **Einnahmen außerhalb des Shops** (V-65, U-93; P20.6): Monat wählen → `GET /api/admin/export/{JJJJ-MM}.ausserhalb.csv`,
+  Download `planetclaire-{JJJJ-MM}-einnahmen-ausserhalb-des-shops.csv`, Format wie die Monats-CSV (UTF-8 mit BOM, `;`,
+  CRLF, Dezimalkomma, Datum `TT.MM.JJJJ` Europe/Berlin). Spalten: Monat (`MM.JJJJ`); Datum; Art (Markt-Verkauf (Stück) /
+  Monatssumme); Stück-Nr.; Bezeichnung (Verwaltungstitel bzw. Quelle); Betrag brutto; Notiz. Zeilen: Markt-Verkäufe von
+  Stücken mit erzieltem Preis (nach Verkaufsdatum, dann Nummer), danach die Monatssummen in der Reihenfolge Tattoo,
+  Flohmarkt, Auftragsarbeiten, Sonstiges. Keine Personendaten, nie Beispieldaten (E-04, EÜR).
 - **Keine Beispieldaten in Exporten:** Monats-CSV, DATEV-Buchungsstapel, Rechnungs-ZIP und Verpackungs-CSV enthalten
   **nie** Datensätze mit `seed=true` (auch keine `BSP-`-Belege) – auch nicht bei wirksamem `SEED_PREVIEW_MODE` oder im
   Vorschau-Export (§11.4).
@@ -2176,6 +2208,17 @@ Server- und Hosting-Logs mit IP (L-13 e) regelt die Hosting-Einstellung außerha
   unter „Heute“ bis Jahresende.
 - Anzeige in Einstellungen → Umsatz-Wächter: Balken mit Stand und Stufen, Monatstabelle (Shop, Tattoo, Flohmarkt,
   Auftragsarbeiten, Sonstiges).
+- **Monat abschließen** (V-38, U-93; P20.6): ein Formular mit Monat (Standard: Vormonat; `?monat=JJJJ-MM` aus A11), den
+  vier Beträgen (leer = 0 €), der Anzeige „Markt-Verkäufe schon erfasst: 125 €“ (Stücke mit Preis aus „Offline
+  verkauft“ in diesem Monat) und einem Knopf. `POST /api/globals/settings/month-close` legt die vier Einträge in einer
+  Transaktion an bzw. ändert sie (idempotent; gleiche Werte ändern nichts). Danach fehlt keine Quelle mehr, der gelbe
+  Hinweis „Monatssummen fehlen“ unter „Heute“ verschwindet. Das frühere Einzelformular „Monatssumme eintragen“ entfällt.
+- **Rückblick** (V-40, U-93; P20.6), nur aus Juttas eigenen Daten, ohne Besucherdaten (V-46 a): Verkäufe der letzten
+  12 Monate je Kategorie und Weg (online, Abholung, Markt; `soldChannel`), durchschnittliche Tage vom ersten
+  Online-Stellen (`firstPublishedAt`) bis zum Verkauf (`soldAt`), Liste „liegt seit über 60 Tagen“ (verfügbare Stücke)
+  und „fast gekauft“ = Anzahl abgebrochener Kassen (`checkouts` mit Status abgelaufen/abgebrochen/gescheitert) der
+  letzten 30 Tage je Stück – nur gezählt, ohne Personendaten und ohne neues Feld (Kassen werden nach 30 Tagen gelöscht,
+  L-03). Beispieldaten nur bei wirksamem `SEED_PREVIEW_MODE`.
 - Hinweistext in der Ansicht: „Der Wächter ersetzt keine Steuerberatung.“
 
 **AK-8-01** Jeder Job ist mit vorgestellter Uhr getestet, inklusive Doppel-Lauf (Idempotenz).
