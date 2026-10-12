@@ -1,6 +1,10 @@
 # Vom iPad aus: Listen bearbeiten und Dateien weiterschicken
 
-Für Jutta. Du brauchst keinen Computer – nur dein iPad, die Claude-App und die kostenlose App **Numbers** von Apple.
+> Jede Anleitung nennt beide Wege, wo es Unterschiede gibt: am **iPad** und am **Computer** (Mac oder PC). Beides
+> bleibt möglich (U-94).
+
+Für Jutta. Du brauchst keinen Computer – nur dein iPad, die Claude-App und die kostenlose App **Numbers** von Apple. Mit
+einem Computer geht es genauso; die Unterschiede stehen jeweils unter **Am Computer**.
 So pflegst du ab jetzt deine Seite: Du bekommst von Claude Listen, änderst sie und schickst sie zurück (UEBERARBEITUNG
 U-85–U-89).
 
@@ -29,6 +33,9 @@ U-85–U-89).
 2. Tippe auf das **Teilen-Symbol** (Quadrat mit Pfeil nach oben).
 3. Tippe auf **In Dateien sichern** → **Auf meinem iPad** → **Sichern**.
 
+**Am Computer:** Im Chat (Claude-App oder claude.ai im Browser) auf die Datei klicken → **Herunterladen**. Sie liegt
+dann im Ordner **Downloads**.
+
 ## B · Die Liste bearbeiten
 
 1. Öffne die App **Dateien** (blauer Ordner) → **Auf meinem iPad** → tippe auf die Liste. Sie öffnet sich in Numbers.
@@ -42,6 +49,9 @@ U-85–U-89).
 6. Bitte **nicht**: Zeilen löschen, Überschriften ändern, in grauen Feldern etwas ändern. Englisch musst du nicht
    anfassen – Claude passt es an.
 
+**Am Computer:** Doppelklick auf die Datei – sie öffnet sich in **Excel**, am Mac auch in **Numbers**, am PC ohne
+Excel im kostenlosen **LibreOffice**. Alles andere wie oben.
+
 ## C · Die Liste zurückschicken
 
 1. Tippe in Numbers oben auf die **drei Punkte „···“** (bei manchen iPads auf das Teilen-Symbol).
@@ -53,14 +63,39 @@ U-85–U-89).
 Claude übernimmt nur, was du geändert hast, und schreibt dir zurück, was geklappt hat und wo es nachfragen muss. Hat sich
 dasselbe Feld inzwischen anders geändert, überschreibt Claude nichts, sondern fragt dich.
 
+**Am Computer:** In Excel oder LibreOffice einfach **Speichern** (die Datei bleibt `.xlsx`); in Numbers am Mac **Ablage →
+Exportieren → Excel**. Dann im Chat auf die **Büroklammer** bzw. **+** → Datei wählen → kurz dazuschreiben → **Senden**.
+
 ## D · Katalog oder Rundgang per Mail weiterschicken
 
 1. Tippe im Chat auf die PDF-Datei (oder öffne sie in **Dateien**).
 2. Tippe auf das **Teilen-Symbol** → **Mail**.
 3. Empfänger eintragen → **Senden**.
 
+**Am Computer:** PDF im Chat anklicken → **Herunterladen** → im Mailprogramm eine neue Mail schreiben und die Datei als
+**Anhang** hinzufügen.
+
 > Der Katalog enthält noch geschätzte Preise und Maße – schau ihn kurz durch, bevor du ihn weiterschickst. Der Rundgang
 > zeigt die Seite vor dem Start (Beispielinhalte, keine Fotos von Kund:innen).
+
+## E · GitHub-Projekt auf „privat“ stellen (einmalig, J-00)
+
+Dein Projekt liegt bei GitHub unter dem Konto **mvheinz**. Nur wer dieses Konto hat, kann es umstellen (Claude darf
+diese Einstellung nicht selbst ändern).
+
+**Am iPad (Safari):**
+
+1. Öffne **Safari** und gehe auf **github.com/mvheinz/planetclairetattoos**. Melde dich mit dem Konto **mvheinz** an.
+2. Siehst du oben keinen Reiter **Settings** (Zahnrad): Tippe in der Adressleiste auf **aA** (bzw. das Symbol links)
+   → **Desktop-Website anfordern**.
+3. Tippe auf **Settings** und wische ganz nach unten zum roten Bereich **Danger Zone**.
+4. Tippe auf **Change visibility** → **Change to private**.
+5. GitHub fragt mehrmals nach („I want to make this repository private“, „I have read and understand these effects“) –
+   jeweils bestätigen, am Ende **Make this repository private**. Eventuell will GitHub dein Passwort oder einen Code.
+6. Fertig, wenn oben neben dem Namen **Private** steht. Schreib Claude „privat ist erledigt“ – Claude prüft es.
+
+**Am Computer (Mac oder PC, im Browser):** Dieselben Schritte 1, 3, 4, 5 und 6 – Schritt 2 entfällt, dort ist
+**Settings** immer zu sehen.
 
 ## Wenn etwas nicht klappt
 

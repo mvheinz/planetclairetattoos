@@ -5700,7 +5700,25 @@ Aufgabe P20.n mit U-Nummer).
 
 - [ ] **P20.1 Kürzere Wartepausen der kleinen Coco** (U-92) – Pausen zwischen den Warte-Aktionen je 1 s kürzer (`IDLE_PLAN` in `src/leash/cocoExtra.ts`: heute 3,2 · 2,3 · 2,5 · 3 · 1 · 3,3 · 8 s → 2,2 · 1,3 · 1,5 · 2 · 1 · 2,3 · 7 s; mindestens 1 s Standbild), Aktionen unverändert.
   - Akzeptanz: Unit (Abstände = bisherige − 1 s, nie < 1 s; Aktionsdauern unverändert), E2E Warte-Aktionen (`leash`/`coco`) grün, reduzierte Bewegung unverändert, Kunst-QA-Kriterien zu Coco (CO-xx) grün.
-- [ ] **P20.9 Abschluss P20** – Prüfschleuse, Merge, Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
+- [ ] **P20.2 Sofort-Korrekturen** (U-93: V-09, V-21, V-27, V-66) – „Keramik-Paket-Paket“ und „mit der Post“, Rahmentexte an den echten Bestand (Schmuck „Kette nicht dabei“, Stationstexte, SEO), Rundgang vollständig ohne falsche Kästen, Bewegungen als kurze Videos fürs iPad (zuerst P20.1).
+  - Akzeptanz: Unit (keine doppelten Wörter je Versandklasse DE/EN), Texte gegen `products.json` geprüft, Rundgang mit Korb/Kasse/Versand/Widerruf/Archiv, MP4 je Bewegungsänderung.
+- [ ] **P20.3 Shop und Kasse** (U-93: V-10, V-11 a, V-12, V-13 a, V-14, V-16, V-17, V-18 b, V-19, V-20) – Versand am Preis, keine leeren Seiten (Station „Zeichnung auf Anfrage“, Markt-Verkäufe nur mit Häkchen „ins Archiv“), „Mehr zeigen“ verlängert, Karten auf dem Handy (schmalerer Rahmen), Produktseite Preis früher, Korb ohne doppelte Lieferart, EU-Rechnungsadresse, Geschenk-Hinweis plus Gruß-Feld (Datenschutz/VVT/Löschfrist, Kanzlei), Shop-Fragen, „Etwas Ähnliches“ mit Bezug.
+  - Akzeptanz: Unit/Int/E2E je Punkt, Bildvergleiche neu, Kunst-QA (Leine/Rahmen), LCP/CLS-Budgets.
+- [ ] **P20.4 Inhalte und Texte** (U-93: V-22 a, V-23, V-24, V-25, V-26 b, V-43, V-44 a) – Spalten „Ein Wort von mir“ (Claude-Vorschläge, erst nach Juttas Okay) und „Pflege“ in der Bestandsliste, Pflege je Stückart, doppelte Sätze raus, Englisch aus einem Guss, einheitlich „Jutta & Coco“, Häkchen „Text ist von mir“, freundlichere Schutztexte (Kanzlei prüft).
+  - Akzeptanz: Unit (Excel-Spalten, Rundweg), Text-Inventur, Verbotsliste, E2E betroffene Seiten.
+- [ ] **P20.5 Tattoo** (U-93: V-28 a, V-64) – Beispiel-Preise/Flash markiert, Startprüfung für Tattoo-Preise, Flash erst mit echten Motiven, Galerie-Unterschrift neutral (U-77); Schalter „Anfragen offen / ausgebucht bis …“ (Migration).
+  - Akzeptanz: Int (Startprüfung rot bis Bestätigung), E2E Tattoo-Seiten, Leerzustände.
+- [ ] **P20.6 Verwaltung** (U-93: V-15, V-31, V-32, V-33 a, V-34, V-35, V-36, V-37, V-38, V-39, V-40, V-65) – „was fehlt noch“ und gesammelt online stellen, Maße erst messen, „Bitte prüfen“ abhaken, Markt-Knopf, ein Knopf „Aus dem Shop nehmen“, iPad als Hauptgerät (Leiste quer, Prüfprofil iPad), P19 neu zuschneiden, kürzeres Menü, Monatsformular, „Für Instagram“, Werkstatt-Rückblick, Monatsexport „Einnahmen außerhalb des Shops“.
+  - Akzeptanz: Int/E2E je Ablauf, iPad-Profil (hoch/quer), HANDBUCH mit iPad- **und** Computer-Weg (U-94).
+- [ ] **P20.7 Start und Betrieb** (U-93: V-02, V-03, V-04 a, V-06, V-08 b; U-94) – Start per Knöpfen in der Verwaltung **und** weiter dokumentiert am Computer, „Startinhalt übernehmen“ ohne Demo-Seed in der echten Datenbank, nur eine echte Seite (Probe-Umgebungen ab), Claude-Wartungsroutine mit automatischen geprüften Sicherheits-Updates, Computer-Aufgaben als „freiwillig, nur mit Computer“, Kostenrechnung brutto und Datenbank mit 7 Tagen Rückspulen; GO-LIVE/AUFGABEN/ANLEITUNGEN je Schritt mit beiden Wegen.
+  - Akzeptanz: Int (Knöpfe, Einmal-Code, Startinhalt ohne `seed`), Doku-Prüfung (jede Anleitung nennt iPad- und Computer-Weg).
+- [ ] **P20.8 Recht** (U-93: V-46 a, V-48 a, V-62 b) – Kanzlei-Auftrag „prüfen statt neu schreiben“, Statistik/Browser-Fehler dauerhaft aus, Rechnungsfrist 8 Jahre nach Zustimmung der Steuerberatung (Startprüfung), alle KI-Dienste in `robots.txt`/`ai.txt` gesperrt.
+  - Akzeptanz: Unit (robots/ai.txt), KANZLEI-BRIEFING neu sortiert, Startprüfung.
+- [ ] **P20.9 Technik und Tempo** (U-93: V-49, V-50, V-51, V-53, V-54, V-55 a, V-56 a, V-57 a, V-59) – Shop-Bilder `sizes`, Ruckeln von Leine/Coco beheben, Bewegungs-Schalter im Menü und kleine A11y-Lücken, Fuß kompakter, wirkungslose Texte raus (Migration), Prüfschleuse schneller (Pixel 7 Kern, iPad dazu), stillgelegte GitHub-Prüfdateien löschen (Vorlage bleibt), Instagram-Export streichen, Hausputz.
+  - Akzeptanz: Prüfschleuse grün, PF-02/PF-03 ohne Engine-Last-Regression, Kunst-QA.
+- [ ] **P20.10 KI-Vorschläge aus Fotos** (U-93: V-41 a) – Knopf „Vorschlag aus Fotos“ beim neuen Stück: Titel, Beschreibung DE/EN, Alt-Texte, ungefähre Maße, Preis als gelb markierter Vorschlag; Pflichtangaben/Häkchen nie automatisch. Anbieterwahl mit AVV, DIENSTE/VVT, Kosten gegen E-05; Jutta bekommt die Anbieter-Auswahl als Frage.
+  - Akzeptanz: Int mit Mock-Treiber, Adapter wie Übersetzung, nichts ohne Juttas Prüfung online.
+- [ ] **P20.11 Abschluss P20** – Prüfschleuse, Merge, Vorschau an Jutta, Eintrag in `docs/FORTSCHRITT.md`.
 
 ## P19 – Pflege per Excel dauerhaft: in der Verwaltung (11.10.2026)
 
