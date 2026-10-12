@@ -90,6 +90,11 @@
   padding-top: var(--space-2);
 }
 
+/* V-60 (KO-06a): „frisch im Shop“ neben dem Schild – nur solange das Stück verfügbar ist (Live-Zustand `data-status`). */
+.page:not([data-status='available']) .fresh {
+  display: none;
+}
+
 /* V-10: Versandkosten direkt unter dem Preis, darunter „Versand zahlst du nur einmal“. */
 .shipAt {
   margin: 0;

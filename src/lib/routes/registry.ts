@@ -3,6 +3,10 @@
 // Vorschau-Export importieren diese Datei relativ. DE-/EN-Muster entsprechen exakt KONZEPT §2.2 (ohne Sprachpräfix;
 // `/` = Startseite der Sprache). Interner Schlüssel `key` = EN-Pfad = Ordnername unter `src/app/(frontend)/[locale]/`.
 
+import { TOUR_ANCHOR } from './anchors'
+
+export { TOUR_ANCHOR }
+
 export const LOCALES = ['de', 'en'] as const
 export type Locale = (typeof LOCALES)[number]
 export const DEFAULT_LOCALE: Locale = 'de'
@@ -135,6 +139,15 @@ export const shortLinks: readonly { path: string; routeId: string }[] = [
   { path: '/versand', routeId: 'R25' },
   { path: '/vertrag-widerrufen', routeId: 'R26' },
   { path: '/widerruf', routeId: 'R26' },
+]
+
+/**
+ * Kurzadressen für Instagram-Bio und Stories (V-60, U-93; KONZEPT §2.4): ohne Sprachpräfix 307 auf den Anker der Route in
+ * der per `Accept-Language` erkannten Sprache (`Vary: Accept-Language`, kein Cookie), mit Präfix (`/en/on-tour`) 308 auf
+ * diese Sprache. `/shop` braucht keinen Eintrag – es ist schon eine Route ohne Präfix (307 wie jeder Pfad).
+ */
+export const anchorLinks: readonly { path: string; routeId: string; anchor: string }[] = [
+  { path: '/on-tour', routeId: 'R01', anchor: TOUR_ANCHOR },
 ]
 
 /** Feste Varianten mit Sprachpräfix (ARCHITEKTUR §2.3) → 308 auf die Route dieser Sprache. */

@@ -24,6 +24,11 @@ export function stampAngle(nr: number): number {
   return -14 + (mod(nr * 29, 5) - 2)
 }
 
+/** Drehung des Stempels „frisch im Shop“ (V-60): +6° ± 2° nach Nummer (+4 … +8) – kippt anders als „sold“. */
+export function freshStampAngle(nr: number): number {
+  return 6 + (mod(nr * 17, 5) - 2)
+}
+
 /** Preis auf dem Schild: ganze Euro ohne Nachkommastellen („45 €“ / „€45“), sonst mit („38,50 €“). */
 export function formatTagPrice(cents: number, locale: Locale): string {
   return formatMoney(cents, locale, { style: 'tag' })

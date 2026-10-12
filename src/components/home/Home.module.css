@@ -85,6 +85,8 @@
   width: 100%;
   max-width: 26rem;
   min-width: 0;
+  /* V-60: Sprungziel der Kurzadresse `/on-tour` (`#on-tour`) – Luft unter der festen Kopfleiste */
+  scroll-margin-top: calc(var(--header-h) + var(--space-5));
 }
 
 @media (min-width: 600px) {

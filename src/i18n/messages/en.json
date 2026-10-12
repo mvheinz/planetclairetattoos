@@ -162,7 +162,12 @@
       "foldNext": "next date: {date} – {name}",
       "foldNone": "no dates right now",
       "laterHeading": "After that",
-      "pastHeading": "Where I have been"
+      "pastHeading": "Where I have been",
+      "calendar": "Add to calendar",
+      "calendarLabel": "Add to calendar: {name}",
+      "calendarHint": "In the Instagram browser? Tap ⋯ at the top right and choose “Open in browser” – then the calendar works.",
+      "icsMore": "All dates: {url}",
+      "icsCancelled": "cancelled"
     }
   },
   "a11y": {
@@ -460,6 +465,16 @@
       "intro": "I have a question about {number} (“{title}”):",
       "link": "Link to the piece: {url}",
       "closing": "Best wishes"
+    },
+    "fresh": {
+      "label": "fresh in the shop",
+      "word": "fresh",
+      "rest": "in the shop"
+    },
+    "lookup": {
+      "label": "No. from the post",
+      "placeholder": "e.g. 115",
+      "submit": "Show"
     }
   },
   "archive": {

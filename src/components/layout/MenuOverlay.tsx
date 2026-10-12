@@ -4,6 +4,7 @@ import React from 'react'
 import { WORDMARK_HEIGHT, WORDMARK_SRC, WORDMARK_WIDTH } from '@/components/brand/WordmarkLink'
 import { Coco } from '@/components/Coco'
 import { Icon } from '@/components/icons/Icon'
+import { NumberLookup } from '@/components/shop/NumberLookup'
 import { StaticHtml } from '@/components/StaticHtml'
 import { instagramUrl, type SiteNavigation } from '@/lib/data/navigation'
 import { WITHDRAWAL_LINK_LABEL } from '@/lib/legal/constants'
@@ -24,7 +25,8 @@ import { NavLinkView } from './NavLinkView'
 
 // Menü (DESIGN KO-03, KONZEPT §3.0.2): natives `<dialog id="menu">`, serverseitig gerendert; das Verhaltensmodul
 // `menu` öffnet es modal (Fokus, Tab-Falle, `Esc`, MI-05). Hauptliste in Spectral, unter „Shop“ die Kategorien
-// (`showInNavigation`), unter „Tattoo“ die Tattoo-Unterseiten (Flash und Galerie nur mit Inhalt, V-28 a/V-11); unten
+// (`showInNavigation`), unter „Tattoo“ die Tattoo-Unterseiten (Flash und Galerie nur mit Inhalt, V-28 a/V-11); darunter
+// das Nummernfeld „Nr. aus dem Post“ (V-60, GET `/nr` in der Sprache der Seite); unten
 // Sprachumschalter, Instagram und die Pflichtlinks klein inkl. „Vertrag widerrufen“. Ohne JavaScript bleibt der Dialog
 // zu, der Menü-Knopf führt zur Fußnavigation.
 // Der Inhalt steht als statisches HTML im Dialog (`StaticHtml`): React hydriert ihn nicht – das sind gut
@@ -123,6 +125,8 @@ export async function MenuOverlay({
             ))}
           </ul>
         </nav>
+
+        <NumberLookup locale={locale} id="menu-nr" variant="menu" className={styles.lookup} />
 
         <div className={styles.bottom}>
           <LanguageList

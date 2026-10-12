@@ -5,6 +5,7 @@ import { addToCart } from '@/app/(frontend)/[locale]/shop/[product]/actions'
 
 import { coil } from '@/components/leash/Station'
 import { Badge } from '@/components/shop/Badge'
+import { FreshStamp } from '@/components/shop/FreshStamp'
 // Alias: der Streichpreis-Scan (V-20) prüft den Quelltext auf das HTML-Tag für Streichungen.
 import { DeliveryTime as LeadTime } from '@/components/shop/DeliveryTime'
 import { MoneyAmount } from '@/components/shop/MoneyAmount'
@@ -21,6 +22,7 @@ import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { listAllCategories } from '@/lib/data/categories'
 import { getContactInfo } from '@/lib/data/contact'
 import {
+  getFreshContext,
   getPublicProductByItemNumber,
   getUntranslatedFields,
   listRelatedProducts,
@@ -40,6 +42,7 @@ import type { FiberRow } from '@/lib/products/fibers'
 import { sizeComparison } from '@/lib/products/measure'
 import { localizedPath } from '@/lib/routes/paths'
 import { BUY_NOTE_CODES, BUY_NOTE_FRAGMENTS, IN_CART_FRAGMENT } from '@/lib/shop/buyArea'
+import { freshFor } from '@/lib/shop/fresh'
 import { productMailto } from '@/lib/shop/mailto'
 import { pickupOnlyOrderable } from '@/lib/shop/pickupPolicy'
 import { buyState, canAddToCart, foodContactDisplay } from '@/lib/shop/productState'
@@ -78,6 +81,8 @@ import styles from './ProductPage.module.css'
 // JavaScript ohne Seitenwechsel (`add-to-cart`); Live-Zustand per `product-status` (+ `sold-stamp`). Direkt nach
 // dem Kaufbereich die harmonisierte Mitteilung zur Gewährleistung (R-049, Bereich Preis/Produktangaben), danach die
 // Blöcke 7–11 aus `ProductInfo.tsx` (Beschreibung, Details, „Herstellerin & Sicherheit“, Versand & Rückgabe, „Mehr aus …“).
+// V-60: Ist das Stück höchstens 14 Tage online (ohne die Erstbefüllung zum Start), steht neben dem Preisschild der Stempel
+// „frisch im Shop“ (KO-06a); reserviert oder verkauft blendet CSS ihn aus (Live-Zustand `data-status`).
 
 function Row({
   label,
@@ -128,6 +133,7 @@ export async function ProductPage({
     related,
     german,
     contact,
+    freshCtx,
   ] = await Promise.all([
     getTranslations({ locale, namespace: 'shop.product' }),
     getTranslations({ locale, namespace: 'shop.badges' }),
@@ -141,6 +147,7 @@ export async function ProductPage({
     // Warnhinweise stehen immer auch auf Deutsch (R-040).
     locale === 'de' ? product : getPublicProductByItemNumber(product.itemNumber, 'de'),
     getContactInfo(),
+    preview ? Promise.resolve(null) : getFreshContext(),
   ])
   const de = (field: ProductTextField) =>
     locale !== 'de' && untranslated.includes(field) ? 'de' : undefined
@@ -308,6 +315,14 @@ export async function ProductPage({
             sold={state === 'sold'}
             stampSlot
           />
+          {freshFor(product, freshCtx) ? (
+            <FreshStamp
+              itemNumber={product.itemNumber}
+              locale={locale}
+              size="page"
+              className={styles.fresh}
+            />
+          ) : null}
         </div>
         {shippingPrice ? (
           <p className={styles.shipAt} data-shipping-at-price={product.shippingClass}>
@@ -615,6 +630,7 @@ export async function ProductPage({
       <StaticHtml {...coil('more', 0)}>
         <MoreFromCategory
           products={related.filter((p) => p.status !== 'sold' && p.id !== product.id)}
+          freshCtx={freshCtx}
           locale={locale}
           categoryName={categoryName}
           categoryHref={similarHref}

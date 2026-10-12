@@ -24,16 +24,21 @@ const STATES: readonly string[] = ['available', 'reserved', 'sold', 'gone']
 
 const isState = (v: unknown): v is ProductLiveState => typeof v === 'string' && STATES.includes(v)
 
-/** Zugänglicher Name einer Karte im neuen Zustand: Zusatz des alten Zustands ab-, den neuen anhängen. */
+/**
+ * Zugänglicher Name einer Karte im neuen Zustand: Zusatz des alten Zustands ab-, den neuen anhängen. `fresh` (V-60) ist
+ * der Zusatz „, frisch im Shop“ der Karte: Er steht nur im Zustand `available` im Namen.
+ */
 export function relabel(
   label: string,
   from: string,
   to: string,
   suffix: (state: string) => string,
+  fresh = '',
 ): string {
   const old = suffix(from)
-  const base = old && label.endsWith(old) ? label.slice(0, -old.length) : label
-  return base + suffix(to)
+  let base = old && label.endsWith(old) ? label.slice(0, -old.length) : label
+  if (fresh && base.endsWith(fresh)) base = base.slice(0, -fresh.length)
+  return base + (to === 'available' ? fresh : '') + suffix(to)
 }
 
 export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Unmount {
@@ -60,7 +65,9 @@ export function mount(root: Element, ctx: BehaviorContext = { mode: 'app' }): Un
       card.querySelector('[data-price-tag]')?.removeAttribute('data-sold')
     }
     const label = card.getAttribute('aria-label')
-    if (label) card.setAttribute('aria-label', relabel(label, from, to, suffix))
+    // V-60: „, frisch im Shop“ nur, solange das Stück verfügbar ist (der Stempel folgt per CSS `data-status`).
+    const fresh = card.getAttribute('data-fresh-label') ?? ''
+    if (label) card.setAttribute('aria-label', relabel(label, from, to, suffix, fresh))
   }
 
   const apply = (states: Record<string, unknown>) => {

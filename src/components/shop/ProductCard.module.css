@@ -58,6 +58,19 @@
   left: calc(var(--pf-band) + 6px);
 }
 
+/* V-60 (KO-06a): Stempel „frisch im Shop“ oben rechts auf dem Foto (gegenüber der Reserviert-Plakette oben links). Nur
+   solange das Stück verfügbar ist – reserviert, verkauft oder weg (Live-Wechsel `product-status`) blendet ihn aus. */
+.fresh {
+  position: absolute;
+  top: calc(var(--pf-band) + 4px);
+  right: calc(var(--pf-band) + 4px);
+  z-index: 1;
+}
+
+.card:not([data-status='available']) .fresh {
+  display: none;
+}
+
 /* Startseite (KO-21): ohne Schnur, Schild `pinned` am Kartenfuß (8 px Einzug). */
 .tagFoot {
   margin-top: var(--space-2);

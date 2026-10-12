@@ -2,7 +2,7 @@
 // Die Kurz-URLs (R-010) laufen statisch über `next.config.ts` `redirects()` vor dem Proxy.
 import { pickLocale } from '../../i18n/pickLocale'
 import { aliasTarget, localizedPath, matchRoute, splitLocale } from './paths'
-import { LOCALES, type Locale } from './registry'
+import { anchorLinks, LOCALES, type Locale } from './registry'
 
 export type PublicRouteDecision =
   /** Weiterleitung; `vary` = Antwort hängt von `Accept-Language` ab. */
@@ -45,8 +45,10 @@ export const isUnknownRootFile = (pathname: string): boolean =>
 /**
  * Entscheidet für `pathname` (ohne Query; `search` wird angehängt):
  * 1. abschließender Schrägstrich → 308 ohne;
- * 2. mit Sprachpräfix: Pfad dieser Sprache → next-intl; fester Alias oder Pfad der anderen Sprache → 308;
- * 3. ohne Sprachpräfix: `/` und übrige Pfade → 307 in die erkannte Sprache (übersetzt, falls bekannt), ohne Cookie.
+ * 2. mit Sprachpräfix: Pfad dieser Sprache → next-intl; fester Alias, Kurzadresse mit Anker (`/en/on-tour`, V-60) oder
+ *    Pfad der anderen Sprache → 308;
+ * 3. ohne Sprachpräfix: `/`, Kurzadressen mit Anker (`/on-tour` → `/de#on-tour`, V-60) und übrige Pfade → 307 in die
+ *    erkannte Sprache (übersetzt, falls bekannt), ohne Cookie.
  */
 export function decidePublicRoute(
   pathname: string,
@@ -69,6 +71,14 @@ export function decidePublicRoute(
     if (matchRoute(rest, locale)) return { kind: 'intl' }
     const alias = aliasTarget(pathname)
     if (alias) return { kind: 'redirect', status: 308, location: alias + search }
+    const anchored = anchorLinks.find((a) => a.path === rest)
+    if (anchored) {
+      return {
+        kind: 'redirect',
+        status: 308,
+        location: `${localizedPath(anchored.routeId, locale)}${search}#${anchored.anchor}`,
+      }
+    }
     for (const other of LOCALES.filter((l): l is Locale => l !== locale)) {
       const match = matchRoute(rest, other)
       if (match) {
@@ -85,6 +95,15 @@ export function decidePublicRoute(
   const locale = pickLocale(acceptLanguage)
   if (pathname === '/')
     return { kind: 'redirect', status: 307, location: `/${locale}${search}`, vary: true }
+  const anchored = anchorLinks.find((a) => a.path === pathname)
+  if (anchored) {
+    return {
+      kind: 'redirect',
+      status: 307,
+      location: `${localizedPath(anchored.routeId, locale)}${search}#${anchored.anchor}`,
+      vary: true,
+    }
+  }
   const match = matchRoute(pathname, 'de') ?? matchRoute(pathname, 'en')
   const location = match
     ? localizedPath(match.route.id, locale, match.params)

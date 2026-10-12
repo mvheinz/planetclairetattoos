@@ -28,3 +28,24 @@ export function validateDeliveryTimeText(value: unknown): true | string {
     ? 'Bitte eine feste Angabe ohne „ca.“ oder „in der Regel“ (z. B. „2–5 Werktage“).'
     : true
 }
+
+/**
+ * Lieferzeit in Tagen aus dem Text der Einstellungen (V-61 b, für die Produktdaten bei Google): „2–5 Werktage“,
+ * „2-5 working days“, „2 bis 5 Werktage“, „3 Werktage“ → `{ min, max }`. Andere Einheiten (Wochen) oder unklare Texte →
+ * `null` (dann steht in den Produktdaten keine Lieferzeit – lieber nichts als etwas Falsches).
+ */
+export function deliveryDayRange(
+  text: string | null | undefined,
+): { min: number; max: number } | null {
+  const t = (text ?? '').trim()
+  if (!t || isVagueDeliveryTime(t)) return null
+  if (!/(?:werk)?tage?n?\b|(?:working|business)?\s*days?\b/i.test(t)) return null
+  if (/woche|week|monat|month/i.test(t)) return null
+  const range = /(\d{1,2})\s*(?:[–—-]|bis|to)\s*(\d{1,2})/i.exec(t)
+  const single = /(\d{1,2})/.exec(t)
+  const min = Number(range ? range[1] : single?.[1])
+  const max = Number(range ? range[2] : single?.[1])
+  if (!Number.isInteger(min) || !Number.isInteger(max) || min < 1 || max < min || max > 60)
+    return null
+  return { min, max }
+}

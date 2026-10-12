@@ -16,14 +16,14 @@ import { statusLabelAttrs } from '@/components/shop/statusLabels'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { getHomeView } from '@/lib/data/home'
 import { getSiteNavigation, instagramUrl } from '@/lib/data/navigation'
-import { listArchiveCategoryKeys, listStationProducts } from '@/lib/data/products'
+import { getFreshContext, listArchiveCategoryKeys, listStationProducts } from '@/lib/data/products'
 import { getTattooSettings, listFlash } from '@/lib/data/tattoo'
 import { listTourDates } from '@/lib/data/tour'
 import { kokoAsleep } from '@/lib/home/kokoSleep'
 import { tourNow } from '@/lib/tour/now'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
-import type { Locale } from '@/lib/routes/registry'
+import { TOUR_ANCHOR, type Locale } from '@/lib/routes/registry'
 import { organizationJsonLd, serializeJsonLd } from '@/lib/seo/jsonld'
 import { routeMetadata } from '@/lib/seo/metadata'
 
@@ -66,6 +66,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ),
   )
   const hasCards = shelves.some((p) => !!p?.length)
+  // V-60: Stempel „frisch im Shop“ auf den Karten der Stationen (gleiches „jetzt“ wie die Termine)
+  const freshCtx = hasCards ? await getFreshContext() : null
   // Leere Kategorie-Station (V-11 a): „Ins Archiv“ nur, wenn dort Stücke der Kategorie wohnen.
   const archiveCategories = shelves.some((p) => p !== null && p.length === 0)
     ? await listArchiveCategoryKeys().catch(() => [])
@@ -132,9 +134,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
         {home?.intro ? <HomeIntroText intro={home.intro} locale={locale} /> : null}
       </div>
-      {/* U-51 (P14.2): unter 1100 px eingeklappt hinter Station 01 (CSS-Reihenfolge), am Desktop offen oben rechts */}
+      {/* U-51 (P14.2): unter 1100 px eingeklappt hinter Station 01 (CSS-Reihenfolge), am Desktop offen oben rechts.
+          V-60: Anker `#on-tour` (Kurzadresse `/on-tour` für Bio und Stories) – `tour-fold` klappt ihn dann auch am Handy auf. */}
       <StaticHtml
         as="aside"
+        id={TOUR_ANCHOR}
         className={styles.tourCol}
         aria-label={tTour('heading')}
         data-home-aside=""
@@ -165,6 +169,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 products={shelves[i] ?? null}
                 tattoo={station.stationId === 'tattoo' ? tattoo : null}
                 archiveCategories={archiveCategories}
+                freshCtx={freshCtx}
               />
             ))}
           </StaticHtml>

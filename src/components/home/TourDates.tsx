@@ -5,6 +5,7 @@ import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import type { PublicTourDate } from '@/lib/data/tour'
 import type { Locale } from '@/lib/routes/registry'
 import { formatBerlin } from '@/lib/time'
+import { tourIcsPath } from '@/lib/tour/ics'
 import {
   isTourMultiDay,
   splitTourDates,
@@ -22,7 +23,9 @@ import styles from './TourDates.module.css'
 // vergangenen Termine liegen ausführlich (Uhrzeit, Ort, Stand, Notiz, Link, Foto) in einem `<details>` darunter (ohne
 // JavaScript bedienbar). Abgesagte Termine sind durchgestrichen und tragen zusätzlich den Text „abgesagt“. Adresse und
 // Link sind einfacher Text bzw. Textlink – keine Karte, keine Einbettung, keine Anfrage an Dritte. Reines Server-Markup
-// (nicht hydriert); der Zustand folgt dem Datum beim Rendern (ISR ≤ 1 h).
+// (nicht hydriert); der Zustand folgt dem Datum beim Rendern (ISR ≤ 1 h). V-60: Jeder kommende, nicht abgesagte Termin hat
+// den Link „In den Kalender“ (Kalender-Datei `.ics` vom eigenen Server, `src/lib/tour/ics.ts`); unter den Zetteln steht
+// einmal der Hinweis, dass das im Instagram-Browser oft erst nach „Im Browser öffnen“ klappt.
 
 /** So viele kommende Termine stehen direkt auf der Tafel (U-42: „nächste 2–3“). */
 export const TOUR_ON_BOARD = 3
@@ -54,6 +57,23 @@ function Badge({ state, t }: { state: ReturnType<typeof tourState>; t: T }) {
       </span>
     )
   return null
+}
+
+/** Kalender-Link nur für kommende oder laufende Termine (nicht abgesagt, nicht vorbei). */
+const hasCalendar = (state: ReturnType<typeof tourState>) =>
+  state === 'upcoming' || state === 'running'
+
+function CalendarLink({ item, locale, t }: { item: PublicTourDate; locale: Locale; t: T }) {
+  return (
+    <a
+      className={styles.calendar}
+      href={tourIcsPath(item.id, locale)}
+      aria-label={t('calendarLabel', { name: item.name })}
+      data-tour-calendar=""
+    >
+      {t('calendar')}
+    </a>
+  )
 }
 
 function DateBlock({ item, locale }: { item: PublicTourDate; locale: Locale }) {
@@ -111,6 +131,7 @@ function BoardItem({
             </>
           ) : null}
         </p>
+        {hasCalendar(state) ? <CalendarLink item={item} locale={locale} t={t} /> : null}
       </div>
     </li>
   )
@@ -170,6 +191,7 @@ function FullItem({
             </a>
           </p>
         ) : null}
+        {hasCalendar(state) ? <CalendarLink item={item} locale={locale} t={t} /> : null}
       </div>
       {item.image ? (
         <ResponsiveImage
@@ -197,6 +219,7 @@ export async function TourDates({
   const { upcoming, past } = splitTourDates(items, now)
   const onBoard = upcoming.slice(0, TOUR_ON_BOARD)
   const later = upcoming.slice(TOUR_ON_BOARD)
+  const anyCalendar = upcoming.some((i) => hasCalendar(tourState(i, now)))
   const more = later.length + past.length
   const summary =
     later.length > 0 && past.length > 0
@@ -221,6 +244,11 @@ export async function TourDates({
             {t('empty')}
           </p>
         )}
+        {anyCalendar ? (
+          <p className={styles.calendarHint} data-tour-calendar-hint="">
+            {t('calendarHint')}
+          </p>
+        ) : null}
         {more > 0 ? (
           <details className={styles.more} data-tour-more="">
             <summary className={styles.summary}>{summary}</summary>

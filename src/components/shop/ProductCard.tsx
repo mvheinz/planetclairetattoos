@@ -9,6 +9,7 @@ import { formatCardFacts, productPath, type DimensionsInput } from '@/lib/shop/f
 import type { Media } from '@/payload-types'
 
 import { Badge } from './Badge'
+import { FreshStamp } from './FreshStamp'
 import styles from './ProductCard.module.css'
 import { PriceTag } from './PriceTag'
 
@@ -20,7 +21,10 @@ import { PriceTag } from './PriceTag'
 // (`frameSize="card"`, V-13 a). `reserved`: Badge oben links auf dem Foto; `sold`: Foto gedämpft (0.82),
 // Stempel auf dem Schild, Text ungedämpft. Keine Info nur bei Hover (Hover löst nur MI-02 aus). Für den Live-Zustand
 // (`product-status`, P3.11) liegen Badge und Stempel verborgen im Markup; `gone` dämpft wie `sold`. Auf der Startseite
-// (KO-21, P3.12) ohne Schnur: Schild `pinned` am Kartenfuß (`tag="pinned"`).
+// (KO-21, P3.12) ohne Schnur: Schild `pinned` am Kartenfuß (`tag="pinned"`). V-60 (P20.3): Stücke der letzten 14 Tage
+// tragen oben rechts auf dem Foto den Stempel „frisch im Shop“ (KO-06a, `fresh` vom Aufrufer, `src/lib/shop/fresh.ts`);
+// der zugängliche Name endet dann auf „, frisch im Shop“. Wird das Stück reserviert oder verkauft, blendet CSS den Stempel
+// aus und `product-status` nimmt den Zusatz aus dem Namen (`data-fresh-label`).
 
 export const CARD_IMAGE_SIZES = '(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 50vw'
 /** Die ersten Karten einer Liste laden ohne `loading="lazy"` (KO-07). */
@@ -53,6 +57,7 @@ export function ProductCard({
   tag = 'hanging',
   lazy = false,
   stampSlot = true,
+  fresh = false,
 }: {
   product: ProductCardData
   locale: Locale
@@ -67,6 +72,8 @@ export function ProductCard({
   lazy?: boolean
   /** Verborgener Stempel für den Live-Wechsel auf `sold` (MI-03); ohne ihn dämpft `product-status` nur. */
   stampSlot?: boolean
+  /** Stempel „frisch im Shop“ (V-60): vom Aufrufer per `freshFor()` entschieden. */
+  fresh?: boolean
 }) {
   const t = translatorFor(locale, 'shop.card')
   const state = cardState(product.status)
@@ -74,6 +81,10 @@ export function ProductCard({
   const price = formatTagPrice(product.priceCents, locale)
   const stateText =
     state === 'reserved' ? `, ${t('stateReserved')}` : state === 'sold' ? `, ${t('stateSold')}` : ''
+  // V-60: frische, gerade verfügbare Stücke; reserviert bleibt der Stempel verborgen im Markup (wird es wieder frei, zeigt
+  // CSS ihn), verkauft entfällt er.
+  const freshStamp = fresh && state !== 'sold'
+  const freshText = freshStamp ? `, ${translatorFor(locale, 'shop.fresh')('label')}` : ''
   const label = ENUM_LABELS.PRODUCT_CATEGORIES[product.category]
   const categoryName = (locale === 'en' ? label.en : undefined) ?? label.de
   const facts = formatCardFacts(product, locale)
@@ -93,13 +104,15 @@ export function ProductCard({
     <a
       className={styles.card}
       href={productPath(product, locale)}
-      aria-label={`${title}, ${price}${stateText}`}
+      aria-label={`${title}, ${price}${state === 'available' ? freshText : ''}${stateText}`}
       data-product-card=""
       data-product-id={product.id}
       data-item-number={product.itemNumber}
       data-status={state}
       data-category={product.category}
       data-color-art={/aquarell|watercolo/i.test(photo?.alt ?? '') ? '' : undefined}
+      data-fresh={freshStamp ? '' : undefined}
+      data-fresh-label={freshStamp ? freshText : undefined}
     >
       <span className={styles.photo}>
         <ResponsiveImage
@@ -121,6 +134,9 @@ export function ProductCard({
             className={styles.reserved}
           />
         )}
+        {freshStamp ? (
+          <FreshStamp itemNumber={product.itemNumber} locale={locale} className={styles.fresh} />
+        ) : null}
       </span>
       {tag === 'hanging' ? priceTag : null}
       <span className={styles.title}>{title}</span>

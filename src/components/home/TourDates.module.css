@@ -336,6 +336,33 @@
   text-underline-offset: 0.2em;
 }
 
+/* V-60: „In den Kalender“ – kleiner Textlink auf dem Zettel (Zielhöhe 24 px, WCAG 2.5.8), Petrol wie die übrigen Links. */
+.calendar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  font-size: var(--fs-kicker);
+  font-weight: 500;
+  color: var(--petrol);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.calendar:visited {
+  color: var(--petrol);
+}
+
+/* Hinweis zum Instagram-Browser: einmal unter den Zetteln, klein und hell auf der Tafel. */
+.calendarHint {
+  margin: var(--space-1) 0 0;
+  padding-inline: var(--space-1);
+  color: var(--paper-2);
+  font-size: var(--fs-kicker);
+  line-height: 1.4;
+}
+
 .photo {
   grid-column: 1 / -1;
   max-width: 100%;

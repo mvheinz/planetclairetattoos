@@ -7,8 +7,8 @@ import { RichTextContent } from '@/components/content/RichTextContent'
 import { LeashEndArt } from '@/components/errors/ErrorArt'
 import styles from '@/components/errors/ErrorPages.module.css'
 import { Station } from '@/components/leash/Station'
+import { NumberLookup } from '@/components/shop/NumberLookup'
 import { Button } from '@/components/ui/Button'
-import { Field } from '@/components/ui/Field'
 import { getPublicPage } from '@/lib/data/pages'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
@@ -20,7 +20,8 @@ import { NotFoundMarker } from './notFoundState'
 // offener Karabiner mit leerem roten Geschirr. Am Horizont rennt Coco (24 px) einmal aus dem Bild; danach schwingt die
 // Leine zweimal (Modul `lost`, MI-11). H1 fest im Code; darunter der Rich Text der Seite `not_found` aus dem CMS
 // (Rückfall: „Diese Seite gibt es nicht (mehr).“); Links Start, Shop, Tattoo und das Nummernfeld „Du suchst ein Stück?“
-// (KO-12): ein GET-Formular auf `/nr?nummer=…` (ohne JavaScript bedienbar), das auf `/nr/[nummer]` (R31) weiterleitet.
+// (KO-12): ein GET-Formular auf `/nr?nummer=…&locale=…` (ohne JavaScript bedienbar), das wie `/nr/[nummer]` (R31)
+// weiterleitet – in die Sprache dieser Seite (V-60, gemeinsame Komponente `NumberLookup` mit Shop-Kopf und Menü).
 // Variante `home` („Dieses Stück hat schon ein Zuhause gefunden“, verkauft + ausgeblendet, R04): Mini-Preisschild
 // „sold“ statt Karabiner, Coco sitzt daneben, kein Weglaufen; Links Shop und Archiv. `NotFoundMarker` stellt Preset und
 // Route auf R28 (`lost`), auch wenn die 404 unter einer Registry-Route (z. B. R04) steht.
@@ -111,21 +112,15 @@ export async function NotFoundContent({
         </ul>
       </nav>
       {variant === 'lost' ? (
-        <form className={styles.numberForm} action="/nr" method="get" data-number-form="">
-          <Field
-            id="nr-nummer"
-            name="nummer"
-            label={t('numberLabel')}
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={6}
-            autoComplete="off"
-            required
-          />
-          <Button type="submit" variant="secondary">
-            {t('numberSubmit')}
-          </Button>
-        </form>
+        <NumberLookup
+          locale={locale}
+          id="nr-nummer"
+          variant="notFound"
+          label={t('numberLabel')}
+          submit={t('numberSubmit')}
+          className={styles.numberForm}
+          data={{ 'data-number-form': '' }}
+        />
       ) : null}
       {marker ? <NotFoundMarker /> : null}
     </div>

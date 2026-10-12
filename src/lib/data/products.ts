@@ -9,6 +9,8 @@ import type { Locale, ProductCategory } from '@/lib/enums'
 import { buildWithoutDb, seedPreviewModeActive } from '@/lib/env'
 import { getPublicPayload } from '@/lib/payload/public'
 import type { LocalizedValue } from '@/lib/products/localized'
+import type { FreshContext } from '@/lib/shop/fresh'
+import { tourNow } from '@/lib/tour/now'
 import type { Product } from '@/payload-types'
 import { dbGate } from '@/lib/db/buildGate'
 
@@ -246,6 +248,29 @@ export async function loadProductGone(itemNumber: number): Promise<boolean> {
   return totalDocs > 0
 }
 
+/**
+ * Start des Shops für den Stempel „frisch im Shop“ (V-60, `src/lib/shop/fresh.ts`): das früheste `firstPublishedAt` aller
+ * Stücke als ISO-Zeichenkette, `null`, wenn noch nie ein Stück online war. Auch verkaufte, ausgeblendete und archivierte
+ * Stücke zählen (das Datum bleibt beim Verkauf stehen) – deshalb wie `loadProductGone` mit `overrideAccess`, aber nur das
+ * eine Datum und mit demselben Seed-Filter wie der öffentliche Zugriff.
+ */
+export async function loadShopStartedAt(): Promise<string | null> {
+  const payload = (await dbGate(), await getPayload({ config }))
+  const clauses: Where[] = [{ firstPublishedAt: { exists: true } }]
+  if (!seedPreviewModeActive()) clauses.push({ seed: { equals: false } })
+  const res = await payload.find({
+    collection: 'products',
+    where: { and: clauses },
+    sort: 'firstPublishedAt',
+    depth: 0,
+    limit: 1,
+    pagination: false,
+    select: { firstPublishedAt: true },
+    overrideAccess: true,
+  })
+  return res.docs[0]?.firstPublishedAt ?? null
+}
+
 /** Übersetzbare Texte der Produktseite (Blöcke 2–10), deren EN-Fassung fehlen kann. */
 export const PRODUCT_TEXT_FIELDS = [
   'title',
@@ -418,6 +443,23 @@ export const isProductGone = cached(loadProductGone, {
   key: 'product-gone',
   tags: productTags,
 })
+
+export const getShopStartedAt = cached(loadShopStartedAt, {
+  key: 'shop-started-at',
+  tags: productTags,
+})
+
+/**
+ * Rahmen für den Stempel „frisch im Shop“ beim Rendern (V-60): „jetzt“ wie die Termine (`tourNow()`, in Test und Vorschau
+ * `SEED_NOW`) und der Start des Shops. Ohne Datenbank `null` – dann trägt kein Stück den Stempel.
+ */
+export async function getFreshContext(): Promise<FreshContext | null> {
+  try {
+    return { now: tourNow(), shopStartedAt: await getShopStartedAt() }
+  } catch {
+    return null
+  }
+}
 
 const cachedRelated = cached(loadRelatedProducts, {
   key: 'related-products',

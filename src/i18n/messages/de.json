@@ -162,7 +162,12 @@
       "foldNext": "nächster Termin: {date} – {name}",
       "foldNone": "gerade keine Termine",
       "laterHeading": "Danach",
-      "pastHeading": "Wo ich schon war"
+      "pastHeading": "Wo ich schon war",
+      "calendar": "In den Kalender",
+      "calendarLabel": "In den Kalender: {name}",
+      "calendarHint": "Im Instagram-Browser? Tipp oben rechts auf ⋯ und „Im Browser öffnen“ – dann klappt es mit dem Kalender.",
+      "icsMore": "Alle Termine: {url}",
+      "icsCancelled": "abgesagt"
     }
   },
   "a11y": {
@@ -460,6 +465,16 @@
       "intro": "ich habe eine Frage zu {number} („{title}“):",
       "link": "Link zum Stück: {url}",
       "closing": "Liebe Grüße"
+    },
+    "fresh": {
+      "label": "frisch im Shop",
+      "word": "frisch",
+      "rest": "im Shop"
+    },
+    "lookup": {
+      "label": "Nr. aus dem Post",
+      "placeholder": "z. B. 115",
+      "submit": "Zeigen"
     }
   },
   "archive": {

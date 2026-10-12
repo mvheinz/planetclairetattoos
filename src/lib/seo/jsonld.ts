@@ -8,6 +8,10 @@ import { absoluteUrl, SITE_NAME } from './metadata'
 // Instagram – **ohne** Adresse; Produktseite `Product` mit `Offer`; Listen und Produktseite `BreadcrumbList`. Ausgabe als
 // `<script type="application/ld+json">` (Datenblock, wird nicht ausgeführt; `<` maskiert). Reine Funktionen ohne
 // Datenbank – die Seiten reichen die Daten herein. Im Kleinunternehmer-Modus nie eine Steuerangabe (R-126).
+// V-61 b (U-93, nur normale Google-Suche, kein Google Shopping): Das `Offer` eines Stücks im Shop nennt Versand nach
+// Deutschland (`OfferShippingDetails`: Preis der Versandklasse, Lieferzeit aus den Einstellungen; nicht bei reinen
+// Abholstücken) und die Rückgabe (`MerchantReturnPolicy`: gesetzliches Widerrufsrecht, 14 Tage, Rücksendekosten trägt die
+// Kundin, E-27 – wie in der Widerrufsbelehrung).
 
 export const LOGO_PATH = '/art/wordmark.svg'
 const SCHEMA = 'https://schema.org'
@@ -59,6 +63,83 @@ export function productImageUrls(
   })
 }
 
+/** Versand eines Stücks nach Deutschland (V-61 b). */
+export interface ShippingInput {
+  /** Preis der Versandklasse für Deutschland in Cent (`settings.shipping.rates`, Zone DE). */
+  rateCents: number
+  /** Lieferzeit in Tagen ab Bestellung (`deliveryDayRange` aus `settings.shipping.deliveryTimeText`); `null` = ohne. */
+  deliveryDays: { min: number; max: number } | null
+}
+
+/** Rückgabe (V-61 b): gesetzliches Widerrufsrecht (alle Shop-Stücke, E-11), 14 Tage, Rücksendekosten trägt die Kundin (E-27). */
+export interface ReturnInput {
+  /** Rücksendung per Post (Versandstücke); bei reinen Abholstücken entfällt die Angabe (Übergabe nach Absprache). */
+  byMail: boolean
+}
+
+/** Widerrufsfrist in Tagen (§ 355 Abs. 2 BGB, Widerrufsbelehrung). */
+export const RETURN_DAYS = 14
+/** Annahme für die Laufzeit des Pakets innerhalb Deutschlands (Werktage). Rest der Lieferzeit = Bearbeitung. */
+export const TRANSIT_MAX_DAYS = 2
+
+/**
+ * Lieferzeit (gesamt `min`–`max` Tage) → Bearbeitung + Laufzeit für `ShippingDeliveryTime`: Laufzeit 1 bis höchstens 2
+ * Tage, die Bearbeitung trägt den Rest; die Summen ergeben genau `min` bzw. `max` (z. B. 2–5 → Bearbeitung 1–3, Laufzeit
+ * 1–2).
+ */
+export function splitDeliveryDays(days: { min: number; max: number }): {
+  handling: { min: number; max: number }
+  transit: { min: number; max: number }
+} {
+  const transitMax = Math.min(TRANSIT_MAX_DAYS, days.max - days.min + 1)
+  return {
+    handling: { min: days.min - 1, max: days.max - transitMax },
+    transit: { min: 1, max: transitMax },
+  }
+}
+
+const dayRange = (range: { min: number; max: number }) => ({
+  '@type': 'QuantitativeValue',
+  minValue: range.min,
+  maxValue: range.max,
+  unitCode: 'DAY',
+})
+
+/** `OfferShippingDetails` für Deutschland (V-61 b). */
+export function shippingDetailsJsonLd(input: ShippingInput) {
+  const details: Record<string, unknown> = {
+    '@type': 'OfferShippingDetails',
+    shippingRate: {
+      '@type': 'MonetaryAmount',
+      value: priceString(input.rateCents),
+      currency: 'EUR',
+    },
+    shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
+  }
+  if (input.deliveryDays && input.deliveryDays.min >= 1) {
+    const split = splitDeliveryDays(input.deliveryDays)
+    details.deliveryTime = {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: dayRange(split.handling),
+      transitTime: dayRange(split.transit),
+    }
+  }
+  return details
+}
+
+/** `MerchantReturnPolicy` = gesetzliches Widerrufsrecht (V-61 b, E-11, E-27). */
+export function returnPolicyJsonLd(input: ReturnInput) {
+  return {
+    '@type': 'MerchantReturnPolicy',
+    applicableCountry: 'DE',
+    returnPolicyCountry: 'DE',
+    returnPolicyCategory: `${SCHEMA}/MerchantReturnFiniteReturnWindow`,
+    merchantReturnDays: RETURN_DAYS,
+    ...(input.byMail ? { returnMethod: `${SCHEMA}/ReturnByMail` } : {}),
+    returnFees: `${SCHEMA}/ReturnFeesCustomerResponsibility`,
+  }
+}
+
 export interface ProductJsonLdInput {
   name: string
   description?: string | null
@@ -72,6 +153,10 @@ export interface ProductJsonLdInput {
   url: string
   /** Steuermodus zum Zeitpunkt des Renderns (`settings.tax.currentMode`). */
   taxMode: TaxMode
+  /** Versand nach Deutschland (V-61 b); fehlt bei verkauften und reinen Abholstücken oder ohne Tarif. */
+  shipping?: ShippingInput | null
+  /** Rückgabe (V-61 b); fehlt bei verkauften Stücken. */
+  returns?: ReturnInput | null
 }
 
 /**
@@ -96,6 +181,11 @@ export function productJsonLd(input: ProductJsonLdInput) {
       priceCurrency: 'EUR',
       valueAddedTaxIncluded: true,
     }
+  }
+  // V-61 b: nur für Stücke, die man gerade kaufen kann (verkauft → nichts davon)
+  if (input.status !== 'sold') {
+    if (input.shipping) offer.shippingDetails = shippingDetailsJsonLd(input.shipping)
+    if (input.returns) offer.hasMerchantReturnPolicy = returnPolicyJsonLd(input.returns)
   }
   return {
     '@context': SCHEMA,

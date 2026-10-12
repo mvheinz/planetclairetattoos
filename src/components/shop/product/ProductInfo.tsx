@@ -9,6 +9,7 @@ import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import { localizedPath } from '@/lib/routes/paths'
 import { formatItemNumber } from '@/lib/shop/format'
+import { freshFor, type FreshContext } from '@/lib/shop/fresh'
 import { SHOP_FAQ_ANCHOR } from '@/lib/shop/listParams'
 import {
   paragraphs,
@@ -262,11 +263,14 @@ export async function ProductShipping({
 
 export async function MoreFromCategory({
   products,
+  freshCtx = null,
   locale,
   categoryName,
   categoryHref,
 }: {
   products: PublicProduct[]
+  /** Stempel „frisch im Shop“ auch auf diesen Karten (V-60). */
+  freshCtx?: FreshContext | null
   locale: Locale
   categoryName: string
   categoryHref: string
@@ -281,7 +285,12 @@ export async function MoreFromCategory({
       <ul className={styles.moreGrid} data-behavior="price-tag-swing">
         {products.map((p) => (
           <li key={p.id}>
-            <ProductCard product={p} locale={locale} index={EAGER_CARDS} />
+            <ProductCard
+              product={p}
+              locale={locale}
+              index={EAGER_CARDS}
+              fresh={freshFor(p, freshCtx)}
+            />
           </li>
         ))}
       </ul>

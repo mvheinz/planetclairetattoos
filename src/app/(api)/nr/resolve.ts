@@ -3,11 +3,17 @@ import 'server-only'
 import { getPublicProductByItemNumber } from '@/lib/data/products'
 import { errorSummary, logger } from '@/lib/monitoring/logger'
 import { productPath } from '@/lib/shop/format'
-import { SHORT_LINK_HEADERS, parseShortLinkNumber, shortLinkLocale } from '@/lib/shop/shortLink'
+import {
+  SHORT_LINK_HEADERS,
+  SHORT_LINK_LOCALE_PARAM,
+  parseShortLinkNumber,
+  shortLinkLocale,
+} from '@/lib/shop/shortLink'
 import type { Locale } from '@/lib/routes/registry'
 
 // R31 Kurzlink (KONZEPT §2.4): `/nr/17` → 307 auf die kanonische Produktseite in der per `Accept-Language` erkannten
-// Sprache; unbekannt oder nicht öffentlich → 404. `Vary: Accept-Language`, `Cache-Control: no-store`, nie ein Cookie.
+// Sprache; trägt die Anfrage `?locale=de|en` (Nummernfeld, V-60: Sprache der Seite, auf der das Feld steht), gilt diese
+// zuerst. Unbekannt oder nicht öffentlich → 404. `Vary: Accept-Language`, `Cache-Control: no-store`, nie ein Cookie.
 // Die 404 zeigt die normale 404-Seite (R28 mit Nummernfeld und Fußbereich): Route Handler können nicht auf eine Seite
 // umschreiben, deshalb holt die Antwort deren HTML einmal vom eigenen Server (`/{locale}/nr` hat keine Seite).
 
@@ -37,7 +43,10 @@ async function notFoundPage(request: Request, locale: Locale): Promise<Response>
 }
 
 export async function resolveShortLink(request: Request, raw: string | null): Promise<Response> {
-  const locale = shortLinkLocale(request.headers.get('accept-language'))
+  const locale = shortLinkLocale(
+    request.headers.get('accept-language'),
+    new URL(request.url).searchParams.get(SHORT_LINK_LOCALE_PARAM),
+  )
   const nr = parseShortLinkNumber(raw)
   const product = nr === null ? null : await getPublicProductByItemNumber(nr, locale)
   if (!product) return notFoundPage(request, locale)

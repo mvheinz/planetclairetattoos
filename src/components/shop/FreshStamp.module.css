@@ -1,0 +1,77 @@
+/* KO-06a Stempel „frisch im Shop“ (V-60): rauer Rahmen wie KO-06, Farbe `--fox-text` (Kontrast auf Papier > 7:1), auf einem
+   Papierzettel, leicht schräg. Spectral Italic nur ab 16 px (LG-03); „im Shop“ in der Textschrift. Ohne Bewegung. */
+.stamp {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+  align-content: center;
+  box-sizing: border-box;
+  padding: 5px 9px 6px;
+  color: var(--fox-text);
+  background: var(--paper);
+  border-radius: 4px;
+  transform: rotate(var(--fresh-angle, 6deg));
+  pointer-events: none;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.frame path {
+  vector-effect: non-scaling-stroke;
+}
+
+/* Wort in der Akzent-Schrift; Fehlstellen wie beim „sold“-Stempel (statische Maske, kein Bild-Request). */
+.word {
+  position: relative;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.0625rem;
+  letter-spacing: 0.03em;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='24'%3E%3Crect width='40' height='24' fill='%23fff'/%3E%3Ccircle cx='9' cy='16' r='1.1'/%3E%3Ccircle cx='27' cy='7' r='0.9'/%3E%3Cpath d='M17 12l2 1' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  mask-size: 40px 24px;
+  mask-mode: luminance;
+}
+
+.rest {
+  position: relative;
+  margin-top: 2px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Produktseite: neben dem Preisschild, etwas größer. */
+.page {
+  padding: 7px 12px 8px;
+  margin-top: var(--space-3);
+}
+
+.page .word {
+  font-size: 1.375rem;
+}
+
+.page .rest {
+  font-size: 0.875rem;
+}
+
+@media (forced-colors: active) {
+  .stamp {
+    color: CanvasText;
+    background: Canvas;
+  }
+}

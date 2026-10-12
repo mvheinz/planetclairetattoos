@@ -1,0 +1,45 @@
+/* V-60 Nummernfeld „Nr. aus dem Post“ (KO-12-Feld, KO-11-Sekundärknopf): Label über dem schmalen Feld, Knopf daneben.
+   Feld 16 px (kein iOS-Zoom), Höhe 48 px; ruhig, ohne Rahmen um das Formular. */
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+}
+
+.field {
+  flex: 0 1 11rem;
+  min-width: 8rem;
+}
+
+.input {
+  font-variant-numeric: tabular-nums;
+}
+
+.submit {
+  flex: none;
+}
+
+/* Shop-Kopf (R02/R03): unter der Einleitung, mit etwas Luft. */
+.shop {
+  margin-top: var(--space-4);
+}
+
+.shop .label {
+  color: var(--ink-2);
+}
+
+/* Menü (KO-03): unter der Hauptliste, kleiner Abstand. */
+.menu .label {
+  font-size: var(--fs-small);
+}
+
+/* 404 (KO-18): wie bisher bis 28rem breit, das Feld darf wachsen. */
+.notFound {
+  max-width: 28rem;
+}
+
+.notFound .field {
+  flex: 1 1 12rem;
+}

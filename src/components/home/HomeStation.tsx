@@ -12,6 +12,7 @@ import type { HomeStation as HomeStationData } from '@/lib/data/home'
 import type { PublicProduct } from '@/lib/data/products'
 import type { ProductCategory } from '@/lib/enums'
 import { localizedPath } from '@/lib/routes/paths'
+import { freshFor, type FreshContext } from '@/lib/shop/fresh'
 import type { Locale } from '@/lib/routes/registry'
 
 import styles from './Home.module.css'
@@ -52,6 +53,7 @@ export async function HomeStation({
   products = null,
   tattoo = null,
   archiveCategories = [],
+  freshCtx = null,
 }: {
   station: HomeStationData
   locale: Locale
@@ -61,6 +63,8 @@ export async function HomeStation({
   products?: PublicProduct[] | null
   /** Kategorien mit Stücken im Archiv (`listArchiveCategoryKeys`) – Ziel des Leerzustands (V-11). */
   archiveCategories?: readonly ProductCategory[]
+  /** Stempel „frisch im Shop“ auf den Karten (V-60). */
+  freshCtx?: FreshContext | null
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const loop = loopFor(station.stationId, station.number)
@@ -141,6 +145,7 @@ export async function HomeStation({
                     tag="pinned"
                     lazy
                     stampSlot={false}
+                    fresh={freshFor(product, freshCtx)}
                   />
                 </li>
               ))}

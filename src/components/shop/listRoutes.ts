@@ -11,6 +11,7 @@ import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
 import { DEFAULT_LOCALE, LOCALES, type Locale } from '@/lib/routes/registry'
 import { buildListMetadata } from '@/lib/seo/metadata'
+import { categoryMetaDescription } from '@/lib/seo/product'
 import { listSearch, parseVariantKey, variantKey, type ListParams } from '@/lib/shop/listParams'
 
 // Gemeinsame Routen-Logik der Listen R02, R03, R05 (Grundform und statische Varianten aus Spike B-05): Sprache,
@@ -94,7 +95,8 @@ export async function categoryMetadata(
     {
       page: list.page,
       title: category.seo.metaTitle ?? `${category.name} · Shop`,
-      description: category.seo.metaDescription ?? t('category'),
+      // V-61 b: eigene Beschreibung je Kategorie (CMS-Feld, sonst Einleitung), erst danach die gemeinsame Vorlage
+      description: categoryMetaDescription(category) ?? t('category'),
       alternateParams,
     },
   )

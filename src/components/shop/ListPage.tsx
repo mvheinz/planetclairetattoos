@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { listAllCategories, listNavCategories, type PublicCategory } from '@/lib/data/categories'
 import { getPublicPage } from '@/lib/data/pages'
 import {
+  getFreshContext,
   listArchiveCategoryKeys,
   listArchiveProducts,
   listCategoryKeysWithContent,
@@ -26,6 +27,7 @@ import { localizedPath } from '@/lib/routes/paths'
 import { breadcrumbItems } from '@/lib/seo/breadcrumbs'
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld'
 import { categoryTile, TILE_SIZE } from '@/lib/shop/categoryTiles'
+import { freshFor } from '@/lib/shop/fresh'
 import {
   LIST_ANCHOR,
   listSearch,
@@ -35,6 +37,7 @@ import {
 } from '@/lib/shop/listParams'
 
 import styles from './ListPage.module.css'
+import { NumberLookup } from './NumberLookup'
 import { PriceFootnote } from './PriceFootnote'
 import { EAGER_CARDS, ProductCard } from './ProductCard'
 import { statusLabelAttrs } from './statusLabels'
@@ -49,7 +52,8 @@ import { statusLabelAttrs } from './statusLabels'
 // Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll bedienbar. Seiten > letzte
 // Seite → 404. Verkaufte Stücke (R02/R03) nur als kurze Reihe unter der letzten Seite mit Link „Archiv ansehen“
 // (U-57 c). Ganz unten im Shop (R02) die Fragen zum Shop (V-19, FAQ-Kategorie `shop`). JSON-LD `BreadcrumbList`
-// (Start → Shop → Kategorie bzw. Start → Archiv, P3.13).
+// (Start → Shop → Kategorie bzw. Start → Archiv, P3.13). Instagram-Brücke (V-60): im Kopf von Shop und Kategorie das
+// Nummernfeld „Nr. aus dem Post“ (GET `/nr`, ohne JavaScript), Karten der letzten 14 Tage mit Stempel „frisch im Shop“.
 
 export type ListRoute = 'R02' | 'R03' | 'R05'
 
@@ -77,12 +81,13 @@ function basePath(routeId: ListRoute, locale: Locale, category?: PublicCategory 
 export async function ListPage({ routeId, locale, list, category }: ListPageProps) {
   const archive = routeId === 'R05'
   const page = list.page ?? 1
-  const [t, tRoutes, settings, content, shopFaqs] = await Promise.all([
+  const [t, tRoutes, settings, content, shopFaqs, freshCtx] = await Promise.all([
     getTranslations({ locale }),
     getTranslations({ locale, namespace: 'common.routes' }),
     getShopDisplaySettings(locale),
     routeId === 'R03' ? Promise.resolve(null) : getPublicPage(archive ? 'archive' : 'shop', locale),
     routeId === 'R02' ? listFaqs('shop', locale) : Promise.resolve([]),
+    archive ? Promise.resolve(null) : getFreshContext(),
   ])
   const shopFaqCount = shopFaqs.length
 
@@ -187,6 +192,8 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
         ) : !archive ? (
           <p className={styles.intro}>{t('shop.list.intro')}</p>
         ) : null}
+        {/* V-60: Nummer aus einem Instagram-Post → direkt zum Stück (Sprache dieser Seite, kein Cookie) */}
+        {!archive ? <NumberLookup locale={locale} id="shop-nr" variant="shop" /> : null}
       </header>
 
       <nav
@@ -259,11 +266,21 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
                 // bleiben normal gerendert, damit ihre Vorlade-Hinweise im <head> bleiben.
                 index < EAGER_CARDS ? (
                   <li key={product.id} data-leash-anchor="tag">
-                    <ProductCard product={product} locale={locale} index={index} />
+                    <ProductCard
+                      product={product}
+                      locale={locale}
+                      index={index}
+                      fresh={freshFor(product, freshCtx)}
+                    />
                   </li>
                 ) : (
                   <StaticHtml as="li" key={product.id} data-leash-anchor="tag">
-                    <ProductCard product={product} locale={locale} index={index} />
+                    <ProductCard
+                      product={product}
+                      locale={locale}
+                      index={index}
+                      fresh={freshFor(product, freshCtx)}
+                    />
                   </StaticHtml>
                 ),
               )}
