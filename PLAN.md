@@ -5722,12 +5722,17 @@ Aufgabe P20.n mit U-Nummer).
 
 ## P19 – Pflege per Excel dauerhaft: in der Verwaltung (11.10.2026)
 
-Verbindlich: `docs/UEBERARBEITUNG.md` U-89, U-90. Für die Zeit nach dem Start (dann ist die Datenbank der Stand, nicht
-`content/bestand/`); vor P11 mit Test-Datenbank geprüft.
+Verbindlich: `docs/UEBERARBEITUNG.md` U-89, U-90, neu zugeschnitten nach U-93 (V-36, 12.10.2026). Für die Zeit nach dem
+Start (dann ist die Datenbank der Stand, nicht `content/bestand/`); vor P11 mit Test-Datenbank geprüft. Zuschnitt (V-36):
+In der Verwaltung laufen nur die **Bestandsliste** und die **echten Seitentexte** (Seiten, Fragen, Kategorie-Texte – rund
+134 Zeilen, die Jutta in der Datenbank wirklich ändern kann); feste Programmtexte (`m:…`) stehen dort gar nicht erst in der
+Liste, sie ändert weiter Claude mit dem nächsten Update. Technisch eine dünne Schicht über `decide`/`applyRows`/
+`snapshotRowsOf` mit gemeinsamem Kern und Speicher-Adapter `repo | db`; nach dem Start schreibt Claude nie in die
+echte Datenbank. Danach dienen `repoStore`/`excelRepo`/`bestand:import` nur noch Tests und dem Start-Import.
 
 - [ ] **P19.1 Bestandsliste in der Verwaltung** (U-89 d) – „Liste herunterladen“ (aus der Datenbank, mit Fotos; Status im Shop nur zum Lesen) und „Liste hochladen“ → Vorschau (übernommen / bitte entscheiden / nicht möglich) → „Übernehmen“. „Verkauft“ läuft über die Aktion „Offline verkauft“ (Statusautomat, Umsatz-Wächter); Stand je Liste in der Datenbank.
   - Akzeptanz: Int (Ausgabe aus der Datenbank, Rückweg, Rückfrage bei Konflikt, Verkauft über Übergang, nur Verwaltung, Größen-/Dateiprüfung), E2E (Herunter- und Hochladen in der Verwaltung, iPad-Breite).
-- [ ] **P19.2 Seiten- und FAQ-Texte in der Verwaltung** (U-89 d) – Texte-Liste aus der Datenbank herunterladen/hochladen; Änderungen an festen Programmtexten nennt der Bericht („bitte an Claude schicken“).
+- [ ] **P19.2 Seiten- und FAQ-Texte in der Verwaltung** (U-89 d, V-36) – Texte-Liste aus der Datenbank herunterladen/hochladen, nur echte Seitentexte (Seiten, Fragen, Kategorie-Texte; Fundort in Juttas Worten, Wichtigstes vorne); feste Programmtexte sind nicht in dieser Liste. Abgleich nach Listen-Nr. auch über mehrere Blätter.
   - Akzeptanz: Int (Rundweg, Platzhalter-/Pflichtprüfung, Konflikt), E2E (Hochladen, Bericht).
 - [ ] **P19.3 Ablauf und Anleitungen** (U-89 e) – RUNBOOK „Jutta schickt eine Excel-Liste“ (vor und nach dem Start), HANDBUCH/`docs/owner/` für die Verwaltung.
   - Akzeptanz: Doku-Prüfung (Links, Befehle existieren).
