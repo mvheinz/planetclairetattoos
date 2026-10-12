@@ -43,6 +43,8 @@ export interface ImportResult {
   invalid: boolean
   /** Übernommene Werte im gemerkten Stand festhalten (nach dem Schreiben bzw. wenn nichts zu schreiben war). */
   record: (snapshot: ListSnapshot) => number
+  /** Weitere gemerkte Stände (Blätter mit eigener Listen-Nr., V-36) – werden ebenso festgehalten. */
+  others?: ListSnapshot[]
 }
 
 export async function exportBestand(

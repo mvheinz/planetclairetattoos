@@ -426,31 +426,12 @@
         ]
       },
       {
-        "blockType": "callout",
-        "tone": "hint",
-        "text": {
-          "de": "Tattoos erst ab 18.",
-          "en": "Tattoos from 18 only."
-        }
-      },
-      {
         "blockType": "faqList",
         "heading": {
           "de": "Fragen",
           "en": "Questions"
         },
         "category": "tattoo"
-      },
-      {
-        "blockType": "contactLinks",
-        "heading": {
-          "de": "Eine Mail genügt",
-          "en": "An email is enough"
-        },
-        "emailSubject": {
-          "de": "Tattoo-Anfrage",
-          "en": "Tattoo enquiry"
-        }
       }
     ]
   },

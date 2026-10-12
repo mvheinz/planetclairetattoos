@@ -60,12 +60,18 @@ const short = (s: string, n = 70) => {
 export function applyTextRows(
   entries: readonly TextEntry[],
   rows: readonly SheetRow[],
-  opts: { base: SnapshotRows | null; consumed?: ConsumedCells },
+  opts: {
+    base: SnapshotRows | null
+    consumed?: ConsumedCells
+    /** „N Texte stehen nicht in der Liste“ melden (aus, wenn mehrere Teil-Listen einzeln abgeglichen werden). */
+    countMissing?: boolean
+  },
 ): { updates: TextUpdate[]; report: PflegeReport } {
   const report = emptyReport()
   const updates: TextUpdate[] = []
   const byId = new Map(entries.map((e) => [e.id, e]))
   const seen = new Set<string>()
+  let dropped = 0
   for (const row of rows) {
     const id = str(row.id)
     if (!id) {
@@ -77,7 +83,24 @@ export function applyTextRows(
     }
     const e = byId.get(id)
     if (!e) {
-      report.problems.push(`Kennung „${id}“ gibt es nicht (mehr) – Zeile nicht übernommen.`)
+      // V-36: Zeilen, die beim Ausgeben in der Liste standen (oder ohne gemerkten Stand), gibt es nicht mehr – der Text
+      // erscheint nicht mehr auf der Seite. Kein Fehler: geändert → „Entfällt“, sonst nur gezählt.
+      const old = opts.base ? opts.base[id] : undefined
+      if (opts.base && !old) {
+        report.problems.push(`Kennung „${id}“ gibt es nicht – Zeile nicht übernommen.`)
+        continue
+      }
+      if (seen.has(id)) continue
+      seen.add(id)
+      const changed = old
+        ? (['de', 'en'] as const).some((l) => l in row && !sameText(row[l], old[l] ?? null))
+        : false
+      const where = str(old?.wo ?? null) || str(row.wo) || id
+      if (changed)
+        report.dropped.push(
+          `${where}: entfällt – dieser Text erscheint nicht mehr auf der Seite, deine Änderung wird nicht gebraucht.`,
+        )
+      else dropped++
       continue
     }
     if (seen.has(id)) {
@@ -147,8 +170,13 @@ export function applyTextRows(
     if (note && !(base && seenNotes.some((n) => sameText(n, note))))
       report.ownerNotes.push(`${e.where}: ${note}`)
   }
+  if (dropped > 0)
+    report.notes.push(
+      `${dropped} Zeilen entfallen – diese Texte stehen nicht mehr auf der Seite. Nichts zu tun.`,
+    )
   let missing = 0
-  for (const e of entries) if (!seen.has(e.id) && (!opts.base || opts.base[e.id])) missing++
+  if (opts.countMissing !== false)
+    for (const e of entries) if (!seen.has(e.id) && (!opts.base || opts.base[e.id])) missing++
   if (missing > 0)
     report.notes.push(`${missing} Texte stehen nicht in der Liste – sie bleiben, wie sie sind.`)
   return { updates, report }

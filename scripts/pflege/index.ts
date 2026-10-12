@@ -133,12 +133,12 @@ export async function runImport(
   else {
     if (result.write) written = await result.write()
     // Übernommenes festhalten: dieselbe Liste noch einmal geschickt ändert nichts mehr (U-89 c)
-    if (snapshot) {
-      const n = result.record(snapshot)
+    for (const s of [...(snapshot ? [snapshot] : []), ...(result.others ?? [])]) {
+      const n = result.record(s)
       if (n > 0) {
-        await saveSnapshot(root, snapshot)
+        await saveSnapshot(root, s)
         result.report.notes.push(
-          `Übernommenes in der Liste ${snapshot.id} vermerkt (${n} Zellen) – \`${path.join(PFLEGE_STAND_DIR, `${snapshot.id}.json`)}\` bitte mit committen.`,
+          `Übernommenes in der Liste ${s.id} vermerkt (${n} Zellen) – \`${path.join(PFLEGE_STAND_DIR, `${s.id}.json`)}\` bitte mit committen.`,
         )
       }
     }

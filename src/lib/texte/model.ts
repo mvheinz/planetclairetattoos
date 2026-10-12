@@ -10,6 +10,8 @@
 // Verwaltung nutzt die Seite nur Grußformel und Antwortzeit der Mails). Rechtlich vorgegebene Wörter („Vertrag
 // widerrufen“), Pflicht-Hinweise am Stück und die Namen der Rechtsseiten stehen in der Liste, sind aber nur zum Lesen.
 
+import { AREA, faqWhere, messageWhere, pageWhere } from './where'
+
 export type L10n = { de: string; en: string }
 type Json = unknown
 
@@ -107,6 +109,35 @@ const LOCKED_WORDING =
   /Vertrag widerrufen|Zahlungspflichtig bestellen|Withdraw from contract|Order with obligation to pay/i
 const LOCK_REASON = 'rechtlich vorgegeben – nur zum Lesen'
 
+/**
+ * Zeilen, die auf der Seite nirgends erscheinen (V-36, U-93) – nicht in der Liste. Feste Ersatztexte, die nur gelten,
+ * wenn der Seite der passende Block fehlt (die Seite zeigt den Block aus der Verwaltung: Schritte und Formular der
+ * Auftragsarbeiten, Ablauf-Schritte der Tattoo-Seite, Einleitung/Warnzeichen/Link der Aftercare-Seite). Der Test
+ * `texte-cleanup` prüft, dass die Seiten diese Blöcke wirklich haben; die Schlüssel bleiben als Rückfall im Code.
+ */
+export const FALLBACK_ONLY_PREFIXES = [
+  'tattoo.process.steps.',
+  'tattoo.process.stepsHeading',
+  'commission.steps.',
+  'commission.stepsHeading',
+  'commission.formHeading',
+  'commission.formIntro',
+  'tattoo.aftercare.intro',
+  'tattoo.aftercare.warnHeading',
+  'tattoo.aftercare.warnText',
+  'tattoo.aftercare.saferHint',
+  'tattoo.aftercare.saferLink',
+] as const
+
+/** Rang innerhalb eines Blatts (V-36: das Wichtigste vorne): Seitentexte, Kategorien, Fragen, Einstellungen, feste Texte. */
+function rank(e: { id: string }): number {
+  if (e.id.startsWith('seite:')) return /:(seo\.|title$)/.test(e.id) ? 1 : 0
+  if (e.id.startsWith('kat:')) return 2
+  if (e.id.startsWith('faq:')) return 3
+  if (e.id.startsWith('einst:') || e.id.startsWith('st:')) return 4
+  return 5
+}
+
 const NS_SHEET: Record<string, TextSheet> = {
   home: 'Startseite',
   shop: 'Shop',
@@ -120,31 +151,6 @@ const NS_SHEET: Record<string, TextSheet> = {
   thanks: 'Kasse & Bestellung',
   shippingPayment: 'Kasse & Bestellung',
   email: 'E-Mails',
-}
-const NS_LABEL: Record<string, string> = {
-  home: 'Startseite',
-  shop: 'Shop',
-  cart: 'Warenkorb',
-  archive: 'Archiv',
-  tattoo: 'Tattoo',
-  commission: 'Auftragsarbeiten',
-  checkout: 'Kasse',
-  order: 'Bestellung',
-  orderStatus: 'Bestellstatus',
-  thanks: 'Danke-Seite',
-  shippingPayment: 'Versand & Zahlung',
-  email: 'E-Mail',
-  common: 'Allgemein',
-  header: 'Kopfzeile',
-  menu: 'Menü',
-  footer: 'Fußzeile',
-  errors: 'Fehler',
-  seo: 'Suchmaschinen',
-  contact: 'Kontakt',
-  about: 'Über mich',
-  share: 'Teilen',
-  a11y: 'Vorlesehilfe',
-  ui: 'Bedienung',
 }
 const SITE_GROUP: Record<string, [TextSheet, string]> = {
   navigation: ['Allgemein', 'Menü'],
@@ -169,18 +175,6 @@ const PAGE_SHEET: Record<string, TextSheet> = {
   commissions: 'Tattoo',
   order_status: 'Kasse & Bestellung',
   thanks: 'Kasse & Bestellung',
-}
-const BLOCK_LABEL: Record<string, string> = {
-  hero: 'Kopf',
-  imageText: 'Bild mit Text',
-  station: 'Station',
-  richText: 'Text',
-  text: 'Text',
-  steps: 'Schritte',
-  faq: 'Fragen',
-  cta: 'Aufruf',
-  contactForm: 'Kontaktformular',
-  gallery: 'Galerie',
 }
 const FIELD_LABEL: Record<string, string> = {
   title: 'Titel',
@@ -228,24 +222,6 @@ function getAt(node: Json, path: readonly string[]): Json {
   )
 }
 
-/** Seiten-Pfad lesbar: `layout.2.link.label` → „Block 3 (Station) › Link-Text“. */
-function pageWhere(page: Record<string, Json>, path: readonly string[]): string {
-  const title = isL10n(page.title) ? page.title.de : String(page.key)
-  const parts: string[] = [`Seite „${title}“`]
-  for (let i = 0; i < path.length; i++) {
-    const k = path[i]!
-    if (k === 'layout' && /^\d+$/.test(path[i + 1] ?? '')) {
-      const n = Number(path[++i])
-      const block = getAt(page, ['layout', String(n)]) as { blockType?: string } | undefined
-      const type = block?.blockType ?? ''
-      parts.push(`Block ${n + 1}${type ? ` (${BLOCK_LABEL[type] ?? type})` : ''}`)
-    } else if (/^\d+$/.test(k)) parts.push(`Nr. ${Number(k) + 1}`)
-    else if (k !== 'link') parts.push(FIELD_LABEL[k] ?? k)
-  }
-  if (path.length === 1 && path[0] === 'title') return `${parts[0]} › Titel`
-  return parts.join(' › ')
-}
-
 /** Alle Einträge der Texte-Liste in fester Reihenfolge (Blätter, dann Quelle). */
 export function textEntries(d: TextData): TextEntry[] {
   const out: TextEntry[] = []
@@ -258,6 +234,7 @@ export function textEntries(d: TextData): TextEntry[] {
     if (typeof enValue !== 'string') continue
     const key = path.join('.')
     if (EXCLUDED_PREFIXES.some((x) => key.startsWith(x))) continue
+    if (FALLBACK_ONLY_PREFIXES.some((x) => key.startsWith(x))) continue
     const locked =
       (ns === 'common' && path[1] === 'routes' && LOCKED_ROUTES.has(path[2] ?? '')) ||
       LOCKED_PREFIXES.some((x) => key.startsWith(x)) ||
@@ -266,7 +243,7 @@ export function textEntries(d: TextData): TextEntry[] {
     out.push({
       id: `m:${key}`,
       sheet: NS_SHEET[ns] ?? 'Allgemein',
-      where: `${NS_LABEL[ns] ?? ns} › ${path.slice(1).join('.')}`,
+      where: messageWhere(path),
       de: value,
       en: enValue,
       ...(locked ? { locked: LOCK_REASON } : {}),
@@ -281,7 +258,7 @@ export function textEntries(d: TextData): TextEntry[] {
       out.push({
         id: `st:${group}.${field}`,
         sheet,
-        where: `${label} › ${meta?.label ?? field}`,
+        where: `${label} – ${meta?.label ?? field}`,
         de: value.de,
         en: value.en,
         ...(meta?.maxLength ? { maxLength: meta.maxLength } : {}),
@@ -308,7 +285,7 @@ export function textEntries(d: TextData): TextEntry[] {
       out.push({
         id: `faq:${String(faq.key)}:${path.join('.')}`,
         sheet: 'Fragen (FAQ)',
-        where: `${String(faq.key)} › ${FIELD_LABEL[path.join('.')] ?? path.join('.')}`,
+        where: faqWhere(faq, path.join('.')),
         de: value.de,
         en: value.en,
       })
@@ -321,7 +298,7 @@ export function textEntries(d: TextData): TextEntry[] {
       out.push({
         id: `kat:${String(cat.key)}:${path.join('.')}`,
         sheet: 'Shop',
-        where: `Kategorie „${name}“ › ${FIELD_LABEL[path.join('.')] ?? path.join('.')}`,
+        where: `Shop – Kategorie „${name}“ › ${FIELD_LABEL[path.join('.')] ?? path.join('.')}`,
         de: value.de,
         en: value.en,
       })
@@ -334,7 +311,7 @@ export function textEntries(d: TextData): TextEntry[] {
     out.push({
       id: `einst:${path}`,
       sheet,
-      where: `Einstellung › ${label}`,
+      where: `${AREA[sheet === 'Tattoo' ? 'tattoo' : 'checkout']} – ${label}`,
       de: value.de,
       en: value.en,
     })
@@ -349,7 +326,9 @@ export function textEntries(d: TextData): TextEntry[] {
   const order = new Map(TEXT_SHEETS.map((s, i) => [s, i]))
   return out
     .map((e, i) => ({ e, i }))
-    .sort((a, b) => order.get(a.e.sheet)! - order.get(b.e.sheet)! || a.i - b.i)
+    .sort(
+      (a, b) => order.get(a.e.sheet)! - order.get(b.e.sheet)! || rank(a.e) - rank(b.e) || a.i - b.i,
+    )
     .map(({ e }) => e)
 }
 

@@ -1,13 +1,22 @@
 import ExcelJS from 'exceljs'
 
 import type { CellValue } from '@/lib/pflege/cells'
-import { findListId, loadWorkbook, readTables, writeHeader } from '@/lib/pflege/workbook'
+import { LIST_ID_PATTERN } from '@/lib/pflege/snapshot'
+import {
+  findListId,
+  loadWorkbook,
+  plainValue,
+  readTables,
+  writeHeader,
+} from '@/lib/pflege/workbook'
 
 import { TEXT_COLUMNS, textRow } from './excel'
 import { TEXT_SHEETS, type TextEntry } from './model'
 
 // Excel-Datei der Texte-Liste (U-87, U-89): Blatt „Anleitung“ (mit Listen-Nr.) und ein Blatt je Bereich (Startseite,
-// Shop, …). Spalten: Wo, Deutsch, Englisch, Deine Notiz, Kennung. Rechtlich vorgegebene Zeilen grau.
+// Shop, …). Spalten: Wo, Deutsch, Englisch, Deine Notiz, Kennung. Rechtlich vorgegebene Zeilen grau. Seit V-36 steht
+// die Listen-Nr. zusätzlich rechts in der Kopfzeile **jedes** Bereichs-Blatts: Schickt Jutta nur ein Blatt zurück oder
+// kopiert sie Blätter aus verschiedenen Listen in eine Datei, gleicht der Rückweg jedes Blatt mit seiner eigenen Liste ab.
 
 const GREY = 'FFEDEBE4'
 const HEAD = 'FF1C1A17'
@@ -22,7 +31,7 @@ const GUIDE = [
   '4. Zeichen in geschweiften Klammern wie {name} oder {count, plural, …} und Markierungen wie <link>…</link> bitte genau so stehen lassen – dort setzt die Seite Namen, Zahlen oder Links ein.',
   '5. Graue Zeilen sind rechtlich vorgegeben und nur zum Lesen. Die Rechtstexte selbst stehen nicht in dieser Liste – die kommen von der Kanzlei.',
   '6. „Deine Notiz“: Wünsche, die sich nicht mit einer Korrektur erledigen lassen (z. B. „hier fehlt ein Satz zu …“).',
-  '7. Spalte „Kennung“ bitte nicht ändern, Zeilen bitte nicht löschen.',
+  '7. Spalte „Kennung“ bitte nicht ändern, Zeilen bitte nicht löschen. Oben in jedem Blatt stehen die wichtigsten Texte (Seiten, Kategorien, Fragen), darunter die festen Programmtexte.',
   '8. Fertig? Datei als Excel sichern und zurückschicken. Ich übernehme nur, was du geändert hast.',
 ]
 
@@ -76,6 +85,11 @@ export async function buildTexteBook(input: TextBookInput): Promise<ExcelJS.Work
       TEXT_COLUMNS.map((c) => (c.key === 'id' ? { ...c, hint: `Liste ${input.listId}` } : c)),
       { head: HEAD, text: PAPER },
     )
+    // Listen-Nr. je Blatt (V-36), rechts neben der Kopfzeile – gehört zu keiner Spalte
+    const tag = ws.getRow(1).getCell(TEXT_COLUMNS.length + 1)
+    tag.value = `Listen-Nr. ${input.listId}`
+    tag.font = { size: 8, color: { argb: 'FF6B6B6B' } }
+    ws.getColumn(TEXT_COLUMNS.length + 1).width = 26
     list.forEach((e, r) => {
       const row = ws.getRow(r + 2)
       const values = textRow(e)
@@ -99,7 +113,7 @@ export async function buildTexteBook(input: TextBookInput): Promise<ExcelJS.Work
 export async function readTexteBook(
   buffer: Buffer,
   fileName?: string,
-): Promise<{ rows: Record<string, CellValue>[]; listId: string | null }> {
+): Promise<ReturnType<typeof readTexteWorkbook>> {
   const wb = await loadWorkbook(buffer)
   return readTexteWorkbook(wb, fileName)
 }
@@ -107,7 +121,33 @@ export async function readTexteBook(
 export function readTexteWorkbook(
   wb: ExcelJS.Workbook,
   fileName?: string,
-): { rows: Record<string, CellValue>[]; listId: string | null } {
-  const rows = readTables(wb, TEXT_COLUMNS, 'id', 'Texte-Liste').map((r) => r.values)
-  return { rows, listId: findListId(wb, fileName) }
+): {
+  rows: Record<string, CellValue>[]
+  listId: string | null
+  /** Listen-Nr. je Zeile (Blatt mit eigener Nummer, sonst die der Datei; V-36). */
+  rowListIds: (string | null)[]
+} {
+  const tables = readTables(wb, TEXT_COLUMNS, 'id', 'Texte-Liste')
+  const listId = findListId(wb, fileName)
+  const bySheet = sheetListIds(wb)
+  return {
+    rows: tables.map((r) => r.values),
+    listId,
+    rowListIds: tables.map((r) => bySheet.get(r.sheet) ?? listId),
+  }
+}
+
+/** Listen-Nr., die ein Blatt selbst trägt (erste Zeilen), je Blattname. */
+export function sheetListIds(wb: ExcelJS.Workbook): Map<string, string> {
+  const out = new Map<string, string>()
+  for (const ws of wb.worksheets) {
+    const last = Math.min(ws.rowCount, 3)
+    for (let r = 1; r <= last && !out.has(ws.name); r++)
+      ws.getRow(r).eachCell({ includeEmpty: false }, (cell) => {
+        if (out.has(ws.name)) return
+        const m = LIST_ID_PATTERN.exec(String(plainValue(cell.value) ?? ''))
+        if (m) out.set(ws.name, m[0])
+      })
+  }
+  return out
 }
