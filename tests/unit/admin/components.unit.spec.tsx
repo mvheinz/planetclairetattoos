@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ActionButton, type ActionButtonProps } from '@/admin/components/ActionButton'
 import { postAdminAction } from '@/admin/components/adminAction'
+import { ChoiceDialog } from '@/admin/components/ChoiceDialog'
 import { CopyButton } from '@/admin/components/CopyButton'
 import { Notice } from '@/admin/components/Notice'
 import { PhotoPicker } from '@/admin/components/PhotoPicker/PhotoPicker'
@@ -191,5 +192,64 @@ describe('PhotoPicker – eigener Hinweis (P18.5)', () => {
     expect(TATTOO_TEXT.tourPhotoHint).toMatch(/ohne erkennbare Gesichter anderer Menschen/)
     expect(TATTOO_TEXT.tourPhotoHint).toMatch(/Besucher:innen, Nachbarstände/)
     expect(TATTOO_TEXT.tourPhotoHint).toMatch(/Einverständnis/)
+  })
+})
+
+describe('ChoiceDialog (V-34, P20.6): „Kommt es wieder?“', () => {
+  const choices = [
+    { key: 'back', label: 'Ja, später wieder anbieten', hint: 'Es wird wieder ein Entwurf.' },
+    { key: 'gone', label: 'Nein, weglegen', hint: 'Kaputt, verschenkt oder behalten.' },
+  ] as const
+
+  it('nennt Frage und Folge je Antwort; Antwort und Abbrechen melden sich; gesperrt, solange es läuft', () => {
+    const onChoose = vi.fn()
+    const onCancel = vi.fn()
+    const { rerender } = render(
+      <ChoiceDialog
+        open
+        title="Nr. 017 aus dem Shop nehmen – kommt es wieder?"
+        consequence="Das Stück verschwindet sofort aus dem Shop."
+        choices={choices}
+        onChoose={onChoose}
+        onCancel={onCancel}
+      />,
+    )
+    expect(screen.getByRole('heading').textContent).toBe(
+      'Nr. 017 aus dem Shop nehmen – kommt es wieder?',
+    )
+    const back = screen.getByRole('button', { name: 'Ja, später wieder anbieten' })
+    const hintId = back.getAttribute('aria-describedby')!
+    expect(document.getElementById(hintId)?.textContent).toBe('Es wird wieder ein Entwurf.')
+    fireEvent.click(screen.getByRole('button', { name: 'Nein, weglegen' }))
+    expect(onChoose).toHaveBeenCalledWith('gone')
+    fireEvent.click(screen.getByRole('button', { name: adminText('confirmAbort') }))
+    expect(onCancel).toHaveBeenCalledTimes(1)
+    rerender(
+      <ChoiceDialog
+        open
+        busy
+        title="t"
+        consequence="c"
+        choices={choices}
+        onChoose={onChoose}
+        onCancel={onCancel}
+      />,
+    )
+    for (const b of screen.getAllByRole('button'))
+      expect((b as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('geschlossen: keine Knöpfe sichtbar', () => {
+    render(
+      <ChoiceDialog
+        open={false}
+        title="t"
+        consequence="c"
+        choices={choices}
+        onChoose={() => undefined}
+        onCancel={() => undefined}
+      />,
+    )
+    expect(screen.queryAllByRole('button')).toHaveLength(0)
   })
 })
