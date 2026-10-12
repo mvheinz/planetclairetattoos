@@ -1,11 +1,16 @@
 import * as z from 'zod/mini'
 
+import { BILLING_COUNTRY_CODES, type BillingCountryCode } from '@/lib/enums'
+
 // Gemeinsames Schema der Kasse (KONZEPT §4.4, DATENMODELL §6.25.1, RECHT R-060/R-061, PLAN P4.9): dieselbe Prüfung im
 // Browser (vor dem Absenden, Fehler am Feld + Zusammenfassung) und auf dem Server (`submitCheckout`, P4.10a). Reines
 // Modul ohne `server-only` (Ausnahme in `check:static`) und ohne Texte: Fehler sind Codes, die Oberfläche übersetzt
 // sie (`checkout.errors.<code>`). Pflichtfelder genau nach R-061: E-Mail, Vor- und Nachname, bei Versand die
 // Lieferadresse, bei Abholung und bei „Rechnungsadresse weicht ab“ die Rechnungsadresse; kein Telefon-, Firmen- oder
-// Anredefeld. Land fest Deutschland (R-060).
+// Anredefeld. Lieferland fest Deutschland (R-060); die Rechnungsadresse darf in EU und EWR liegen (V-17, R-061,
+// VO (EU) 2018/302) – PLZ bei DE genau 5 Ziffern, sonst 3–10 Zeichen aus Ziffern, Buchstaben, Leerzeichen, Bindestrich.
+// V-18 b: freiwilliges, nicht vorangekreuztes Häkchen „Das ist ein Geschenk“ mit optionalem Gruß (≤ 300 Zeichen,
+// reiner Text) für eine handgeschriebene Karte.
 
 export const CHECKOUT_FULFILLMENT = ['shipping', 'pickup'] as const
 export type CheckoutFulfillment = (typeof CHECKOUT_FULFILLMENT)[number]
@@ -14,6 +19,12 @@ export type CheckoutChoice = (typeof CHECKOUT_CHOICES)[number]
 
 /** Einziges Lieferland zum Start (R-060, `settings.shipping.enabledCountries`). */
 export const CHECKOUT_COUNTRY = 'DE'
+
+/** Länder der Rechnungsadresse (EU/EWR, V-17); Standard `DE`. */
+export const CHECKOUT_BILLING_COUNTRIES: readonly BillingCountryCode[] = BILLING_COUNTRY_CODES
+
+/** Höchstlänge des Grußes für die Geschenkkarte (V-18 b). */
+export const GIFT_MESSAGE_MAX = 300
 
 /** Feldnamen im Formular (= Pfade laut DATENMODELL §6.25.1; der Name steht nur einmal im Formular). */
 export const CHECKOUT_FIELDS = {
@@ -33,6 +44,8 @@ export const CHECKOUT_FIELDS = {
   billingPostalCode: 'billingAddress.postalCode',
   billingCity: 'billingAddress.city',
   billingCountry: 'billingAddress.country',
+  isGift: 'isGift',
+  giftMessage: 'giftMessage',
   paymentChoice: 'paymentChoice',
   deviationAgreements: 'deviationAgreements',
 } as const
@@ -56,6 +69,8 @@ export const CHECKOUT_FIELD_IDS: Record<CheckoutFieldKey, string> = {
   billingPostalCode: 'checkout-billing-postal-code',
   billingCity: 'checkout-billing-city',
   billingCountry: 'checkout-billing-country',
+  isGift: 'checkout-gift',
+  giftMessage: 'checkout-gift-message',
   paymentChoice: 'checkout-payment-stripe',
   deviationAgreements: 'checkout-deviation',
 }
@@ -71,6 +86,8 @@ export const CHECKOUT_FIELD_ORDER: readonly CheckoutFieldKey[] = [
   'shippingCity',
   'shippingCountry',
   'carrierEmailConsent',
+  'isGift',
+  'giftMessage',
   'billingAddressDiffers',
   'billingName',
   'billingLine1',
@@ -83,7 +100,16 @@ export const CHECKOUT_FIELD_ORDER: readonly CheckoutFieldKey[] = [
 ]
 
 export type CheckoutErrorCode =
-  'required' | 'email' | 'tooShort' | 'tooLong' | 'postalCode' | 'country' | 'choice' | 'deviation'
+  | 'required'
+  | 'email'
+  | 'tooShort'
+  | 'tooLong'
+  | 'postalCode'
+  | 'postalCodeForeign'
+  | 'country'
+  | 'billingCountry'
+  | 'choice'
+  | 'deviation'
 
 export type CheckoutFieldErrors = Partial<Record<CheckoutFieldKey, CheckoutErrorCode>>
 
@@ -93,7 +119,8 @@ export interface CheckoutAddressInput {
   addressLine2?: string
   postalCode: string
   city: string
-  country: typeof CHECKOUT_COUNTRY
+  /** Lieferadresse immer `DE`; Rechnungsadresse ein Land aus EU/EWR (V-17). */
+  country: BillingCountryCode
 }
 
 /** Geprüfte Eingaben – Form der Felder an der Kasse (DATENMODELL §6.25.1). */
@@ -106,6 +133,10 @@ export interface CheckoutInput {
   /** Bei Abholung immer, bei Versand nur mit `billingAddressDiffers`. */
   billingAddress?: CheckoutAddressInput
   carrierEmailConsent: boolean
+  /** „Das ist ein Geschenk“ (V-18 b, nie vorangekreuzt). */
+  isGift: boolean
+  /** Gruß für die Karte – nur mit `isGift`, sonst `null`; leer → `null`. */
+  giftMessage: string | null
   paymentChoice: CheckoutChoice
   /** Produkt-IDs mit bestätigter Abweichung. */
   deviationAgreements: number[]
@@ -140,6 +171,28 @@ const LIMITS = {
 // baumschüttelbar): das Modul läuft auch im Browser, das volle `zod` brächte ~95 KB gz in die Kasse (T-09, P4.25).
 const emailSchema = z.email()
 const postalCodeSchema = z.string().check(z.regex(/^\d{5}$/))
+/** PLZ außerhalb Deutschlands (V-17): bewusst großzügig – 3–10 Zeichen, vorne und hinten Ziffer oder Buchstabe. */
+const foreignPostalCodeSchema = z
+  .string()
+  .check(z.regex(/^[A-Za-z0-9](?:[A-Za-z0-9 -]{1,8})[A-Za-z0-9]$/))
+
+const isBillingCountry = (v: string): v is BillingCountryCode =>
+  (CHECKOUT_BILLING_COUNTRIES as readonly string[]).includes(v)
+
+/**
+ * Gruß für die Geschenkkarte als reiner Text: Steuerzeichen (außer Zeilenumbruch) raus, Zeilenenden vereinheitlicht,
+ * höchstens eine Leerzeile, außen getrimmt.
+ */
+export function normalizeGiftMessage(value: string): string {
+  return (
+    value
+      .replace(/\r\n?/g, '\n')
+      // Steuerzeichen bewusst entfernen (Zeilenumbruch bleibt)
+      .replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  )
+}
 
 const one = (v: string | string[] | null | undefined): string =>
   (Array.isArray(v) ? (v[0] ?? '') : (v ?? '')).trim()
@@ -175,19 +228,31 @@ function address(
   const k = (field: string) => `${prefix}${field}` as CheckoutFieldKey
   const addressLine1 = text(errors, k('Line1'), one(raw[k('Line1')]), LIMITS.addressLine1, true)
   const addressLine2 = text(errors, k('Line2'), one(raw[k('Line2')]), LIMITS.addressLine2, false)
+  // Lieferland fest DE (R-060); Rechnungsland aus EU/EWR (V-17), Standard DE.
+  const rawCountry = (one(raw[k('Country')]) || CHECKOUT_COUNTRY).toUpperCase()
+  let country: BillingCountryCode = CHECKOUT_COUNTRY
+  if (prefix === 'shipping') {
+    if (rawCountry !== CHECKOUT_COUNTRY) errors[k('Country')] = 'country'
+  } else if (isBillingCountry(rawCountry)) {
+    country = rawCountry
+  } else {
+    errors[k('Country')] = 'billingCountry'
+  }
   const postalCode = one(raw[k('PostalCode')])
   if (!postalCode) errors[k('PostalCode')] = 'required'
-  else if (!postalCodeSchema.safeParse(postalCode).success) errors[k('PostalCode')] = 'postalCode'
+  else if (country === 'DE') {
+    if (!postalCodeSchema.safeParse(postalCode).success) errors[k('PostalCode')] = 'postalCode'
+  } else if (!foreignPostalCodeSchema.safeParse(postalCode).success) {
+    errors[k('PostalCode')] = 'postalCodeForeign'
+  }
   const city = text(errors, k('City'), one(raw[k('City')]), LIMITS.city, true)
-  const country = one(raw[k('Country')]) || CHECKOUT_COUNTRY
-  if (country.toUpperCase() !== CHECKOUT_COUNTRY) errors[k('Country')] = 'country'
   return {
     name,
     addressLine1,
     ...(addressLine2 ? { addressLine2 } : {}),
-    postalCode,
+    postalCode: country === 'DE' ? postalCode : postalCode.toUpperCase(),
     city,
-    country: CHECKOUT_COUNTRY,
+    country,
   }
 }
 
@@ -228,6 +293,18 @@ export function validateCheckoutInput(
     billingAddress = address(raw, errors, 'billing', billingName)
   }
 
+  // V-18 b: Gruß nur mit Häkchen; ohne Häkchen wird nichts gespeichert (Datenminimierung).
+  const isGift = truthy(raw.isGift)
+  let giftMessage: string | null = null
+  if (isGift) {
+    const rawGift = Array.isArray(raw.giftMessage)
+      ? (raw.giftMessage[0] ?? '')
+      : (raw.giftMessage ?? '')
+    const msg = normalizeGiftMessage(rawGift)
+    if (msg.length > GIFT_MESSAGE_MAX) errors.giftMessage = 'tooLong'
+    giftMessage = msg || null
+  }
+
   const choice = one(raw.paymentChoice)
   let paymentChoice: CheckoutChoice = 'stripe'
   if (!choice) errors.paymentChoice = 'required'
@@ -254,6 +331,8 @@ export function validateCheckoutInput(
       billingAddressDiffers: differs,
       ...(billingAddress ? { billingAddress } : {}),
       carrierEmailConsent: shipping && truthy(raw.carrierEmailConsent),
+      isGift,
+      giftMessage,
       paymentChoice,
       deviationAgreements: ctx.deviationProductIds.filter((id) => agreed.has(id)),
     },

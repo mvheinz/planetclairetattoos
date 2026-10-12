@@ -9,6 +9,7 @@ import { SERVICES } from '@/lib/legal/services.generated'
 import {
   L_03_CHECKOUTS,
   L_05_ORDERS_STAGE_D,
+  L_05_ORDERS_STAGE_E,
   L_06_INVOICES_DEFAULT_YEARS,
   L_08_WITHDRAWALS,
   L_10_INQUIRIES,
@@ -63,7 +64,10 @@ export function retentionLines(
   invoiceYears: number = L_06_INVOICES_DEFAULT_YEARS,
 ): string[] {
   return [
-    fill(t.retention.orders, { years: L_05_ORDERS_STAGE_D.duration.years ?? 6 }),
+    fill(t.retention.orders, {
+      years: L_05_ORDERS_STAGE_D.duration.years ?? 6,
+      giftDays: L_05_ORDERS_STAGE_E.duration.days ?? 30,
+    }),
     fill(t.retention.invoices, { years: invoiceYears }),
     fill(t.retention.withdrawals, { years: L_08_WITHDRAWALS.duration.years ?? 6 }),
     fill(t.retention.inquiries, { months: L_10_INQUIRIES.duration.months ?? 6 }),

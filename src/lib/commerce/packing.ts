@@ -21,6 +21,7 @@ export type PackingHintKey =
   | 'insurance'
   | 'letter'
   | 'carrierEmail'
+  | 'gift'
 
 export interface PackingHint {
   key: PackingHintKey
@@ -48,6 +49,19 @@ export interface PackingOrderLike extends AddressOrderLike {
       }[]
     | null
   timestamps?: { shippedAt?: string | null } | null
+  /** Geschenk mit Gruß für eine handgeschriebene Karte (V-18 b). */
+  gift?: { isGift?: boolean | null; message?: string | null } | null
+}
+
+/** Text der Geschenk-Hinweise (Karte „Zu packen“, Abholung, Checkliste; V-18 b). */
+export const GIFT_HINT_TEXT = 'Geschenk – Karte von Hand schreiben'
+export const GIFT_CHECKLIST_ITEM = 'Geschenk: handgeschriebene Karte beilegen'
+
+/** Hinweis „Geschenk“ mit dem Gruß der Kundin (falls noch gespeichert), sonst `null`. */
+export function giftHint(order: Pick<PackingOrderLike, 'gift'>): string | null {
+  if (order.gift?.isGift !== true) return null
+  const message = order.gift.message?.trim()
+  return message ? `${GIFT_HINT_TEXT}: „${message}“` : `${GIFT_HINT_TEXT} (ohne Gruß)`
 }
 
 /** „500 €“ bei ganzen Euro, sonst „500,50 €“ (Text der Hinweise wie in KONZEPT §7.6). */
@@ -187,6 +201,8 @@ export function packingHints(
       tone: 'warning',
     })
   }
+  const gift = giftHint(order)
+  if (gift) hints.push({ key: 'gift', text: gift, tone: 'info' })
   hints.push({
     key: 'carrierEmail',
     text: `E-Mail an DHL: ${carrierEmailConsentActive(order) ? 'ja' : 'nein'}`,
@@ -220,7 +236,9 @@ export interface ChecklistItem {
  * Sendungen, ohne Doppelungen.
  */
 export function packingChecklist(
-  order: Pick<PackingOrderLike, 'shippingClass' | 'items'> & { packingChecklistState?: unknown },
+  order: Pick<PackingOrderLike, 'shippingClass' | 'items' | 'gift'> & {
+    packingChecklistState?: unknown
+  },
   settings: ChecklistSettings,
 ): ChecklistItem[] {
   const state = checklistState(order.packingChecklistState)
@@ -229,6 +247,8 @@ export function packingChecklist(
     const list = (settings.packingChecklists ?? []).find((c) => c.shippingClass === cls)
     for (const item of list?.items ?? []) if (item.text?.trim()) texts.push(item.text.trim())
   }
+  // V-18 b: Geschenk – Karte von Hand beilegen (der Gruß selbst steht nur in der Verwaltung, nicht auf dem Packzettel)
+  if (order.gift?.isGift === true) texts.push(GIFT_CHECKLIST_ITEM)
   texts.push(...PACKING_COMMON_ITEMS)
   const seen = new Set<string>()
   return texts

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { addToCart, evaluateCart, setDeliveryMethod } from '@/lib/commerce/cart'
+import { addToCart, evaluateCart } from '@/lib/commerce/cart'
 import { decodeCartCookie, encodeCartCookie } from '@/lib/commerce/cartCookie'
 import { changeCheckoutDelivery } from '@/lib/commerce/changeDelivery'
 import { startCheckout } from '@/lib/commerce/checkout'
@@ -12,8 +12,8 @@ import { cartOf, checkoutById, productRow, setSettingsGroup } from '../helpers/c
 import { shopHarness } from '../helpers/shop'
 
 // P18.5 – Schalter „Abholung möglich“ (`settings.shipping.pickupEnabled`, KONZEPT §4.3 Regel 7): aus heißt aus. „In den
-// Korb“, Lieferart im Korb, Kassenstart, Lieferartwechsel und Absenden lehnen Abholung ab (`pickup_disabled`) und fallen
-// auf Versand zurück; `nur_abholung`-Stücke sind nicht bestellbar; die Korb-Bewertung kennt Schalter und Vorkasse für die
+// Korb“, Kassenstart, Lieferartwechsel und Absenden lehnen Abholung ab (`pickup_disabled`) und fallen auf Versand zurück
+// (eine Lieferart-Wahl im Korb gibt es seit V-16 nicht mehr); `nur_abholung`-Stücke sind nicht bestellbar; die Korb-Bewertung kennt Schalter und Vorkasse für die
 // Zahlarten-Zeile (R-036). Fixture-Nummern 980–985.
 
 const NUMBERS = [980, 981, 982, 983, 984, 985]
@@ -90,34 +90,7 @@ describe('„In den Korb“ bei ausgeschalteter Abholung', () => {
   })
 })
 
-describe('Korb: Lieferart und Bewertung', () => {
-  it('setDeliveryMethod(pickup) → pickup_disabled, gemerkte Abholung wird Versand; Versand trotz nur_abholung erlaubt', async () => {
-    const a = await h.piece(982)
-    const p = await h.piece(983, { shippingClass: 'nur_abholung' })
-    await pickupOff()
-
-    const out = await setDeliveryMethod(
-      { method: 'pickup', cookie: cookieOf([a], 'pickup') },
-      h.payload,
-    )
-    expect(out).toMatchObject({ ok: false, code: 'pickup_disabled' })
-    if (out.ok || !out.cookie || !('set' in out.cookie)) throw new Error('Rückfall-Cookie erwartet')
-    expect(decodeCartCookie(out.cookie.set)?.delivery).toBe('shipping')
-
-    // Schon Versand gemerkt → abgelehnt, aber nichts neu zu schreiben.
-    expect(
-      await setDeliveryMethod({ method: 'pickup', cookie: cookieOf([a]) }, h.payload),
-    ).toMatchObject({ ok: false, code: 'pickup_disabled', cookie: null })
-
-    // nur_abholung ist ohnehin gesperrt – Versand bleibt wählbar (kein pickup_only).
-    expect(
-      await setDeliveryMethod(
-        { method: 'shipping', cookie: cookieOf([a, p], 'pickup') },
-        h.payload,
-      ),
-    ).toMatchObject({ ok: true })
-  })
-
+describe('Korb: Bewertung', () => {
   it('evaluateCart: Versand statt gemerkter Abholung, nur_abholung gesperrt (Blocker pickup_disabled), Schalter in der Bewertung', async () => {
     const a = await h.piece(982)
     const p = await h.piece(983, { shippingClass: 'nur_abholung' })

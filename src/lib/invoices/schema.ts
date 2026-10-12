@@ -2,10 +2,22 @@ import 'server-only'
 
 import { z } from 'zod'
 
-import { COUNTRY_CODES, PAYMENT_METHODS } from '@/lib/enums'
+import {
+  BILLING_COUNTRY_CODES,
+  COUNTRY_CODES,
+  PAYMENT_METHODS,
+  type BillingCountryCode,
+  type CountryCode,
+} from '@/lib/enums'
 
 // Belegdaten `InvoiceDataV1` (DATENMODELL §6.9, R-120): eingefroren im Beleg (`invoices.data`), einzige Quelle für das
 // PDF. Beträge in Integer-Cent, Zeitpunkte als ISO-Zeichenkette (UTC), Leistungszeitpunkt als Monat `JJJJ-MM`.
+
+/** Land der Empfänger:in: Lieferländer und Rechnungsländer aus EU/EWR (V-17). */
+export const BUYER_COUNTRY_CODES = [...new Set([...COUNTRY_CODES, ...BILLING_COUNTRY_CODES])] as [
+  CountryCode | BillingCountryCode,
+  ...(CountryCode | BillingCountryCode)[],
+]
 
 const cents = z.number().int().nonnegative()
 const vatRate = z.union([z.literal(0), z.literal(7), z.literal(19)])
@@ -32,7 +44,7 @@ export const invoiceBuyerSchema = z.object({
   addressLine2: optionalText(200),
   postalCode: text(20),
   city: text(100),
-  country: z.enum(COUNTRY_CODES),
+  country: z.enum(BUYER_COUNTRY_CODES),
   email: z.string().email(),
 })
 

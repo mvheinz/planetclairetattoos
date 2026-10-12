@@ -45,7 +45,7 @@ const main = new Map(
 const sec3_1 = clean(sec('### 3.1 Bestellungen', '### 3.2'))
 const stages = new Map(
   tableRows(sec3_1)
-    .filter((r) => /^[A-D]$/.test(r[0]!))
+    .filter((r) => /^[A-E]$/.test(r[0]!))
     .map((r) => [r[0]!, r[1]!]),
 )
 
@@ -59,7 +59,7 @@ function part(cell: string, marker: RegExp): string {
 }
 
 function docText(r: RetentionRule): { text: string; beginn: string } {
-  const m = /^(L-\d{2})(?: ([a-i]))?(?: Stufe ([A-D12]))?$/.exec(r.id)!
+  const m = /^(L-\d{2})(?: ([a-i]))?(?: Stufe ([A-E12]))?$/.exec(r.id)!
   const [, lid, letter, stage] = m
   if (lid === 'L-05' && stage) return { text: stages.get(stage)!, beginn: stages.get(stage)! }
   // L-05 ohne Stufe: Rückfall „shippedAt + 30 Tage“ aus dem Text von §3.1
@@ -85,7 +85,7 @@ function fmt(d: RetentionDuration): string {
 describe('Löschfristen (LOESCHKONZEPT §2, src/lib/retention/policy.ts)', () => {
   it('die Tabelle wurde geparst (L-01 … L-25)', () => {
     expect(main.size).toBe(25)
-    expect(stages.size).toBe(4)
+    expect(stages.size).toBe(5)
   })
 
   it('jede L-ID hat eine Regel im Code oder ist bewusst ohne eigene Frist', () => {
@@ -153,7 +153,7 @@ describe('Löschfristen (LOESCHKONZEPT §2, src/lib/retention/policy.ts)', () =>
   })
 
   it('Regel-IDs passen zum deletion-log-Muster (DATENMODELL §6.27)', () => {
-    for (const r of RETENTION_RULES) expect(r.id).toMatch(/^L-\d{2}( [a-i])?( Stufe [A-D12])?$/)
+    for (const r of RETENTION_RULES) expect(r.id).toMatch(/^L-\d{2}( [a-i])?( Stufe [A-E12])?$/)
     expect(DELETION_ACTIONS).toEqual(['deleted', 'anonymized', 'restricted', 'files_deleted'])
   })
 })

@@ -381,7 +381,7 @@ describe('R-081 Versandweg (AK-6-02)', () => {
       overrideAccess: true,
     })
     expect(log.docs).toHaveLength(1)
-    expect(log.docs[0]).toMatchObject({ status: 'sent', templateVersion: 'm01-v2' })
+    expect(log.docs[0]).toMatchObject({ status: 'sent', templateVersion: 'm01-v3' })
     expect(log.docs[0]!.bodySha256).toMatch(/^[0-9a-f]{64}$/)
   })
 })

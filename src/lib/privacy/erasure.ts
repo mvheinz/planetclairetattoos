@@ -889,8 +889,8 @@ export async function restrictWithdrawal(
 }
 
 /**
- * Bestellung einschränken (Art. 18, LOESCHKONZEPT §5.7): `processingRestricted`, Notizen leeren, Packfotos sofort
- * löschen; Mails zur Bestellung unterdrückt danach die Outbox. Meldet, ob dabei eine DHL-Einwilligung widerrufen wurde.
+ * Bestellung einschränken (Art. 18, LOESCHKONZEPT §5.7): `processingRestricted`, Notizen und Gruß der Geschenkkarte
+ * leeren, Packfotos sofort löschen; Mails zur Bestellung unterdrückt danach die Outbox. Meldet, ob dabei eine DHL-Einwilligung widerrufen wurde.
  */
 export async function restrictOrder(
   req: PayloadRequest,
@@ -939,6 +939,8 @@ export async function restrictOrder(
         privacy: { ...(fresh.privacy ?? {}), processingRestricted: true },
         notes: null,
         adminAttention: { ...(fresh.adminAttention ?? {}), note: null },
+        // Gruß für die Geschenkkarte (V-18 b) ist für keine Aufbewahrungspflicht nötig – mit der Einschränkung weg
+        gift: { ...(fresh.gift ?? {}), message: null },
       } as never,
       depth: 0,
       overrideAccess: true,

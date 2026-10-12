@@ -132,6 +132,8 @@ export interface OrderDetail {
   attention: { reason: string | null; note: string | null; manual: boolean } | null
   dispute: { status: string; before: string | null } | null
   withdrawalHint: boolean
+  /** Geschenk mit Gruß für eine handgeschriebene Karte (V-18 b); `null` ohne Geschenk. */
+  gift: { message: string | null } | null
   notes: string | null
   emails: EmailRow[]
   resend: ResendOption[]
@@ -416,6 +418,7 @@ export async function loadOrderDetail(
         }
       : null,
     withdrawalHint: withdrawnBeforeShipping(order),
+    gift: order.gift?.isGift === true ? { message: order.gift.message?.trim() || null } : null,
     notes: order.notes ?? null,
     emails,
     resend: resendOptions(new Set(mails.docs.map((m) => m.template))),

@@ -17,6 +17,8 @@ type Address = {
   addressLine2?: string
   postalCode: string
   city: string
+  /** ISO-Code; Lieferadresse immer `DE`, Rechnungsadresse EU/EWR (V-17). */
+  country?: string
 }
 
 export interface StripeConfirmInput {
@@ -78,7 +80,7 @@ function ownFontSources(): { family: string; src: string; weight: string }[] {
 const toContact = (a: Address) => ({
   name: a.name,
   address: {
-    country: 'DE',
+    country: a.country ?? 'DE',
     line1: a.addressLine1,
     line2: a.addressLine2 ?? null,
     city: a.city,

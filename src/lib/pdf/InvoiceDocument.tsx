@@ -19,6 +19,13 @@ export const INVOICE_WATERMARK = 'BEISPIELBELEG – kein echter Beleg'
 /** Anzeige, solange `settings.business.taxNumber` fehlt (Grund-Seed; echte Belege erst nach P11, §13.7). */
 export const TAX_NUMBER_MISSING = '[Steuernummer fehlt – vor dem Start eintragen]'
 
+/** Deutscher Ländername für die Anschrift (Rechnungsadresse EU/EWR, V-17). */
+export function countryName(code: string): string {
+  const labels = ENUM_LABELS.BILLING_COUNTRY_CODES as Record<string, { de: string } | undefined>
+  const fallback = ENUM_LABELS.COUNTRY_CODES as Record<string, { de: string } | undefined>
+  return labels[code]?.de ?? fallback[code]?.de ?? code
+}
+
 export const INVOICE_TITLE: Readonly<Record<InvoiceType, string>> = {
   invoice: 'Rechnung',
   credit_note: 'Gutschrift',
@@ -213,8 +220,9 @@ export function InvoiceDocument(props: InvoiceDocumentProps) {
           {buyer.addressLine2 ? <Text>{buyer.addressLine2}</Text> : null}
           <Text>
             {buyer.postalCode} {buyer.city}
-            {buyer.country !== 'DE' ? ` · ${buyer.country}` : ''}
           </Text>
+          {/* V-17: Rechnungsadresse im EU/EWR-Ausland – Land als eigene Zeile, deutscher Name */}
+          {buyer.country !== 'DE' ? <Text>{countryName(buyer.country)}</Text> : null}
         </View>
 
         <View style={s.tableHead}>

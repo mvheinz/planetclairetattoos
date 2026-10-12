@@ -1,7 +1,14 @@
 import 'server-only'
 
 import { ENUM_LABELS } from '@/lib/enumLabels'
-import type { CountryCode, PaymentMethod, ProductCategory, TaxMode, VatCategory } from '@/lib/enums'
+import type {
+  BillingCountryCode,
+  CountryCode,
+  PaymentMethod,
+  ProductCategory,
+  TaxMode,
+  VatCategory,
+} from '@/lib/enums'
 import { SMALL_BUSINESS_VAT_NOTE } from '@/lib/legal/constants'
 import { formatItemNumber } from '@/lib/products/itemNumber'
 import { computeTax, VAT_RATES, type VatRate } from '@/lib/tax'
@@ -28,7 +35,8 @@ interface Address {
   addressLine2?: string | null
   postalCode?: string | null
   city?: string | null
-  country?: CountryCode | null
+  /** Lieferadresse aus `COUNTRY_CODES`, Rechnungsadresse aus EU/EWR (V-17). */
+  country?: CountryCode | BillingCountryCode | null
 }
 
 export interface InvoiceOrder {

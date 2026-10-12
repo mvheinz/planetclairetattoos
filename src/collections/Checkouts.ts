@@ -1,7 +1,7 @@
 import type { CollectionBeforeChangeHook, CollectionConfig, Field } from 'payload'
 
 import { isAdmin, none } from '@/access'
-import { addressFields, legalTextVersionsField, moneyField, seedField } from '@/fields'
+import { addressFields, giftFields, legalTextVersionsField, moneyField, seedField } from '@/fields'
 import {
   CHECKOUT_CLOSE_REASON_REQUIRED,
   CHECKOUT_INITIAL_STATUS,
@@ -224,13 +224,18 @@ export const Checkouts: CollectionConfig = {
       label: 'Rechnungsadresse weicht ab',
       defaultValue: false,
     },
-    addressFields('billingAddress', { ...noAddressRequired, label: 'Rechnungsadresse' }),
+    addressFields('billingAddress', {
+      ...noAddressRequired,
+      label: 'Rechnungsadresse',
+      countries: 'billing',
+    }),
     {
       name: 'carrierEmailConsent',
       type: 'checkbox',
       label: 'E-Mail an DHL erlaubt',
       defaultValue: false,
     },
+    giftFields(),
     {
       name: 'deviationAgreements',
       type: 'array',

@@ -22,7 +22,8 @@ export const generateMetadata = routeMetadata('R25')
 // Band „PLATZHALTER – nicht rechtsverbindlich“, solange die Fassung nicht von der Kanzlei stammt, R-002), danach die
 // Versandtabelle aus `settings.shipping.rates` über `computeShipping` (eine Quelle mit Korb und Kasse, E-25, R-031),
 // Regel „höchste Versandklasse“, Lieferzeit (E-31, R-035), Liefergebiet (E-24), Zahlarten (E-20, E-23), Zeitpunkt der
-// Belastung, Transportschäden (ohne Rügefrist, V-10/V-11), Rücksendekosten (E-27), Link R24 und die harmonisierte
+// Belastung, Transportschäden (ohne Rügefrist, V-10/V-11), Rücksendekosten (E-27), Rechnungsadresse aus EU/EWR (V-17),
+// Geschenk-Hinweis mit Karte (V-18 b), Link R24 und die harmonisierte
 // Mitteilung zur Gewährleistung (R-049) und ein Link zu den Fragen zum Shop (unten auf R02, V-19 der Analyse 12.10.).
 // Statisch mit Tag `settings` (neuer Klassenpreis nach ≤ 60 s sichtbar).
 
@@ -71,6 +72,17 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           <p data-delivery-area="">
             {settings.pickupEnabled ? t('area', { city }) : t('areaNoPickup')}
           </p>
+          {/* V-17: Rechnungsadresse aus EU/EWR erlaubt (VO (EU) 2018/302), geliefert wird nur innerhalb Deutschlands */}
+          <p data-billing-area="">
+            {settings.pickupEnabled ? t('billingArea') : t('billingAreaNoPickup')}
+          </p>
+        </section>
+
+        {/* V-18 b: Geschenk-Hinweis – nur Wahres (Packzettel ohne Preise, Rechnung nur per Mail) – und Karte mit Gruß */}
+        <section aria-labelledby="sp-gift" data-section="gift">
+          <h2 id="sp-gift">{t('giftHeading')}</h2>
+          <p data-gift-hint="">{t('gift')}</p>
+          <p data-gift-card="">{t('giftCard')}</p>
         </section>
 
         <section aria-labelledby="sp-payment" data-section="payment">

@@ -1,13 +1,7 @@
 import { createLocalReq, type Payload } from 'payload'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import {
-  evaluateCart,
-  readCart,
-  removeFromCart,
-  reservedByYou,
-  setDeliveryMethod,
-} from '@/lib/commerce/cart'
+import { evaluateCart, readCart, removeFromCart, reservedByYou } from '@/lib/commerce/cart'
 import { decodeCartCookie, encodeCartCookie } from '@/lib/commerce/cartCookie'
 import { startCheckout, type StartCheckoutResult } from '@/lib/commerce/checkout'
 import { transitionCheckout } from '@/lib/commerce/checkoutTransitions'
@@ -21,6 +15,7 @@ import {
   piece as makePiece,
   productRow,
   reservationsOf,
+  setSettingsGroup,
   testClock,
   useMemorySystemFiles,
   useMockPayments,
@@ -31,8 +26,9 @@ import { getTestPayload } from '../helpers/payload'
 import { createProductFixtures, deleteProducts, type ProductFixtures } from '../helpers/products'
 
 // P4.7 Warenkorb-Aktionen (KONZEPT §4.2, §4.11 S6/S12; DATENMODELL §6.25.3): Entfernen (offene Kasse → `cart_changed`,
-// Freigabe; `confirming` → abgelehnt), Lieferart (AK-4-02, Reservierung bleibt), Bewertung mit DB-Preis, und
-// `reservedByYou` in `GET /api/public/product-status`. Fixture-Nummern 980–999, Uhr injiziert.
+// Freigabe; `confirming` → abgelehnt), Bewertung mit DB-Preis, und `reservedByYou` in `GET /api/public/product-status`.
+// V-16: Die Lieferart wählt man nur noch in der Kasse – ist der Versand nicht berechenbar, rechnen Korb und Kassenstart mit
+// Abholung (solange Abholung möglich ist). Fixture-Nummern 980–999, Uhr injiziert.
 
 let payload: Payload
 let fx: ProductFixtures
@@ -169,46 +165,78 @@ describe('removeFromCart', () => {
   })
 })
 
-describe('setDeliveryMethod', () => {
-  it('AK-4-02: shipping mit einem nur_abholung-Stück wird abgelehnt; pickup geht', async () => {
-    const a = await piece(984)
-    const p = await piece(985, { shippingClass: 'nur_abholung' })
-    const cookie = cookieOf([a, p], 'pickup')
-    expect(await setDeliveryMethod({ method: 'shipping', cookie }, payload)).toMatchObject({
-      ok: false,
-      code: 'pickup_only',
-      itemNumbers: [985],
-      cookie: null,
-    })
-    const back = await setDeliveryMethod(
-      { method: 'shipping', cookie: cookieOf([a], 'pickup') },
-      payload,
-    )
-    if (!back.ok || !back.cookie || !('set' in back.cookie)) throw new Error('Cookie erwartet')
-    expect(decodeCartCookie(back.cookie.set)?.delivery).toBe('shipping')
-    expect(await setDeliveryMethod({ method: 'pickup', cookie }, payload)).toMatchObject({
-      ok: true,
-      cookie: null,
-    })
+describe('Lieferart nur in der Kasse (V-16)', () => {
+  /** Versandtarife ohne `paket_klein` – der Versand für ein solches Stück lässt sich nicht berechnen. */
+  async function withoutSmallParcelRate(extra: Record<string, unknown> = {}) {
+    const settings = (await payload.findGlobal({
+      slug: 'settings',
+      overrideAccess: true,
+      depth: 0,
+    })) as unknown as { shipping?: { rates?: { shippingClass?: string }[] } }
+    const rates = (settings.shipping?.rates ?? []).filter((r) => r.shippingClass !== 'paket_klein')
+    return setSettingsGroup(payload, 'shipping', { rates, ...extra })
+  }
+
+  it('Versand nicht berechenbar, Abholung möglich → Korb rechnet mit Abholung ohne Sperre, Kasse startet mit Abholung', async () => {
+    const a = await piece(984, { shippingClass: 'paket_klein' })
+    const restore = await withoutSmallParcelRate()
+    try {
+      const ev = await evaluateCart(cartOf([{ id: a }]), clock.now(), { payload })
+      expect(ev).toMatchObject({
+        delivery: 'pickup',
+        pickupFallback: true,
+        shippingError: 'no_rate',
+        canCheckout: true,
+        blockers: [],
+      })
+      expect(ev.totals?.shippingCents).toBe(0)
+      const r = await started([a])
+      expect((await checkoutById(payload, r.checkoutId)).fulfillmentMethod).toBe('pickup')
+      expect((await productRow(payload, a)).reservation_ref).toBe(r.reservationRef)
+    } finally {
+      await restore()
+    }
   })
 
-  it('ohne Korb entsteht kein Cookie', async () => {
-    expect(await setDeliveryMethod({ method: 'pickup', cookie: undefined }, payload)).toMatchObject(
-      {
-        ok: true,
-        cookie: null,
-      },
-    )
+  it('… ohne Abholung → Sperrgrund „shipping“, Kassenstart lehnt ab und reserviert nichts', async () => {
+    const a = await piece(985, { shippingClass: 'paket_klein' })
+    const restore = await withoutSmallParcelRate({ pickupEnabled: false })
+    try {
+      const ev = await evaluateCart(cartOf([{ id: a }]), clock.now(), { payload })
+      expect(ev).toMatchObject({
+        delivery: 'shipping',
+        pickupFallback: false,
+        canCheckout: false,
+        blockers: ['shipping'],
+      })
+      const r = await startCheckout(
+        { cart: cartOf([{ id: a }]), locale: 'de', existingToken: null, now: clock.now() },
+        { payload },
+      )
+      expect(r).toMatchObject({ ok: false, code: 'shipping' })
+      expect((await productRow(payload, a)).status).toBe('available')
+    } finally {
+      await restore()
+    }
   })
 
-  it('Lieferartwechsel gibt nichts frei (Reservierung und Kasse bleiben)', async () => {
+  it('gemerkte Abholung (aus der Kasse) gilt beim nächsten Kassenstart; nur_abholung erzwingt Abholung', async () => {
     const a = await piece(986)
-    const r = await started([a])
-    const out = await setDeliveryMethod({ method: 'pickup', cookie: cookieOf([a]) }, payload)
-    expect(out.ok).toBe(true)
-    expect((await checkoutById(payload, r.checkoutId)).status).toBe('open')
-    expect((await productRow(payload, a)).reservation_ref).toBe(r.reservationRef)
-    expect((await reservationsOf(payload, a)).map((x) => x.status)).toEqual(['active'])
+    const p = await piece(987, { shippingClass: 'nur_abholung' })
+    const remembered = await started([a], 'pickup')
+    expect((await checkoutById(payload, remembered.checkoutId)).fulfillmentMethod).toBe('pickup')
+    // Andere Stückliste → die Kasse wird ersetzt (S14); `nur_abholung` setzt Abholung trotz gemerktem Versand
+    const forced = await startCheckout(
+      {
+        cart: cartOf([{ id: a }, { id: p }], 'shipping'),
+        locale: 'de',
+        existingToken: remembered.token,
+        now: clock.now(),
+      },
+      { payload },
+    )
+    if (!forced.ok) throw new Error(JSON.stringify(forced))
+    expect((await checkoutById(payload, forced.checkoutId)).fulfillmentMethod).toBe('pickup')
   })
 })
 

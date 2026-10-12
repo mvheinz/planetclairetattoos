@@ -357,27 +357,36 @@ export async function startCheckout(
     }
   })
   const hasPickupOnly = items.some((i) => i.shippingClass === 'nur_abholung')
-  const fulfillmentMethod: FulfillmentMethod = hasPickupOnly
+  const canPickUp = pickupSelectable(shop.pickupEnabled, false)
+  let fulfillmentMethod: FulfillmentMethod = hasPickupOnly
     ? 'pickup'
-    : cart.delivery === 'pickup' && pickupSelectable(shop.pickupEnabled, false)
+    : cart.delivery === 'pickup' && canPickUp
       ? 'pickup'
       : 'shipping'
-  let totals: ReturnType<typeof computeTotals>
-  try {
-    totals = computeTotals(
+  const totalsFor = (method: FulfillmentMethod) =>
+    computeTotals(
       {
         items: items.map((i, n) => ({
           ...i,
           foodContact: (products[n]!.foodContact as string | null | undefined) ?? null,
         })),
-        fulfillmentMethod,
+        fulfillmentMethod: method,
         at: now,
       },
       raw as unknown as TotalsSettings,
     )
+  let totals: ReturnType<typeof computeTotals>
+  try {
+    totals = totalsFor(fulfillmentMethod)
   } catch (err) {
-    if (err instanceof ShippingError) return fail('shipping', { message: err.message })
-    throw err
+    if (!(err instanceof ShippingError)) throw err
+    // V-16: Der Korb wählt keine Lieferart mehr – lässt sich der Versand nicht berechnen, startet die Kasse mit Abholung
+    // (wie die Anzeige im Korb, `pickupFallback`), sofern Abholung möglich ist.
+    if (fulfillmentMethod !== 'shipping' || !canPickUp) {
+      return fail('shipping', { message: err.message })
+    }
+    fulfillmentMethod = 'pickup'
+    totals = totalsFor('pickup')
   }
   const times = reservationTimes(now, raw as never)
   const token = createToken()

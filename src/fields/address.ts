@@ -2,15 +2,18 @@ import type { GroupField, SelectField, TextField } from 'payload'
 
 import { adminText } from '@/admin/translations'
 import { ENUM_LABELS, enumOptions } from '@/lib/enumLabels'
-import { COUNTRY_CODES } from '@/lib/enums'
+import { BILLING_COUNTRY_CODES, COUNTRY_CODES } from '@/lib/enums'
 
 // Adressgruppe (DATENMODELL §5). Die Einschränkung auf `settings.shipping.enabledCountries` prüft der
-// Kassen-Service (ab P4); hier nur Format und Pflicht.
+// Kassen-Service (ab P4); hier nur Format und Pflicht. Lieferadressen wählen aus `COUNTRY_CODES`, Rechnungsadressen
+// (`countries: 'billing'`, V-17) aus EU und EWR (`BILLING_COUNTRY_CODES`).
 
 export interface AddressOptions {
   /** Pflicht nur, wenn die Bedingung auf den Dokumentdaten erfüllt ist (z. B. `fulfillment === 'shipping'`). */
   requiredWhen?: (data: Record<string, unknown>) => boolean
   label?: string
+  /** Länderliste: `shipping` (Standard, `COUNTRY_CODES`) oder `billing` (EU/EWR, V-17). */
+  countries?: 'shipping' | 'billing'
 }
 
 type Sibling = { country?: string }
@@ -48,7 +51,10 @@ export function addressFields(prefix: string, options: AddressOptions = {}): Gro
     type: 'select',
     label: 'Land',
     defaultValue: 'DE',
-    options: enumOptions(COUNTRY_CODES, ENUM_LABELS.COUNTRY_CODES),
+    options:
+      options.countries === 'billing'
+        ? enumOptions(BILLING_COUNTRY_CODES, ENUM_LABELS.BILLING_COUNTRY_CODES)
+        : enumOptions(COUNTRY_CODES, ENUM_LABELS.COUNTRY_CODES),
     validate: (value: unknown, { data }: { data: Record<string, unknown> }) =>
       value || !isRequired(data ?? {}) ? true : adminText('required'),
   }

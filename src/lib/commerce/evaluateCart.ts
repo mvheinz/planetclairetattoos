@@ -69,16 +69,22 @@ export interface CartEvaluation {
   lines: CartLine[]
   /**
    * Lieferart für Anzeige und Rechnung: `pickup`, sobald ein kaufbares Stück `nur_abholung` ist; `shipping`, solange
-   * Abholung nicht wählbar ist (Schalter aus, P18.5) – auch wenn das Cookie noch `pickup` sagt.
+   * Abholung nicht wählbar ist (Schalter aus, P18.5) – auch wenn das Cookie noch `pickup` sagt. Sonst die zuletzt in der
+   * Kasse gewählte Lieferart aus dem Cookie (V-16: der Korb selbst wählt keine Lieferart mehr).
    */
   delivery: CartDelivery
+  /**
+   * V-16: Versand lässt sich nicht berechnen (`shippingError`), Abholung ist aber wählbar → der Korb rechnet mit Abholung
+   * (sichtbar als „Abholung in …“, nie still 0 €) und die Kasse startet mit Abholung; kein Sperrgrund `shipping`.
+   */
+  pickupFallback: boolean
   /** Nummern der kaufbaren Stücke, die es nur zur Abholung gibt („Nr. 023 gibt es nur zur Abholung“). */
   pickupOnly: number[]
   /** Nummern der `nur_abholung`-Stücke, die gerade nicht bestellbar sind (Abholung aus, P18.5). */
   pickupBlocked: number[]
   /** Schalter „Abholung möglich“ (`settings.shipping.pickupEnabled`). */
   pickupEnabled: boolean
-  /** Abholung im Korb wählbar (Radio sichtbar): Schalter an – oder ein bestellbares `nur_abholung`-Stück im Korb. */
+  /** Abholung wählbar (in der Kasse, V-16): Schalter an – oder ein bestellbares `nur_abholung`-Stück im Korb. */
   pickupSelectable: boolean
   /** Vorkasse angeboten (`settings.payment.prepaymentEnabled`) – für die Zahlarten vor „Zur Kasse“ (R-036). */
   prepaymentEnabled: boolean
@@ -91,8 +97,8 @@ export interface CartEvaluation {
   } | null
   shippingError: ShippingErrorCode | null
   /**
-   * Versandpreis, falls „Versand“ gewählt wäre (Radiogruppe im Korb, KO-13) – auch bei gewählter Abholung; `null`, wenn
-   * ein Stück nur zur Abholung ist oder kein Tarif passt.
+   * Versandpreis, falls „Versand“ gewählt wäre – auch bei gemerkter Abholung; `null`, wenn ein Stück nur zur Abholung ist
+   * oder kein Tarif passt.
    */
   shippingQuoteCents: number | null
   count: number
@@ -177,36 +183,48 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
     .map((l) => l.product!.itemNumber)
   const pickupBlocked = lines.flatMap((l) => (l.pickupBlocked ? [l.product!.itemNumber] : []))
   const canPickUp = pickupSelectable(pickupEnabled, pickupOnly.length > 0)
-  const delivery: CartDelivery =
+  const preferred: CartDelivery =
     pickupOnly.length > 0 ? 'pickup' : canPickUp ? cart.delivery : 'shipping'
 
+  const totalsFor = (method: CartDelivery): NonNullable<CartEvaluation['totals']> => {
+    const t = computeTotals(
+      {
+        items: buyable.map((l) => ({
+          itemNumber: l.product!.itemNumber,
+          priceCents: l.product!.priceCents,
+          vatCategory: l.product!.vatCategory,
+          shippingClass: l.product!.shippingClass,
+        })),
+        fulfillmentMethod: method,
+        at: now,
+      },
+      settings,
+    )
+    return {
+      subtotalCents: t.subtotalCents,
+      shippingCents: t.shippingCents,
+      totalCents: t.totalCents,
+      shippingClass: t.shipping.shippingClass,
+      label: t.shipping.label,
+    }
+  }
+
+  let delivery = preferred
+  let pickupFallback = false
   let totals: CartEvaluation['totals'] = null
   let shippingError: ShippingErrorCode | null = null
   if (buyable.length > 0) {
     try {
-      const t = computeTotals(
-        {
-          items: buyable.map((l) => ({
-            itemNumber: l.product!.itemNumber,
-            priceCents: l.product!.priceCents,
-            vatCategory: l.product!.vatCategory,
-            shippingClass: l.product!.shippingClass,
-          })),
-          fulfillmentMethod: delivery,
-          at: now,
-        },
-        settings,
-      )
-      totals = {
-        subtotalCents: t.subtotalCents,
-        shippingCents: t.shippingCents,
-        totalCents: t.totalCents,
-        shippingClass: t.shipping.shippingClass,
-        label: t.shipping.label,
-      }
+      totals = totalsFor(preferred)
     } catch (err) {
       if (!(err instanceof ShippingError)) throw err
       shippingError = err.code
+      // V-16: ohne Lieferart-Wahl im Korb wäre „Wähl bitte Abholung“ eine Sackgasse – mit Abholung weiterrechnen.
+      if (preferred === 'shipping' && canPickUp) {
+        totals = totalsFor('pickup')
+        delivery = 'pickup'
+        pickupFallback = true
+      }
     }
   }
 
@@ -232,11 +250,12 @@ export function evaluateCartItems(input: EvaluateCartInput): CartEvaluation {
   if (lines.length > maxItemsPerCheckout) blockers.push('too_many')
   if (lines.some((l) => !l.purchasable && !l.pickupBlocked)) blockers.push('unavailable')
   if (pickupBlocked.length > 0) blockers.push('pickup_disabled')
-  if (shippingError) blockers.push('shipping')
+  if (shippingError && !pickupFallback) blockers.push('shipping')
 
   return {
     lines,
     delivery,
+    pickupFallback,
     pickupOnly,
     pickupBlocked,
     pickupEnabled,

@@ -235,6 +235,43 @@ export const COUNTRY_CODES = [
   'CH',
 ] as const // nie GB/US (E-24)
 export type CountryCode = (typeof COUNTRY_CODES)[number]
+/**
+ * Länder einer Rechnungsadresse (V-17, U-93; VO (EU) 2018/302 Art. 4 Abs. 1 lit. a): EU und EWR (Island, Liechtenstein,
+ * Norwegen). Nicht CH und nie GB/US (R-060). Geliefert wird weiter nur nach `settings.shipping.enabledCountries` (DE).
+ */
+export const BILLING_COUNTRY_CODES = [
+  'DE',
+  'AT',
+  'BE',
+  'BG',
+  'CY',
+  'CZ',
+  'DK',
+  'EE',
+  'ES',
+  'FI',
+  'FR',
+  'GR',
+  'HR',
+  'HU',
+  'IE',
+  'IT',
+  'LT',
+  'LU',
+  'LV',
+  'MT',
+  'NL',
+  'PL',
+  'PT',
+  'RO',
+  'SE',
+  'SI',
+  'SK',
+  'IS',
+  'LI',
+  'NO',
+] as const
+export type BillingCountryCode = (typeof BILLING_COUNTRY_CODES)[number]
 
 // Belege & Steuern
 export const TAX_MODES = ['kleinunternehmer', 'regelbesteuert'] as const
