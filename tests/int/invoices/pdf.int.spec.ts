@@ -128,6 +128,30 @@ describe('Rechnungs-PDF (R-120)', () => {
     expect((invoice.data as { buyer: { name: string } }).buyer.name).toBe('Rita Rechnung')
   })
 
+  it('V-17 Abholung mit Rechnungsadresse in Österreich: Beleg trägt AT, das PDF nennt das Land', async () => {
+    const order = await newOrder({
+      fulfillmentMethod: 'pickup',
+      shippingAddress: undefined,
+      shippingZone: undefined,
+      shippingClass: undefined,
+      shippingCents: 0,
+      totalCents: 7700,
+      billingAddress: {
+        name: 'Anna Alpen',
+        addressLine1: 'Ringstraße 1',
+        postalCode: '1010',
+        city: 'Wien',
+        country: 'AT',
+      },
+    })
+    const invoice = await invoiceFor(order)
+    expect((invoice.data as { buyer: { country: string } }).buyer.country).toBe('AT')
+    const { text } = await textOf(invoice)
+    expect(text).toContain('Anna Alpen')
+    expect(text).toContain('1010 Wien')
+    expect(text).toContain('Österreich')
+  })
+
   it('DM-INV-05 gespeicherter Hash = Hash der Datei; zweiter Lauf ändert nichts (genau einmal)', async () => {
     const invoice = await invoiceFor(await newOrder())
     const { file } = await textOf(invoice)

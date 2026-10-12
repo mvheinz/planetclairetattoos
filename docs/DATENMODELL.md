@@ -389,6 +389,10 @@ export type AttentionReason = (typeof ATTENTION_REASONS)[number]
 export const COUNTRY_CODES = ['DE', 'AT', 'BE', 'BG', 'CY', 'CZ', 'DK', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR', 'HU',
   'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'CH'] as const // nie GB/US (E-24)
 export type CountryCode = (typeof COUNTRY_CODES)[number]
+// Rechnungsadresse (V-17, U-93; VO (EU) 2018/302 Art. 4 Abs. 1 lit. a): EU und EWR, ohne CH, nie GB/US (R-060)
+export const BILLING_COUNTRY_CODES = ['DE', 'AT', 'BE', 'BG', 'CY', 'CZ', 'DK', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR',
+  'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'IS', 'LI', 'NO'] as const
+export type BillingCountryCode = (typeof BILLING_COUNTRY_CODES)[number]
 
 // Belege & Steuern
 export const TAX_MODES = ['kleinunternehmer', 'regelbesteuert'] as const
@@ -610,7 +614,7 @@ bleiben `mailto:`-Vorlagen der Verwaltung (keine Schlüssel).
 |---|---|---|
 | `seedField()` | `seed`: checkbox, S, Default `false`, `index: true`, `admin.position: 'sidebar'`, readOnly, Label „Beispieldaten“ · `seedKey`: text, S, readOnly, `admin.hidden`, `index: true`, Regex `^[a-z-]+:[A-Za-z0-9:#._-]{1,80}$` (Format `<collection>:<schlüssel>`, SEED-SPEC §1.2), **eindeutig, wenn gesetzt** (partieller UNIQUE-Index §9.3); wird bei „Übernehmen“ (§13.4) **nicht** geleert | alle Collections mit Seed-Flag (§2) |
 | `privacyFields()` | Gruppe `privacy`: `processingRestricted` (checkbox, Default `false`; Einschränkung nach Art. 18 bzw. Art. 17 Abs. 3 lit. b DSGVO – keine Mails, nur Pflichtzwecke, in Admin-Listen ausgeblendet), `restrictedAt` (date, S), `legalHold` (checkbox, Default `false`; sperrt gegen automatische Löschung), `legalHoldReason` (text, R bei `legalHold`, 10–300), `legalHoldSince` (date, S), `legalHoldReviewedAt` (date, S; Job `legalHoldReview`), `anonymizedAt` (date, S) | `orders`, `withdrawals`, `inquiries` (LOESCHKONZEPT §1 Nr. 2, §4 Regel 3); Änderungen → Audit `legal_hold_changed` bzw. `processing_restricted` |
-| `addressFields(prefix)` | `name` (text R, 2–100), `addressLine1` (text R, 3–100), `addressLine2` (text –, ≤100), `postalCode` (text R; bei `DE` Regex `^\d{5}$`, sonst 3–10), `city` (text R, 2–60), `country` (select `CountryCode` R, nur Länder aus `settings.shipping.enabledCountries`, Default `DE`) | Kassen, Bestellungen |
+| `addressFields(prefix)` | `name` (text R, 2–100), `addressLine1` (text R, 3–100), `addressLine2` (text –, ≤100), `postalCode` (text R; bei `DE` Regex `^\d{5}$`, sonst 3–10), `city` (text R, 2–60), `country` (select R, Default `DE`; Lieferadresse `CountryCode`, nur Länder aus `settings.shipping.enabledCountries`; Rechnungsadresse mit `countries: 'billing'` → `BillingCountryCode`, EU/EWR, V-17) | Kassen, Bestellungen |
 | `internalLinkFields()` | `target` (select `InternalLinkTarget` R), `category` (select `ProductCategory`, nur bei `target = category`), `label` (text ✓ R) | Seitenblöcke, Navigation |
 | `moneyField(name)` | number (Integer), Admin-Komponente `EuroInput` (Eingabe „45,00“ → speichert 4500) | alle `…Cents` im Admin |
 | `sortOrderField()` | `sortOrder`: number, Default 100, Ganzzahl 0–9999, aufsteigend sortiert | Listen mit manueller Reihenfolge |
@@ -1236,7 +1240,7 @@ sind gefilterte Listen dieser Collection.
 | `fulfillmentMethod` | select `FulfillmentMethod` | R | – | – | `shipping` unmöglich, wenn eine Position `nur_abholung` | – |
 | `shippingAddress` | group `addressFields` | R bei `shipping` | – | – | Land ∈ `settings.shipping.enabledCountries` | vor Versand änderbar (Audit) |
 | `billingAddressDiffers` | checkbox | – | – | `false` | nie vorangekreuzt (V-03); nur bei `shipping` | „Rechnungsadresse weicht ab“ |
-| `billingAddress` | group `addressFields` | R bei `billingAddressDiffers` **und immer bei `pickup`** (R-061; DM-29) | – | – | Land wie Lieferadresse nur aus `settings.shipping.enabledCountries` (derzeit fest `DE`) | Rechnungsempfänger (§ 34a UStDV); bei `shipping` ohne Abweichung gilt die Lieferadresse |
+| `billingAddress` | group `addressFields` (`countries: 'billing'`) | R bei `billingAddressDiffers` **und immer bei `pickup`** (R-061; DM-29) | – | – | Land aus `BILLING_COUNTRY_CODES` (EU/EWR, Standard `DE`; V-17, U-93 – VO (EU) 2018/302 Art. 4 Abs. 1 lit. a: keine Benachteiligung wegen des Wohnorts); PLZ bei `DE` 5 Ziffern, sonst 3–10 Zeichen; geliefert wird weiter nur nach `settings.shipping.enabledCountries` | Rechnungsempfänger (§ 34a UStDV); bei `shipping` ohne Abweichung gilt die Lieferadresse; Rechnung, PDF und Mails nennen ein Land außer DE |
 | `shippingZone` | select `ShippingZone` | S | – | – | leer bei `pickup` | – |
 | `shippingClass` | select `ShippingClass` | S | – | höchste Klasse im Korb | – | E-25 |
 | `shippingRatesAtOrder` | json | S | – | bei der Anlage (`createOrderFromCheckout`): `{ "zone": "<ShippingZone>", "rates": { "<ShippingClass>": <Cent> } }` für die Klassen der Positionen in der Zone der Kasse, die bezahlte Klasse mit `shippingCents` | unveränderlich; leer bei `pickup` und bei Bestellungen vor P18.5 (dann rechnet der Erstattungsvorschlag mit den aktuellen Tarifen) | Versanddifferenz beim Teil-Widerruf (KONZEPT §5.3, KA-32) |
@@ -1291,6 +1295,7 @@ sind gefilterte Listen dieser Collection.
 | `legalTextVersions.agb` / `.widerrufsbelehrung` / `.widerrufsformular` / `.datenschutz` / `.versandZahlung` | relationship → `legal-texts` | S, R | – | aus `checkouts.legalTextVersions` (Stand beim Klick auf „Zahlungspflichtig bestellen“) | unveränderlich | – |
 | `legalSnippetVersions` | json | S, R | – | aus `checkouts.legalSnippetVersions` | unveränderlich; `{ "<Bausteinschlüssel>": { "version": "<n bzw. draft-1>", "sha256": "<hex>" } }` für mindestens `checkout.legalNotice`, `checkout.dhlEmailConsent` (falls angezeigt), `checkout.deviationAgreement` (falls vorhanden) und alle weiteren in der Übersicht angezeigten Bausteine (R-013) | – |
 | `carrierEmailConsent` | checkbox | R | – | aus der Kasse | nicht vorangekreuzt; nur bei `shipping` | E-Mail darf an DHL (R-101); Nachweis im `consent-log` (Text, Bausteinversion, Zeitpunkt) |
+| `gift.isGift` / `gift.message` | checkbox / textarea | S | – | aus der Kasse | V-18 b (U-93): „Das ist ein Geschenk“ (nie vorangekreuzt) und freiwilliger Gruß für eine handgeschriebene Karte, reiner Text ≤ 300 Zeichen; nur Dienste schreiben; `message` leert `retentionOrderMinimize` 30 Tage nach `shippedAt` bzw. `pickedUpAt` (ohne Übergabe nach `finalStatusAt`, LOESCHKONZEPT L-05 Stufe E), Einschränkung (§5.7) und Stufe D leeren ihn sofort | nur für Jutta: Bestell-Detail, „Zu packen“/„Abholung“ (Hinweis mit Gruß), Checkliste „Geschenk: handgeschriebene Karte beilegen“ (auch auf dem Packzettel – ohne Gruß); nie in Kundenmails |
 | `carrierEmailConsentRevokedAt` | date | S | – | – | gesetzt durch Admin-Knopf „Einwilligung widerrufen“ (R-101, R-152); danach gibt „Adresse kopieren“ keine E-Mail mehr aus | Widerruf wirkt sofort; `consent-log` erhält den Widerruf (§6.23) |
 | `invoice` | relationship → `invoices` | S | – | – | – | – |
 | `creditNotes` | join → `invoices.order` (where `type = credit_note`) | – | – | – | – | – |
@@ -1369,7 +1374,7 @@ Hash und Siegel wie bei echten Bestellungen) – nie aus `orderNumber` oder `PAY
   5. `timestamps.finalStatusAt` und `retainUntil` setzen (§12).
   6. Anonymisierung nur mit `context.transition = 'anonymize'` (`retentionOrders`): personenbezogene Felder (Name,
      alle Adressfelder, `pickup.messageText`, `notes`, `cancelNote`, `statusHistory[].note`, `adminAttention.note`,
-     `carrierEmailConsent`) werden `null`, `customer.email` wird `anonymisiert@example.invalid`, `privacy.anonymizedAt`
+     `gift.message`, `carrierEmailConsent`) werden `null`, `customer.email` wird `anonymisiert@example.invalid`, `privacy.anonymizedAt`
      gesetzt; Pack- und Rückgabefotos, Reklamationen samt Fotos (L-09) und zugeordnete Mail-Protokolle werden gelöscht;
      es bleiben Nummer, Daten, Status-Verlauf ohne Freitext, Positionen, Beträge, Zahlart-Typ, Belegverweise,
      Rechtstext- und Bausteinfassungen (L-05 Stufe D).
@@ -2130,6 +2135,7 @@ genau eine Bestellung (O1/O2/O19). **Admin:** Gruppe „System“, nur lesen (Fe
 | `customer.email` | email | V (Absenden) | – | – | ≤ 254, kleingeschrieben | – |
 | `shippingAddress` / `billingAddressDiffers` / `billingAddress` | wie `orders` (§6.8.1) | V (Absenden) | – | – | Regeln wie `orders`: Rechnungsadresse Pflicht bei `billingAddressDiffers` und immer bei `pickup` (R-061, DM-29); kein Telefon-, Firmen- oder Anredefeld | – |
 | `carrierEmailConsent` | checkbox | – | – | `false` | nie vorangekreuzt; nur bei `shipping` | – |
+| `gift.isGift` / `gift.message` | checkbox / textarea | – | – | `false` / – | V-18 b: Häkchen nie vorangekreuzt, auch bei Abholung möglich; `message` nur mit Häkchen (sonst `null`), Steuerzeichen entfernt, ≤ 300 Zeichen; ein erneutes Absenden überschreibt; Übernahme in die Bestellung bei der Anlage; Löschung mit der Kasse (L-03) | – |
 | `deviationAgreements` | array {`product` rel, `agreedAt` date} | V je Position mit `deviationText` | – | `[]` | eigene, nicht vorangekreuzte Bestätigung je Stück (§ 476 Abs. 1 S. 2 BGB) | – |
 | `legalTextVersions.agb` / `.widerrufsbelehrung` / `.widerrufsformular` / `.datenschutz` / `.versandZahlung` | relationship → `legal-texts` | S (Absenden) | – | aktive Fassungen beim Klick | werden in die Bestellung übernommen | – |
 | `legalSnippetVersions` | json | S (Absenden) | – | Versionen der beim Klick angezeigten Bausteine (§6.8.1) | bis P6 aus den Konstanten in `src/lib/legal/snippets.ts` (`version = 'draft-1'`), danach aus `legal-snippets` | – |
@@ -2256,7 +2262,7 @@ Wiederherstellung aus dem Backup. **Admin:** Gruppe „System“, nur lesen.
 |---|---|---|---|
 | `entityCollection` | text | R | Slug der betroffenen Collection (z. B. `orders`) |
 | `entityId` | text | R | interne ID; **keine** Nummer mit Personenbezug, kein Name |
-| `ruleId` | text | R | `^L-\d{2}( [a-i])?( Stufe [A-D12])?$` (z. B. `L-10`, `L-13 a`, `L-13 i`, `L-23 d`, `L-05 Stufe C`, `L-04 Stufe 1`) oder `DSGVO` (Aktion aus einer Anfrage) oder `ADMIN` („Jetzt löschen“) |
+| `ruleId` | text | R | `^L-\d{2}( [a-i])?( Stufe [A-E12])?$` (z. B. `L-10`, `L-13 a`, `L-13 i`, `L-23 d`, `L-05 Stufe C`, `L-05 Stufe E`, `L-04 Stufe 1`) oder `DSGVO` (Aktion aus einer Anfrage) oder `ADMIN` („Jetzt löschen“) |
 | `action` | select `DeletionAction` | R | `deleted`, `anonymized`, `restricted`, `files_deleted` |
 | `trigger` | select `DeletionTrigger` | R | – |
 | `taskSlug` | text | – | Task-Slug aus ARCHITEKTUR Anhang A.3 (bei `trigger = job`) |
@@ -2922,7 +2928,7 @@ KONZEPT §8.2.
 | `revenueGuardCheck` | maintenance | täglich ab 07:00 + bei Bedarf | – | Gesamtumsatz laufendes Jahr = Rechnungen − Gutschriften (nach Rechnungsdatum) + `revenue-entries` aller Quellen; Vorjahr ebenso bzw. `manualYearTotals`. Stufen (KONZEPT §8.4, R-125): U1 ≥ `u1`, U2 > `previousYearLimitCents`, U3 ≥ `u3`, U3a ≥ `u3a`, U4 ≥ `u4`, U5 > `currentYearLimitCents`, U0 am 1. Januar, wenn das Vorjahr > `previousYearLimitCents` war. Jede Stufe einmal je Jahr: Mail `admin_revenue_guard`, Eintrag in `settings.revenueGuard.lastNotified` | 3 |
 | `invoiceIntegrityCheck` | maintenance | monatlich am 1. ab 04:00 (nach `monthlyClose`) | – | SHA-256 **aller** gespeicherten Rechnungs-/Gutschrift-PDFs gegen `invoices.sha256` (R-122); Abweichung oder fehlende Datei ⇒ `admin_alert` | 3 |
 | `retentionAbandonedCheckouts` | maintenance | täglich, LOESCHKONZEPT §4 | – | `checkouts` mit `createdAt ≤ $now − 30 Tage` löschen, `orders.checkout` leeren (L-03, §6.25.5) | 3 |
-| `retentionOrderMinimize` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-04 Stufe 1 (stornierte Vorkasse: nach 30 Tagen Liefer- und Rechnungsadresse und DHL-Einwilligung entfernen, `consent-log`-Einträge der Bestellung löschen – je Eintrag `deletion-log` mit `L-04 Stufe 1`; Status-Token wie Stufe B); L-05 Stufe A (Telefon – ohne Wirkung, es gibt kein Telefonfeld, DM-28), B (`statusTokenHash` und `statusTokenSealed` 180 Tage nach `finalStatusAt`), C (Packfotos 12 Monate nach `shippedAt`, bei Abholung `pickedUpAt`; Rückgabefotos 12 Monate nach `returnReceivedAt`; nicht bei Legal Hold) | 3 |
+| `retentionOrderMinimize` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-04 Stufe 1 (stornierte Vorkasse: nach 30 Tagen Liefer- und Rechnungsadresse und DHL-Einwilligung entfernen, `consent-log`-Einträge der Bestellung löschen – je Eintrag `deletion-log` mit `L-04 Stufe 1`; Status-Token wie Stufe B); L-05 Stufe A (Telefon – ohne Wirkung, es gibt kein Telefonfeld, DM-28), B (`statusTokenHash` und `statusTokenSealed` 180 Tage nach `finalStatusAt`), C (Packfotos 12 Monate nach `shippedAt`, bei Abholung `pickedUpAt`; Rückgabefotos 12 Monate nach `returnReceivedAt`; nicht bei Legal Hold), E (`gift.message` 30 Tage nach `shippedAt` bzw. `pickedUpAt`, ohne Übergabe nach `finalStatusAt`; nicht bei Legal Hold; V-18 b) | 3 |
 | `retentionOrders` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-04 Stufe 2, L-05 Stufe D, L-09: Bestellungen mit `retainUntil ≤ $now` anonymisieren (§6.8.3 Nr. 6), ihre Reklamationen samt Fotos löschen (ab P6) | 3 |
 | `retentionInvoices` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-06: Belege mit `retainUntil ≤ $now` anonymisieren (`pc.now`, §9.4), PDF-Datei + `private-uploads` löschen; L-07: Monatsexporte nach `retainUntil` löschen | 3 |
 | `retentionWithdrawals` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-08: Widerrufe mit `retainUntil ≤ $now` löschen | 3 |
@@ -2975,8 +2981,8 @@ es vor diesem Kapitel (ARCHITEKTUR Anhang A.3). Fristberechnung in Europe/Berlin
 |---|---|---|---|---|
 | Kassen (`checkouts`) inkl. Eingaben | L-03 | 30 Tage ab Anlage (auch mit Bestellung, DM-05) | löschen | `retentionAbandonedCheckouts` |
 | Reservierungen | L-02 | 7 Tage ab `releasedAt`/`convertedAt` | löschen | `retentionTechnical` |
-| Stornierte Vorkasse-Bestellungen (`cancelled`) | L-04 | Stufe 1: 30 Tage ab Storno (Liefer- und Rechnungsadresse, DHL-Einwilligung, `consent-log`-Einträge der Bestellung; Status-Token wie L-05 Stufe B); Stufe 2: Ende des Stornojahres + 6 Jahre | minimieren, dann anonymisieren | `retentionOrderMinimize`, `retentionOrders` |
-| Bestellungen mit Zahlung, auch widerrufen/erstattet | L-05 | ab `timestamps.finalStatusAt`: A 30 Tage (Telefon – ohne Wirkung, DM-28), B 180 Tage (`statusTokenHash`, `statusTokenSealed`), C 12 Monate ab `shippedAt` bzw. `pickedUpAt` (Packfotos) und ab `returnReceivedAt` (Rückgabefotos), D Ende des Jahres + 6 Jahre (`retainUntil`) | minimieren, dann anonymisieren (bleibt: Nummer, Daten, Status-Verlauf ohne Freitext, Positionen, Beträge, Zahlart-Typ, Belegnummern, Rechtstext- und Bausteinfassungen) | `retentionOrderMinimize`, `retentionOrders` |
+| Stornierte Vorkasse-Bestellungen (`cancelled`) | L-04 | Stufe 1: 30 Tage ab Storno (Liefer- und Rechnungsadresse, DHL-Einwilligung, Gruß für die Geschenkkarte, `consent-log`-Einträge der Bestellung; Status-Token wie L-05 Stufe B); Stufe 2: Ende des Stornojahres + 6 Jahre | minimieren, dann anonymisieren | `retentionOrderMinimize`, `retentionOrders` |
+| Bestellungen mit Zahlung, auch widerrufen/erstattet | L-05 | ab `timestamps.finalStatusAt`: A 30 Tage (Telefon – ohne Wirkung, DM-28), B 180 Tage (`statusTokenHash`, `statusTokenSealed`), C 12 Monate ab `shippedAt` bzw. `pickedUpAt` (Packfotos) und ab `returnReceivedAt` (Rückgabefotos), E 30 Tage ab `shippedAt` bzw. `pickedUpAt` (`gift.message`, V-18 b), D Ende des Jahres + 6 Jahre (`retainUntil`) | minimieren, dann anonymisieren (bleibt: Nummer, Daten, Status-Verlauf ohne Freitext, Positionen, Beträge, Zahlart-Typ, Belegnummern, Rechtstext- und Bausteinfassungen) | `retentionOrderMinimize`, `retentionOrders` |
 | Reklamationen (`complaints`) samt Fotos | L-09 | mit der Bestellung (Stufe D) | löschen | `retentionOrders` |
 | Rechnungen/Gutschriften + PDFs | L-06 | Ende des Ausstellungsjahres + `settings.retention.invoiceYears` (8/10, Standard 10) = `retainUntil`, beim Anlegen eingefroren | PDF löschen, Registerzeile anonymisieren (Trigger §9.4) | `retentionInvoices` |
 | Monatsexporte, Rechnungs-ZIP | L-07 | Ende des Exportjahres + 10 Jahre | löschen | `retentionInvoices` |

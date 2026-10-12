@@ -145,6 +145,8 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
           country: 'DE',
         },
         notes: 'Interne Notiz: Nachbarin Frau Dritte nimmt an',
+        // V-18 b: Geschenk mit Gruß – gehört zur Auskunft (eigene Angabe der Person)
+        gift: { isGift: true, message: 'Herzlichen Glückwunsch, Mara' },
         timestamps: { placedAt: '2026-09-20T10:00:00.000Z', paidAt: '2026-09-20T10:05:00.000Z' },
       }),
     )) as Order
@@ -470,6 +472,11 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
     expect(json).not.toContain('Frau Dritte')
     expect(json).not.toContain('andere Person')
     expect(json).not.toMatch(/tokenHash|statusTokenSealed|adminNotes|"seed"/)
+    // V-18 b: Geschenk und Gruß für die Karte sind Teil der Kopie
+    const exportedA = (data.data.orders as { id: number; gift?: unknown }[]).find(
+      (o) => o.id === orderA.id,
+    )
+    expect(exportedA?.gift).toEqual({ isGift: true, message: 'Herzlichen Glückwunsch, Mara' })
     // auskunft.html: Art. 15 a–h, Empfänger, Beschwerderecht
     const html = strFromU8(zip['auskunft.html']!)
     expect(html).toContain(request.reference)
@@ -477,6 +484,7 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
     expect(html).toContain('Alt-Moabit 59–61, 10555 Berlin')
     expect(html).toContain('Stripe')
     expect(html).toMatch(/h\) Automatisierte Entscheidungen/)
+    expect(html).toContain('Gruß für die Karte')
     expect(html).not.toMatch(/<script|https?:\/\/(?!planetclaire)/i)
     // Treffer an der Anfrage, Audit ohne Inhalte
     expect(created.request.matchedOrders).toHaveLength(2)

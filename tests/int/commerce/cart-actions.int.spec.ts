@@ -1,4 +1,5 @@
 import { createLocalReq, type Payload } from 'payload'
+import { sql } from '@payloadcms/db-postgres'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { evaluateCart, readCart, removeFromCart, reservedByYou } from '@/lib/commerce/cart'
@@ -21,7 +22,7 @@ import {
   useMockPayments,
   type TestClock,
 } from '../helpers/checkout'
-import { deleteCommerce } from '../helpers/commerce'
+import { dbOf, deleteCommerce } from '../helpers/commerce'
 import { getTestPayload } from '../helpers/payload'
 import { createProductFixtures, deleteProducts, type ProductFixtures } from '../helpers/products'
 
@@ -166,15 +167,29 @@ describe('removeFromCart', () => {
 })
 
 describe('Lieferart nur in der Kasse (V-16)', () => {
-  /** Versandtarife ohne `paket_klein` – der Versand für ein solches Stück lässt sich nicht berechnen. */
-  async function withoutSmallParcelRate(extra: Record<string, unknown> = {}) {
-    const settings = (await payload.findGlobal({
-      slug: 'settings',
-      overrideAccess: true,
-      depth: 0,
-    })) as unknown as { shipping?: { rates?: { shippingClass?: string }[] } }
-    const rates = (settings.shipping?.rates ?? []).filter((r) => r.shippingClass !== 'paket_klein')
-    return setSettingsGroup(payload, 'shipping', { rates, ...extra })
+  /**
+   * Versandtarif `paket_klein` fehlt (direkt in der Tabelle – die Einstellungen selbst verlangen alle Klassen); liefert die
+   * Rücknahme. Optional zusätzlich Abholung aus.
+   */
+  async function withoutSmallParcelRate(pickupEnabled = true) {
+    const db = dbOf(payload)
+    // erst die Einstellung (sie schreibt die vollständigen Tarife), dann die Tarifzeile entfernen
+    const restorePickup = pickupEnabled
+      ? null
+      : await setSettingsGroup(payload, 'shipping', { pickupEnabled: false })
+    const saved = await db.execute(
+      sql`SELECT * FROM settings_shipping_rates WHERE shipping_class = 'paket_klein'`,
+    )
+    await db.execute(sql`DELETE FROM settings_shipping_rates WHERE shipping_class = 'paket_klein'`)
+    return async () => {
+      for (const r of saved.rows) {
+        await db.execute(sql`
+          INSERT INTO settings_shipping_rates (_order, _parent_id, id, zone, shipping_class, price_cents)
+          VALUES (${r._order as number}, ${r._parent_id as number}, ${r.id as string}, ${r.zone as string},
+                  ${r.shipping_class as string}, ${r.price_cents as number})`)
+      }
+      await restorePickup?.()
+    }
   }
 
   it('Versand nicht berechenbar, Abholung möglich → Korb rechnet mit Abholung ohne Sperre, Kasse startet mit Abholung', async () => {
@@ -200,7 +215,7 @@ describe('Lieferart nur in der Kasse (V-16)', () => {
 
   it('… ohne Abholung → Sperrgrund „shipping“, Kassenstart lehnt ab und reserviert nichts', async () => {
     const a = await piece(985, { shippingClass: 'paket_klein' })
-    const restore = await withoutSmallParcelRate({ pickupEnabled: false })
+    const restore = await withoutSmallParcelRate(false)
     try {
       const ev = await evaluateCart(cartOf([{ id: a }]), clock.now(), { payload })
       expect(ev).toMatchObject({

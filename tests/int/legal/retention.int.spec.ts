@@ -20,6 +20,7 @@ import {
   L_04_CANCELLED_PREPAYMENT_STAGE_1,
   L_05_ORDERS_STAGE_B,
   L_05_ORDERS_STAGE_C,
+  L_05_ORDERS_STAGE_E,
   L_19B_PORTFOLIO_CONSENT,
   retainUntil,
 } from '@/lib/retention/policy'
@@ -294,6 +295,84 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     expect(await fileExists(heldPack)).toBe(true)
   })
 
+  it('V-18 b L-05 Stufe E: Gruß für die Geschenkkarte 30 Tage nach Versand bzw. Abholung geleert, „Geschenk“ bleibt; ohne Übergabe nach dem Endstatus; Legal Hold bleibt', async () => {
+    const shipped = new Date('2026-10-20T10:00:00.000Z')
+    const pickedUp = new Date('2026-10-22T10:00:00.000Z')
+    const refunded = new Date('2026-10-25T10:00:00.000Z')
+    const gift = (message: string) => ({ gift: { isGift: true, message } })
+    const sent = await order({
+      status: 'shipped',
+      ...gift('Alles Liebe zum Geburtstag!'),
+      timestamps: { placedAt: '2026-10-18T10:00:00.000Z', shippedAt: iso(shipped) },
+    })
+    const pickup = await order({
+      status: 'picked_up',
+      fulfillmentMethod: 'pickup',
+      shippingAddress: undefined,
+      shippingZone: undefined,
+      shippingClass: undefined,
+      shippingCents: 0,
+      totalCents: 4500,
+      carrierEmailConsent: false,
+      billingAddress: {
+        name: 'Erika Beispiel',
+        addressLine1: 'Musterstraße 1',
+        postalCode: '1010',
+        city: 'Wien',
+        country: 'AT',
+      },
+      ...gift('Für dich, von Herzen.'),
+      timestamps: {
+        placedAt: '2026-10-18T10:00:00.000Z',
+        pickedUpAt: iso(pickedUp),
+        finalStatusAt: iso(pickedUp),
+      },
+    })
+    const gone = await order({
+      status: 'refunded',
+      ...gift('Schade!'),
+      timestamps: { placedAt: '2026-10-18T10:00:00.000Z', finalStatusAt: iso(refunded) },
+    })
+    const open = await order({ status: 'paid', ...gift('Noch nicht verschickt') })
+    const held = await order({
+      status: 'shipped',
+      ...gift('Streitfall'),
+      timestamps: { placedAt: '2026-10-18T10:00:00.000Z', shippedAt: iso(shipped) },
+      privacy: {
+        legalHold: true,
+        legalHoldReason: 'Transportschaden',
+        legalHoldSince: iso(shipped),
+      },
+    })
+    const message = async (id: number) => (await orderRow(id))?.gift_message ?? null
+
+    // Tag vorher: alles da
+    await run('retentionOrderMinimize', plus(retainUntil(L_05_ORDERS_STAGE_E, shipped), -DAY))
+    expect(await message(sent.id)).toBe('Alles Liebe zum Geburtstag!')
+    // Tag danach (Versand): nur der verschickte Gruß ist weg, das Häkchen bleibt
+    await run('retentionOrderMinimize', plus(retainUntil(L_05_ORDERS_STAGE_E, shipped), DAY))
+    expect(await orderRow(sent.id)).toMatchObject({ gift_message: null, gift_is_gift: true })
+    expect(await message(pickup.id)).toBe('Für dich, von Herzen.')
+    const logs = await logsFor('orders', sent.id)
+    expect(logs.map((l) => [l.ruleId, l.action, l.taskSlug])).toEqual([
+      ['L-05 Stufe E', 'anonymized', 'retentionOrderMinimize'],
+    ])
+    expect(JSON.stringify(logs)).not.toContain('Geburtstag')
+    // Abholung und Erstattung ohne Übergabe
+    await run('retentionOrderMinimize', plus(retainUntil(L_05_ORDERS_STAGE_E, refunded), DAY))
+    expect(await message(pickup.id)).toBeNull()
+    expect(await message(gone.id)).toBeNull()
+    // offene Bestellung und Legal Hold bleiben
+    expect(await message(open.id)).toBe('Noch nicht verschickt')
+    expect(await message(held.id)).toBe('Streitfall')
+    // idempotent
+    const again = await run(
+      'retentionOrderMinimize',
+      plus(retainUntil(L_05_ORDERS_STAGE_E, refunded), 2 * DAY),
+    )
+    expect(again.steps.find((st) => st.ruleId === 'L-05 Stufe E')?.count).toBe(0)
+  })
+
   it('R-154 L-05 Stufe D: Bestellung anonymisiert, Fotos, Mail- und Einwilligungsnachweise gelöscht; Legal Hold bleibt', async () => {
     const until = new Date('2032-12-31T23:00:00.000Z')
     const ts = { placedAt: '2026-05-01T10:00:00.000Z', finalStatusAt: '2026-05-20T10:00:00.000Z' }
@@ -302,6 +381,7 @@ describe('Löschjobs Teil 1 (R-154)', () => {
       timestamps: ts,
       retainUntil: iso(until),
       notes: 'Kundin wünscht Geschenkverpackung',
+      gift: { isGift: true, message: 'Gruß, der nie gelöscht wurde' },
       statusHistory: [
         {
           from: null,
@@ -344,6 +424,7 @@ describe('Löschjobs Teil 1 (R-154)', () => {
       shipping_address_name: null,
       shipping_address_address_line1: null,
       notes: null,
+      gift_message: null,
       carrier_email_consent: false,
       status_token_hash: null,
       order_number: o.orderNumber,

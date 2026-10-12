@@ -238,9 +238,11 @@ function address(
   } else {
     errors[k('Country')] = 'billingCountry'
   }
+  // PLZ: in Deutschland genau 5 Ziffern; sonst großzügig (auch bei unzulässigem Land – dort meldet das Feld „Land“)
+  const germanPostal = prefix === 'shipping' || rawCountry === CHECKOUT_COUNTRY
   const postalCode = one(raw[k('PostalCode')])
   if (!postalCode) errors[k('PostalCode')] = 'required'
-  else if (country === 'DE') {
+  else if (germanPostal) {
     if (!postalCodeSchema.safeParse(postalCode).success) errors[k('PostalCode')] = 'postalCode'
   } else if (!foreignPostalCodeSchema.safeParse(postalCode).success) {
     errors[k('PostalCode')] = 'postalCodeForeign'
@@ -250,7 +252,7 @@ function address(
     name,
     addressLine1,
     ...(addressLine2 ? { addressLine2 } : {}),
-    postalCode: country === 'DE' ? postalCode : postalCode.toUpperCase(),
+    postalCode: germanPostal ? postalCode : postalCode.toUpperCase(),
     city,
     country,
   }
