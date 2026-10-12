@@ -128,7 +128,8 @@ export interface OrderDetail {
   totalCents: number
   refundedCents: number
   history: HistoryRow[]
-  attention: { reason: string | null; note: string | null } | null
+  /** `manual`: Markierung von Hand – mit Knopf „Erledigt“ (V-31). */
+  attention: { reason: string | null; note: string | null; manual: boolean } | null
   dispute: { status: string; before: string | null } | null
   withdrawalHint: boolean
   notes: string | null
@@ -397,6 +398,7 @@ export async function loadOrderDetail(
             ? ENUM_LABELS.ATTENTION_REASONS[order.adminAttention.reason].de
             : null,
           note: order.adminAttention.note ?? null,
+          manual: order.adminAttention.reason === 'manual',
         }
       : null,
     dispute: disputed

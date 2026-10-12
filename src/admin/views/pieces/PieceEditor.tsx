@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 
 
 import { ActionButton } from '../../components/ActionButton'
 import { postAdminAction } from '../../components/adminAction'
+import { AttentionDoneButton } from '../../components/AttentionDoneButton'
 import { CopyButton } from '../../components/CopyButton'
 import { Notice } from '../../components/Notice'
 import { PhotoPicker } from '../../components/PhotoPicker/PhotoPicker'
@@ -25,6 +26,7 @@ import {
 import { PRICE_CENTS_RANGE, parseEuroInput } from '@/lib/money'
 import { isTextile } from '@/lib/products/categoryRules'
 import { padItemNumber } from '@/lib/products/itemNumber'
+import type { Readiness } from '@/lib/products/readiness'
 import { productPath } from '@/lib/shop/format'
 
 import {
@@ -46,6 +48,9 @@ import {
 // DATENMODELL §6.6 – geprüft wird auf dem Server (dieselbe Validierung wie das Standardformular); Fehler erscheinen als
 // Liste mit Sprunglinks. Speichern schreibt DE (+ nicht lokalisierte Felder), danach bei Bedarf EN, Alt-Texte und
 // Fokuspunkte am Bild. „Online stellen“ = `POST /api/products/:id/publish`, danach Erfolgsseite mit Links.
+// P20.6: Markierung „zu prüfen“ mit „Erledigt“ (V-31), „Was fehlt noch?“ nach jedem Speichern, „Speichern und nächstes
+// Stück“ und schon hochgeladene Nickel-Nachweise zur Auswahl (V-32). Die Markierung selbst schreibt das Formular nie
+// (`toSaveData` enthält kein `adminAttention`) – sie ändert sich nur über „Erledigt“ oder das erste Online-Stellen.
 
 export interface PieceEditorInitial {
   id: number | null
@@ -56,6 +61,12 @@ export interface PieceEditorInitial {
   photos: PiecePhoto[]
   /** U-57 d: Foto zum Größenvergleich (höchstens eins). */
   scalePhotos?: PiecePhoto[]
+  /** V-31: Markierung „Hinweis für dich“ (nur mit Häkchen); `manual` = „zu prüfen“ mit „Erledigt“. */
+  attention?: { manual: boolean; label: string; note: string | null } | null
+  /** V-32: „Was fehlt noch?“ (nur Entwürfe; Stand beim Laden, nach jedem Speichern neu). */
+  readiness?: Readiness | null
+  /** V-32: nächster Entwurf in der Reihenfolge von „Meine Stücke“ (für „Speichern und nächstes Stück“). */
+  nextDraftId?: number | null
 }
 
 export interface PieceEditorProps {
@@ -64,6 +75,8 @@ export interface PieceEditorProps {
   initial: PieceEditorInitial
   templates: CategoryTemplateTexts
   declarations: { id: number; label: string }[]
+  /** V-32: schon hochgeladene Nickel-Nachweise (neueste zuerst). */
+  evidenceOptions?: { id: number; label: string }[]
   translation: { enabled: boolean; reason?: string }
 }
 
@@ -105,7 +118,7 @@ class IssuesError extends Error {
 }
 
 function fieldLabel(path: string): string {
-  const key = `pieceField_${path.split('.')[0]}`
+  const key = `pieceField_${path === 'dimensions.note' ? 'dimensionsNote' : path.split('.')[0]}`
   return key in ADMIN_CUSTOM_DE ? adminText(key as AdminCustomKey) : ''
 }
 
@@ -115,6 +128,7 @@ export function PieceEditor({
   initial,
   templates,
   declarations,
+  evidenceOptions = [],
   translation,
 }: PieceEditorProps) {
   const [id, setId] = useState(initial.id)
@@ -135,6 +149,8 @@ export function PieceEditor({
     null,
   )
   const [evidenceName, setEvidenceName] = useState<string | null>(null)
+  const [attention, setAttention] = useState(initial.attention ?? null)
+  const [readiness, setReadiness] = useState<Readiness | null>(initial.readiness ?? null)
   const router = useRouter()
   const running = useRef(false)
   const resultRef = useRef<HTMLDivElement>(null)
@@ -290,10 +306,24 @@ export function PieceEditor({
     }
   }
 
+  /** „Was fehlt noch?“ nach dem Speichern neu holen (nur Entwürfe; Fehler hier sind nicht schlimm). */
+  const refreshReadiness = async (pid: number) => {
+    const r = await requestJson(`/api/products/${pid}/readiness`).catch(() => null)
+    if (r?.ok) setReadiness((r.json.readiness as Readiness | undefined) ?? null)
+  }
+
   const saveDraft = () =>
     guard('saving', async () => {
-      await persist()
+      const pid = await persist()
       showResult({ kind: 'saved' })
+      if (!status || status === 'draft') await refreshReadiness(pid)
+    })
+
+  // V-32: speichern und den nächsten Entwurf öffnen (Reihenfolge wie in „Meine Stücke“).
+  const saveAndNext = () =>
+    guard('saving', async () => {
+      await persist()
+      if (initial.nextDraftId) router.push(`${adminRoute}/stuecke/${initial.nextDraftId}`)
     })
 
   const publish = () =>
@@ -442,6 +472,28 @@ export function PieceEditor({
         </p>
       ) : null}
 
+      {attention ? (
+        <div className="pc-piece__attention" data-testid="piece-attention-box">
+          <Notice tone={attention.manual ? 'warning' : 'error'}>
+            <strong>{adminText('pieceAttentionTitle')}</strong>{' '}
+            {attention.manual
+              ? (attention.note ?? adminText('piecesAttentionReview'))
+              : `${attention.label}${attention.note ? ` – ${attention.note}` : ''}`}
+          </Notice>
+          {attention.manual && id ? (
+            <AttentionDoneButton
+              url={`/api/products/${id}/attention-done`}
+              onDone={() => setAttention(null)}
+              data-testid="piece-attention-done"
+            />
+          ) : null}
+        </div>
+      ) : null}
+
+      {id && (!status || status === 'draft') && readiness ? (
+        <ReadinessBox readiness={readiness} jump={jump} />
+      ) : null}
+
       <PhotoPicker
         photos={shownPhotos}
         setPhotos={setPhotos}
@@ -461,7 +513,7 @@ export function PieceEditor({
         recommended={0}
         single={{
           heading: adminText('scaleHeading'),
-          hint: adminText('scaleHint'),
+          hint: adminText(category === 'schmuck' ? 'scaleHintJewelry' : 'scaleHint'),
           sectionId: 'pf-scalePhoto',
           testIdPrefix: 'scale',
           removeLabel: adminText('scaleRemoveLabel'),
@@ -891,13 +943,31 @@ export function PieceEditor({
               <span className="pc-field__label">
                 {adminText('pieceField_nickelEvidence')} <Required />
               </span>
-              <p className="pc-piece__hint">
+              <p className="pc-piece__hint" data-testid="piece-evidence-status">
                 {form.nickelEvidence
                   ? adminText('pieceEvidenceAttached', {
-                      name: evidenceName ?? `#${form.nickelEvidence}`,
+                      name:
+                        evidenceName ??
+                        evidenceOptions.find((o) => o.id === form.nickelEvidence)?.label ??
+                        `#${form.nickelEvidence}`,
                     })
                   : adminText('pieceEvidenceMissing')}
               </p>
+              {evidenceOptions.length > 0 ? (
+                <SelectField
+                  id="pf-nickelEvidencePick"
+                  label={adminText('pieceEvidencePick')}
+                  value={form.nickelEvidence ? String(form.nickelEvidence) : ''}
+                  disabled={busy}
+                  emptyLabel={adminText('pieceEvidencePickNone')}
+                  options={evidenceOptions.map((o) => ({ value: String(o.id), label: o.label }))}
+                  hint={adminText('pieceEvidencePickHint')}
+                  onChange={(v) => {
+                    set('nickelEvidence', v ? Number(v) : null)
+                    setEvidenceName(null)
+                  }}
+                />
+              ) : null}
               <label className="pc-admin-btn pc-admin-btn--secondary pc-photos__pick">
                 {adminText('pieceEvidenceUpload')}
                 <input
@@ -1140,6 +1210,17 @@ export function PieceEditor({
               ? adminText('pieceSave')
               : adminText('pieceSaveDraft')}
         </button>
+        {status === 'draft' && initial.nextDraftId ? (
+          <button
+            type="button"
+            className="pc-admin-btn pc-admin-btn--secondary"
+            disabled={busy || uploading}
+            onClick={() => void saveAndNext()}
+            data-testid="piece-save-next"
+          >
+            {adminText('pieceSaveNext')}
+          </button>
+        ) : null}
         <button
           type="button"
           className="pc-admin-btn pc-admin-btn--secondary"
@@ -1195,6 +1276,62 @@ export function PieceEditor({
 }
 
 // --- Bausteine -------------------------------------------------------------------------------------------------
+
+/** „Was fehlt noch?“ (V-32): dieselben Meldungen wie beim Online-Stellen, mit Sprunglink zum Feld; Tipps freiwillig. */
+function ReadinessBox({
+  readiness,
+  jump,
+}: {
+  readiness: Readiness
+  jump: (e: React.MouseEvent<HTMLAnchorElement>, anchor: string) => void
+}) {
+  const hints = readiness.hints.map((h) =>
+    h.id === 'scalePhotoHand' ? adminText('pieceReadinessHintScale') : h.label,
+  )
+  return (
+    <section
+      className="pc-piece__readiness"
+      aria-label={adminText('pieceReadinessTitle')}
+      data-testid="piece-readiness-box"
+      data-ready={readiness.ready}
+    >
+      {readiness.ready ? (
+        <Notice tone="success">{adminText('pieceReadinessReady')}</Notice>
+      ) : (
+        <div className="pc-admin-notice pc-admin-notice--warning">
+          <p className="pc-admin-notice__text">
+            <strong>{adminText('pieceReadinessTitle')}</strong>
+          </p>
+          <ul className="pc-piece__issues">
+            {readiness.issues.map((issue, i) => {
+              const anchor = fieldAnchor(issue.field)
+              return (
+                <li key={i}>
+                  {anchor ? (
+                    <a
+                      href={`#${anchor}`}
+                      className="pc-admin-link"
+                      onClick={(e) => jump(e, anchor)}
+                    >
+                      {issue.message}
+                    </a>
+                  ) : (
+                    issue.message
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+      {hints.length > 0 ? (
+        <p className="pc-piece__hint" data-testid="piece-readiness-tip">
+          {adminText('pieceReadinessHints', { list: hints.join(' ') })}
+        </p>
+      ) : null}
+    </section>
+  )
+}
 
 function Required() {
   return (
@@ -1334,6 +1471,7 @@ function SelectField({
   required,
   hint,
   disabled,
+  emptyLabel,
 }: {
   id: string
   label: string
@@ -1343,6 +1481,8 @@ function SelectField({
   required?: boolean
   hint?: string
   disabled?: boolean
+  /** Beschriftung der leeren Auswahl (Standard „Bitte wählen“). */
+  emptyLabel?: string
 }) {
   return (
     <Field id={id} label={label} required={required} hint={hint}>
@@ -1353,7 +1493,7 @@ function SelectField({
           disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
         >
-          <option value="">{adminText('pieceChoose')}</option>
+          <option value="">{emptyLabel ?? adminText('pieceChoose')}</option>
           {options.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}

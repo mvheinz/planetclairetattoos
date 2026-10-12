@@ -91,7 +91,7 @@ export async function setFlashStatus(
     fieldError(
       'flash',
       'status',
-      'Ein wiederholbares Motiv kann nicht „vergeben“ sein. Zum Pausieren nutze „Offline nehmen“.',
+      'Ein wiederholbares Motiv kann nicht „vergeben“ sein. Zum Pausieren tippe auf „Pausieren“.',
     )
   }
   const updated = await inTransaction(req, () =>
@@ -109,7 +109,7 @@ export async function setFlashStatus(
   return { doc: updated as Flash }
 }
 
-/** „Offline nehmen“ / „Online stellen“. */
+/** „Pausieren“ (Flash, V-34) bzw. „Offline nehmen“ / „Online stellen“. */
 export async function setFlashPublished(
   req: PayloadRequest,
   id: number,

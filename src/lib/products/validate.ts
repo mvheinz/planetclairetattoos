@@ -5,6 +5,7 @@ import { isTextile } from './categoryRules'
 import { checkFibers, type FiberRow } from './fibers'
 import { isValidItemNumber } from './itemNumber'
 import { pickLocale, type LocalizedValue } from './localized'
+import { measurementIssues } from './measure'
 import { containsWarning, MANDATORY_WARNING_TEXTS } from './warnings'
 
 // Veröffentlichungsprüfung (DATENMODELL §6.6.6, R-042–R-048): reine Funktion ohne Datenbank. Die Collection lädt
@@ -66,6 +67,8 @@ export interface ProductForValidation {
     heightCm?: number | null
     depthCm?: number | null
     diameterCm?: number | null
+    /** Hinweis zu den Maßen (lokalisiert, V-15: ohne Schätz-Vermerk). */
+    note?: LocalizedValue
   } | null
   weightGrams?: number | null
   shippingClass?: string | null
@@ -216,6 +219,8 @@ export function validateForPublish(
   if (category && !isTextile(category) && !hasDimension(product.dimensions)) {
     add('dimensions', 'Maße: mindestens ein Maß (Breite, Höhe, Tiefe oder Durchmesser) fehlt.')
   }
+  // Maße ehrlich (V-15, R-042): kein „geschätzt“/„estimated“ … im Maß-Hinweis oder in der Größe – erst nachmessen.
+  for (const issue of measurementIssues(product)) add(issue.field, issue.message)
 
   // Textil und Cap (R-043, R-047, R-048)
   if (isTextile(category)) {

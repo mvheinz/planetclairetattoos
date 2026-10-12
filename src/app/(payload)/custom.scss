@@ -662,12 +662,55 @@ $pc-bar-height: 64px;
     display: inline-flex;
     align-items: center;
   }
+  // V-31/V-32 (P20.6): Markierung „zu prüfen“ mit „Erledigt“, „fertig“ bzw. „fehlt: …“, Tipp
+  &__checks {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  &__missing {
+    color: var(--theme-warning-800);
+    font-weight: 600;
+  }
+  &__tip,
+  &__note,
+  &__price-note {
+    color: var(--theme-elevation-800);
+  }
+  &__price-note {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
 }
 
 @media (min-width: 768px) {
   .pc-pieces__filter {
-    grid-template-columns: 2fr 1fr 1fr auto;
+    grid-template-columns: 2fr 1fr 1fr auto auto;
     align-items: end;
+  }
+}
+
+// Rückfrage mit mehreren Antworten (V-34): Antworten untereinander, Folge unter jedem Knopf.
+.pc-admin-choices {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  &__hint {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--theme-elevation-800);
   }
 }
 
@@ -1094,6 +1137,32 @@ $pc-bar-height: 64px;
   background: var(--theme-elevation-50);
   border-left: 3px solid var(--theme-elevation-400);
   border-radius: 4px;
+}
+
+// --- Markt-Knopf unter „Heute“ (V-33 a): Nummer und Preis nebeneinander ab Tablet-Breite, sonst untereinander.
+.pc-today__marketform {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  max-width: 40rem;
+}
+.pc-today__marketpiece {
+  margin: 0;
+  min-height: 1.5em;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.pc-today__marketrefusal {
+  color: var(--theme-error-800);
+}
+@media (min-width: 600px) {
+  .pc-today__marketform {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .pc-today__marketpiece,
+  .pc-today__marketform > .pc-admin-row {
+    grid-column: 1 / -1;
+  }
 }
 
 // --- „Heute“ (P5.28): Kacheln mit Zahl und Link (2 Spalten am Handy, ≥ 44 px Tipp-Fläche), Hinweise mit Farbkante.

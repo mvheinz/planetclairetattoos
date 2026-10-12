@@ -39,6 +39,12 @@ import {
   nextItemNumberEndpoint,
 } from '@/endpoints/products/nextItemNumber'
 import { translateEndpoint } from '@/endpoints/products/translate'
+import {
+  attentionDoneEndpoint,
+  marketSaleEndpoints,
+  productReadinessEndpoint,
+  publishReadyEndpoints,
+} from '@/endpoints/products/workflow'
 
 import {
   afterProductChange,
@@ -830,6 +836,11 @@ export const Products: CollectionConfig = {
     translateEndpoint,
     adoptEndpoint,
     productLabelEndpoint,
+    // P20.6 (V-31, V-32, V-33 a): „Erledigt“, „Alle fertigen online stellen“, Markt-Knopf
+    attentionDoneEndpoint,
+    productReadinessEndpoint,
+    ...publishReadyEndpoints,
+    ...marketSaleEndpoints,
   ],
   // §6.6.11: Index (category, status); UNIQUE item_number und (slug, _locale) über die Felder.
   indexes: [{ fields: ['category', 'status'] }],

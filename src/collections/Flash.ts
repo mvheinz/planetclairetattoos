@@ -69,10 +69,10 @@ const guardFlash: CollectionBeforeChangeHook = async ({ data, originalDoc, opera
     fail('Festpreis mindestens 10,00 €.', 'priceCents')
   }
 
-  // Wiederholbare Motive werden nie „vergeben“ (Pause = offline nehmen).
+  // Wiederholbare Motive werden nie „vergeben“ (Pause = „Pausieren“, `published = false`).
   if (merged.repeatable === true && merged.status === 'claimed') {
     fail(
-      'Ein wiederholbares Motiv kann nicht „vergeben“ sein. Zum Pausieren nutze „Offline nehmen“.',
+      'Ein wiederholbares Motiv kann nicht „vergeben“ sein. Zum Pausieren tippe auf „Pausieren“.',
       'status',
     )
   }

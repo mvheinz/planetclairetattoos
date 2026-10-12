@@ -359,6 +359,13 @@
     },
     "product": {
       "factsLabel": "Key facts",
+      "sizeCompare": {
+        "belowCent": "Smaller than a 1-cent coin",
+        "cent": "About the size of a 1-cent coin",
+        "euro1": "About the size of a 1-euro coin",
+        "euro2": "About the size of a 2-euro coin",
+        "walnut": "About the size of a walnut"
+      },
       "detailsLabel": "About this piece",
       "addToCart": "Add to basket",
       "pickupBlocked": "Can’t be ordered right now – pickup isn’t possible at the moment. Feel free to write to me if you’d like this piece.",

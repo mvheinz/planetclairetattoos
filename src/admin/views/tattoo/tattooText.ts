@@ -23,6 +23,8 @@ export const TATTOO_TEXT = {
   offline: 'offline',
   onlineLabel: 'Online (auf der Website zeigen)',
   takeOffline: 'Offline nehmen',
+  // V-34 (P20.6): Flash-Motive werden „pausiert“ (statt „Offline nehmen“)
+  flashPause: 'Pausieren',
   putOnline: 'Online stellen',
   checkFields: 'Bitte prüfen:',
   altRequired:
@@ -35,7 +37,7 @@ export const TATTOO_TEXT = {
   flashEditHeading: 'Flash bearbeiten',
   flashPublic: 'Flash-Seite ansehen',
   flashHint:
-    'Antippen des Status wechselt zwischen „verfügbar“ und „vergeben“ (mit Rückfrage). Wiederholbare Motive pausierst du mit „Offline nehmen“.',
+    'Antippen des Status wechselt zwischen „verfügbar“ und „vergeben“ (mit Rückfrage). Wiederholbare Motive pausierst du mit „Pausieren“; „Online stellen“ zeigt sie wieder.',
   flashEmpty: 'Noch keine Flash-Motive.',
   flashSize: 'ca. {{size}} cm',
   flashRepeatable: 'wiederholbar',

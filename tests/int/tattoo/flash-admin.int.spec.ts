@@ -12,7 +12,7 @@ import { rest } from '../helpers/rest'
 
 // P7.6 – Tattoo-Verwaltung Flash (KONZEPT §7.12): Nummernvorschlag ohne Seed/Fixtures, Status-Wechsel
 // „verfügbar ↔ vergeben“ (setzt/leert `claimedAt`, idempotent), wiederholbare Motive nie „vergeben“ (Hook + DB-CHECK),
-// „Offline nehmen“ und die Endpunkte nur für die Verwaltung.
+// „Pausieren“ (V-34) und die Endpunkte nur für die Verwaltung.
 
 let payload: Payload
 let image: number
@@ -99,7 +99,7 @@ describe('Tattoo-Verwaltung: Flash (P7.6)', () => {
     expect((await rest('POST', `/flash/${id}/status`, { status: 'available' })).status).toBe(403)
   })
 
-  it('AK wiederholbares Motiv auf „vergeben“ → verständliche Ablehnung mit Hinweis auf „Offline nehmen“ (DB-CHECK §9.2)', async () => {
+  it('AK wiederholbares Motiv auf „vergeben“ → verständliche Ablehnung mit Hinweis auf „Pausieren“ (DB-CHECK §9.2, V-34)', async () => {
     const id = await flash({ number: 993, repeatable: true })
     const res = await rest(
       'POST',
@@ -110,7 +110,7 @@ describe('Tattoo-Verwaltung: Flash (P7.6)', () => {
     expect(res.status).toBe(400)
     const body = (await res.json()) as { error: string }
     expect(body.error).toMatch(/wiederholbares Motiv/)
-    expect(body.error).toContain('„Offline nehmen“')
+    expect(body.error).toContain('„Pausieren“')
     // auch der direkte Weg über die REST-API scheitert am Hook …
     const patch = await rest(
       'PATCH',

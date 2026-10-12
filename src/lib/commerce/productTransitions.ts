@@ -373,6 +373,12 @@ export async function loadProductTransitionFacts(
 const iso = (d: string | Date | undefined) =>
   d === undefined ? undefined : (d instanceof Date ? d : new Date(d)).toISOString()
 
+/** V-31: erstes Online-Stellen (noch nie veröffentlicht) mit Markierung „von Hand“ → Markierung löschen. */
+export function firstPublishClearsAttention(product: Doc): boolean {
+  const a = (product.adminAttention ?? null) as { flag?: unknown; reason?: unknown } | null
+  return !product.firstPublishedAt && a?.flag === true && a.reason === 'manual'
+}
+
 /** Nebenwirkungen je Übergang (§6.6.7 Spalte „Nebenwirkung“). */
 function sideEffects(
   id: string,
@@ -390,7 +396,15 @@ function sideEffects(
   }
   switch (id) {
     case 'P2':
-      return { firstPublishedAt: product.firstPublishedAt ?? now, archivedAt: null }
+      return {
+        firstPublishedAt: product.firstPublishedAt ?? now,
+        archivedAt: null,
+        // V-31: Beim ersten Online-Stellen ist die Prüfung erledigt – die Markierung „von Hand“ (z. B. aus dem
+        // Bestands-Import) verschwindet. Markierungen des Systems bleiben.
+        ...(firstPublishClearsAttention(product)
+          ? { adminAttention: { flag: false, reason: null, note: null } }
+          : {}),
+      }
     case 'P4':
       return { reservedUntil: iso(input.reservedUntil), reservationRef: input.reservationRef }
     case 'P5':

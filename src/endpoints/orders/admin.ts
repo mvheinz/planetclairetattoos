@@ -3,7 +3,7 @@ import type { Endpoint } from 'payload'
 import { pdfResponse } from '@/endpoints/adminResponse'
 import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
-import { adminOrderAction, loadAdminOrder, orderActionError } from './_action'
+import { adminOrderAction, loadAdminOrder, OrderActionError, orderActionError } from './_action'
 
 // Bestell-Aktionen der Verwaltung über den Aktions-Rahmen (`_action.ts`, PLAN P5.9–P5.12):
 // `POST /api/orders/:id/resend-email` `{ template, dialogKey }` – M01/M02/M05/M06/M07 erneut senden (P5.9),
@@ -17,7 +17,9 @@ import { adminOrderAction, loadAdminOrder, orderActionError } from './_action'
 // `POST /api/orders/:id/tracking` `{ carrier?, trackingNumber, resendMail }` – Sendungsnummer korrigieren (P5.16),
 // `POST /api/orders/:id/pickup-ready` `{ messageText }` – „Bereit zur Abholung“ (O8, M07, P5.17),
 // `POST /api/orders/:id/picked-up` – „Abgeholt“ (O9, P5.17),
-// `GET /api/orders/:id/packing-slip.pdf` – Packzettel ohne Preise (P5.12).
+// `GET /api/orders/:id/packing-slip.pdf` – Packzettel ohne Preise (P5.12),
+// `POST /api/orders/:id/attention-done` – „Erledigt“ für eine Markierung von Hand (V-31, P20.6); Markierungen des
+// Systems (Anfechtung, gescheiterte Erstattung, Betrag stimmt nicht …) bleiben, bis die Ursache behoben ist.
 // Dienste werden dynamisch geladen (sie hängen über die Outbox bzw. die Reservierung an der Payload-Konfiguration).
 
 const log = createLogger()
@@ -169,6 +171,26 @@ const packingSlipEndpoint: Endpoint = {
   },
 }
 
+const attentionDoneEndpoint = adminOrderAction('attention-done', async ({ req, order }) => {
+  const a = order.adminAttention
+  if (!a?.flag) return { doc: order, unchanged: true }
+  if (a.reason !== 'manual') {
+    throw new OrderActionError(
+      409,
+      'Diese Markierung hat das System gesetzt – sie verschwindet, sobald die Ursache behoben ist.',
+    )
+  }
+  const doc = await req.payload.update({
+    collection: 'orders',
+    id: order.id,
+    data: { adminAttention: { flag: false, reason: null, note: null } },
+    depth: 0,
+    overrideAccess: true,
+    req,
+  })
+  return { doc }
+})
+
 export const orderAdminEndpoints: Endpoint[] = [
   resendEmailEndpoint,
   packedEndpoint,
@@ -180,4 +202,5 @@ export const orderAdminEndpoints: Endpoint[] = [
   pickupReadyEndpoint,
   pickedUpEndpoint,
   packingSlipEndpoint,
+  attentionDoneEndpoint,
 ]

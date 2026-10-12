@@ -36,6 +36,7 @@ import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import type { FiberRow } from '@/lib/products/fibers'
+import { sizeComparison } from '@/lib/products/measure'
 import { localizedPath } from '@/lib/routes/paths'
 import { BUY_NOTE_CODES, BUY_NOTE_FRAGMENTS, IN_CART_FRAGMENT } from '@/lib/shop/buyArea'
 import { productMailto } from '@/lib/shop/mailto'
@@ -145,6 +146,8 @@ export async function ProductPage({
   const categoryName = category?.name || ((locale === 'en' ? label.en : undefined) ?? label.de)
   const dims = formatDimensions(product.dimensions, locale)
   const dimsLang = product.dimensions?.note ? de('dimensionsNote') : undefined
+  // V-15: sehr kleine Stücke (< 4 cm) bekommen einen festen Größenvergleich (Satz, keine Skizze – E-80).
+  const sizeCompare = sizeComparison(product.dimensions)
   const now = new Date()
   const closed = !settings.isOpen && state !== 'sold'
   // Nur zur Abholung, Abholung gerade aus (P18.5): nicht bestellbar, Knopf aus mit Hinweis.
@@ -271,6 +274,11 @@ export async function ProductPage({
         {dims ? (
           <li className={styles.dims} lang={dimsLang}>
             {dims}
+          </li>
+        ) : null}
+        {sizeCompare ? (
+          <li className={styles.sizeCompare} data-size-compare={sizeCompare}>
+            {t(`sizeCompare.${sizeCompare}`)}
           </li>
         ) : null}
       </ul>

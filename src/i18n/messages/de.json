@@ -359,6 +359,13 @@
     },
     "product": {
       "factsLabel": "Kurzdaten",
+      "sizeCompare": {
+        "belowCent": "Kleiner als eine 1-Cent-Münze",
+        "cent": "Etwa so groß wie eine 1-Cent-Münze",
+        "euro1": "Etwa so groß wie eine 1-Euro-Münze",
+        "euro2": "Etwa so groß wie eine 2-Euro-Münze",
+        "walnut": "Etwa so groß wie eine Walnuss"
+      },
       "detailsLabel": "Angaben zum Stück",
       "addToCart": "In den Korb",
       "pickupBlocked": "Gerade nicht bestellbar – Abholung ist im Moment nicht möglich. Schreib mir gern, wenn du das Stück haben möchtest.",

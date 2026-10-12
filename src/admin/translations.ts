@@ -139,6 +139,9 @@ export const ADMIN_CUSTOM_DE = {
   scaleHeading: 'Foto zum Größenvergleich (freiwillig)',
   scaleHint:
     'Ein Foto mit etwas Bekanntem daneben – z. B. deiner Hand, einer Tasse oder einem Lineal. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.',
+  // V-15 (P20.6): bei Schmuck ein Foto an der Hand (freiwillig, sperrt nie)
+  scaleHintJewelry:
+    'Bei Schmuck am besten ein Foto an deiner Hand oder am Ohr – so sieht man sofort, wie klein das Stück ist. Es erscheint auf der Stückseite als letztes Bild mit „Zum Größenvergleich“.',
   scaleRemoveLabel: 'Vergleichsfoto entfernen',
   scaleAltDe: 'Bildbeschreibung Vergleichsfoto (Deutsch)',
   scaleAltEn: 'Bildbeschreibung Vergleichsfoto (Englisch)',
@@ -182,6 +185,10 @@ export const ADMIN_CUSTOM_DE = {
   pieceEvidenceAttached: 'Nachweis angehängt: {{name}}',
   pieceEvidenceMissing: 'Noch kein Nachweis angehängt.',
   pieceEvidenceFailed: 'Der Nachweis konnte nicht hochgeladen werden. Bitte noch einmal versuchen.',
+  // V-32: schon hochgeladenen Nickel-Nachweis auswählen statt neu hochladen
+  pieceEvidencePick: 'Schon hochgeladenen Nachweis wählen',
+  pieceEvidencePickNone: '– keiner –',
+  pieceEvidencePickHint: 'Oder einen neuen Nachweis hochladen:',
   pieceSmallPartsHint: 'Der Kleinteile-Warnhinweis wird automatisch angefügt.',
   pieceGlassHint: 'Der Glas-Hinweis wird automatisch an die Warnhinweise angefügt.',
   pieceSafetyHint: 'Aus der Vorlage der Kategorie vorbelegt. Pflicht-Hinweise ergänzt das System.',
@@ -192,6 +199,14 @@ export const ADMIN_CUSTOM_DE = {
     'Englisch ist freiwillig – fehlt ein Text, erscheint der deutsche. Nur die Bildbeschreibungen braucht es auf Englisch.',
   pieceEnglishFields: 'Englische Texte ansehen und ändern',
   pieceSaveDraft: 'Als Entwurf speichern',
+  // V-32 (P20.6): nächster Entwurf in der Reihenfolge von „Meine Stücke“
+  pieceSaveNext: 'Speichern und nächstes Stück',
+  // V-31/V-32: Markierung „zu prüfen“ und „Was fehlt noch?“ im Formular
+  pieceAttentionTitle: 'Zu prüfen:',
+  pieceReadinessTitle: 'Was fehlt noch, bevor es online gehen kann?',
+  pieceReadinessReady: 'Fertig – alles da. Du kannst es online stellen.',
+  pieceReadinessHints: 'Tipp (freiwillig): {{list}}',
+  pieceReadinessHintScale: 'Foto an der Hand – unten bei „Foto zum Größenvergleich“.',
   pieceSave: 'Änderungen speichern',
   piecePreview: 'Vorschau',
   piecePublish: 'Online stellen',
@@ -286,12 +301,13 @@ export const ADMIN_CUSTOM_DE = {
   piecesEdit: 'Bearbeiten',
   piecesPublishTitle: '{{nr}} online stellen?',
   piecesPublishText: 'Das Stück erscheint sofort im Shop und kann gekauft werden.',
-  piecesSellOffline: 'Offline verkauft',
-  piecesSellOfflineTitle: '{{nr}} als offline verkauft markieren?',
-  piecesSellOfflineText: 'Es verschwindet aus dem Shop.',
+  // V-34 (P20.6): „Verkauft (Markt/privat)“ statt „Offline verkauft“
+  piecesSellOffline: 'Verkauft (Markt/privat)',
+  piecesSellOfflineTitle: '{{nr}} als verkauft eintragen (Markt oder privat)?',
+  piecesSellOfflineText: 'Es verschwindet sofort aus dem Shop.',
   piecesSellOfflineReservedText:
-    'Achtung: Das Stück liegt gerade in einer Kasse. Die Kasse wird beendet, die Kundin kann es dann nicht mehr bezahlen. Es verschwindet aus dem Shop.',
-  piecesSellOfflineConfirm: 'Ja, offline verkauft',
+    'Achtung: Das Stück liegt gerade in einer Kasse. Die Kasse wird beendet, die Kundin kann es dann nicht mehr bezahlen. Es verschwindet sofort aus dem Shop.',
+  piecesSellOfflineConfirm: 'Ja, verkauft',
   piecesShowInArchiveSwitch: 'Im Archiv mit sold-Stempel zeigen',
   piecesOfflineNote: 'Notiz (optional, z. B. „Flohmarkt Mauerpark“)',
   piecesOfflineTourDate: 'Auf welchem Termin? (optional)',
@@ -299,14 +315,52 @@ export const ADMIN_CUSTOM_DE = {
   piecesOfflinePrice: 'Erzielter Preis in Euro (optional)',
   piecesOfflinePriceHint: 'Mit Preis zählt der Verkauf im Umsatz-Wächter mit.',
   piecesOfflinePriceInvalid: 'Bitte einen Preis wie 45,00 eingeben (höchstens 10.000 €).',
+  // V-33 a: Preis eines Markt-Verkaufs später nachtragen
+  piecesOfflinePriceAdd: 'Preis nachtragen',
+  piecesOfflinePriceEdit: 'Preis ändern',
+  piecesOfflinePriceTitle: 'Erzielten Preis für {{nr}} eintragen',
+  piecesOfflinePriceText:
+    'Mit Preis zählt der Verkauf im Umsatz-Wächter mit. Feld leeren = ohne Preis.',
+  piecesOfflinePriceSave: 'Speichern',
+  piecesOfflinePriceShown: 'Markt-Preis: {{price}}',
   piecesToOrder: 'Zur Bestellung',
-  piecesUnpublish: 'Offline nehmen',
-  piecesUnpublishTitle: '{{nr}} offline nehmen?',
-  piecesUnpublishText: 'Das Stück verschwindet aus dem Shop und wird wieder ein Entwurf.',
-  piecesArchive: 'Ausblenden',
-  piecesArchiveTitle: '{{nr}} ausblenden?',
-  piecesArchiveText:
-    'Das Stück verschwindet aus Shop und Archiv. Du kannst es später wieder bearbeiten.',
+  // V-34: ein Knopf „Aus dem Shop nehmen“ mit der Frage „Kommt es wieder?“ (statt „Offline nehmen“ und „Ausblenden“)
+  piecesTakeOff: 'Aus dem Shop nehmen',
+  piecesTakeOffTitle: '{{nr}} aus dem Shop nehmen – kommt es wieder?',
+  piecesTakeOffText: 'Das Stück verschwindet sofort aus dem Shop.',
+  piecesTakeOffBack: 'Ja, später wieder anbieten',
+  piecesTakeOffBackHint:
+    'Es wird wieder ein Entwurf. Mit „Online stellen“ ist es zurück im Shop.',
+  piecesTakeOffGone: 'Nein, weglegen',
+  piecesTakeOffGoneHint:
+    'Kaputt, verschenkt oder behalten: Es steht dann als „ausgeblendet“ in deiner Liste – nicht im Shop, nicht im Archiv. Mit „Wieder bearbeiten“ holst du es zurück.',
+  piecesShelve: 'Weglegen',
+  piecesShelveTitle: '{{nr}} weglegen?',
+  piecesShelveText:
+    'Für Stücke, die nicht wiederkommen – kaputt, verschenkt oder behalten. Es steht dann als „ausgeblendet“ in deiner Liste, nicht im Shop und nicht im Archiv. Mit „Wieder bearbeiten“ holst du es zurück.',
+  piecesShelveConfirm: 'Ja, weglegen',
+  // V-31: Markierung „zu prüfen“ direkt am Stück abhaken
+  piecesAttentionReview: 'zu prüfen',
+  piecesAttentionDone: 'Erledigt',
+  piecesAttentionDoneMessage: 'Erledigt – die Markierung ist weg.',
+  piecesReviewFilter: 'Nur „zu prüfen“ zeigen',
+  // V-32: was fehlt noch, Sammelaktion
+  piecesReady: 'fertig',
+  piecesMissing: 'fehlt: {{list}}',
+  piecesHints: 'Tipp: {{list}}',
+  piecesPublishReady: 'Alle fertigen online stellen',
+  piecesPublishReadyTitle: 'Alle fertigen Entwürfe online stellen?',
+  piecesPublishReadyCounting: 'Ich zähle die fertigen Entwürfe …',
+  piecesPublishReadyText:
+    '{{ready}} von {{drafts}} Entwürfen sind fertig. Sie erscheinen sofort im Shop. Häkchen wie „nur eigene Figuren“ oder „nickelfrei“ setzt du weiter bei jedem Stück selbst – hier wird nichts angehakt.',
+  piecesPublishReadyNone:
+    'Gerade ist kein Entwurf fertig. Auf jeder Karte steht, was noch fehlt.',
+  piecesPublishReadyConfirm: 'Ja, {{n}} online stellen',
+  piecesPublishReadyRunning: '{{done}} von {{total}} sind online …',
+  piecesPublishReadyDone: '{{n}} Stücke sind jetzt online.',
+  piecesPublishReadyDoneOne: '1 Stück ist jetzt online.',
+  piecesPublishReadyFailed: 'Nicht online gestellt (bitte einzeln ansehen):',
+  piecesPublishReadyClose: 'Schließen',
   piecesArchiveShow: 'Im Archiv zeigen',
   piecesArchiveHide: 'Nicht im Archiv zeigen',
   piecesReturn: 'Wieder verkaufen',
@@ -1012,6 +1066,18 @@ export const ADMIN_CUSTOM_DE = {
   textsOrderMissing: 'Keine Bestellung mit der Nummer {{number}} gefunden.',
   // Heute (P5.28)
   todayTiles: 'Auf einen Blick',
+  // Markt-Knopf (V-33 a, P20.6)
+  todayMarketTitle: 'Markt',
+  todayMarketIntro:
+    'Auf dem Markt verkauft? Nummer eintippen und „verkauft“ antippen – das Stück verschwindet sofort aus dem Shop.',
+  todayMarketNumber: 'Nummer',
+  todayMarketPrice: 'Preis in Euro (freiwillig)',
+  todayMarketPriceHint:
+    'Kannst du auch später bei „Meine Stücke“ nachtragen. Mit Preis zählt der Verkauf im Umsatz-Wächter.',
+  todayMarketSell: 'verkauft',
+  todayMarketDone: '{{nr}}{{title}} ist verkauft und aus dem Shop.',
+  todayMarketAlready: '{{nr}} ist schon als verkauft eingetragen.',
+  todayMarketOpen: 'Stück ansehen (Preis nachtragen oder rückgängig machen)',
   todayTilePacking: 'Zu packen',
   todayTilePrepayment: 'Vorkasse offen',
   todayTilePickup: 'Abholung',

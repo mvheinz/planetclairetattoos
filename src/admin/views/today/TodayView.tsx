@@ -14,9 +14,11 @@ import { adminText, type AdminCustomKey } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { StrayPaymentsPanel } from '../orders/StrayPaymentsPanel'
 import { adminView, adminViewPath, type AdminViewKey } from '../registry'
+import { MarketSale } from './MarketSale'
 
 // Start-Ansicht „Heute“ `/heute` und `ADMIN_ROUTE` (PLAN P5.28, KONZEPT §7.3): Kacheln mit Zahl und Link, rote und
-// gelbe Hinweise mit Link, Startklar-Hinweis (P10.14), letzte 5 Bestellungen, Schnellknopf „Neues Stück“.
+// gelbe Hinweise mit Link, Startklar-Hinweis (P10.14), letzte 5 Bestellungen, Schnellknopf „Neues Stück“ und der
+// Markt-Knopf (V-33 a, P20.6: Nummer eintippen, „verkauft“ antippen).
 // Daten aus `getTodaySummary(now)` (src/lib/admin/today.ts).
 
 const TILES: readonly {
@@ -140,6 +142,8 @@ export async function TodayView({ adminRoute, req }: AdminViewBodyProps) {
           {adminText('shellNewPiece')}
         </a>
       </p>
+
+      <MarketSale adminRoute={adminRoute} />
 
       <section aria-labelledby="today-tiles-title">
         <h2 id="today-tiles-title" className="pc-visually-hidden">

@@ -436,8 +436,12 @@ export function issuesFromResponse(json: unknown): FieldIssue[] {
   return out
 }
 
-/** Sprungziel im Formular zu einem Feldpfad (`dimensions.widthCm` → `pf-dimensions`, `images.0` → `pf-images`). */
+/**
+ * Sprungziel im Formular zu einem Feldpfad (`dimensions.widthCm` → `pf-dimensions`, `images.0` → `pf-images`);
+ * der Maß-Hinweis (`dimensions.note`, V-15 „Bitte erst nachmessen“) springt direkt in sein Feld.
+ */
 export function fieldAnchor(path: string): string {
+  if (path === 'dimensions.note') return 'pf-dimensionsNote'
   const head = path.split('.')[0] ?? ''
   if (!head) return ''
   if (head === 'settings' || head === 'business') return ''

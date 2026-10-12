@@ -16,7 +16,7 @@ import { FlashEditor, type FlashFormValues } from './FlashEditor'
 import { tattooText } from './tattooText'
 
 // Reiter „Flash“ (PLAN P7.6, KONZEPT §7.12): Liste aller Motive mit Status-Chip („verfügbar ↔ vergeben“ in zwei Taps:
-// Chip antippen, bestätigen), „Offline nehmen“ und „Bearbeiten“; „Neuer Flash“ öffnet das Formular mit
+// Chip antippen, bestätigen), „Pausieren“ (V-34) und „Bearbeiten“; „Neuer Flash“ öffnet das Formular mit
 // Nummernvorschlag (höchste Nicht-Seed-Nummer + 1).
 
 const idOf = (v: unknown): number | null => {

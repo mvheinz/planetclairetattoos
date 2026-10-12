@@ -43,6 +43,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* V-15: fester Größenvergleich für sehr kleine Stücke (< 4 cm), ruhig wie die Kurzdaten */
+.sizeCompare {
+  font-size: var(--fs-meta);
+}
+
 .price {
   display: flex;
   flex-direction: column;

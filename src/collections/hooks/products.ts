@@ -35,12 +35,12 @@ import {
 } from '@/lib/products/itemNumber'
 import { pickLocale, type LocalizedValue } from '@/lib/products/localized'
 import { priceChangeSummary } from '@/lib/shop/priceChange'
+import { loadDeclarations, loadPublishContext } from '@/lib/products/publishReadiness'
 import {
   checkFoodContact,
   relationId,
   validateForPublish,
   type ProductForValidation,
-  type PublishContext,
   type PublishIssue,
 } from '@/lib/products/validate'
 import {
@@ -468,7 +468,15 @@ async function productView(
     if (LOCALIZED_FIELDS.has(key)) {
       view[key] = { ...(isObj(full[key]) ? full[key] : {}), [locale]: value }
     } else if (key === 'dimensions' && isObj(value)) {
-      view[key] = { ...(isObj(full[key]) ? full[key] : {}), ...value }
+      const before = isObj(full[key]) ? full[key] : {}
+      view[key] = { ...before, ...value }
+      // Der Maß-Hinweis ist lokalisiert (V-15 prüft beide Sprachen): nur die Sprache dieses Speicherns ersetzen.
+      if (value.note !== undefined) {
+        ;(view[key] as Doc).note = {
+          ...(isObj(before.note) ? before.note : {}),
+          [locale]: value.note,
+        }
+      }
     } else {
       view[key] = value
     }
@@ -506,52 +514,13 @@ async function runPublishChecks(
   if (!live && !checkFood) return
 
   const view = await productView(data, original, operation, req)
-  const find = (collection: 'media' | 'conformity-declarations', ids: (number | string)[]) =>
-    ids.length === 0
-      ? Promise.resolve([] as Doc[])
-      : preservingReq(req, () =>
-          req.payload.find({
-            collection,
-            where: { id: { in: ids } },
-            locale: 'all',
-            depth: 0,
-            limit: 0,
-            pagination: false,
-            overrideAccess: true,
-            req,
-          }),
-        ).then((r) => r.docs as unknown as Doc[])
-  const declarations = (
-    await find('conformity-declarations', idList(view.conformityDeclarations))
-  ).map((d) => ({
-    id: d.id as number,
-    status: d.status as string,
-    validFrom: d.validFrom as string,
-  }))
-  const now = requestNow(req)
-  let issues: PublishIssue[]
-  if (live) {
-    const images = (await find('media', idList(view.images))).map((m) => ({
-      id: m.id as number,
-      alt: m.alt as LocalizedValue,
-      restricted: m.restricted as boolean | null,
-    }))
-    const settings = req.payload.config.globals.some((g) => g.slug === 'settings')
-      ? ((await preservingReq(req, () =>
-          req.payload.findGlobal({ slug: 'settings', req, depth: 0, overrideAccess: true }),
-        )) as unknown as Doc)
-      : {}
-    const legal = (settings.legal ?? {}) as Doc
-    issues = validateForPublish(view as ProductForValidation, {
-      allowVisibleBlankBrands: legal.allowVisibleBlankBrands === true,
-      business: (settings.business ?? null) as PublishContext['business'],
-      images,
-      declarations,
-      now,
-    })
-  } else {
-    issues = checkFoodContact(view as ProductForValidation, { declarations, now })
-  }
+  // Dieselben Daten wie „was fehlt noch?“ und „Alle fertigen online stellen“ (V-32, `publishReadiness.ts`).
+  const issues: PublishIssue[] = live
+    ? validateForPublish(view as ProductForValidation, await loadPublishContext(req, [view]))
+    : checkFoodContact(view as ProductForValidation, {
+        declarations: await loadDeclarations(req, [view]),
+        now: requestNow(req),
+      })
   if (issues.length > 0) {
     throw new ValidationError({
       collection: PRODUCTS_SLUG,

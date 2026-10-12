@@ -8,6 +8,7 @@ import { ENUM_LABELS } from '@/lib/enumLabels'
 import { COMPLAINT_KINDS, PACKAGING_MATERIALS } from '@/lib/enums'
 import { consentLogsFor } from '@/lib/privacy/logs'
 
+import { AttentionDoneButton } from '../../components/AttentionDoneButton'
 import { Notice } from '../../components/Notice'
 import { StatusBadge } from '../../components/StatusBadge'
 import { adminText } from '../../translations'
@@ -72,6 +73,13 @@ export async function OrderDetailView({ adminRoute, req, match }: AdminViewBodyP
               {adminText('orderAttention', { reason: detail.attention.reason ?? '–' })}
               {detail.attention.note ? ` – ${detail.attention.note}` : ''}
             </Notice>
+          ) : null}
+          {detail.attention?.manual ? (
+            // V-31: Markierung von Hand direkt hier abhaken (Systemgründe verschwinden von selbst).
+            <AttentionDoneButton
+              url={`/api/orders/${detail.id}/attention-done`}
+              data-testid="order-attention-done"
+            />
           ) : null}
           {detail.dispute ? (
             <Notice tone="warning" data-testid="order-dispute">

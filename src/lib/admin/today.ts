@@ -185,6 +185,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     anfragen,
     attentionOrders,
     attentionProducts,
+    reviewProducts,
     disputed,
     holdOrders,
     holdWithdrawals,
@@ -252,12 +253,30 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
         sort: '-timestamps.placedAt',
         select: { orderNumber: true, status: true, adminAttention: true },
       }),
+    // Stücke mit Systemgrund (einzeln, rot); Markierungen „von Hand“ zählt die Sammelzeile (V-31)
     () =>
       find<Product>({
         collection: 'products',
-        where: { 'adminAttention.flag': { equals: true } },
+        where: {
+          and: [
+            { 'adminAttention.flag': { equals: true } },
+            {
+              or: [
+                { 'adminAttention.reason': { not_equals: 'manual' } },
+                { 'adminAttention.reason': { exists: false } },
+              ],
+            },
+          ],
+        },
         sort: 'itemNumber',
         select: { itemNumber: true, title: true, adminAttention: true },
+      }),
+    () =>
+      count('products', {
+        and: [
+          { 'adminAttention.flag': { equals: true } },
+          { 'adminAttention.reason': { equals: 'manual' } },
+        ],
       }),
     () =>
       find<Order>({
@@ -342,7 +361,7 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
     })
   }
 
-  // Stücke und Bestellungen mit adminAttention (rot, mit Grund)
+  // Stücke mit Systemgrund (z. B. Konformitätserklärung widerrufen) und Bestellungen mit adminAttention: rot, einzeln
   for (const p of attentionProducts) {
     hint({
       id: `attention-product-${p.id}`,
@@ -428,6 +447,22 @@ export async function getTodaySummary(now: Date, payload: Payload): Promise<Toda
           : `${privacyRequests.length} offene Datenschutz-Anfragen – nächste Frist ${date(next.at.toISOString())} (${next.ref}).`,
       href: '/export/datenschutz',
       linkLabel: 'Datenschutz-Anfragen öffnen',
+    })
+  }
+
+  // Stücke „zu prüfen“ (Markierung von Hand, z. B. aus dem Bestands-Import): EINE gelbe Sammelzeile mit Live-Zahl und
+  // Link auf den Filter „zu prüfen“ (V-31) – echte Notfälle gehen darin nicht unter.
+  if (reviewProducts > 0) {
+    const n = reviewProducts
+    hint({
+      id: 'products-review',
+      tone: 'warning',
+      text:
+        n === 1
+          ? '1 Stück wartet auf deine Prüfung.'
+          : `${n} Stücke warten auf deine Prüfung.`,
+      href: '/stuecke?pruefen=1',
+      linkLabel: 'Zu prüfen ansehen',
     })
   }
 

@@ -8,7 +8,7 @@ import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 
 // P7.6 – Tattoo-Verwaltung `/tattoo`, Reiter „Flash“ (KONZEPT §7.12): Reiter Flash · Galerie · Texte;
 // „verfügbar → vergeben“ bei 390×844 in höchstens 2 Taps (Chip antippen, bestätigen), danach Stempel auf der
-// öffentlichen Seite; wiederholbares Motiv → Ablehnung mit Hinweis auf „Offline nehmen“; „Neuer Flash“ mit
+// öffentlichen Seite; wiederholbares Motiv → Ablehnung mit Hinweis auf „Pausieren“ (V-34); „Neuer Flash“ mit
 // Nummernvorschlag (ohne Seed/Fixtures) und Foto-Baustein. Fixtures 986/987 (`seed = true`).
 
 const NUMBERS = [986, 987]
@@ -91,10 +91,11 @@ test('@a11y Flash: verfügbar → vergeben in 2 Taps, Stempel öffentlich; wiede
   const repeat = page.locator('[data-testid="flash-card"][data-number="987"]')
   await repeat.getByTestId('flash-status-chip').click()
   await page.getByRole('button', { name: 'Ja, vergeben' }).click()
-  await expect(page.getByRole('dialog')).toContainText('„Offline nehmen“')
+  await expect(page.getByRole('dialog')).toContainText('„Pausieren“')
   await page.getByRole('button', { name: 'Abbrechen' }).click()
   await expect(repeat).toHaveAttribute('data-status', 'available')
-  // Pausieren = offline nehmen
+  // „Pausieren“ (V-34) = nicht mehr auf der Website
+  await expect(repeat.getByTestId('flash-published')).toContainText('Pausieren')
   await repeat.getByTestId('flash-published').click()
   await expect(repeat).toContainText('offline')
 })

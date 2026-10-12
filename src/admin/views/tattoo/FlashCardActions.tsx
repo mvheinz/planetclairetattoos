@@ -8,7 +8,8 @@ import { postAdminAction } from '../../components/adminAction'
 import { tattooText } from './tattooText'
 
 // Knöpfe einer Flash-Karte (PLAN P7.6): Status-Chip „verfügbar“/„vergeben“ – antippen, bestätigen (2 Taps) – und
-// „Offline nehmen“/„Online stellen“. Ein wiederholbares Motiv lehnt der Server mit Hinweis auf „Offline nehmen“ ab.
+// „Pausieren“/„Online stellen“ (V-34, P20.6: bei Flash „Pausieren“ statt „Offline nehmen“). Ein wiederholbares Motiv
+// lehnt der Server für „vergeben“ mit Hinweis auf „Pausieren“ ab.
 
 export function FlashCardActions({
   id,
@@ -49,7 +50,7 @@ export function FlashCardActions({
         action={() => postAdminAction(`/api/flash/${id}/published`, { published: !published })}
         onDone={refresh}
       >
-        {tattooText(published ? 'takeOffline' : 'putOnline')}
+        {tattooText(published ? 'flashPause' : 'putOnline')}
         <span className="pc-visually-hidden"> {nr}</span>
       </ActionButton>
     </div>

@@ -5,16 +5,21 @@ import React from 'react'
 import { computeNextItemNumber } from '@/endpoints/products/nextItemNumber'
 import type { ProductCategory, ProductStatus } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
+import { readinessOfProduct } from '@/lib/products/publishReadiness'
+import { formatBerlin } from '@/lib/time'
 import { translationAvailability } from '@/lib/translation'
 
 import type { PiecePhoto } from '../../components/PhotoPicker/photoList'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { PieceEditor } from './PieceEditor'
 import { emptyPieceForm, formFromDoc, type CategoryTemplateTexts } from './pieceForm'
+import { attentionOf } from './piecesQuery'
 
 // Ansichten „Neues Stück“ (`/neues-stueck`) und „Stück bearbeiten“ (`/stuecke/:id`) – PLAN P5.5/P5.6, KONZEPT §7.4.
 // Lädt Stück (DE und EN, ohne Rückfall), Fotos mit Alt-Texten, Kategorie-Vorlagen aus den Einstellungen, gültige
-// Konformitätserklärungen und den Nummernvorschlag; das Formular selbst ist eine Client-Komponente.
+// Konformitätserklärungen und den Nummernvorschlag; das Formular selbst ist eine Client-Komponente. P20.6: Markierung
+// „zu prüfen“ (V-31), „Was fehlt noch?“ und den nächsten Entwurf in der Reihenfolge von „Meine Stücke“ (neueste
+// Änderung zuerst, V-32) sowie die schon hochgeladenen Nickel-Nachweise zur Auswahl (V-32, nur Verwaltung).
 
 type Doc = Record<string, unknown>
 
@@ -75,9 +80,51 @@ export async function loadPhotos(payload: Payload, ids: number[]): Promise<Piece
   return photos
 }
 
+/** Schon hochgeladene Nickel-Nachweise (neueste zuerst) zur Auswahl im Formular (V-32). */
+async function loadEvidenceOptions(payload: Payload): Promise<{ id: number; label: string }[]> {
+  const result = await payload.find({
+    collection: 'private-uploads',
+    where: { purpose: { equals: 'nickel_evidence' } },
+    depth: 0,
+    limit: 50,
+    sort: '-createdAt',
+    overrideAccess: true,
+  })
+  return result.docs.map((d) => {
+    const doc = d as { id: number; filename?: string | null; createdAt?: string | null }
+    const date = doc.createdAt ? formatBerlin(new Date(doc.createdAt), 'dd.MM.yyyy') : null
+    return {
+      id: Number(doc.id),
+      label: `${doc.filename ?? `#${doc.id}`}${date ? ` (${date})` : ''}`,
+    }
+  })
+}
+
+/** Nächster Entwurf in der Reihenfolge von „Meine Stücke“ (neueste Änderung zuerst) nach diesem Stand. */
+async function nextDraftId(payload: Payload, id: number, updatedAt: unknown): Promise<number | null> {
+  if (typeof updatedAt !== 'string') return null
+  const result = await payload.find({
+    collection: 'products',
+    where: {
+      and: [
+        { status: { equals: 'draft' } },
+        { id: { not_equals: id } },
+        { updatedAt: { less_than: updatedAt } },
+      ],
+    },
+    sort: '-updatedAt',
+    depth: 0,
+    limit: 1,
+    select: { updatedAt: true },
+    overrideAccess: true,
+  })
+  const next = result.docs[0] as { id?: number } | undefined
+  return next?.id ? Number(next.id) : null
+}
+
 export async function PieceEditorView({ match, adminRoute, req }: AdminViewBodyProps) {
   const payload = req.payload
-  const [templates, declarationsResult] = await Promise.all([
+  const [templates, declarationsResult, evidenceOptions] = await Promise.all([
     loadTemplates(payload),
     payload.find({
       collection: 'conformity-declarations',
@@ -87,6 +134,7 @@ export async function PieceEditorView({ match, adminRoute, req }: AdminViewBodyP
       sort: 'name',
       overrideAccess: true,
     }),
+    loadEvidenceOptions(payload),
   ])
   const declarations = declarationsResult.docs.map((d) => ({
     id: Number(d.id),
@@ -115,9 +163,13 @@ export async function PieceEditorView({ match, adminRoute, req }: AdminViewBodyP
     const imageIds = ((de.images as unknown[] | null) ?? [])
       .map(idOf)
       .filter((n): n is number => n !== null)
+    const status = (de.status as ProductStatus) ?? 'draft'
     initial = {
       id,
-      status: (de.status as ProductStatus) ?? 'draft',
+      status,
+      attention: attentionOf(de.adminAttention),
+      readiness: status === 'draft' ? await readinessOfProduct(req, id) : null,
+      nextDraftId: status === 'draft' ? await nextDraftId(payload, id, de.updatedAt) : null,
       firstPublishedAt: (de.firstPublishedAt as string | null) ?? null,
       slug: (de.slug as string | null) ?? null,
       form: formFromDoc(de, en),
@@ -131,6 +183,9 @@ export async function PieceEditorView({ match, adminRoute, req }: AdminViewBodyP
     initial = {
       id: null,
       status: null,
+      attention: null,
+      readiness: null,
+      nextDraftId: null,
       firstPublishedAt: null,
       slug: null,
       form: emptyPieceForm(await computeNextItemNumber(req)),
@@ -147,6 +202,7 @@ export async function PieceEditorView({ match, adminRoute, req }: AdminViewBodyP
       initial={initial}
       templates={templates}
       declarations={declarations}
+      evidenceOptions={evidenceOptions}
       translation={translation}
     />
   )

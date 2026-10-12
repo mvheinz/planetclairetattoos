@@ -5,18 +5,20 @@ import React, { useId, useRef, useState } from 'react'
 
 import { ActionButton } from '../../components/ActionButton'
 import { AdminActionError, postAdminAction } from '../../components/adminAction'
+import { ChoiceDialog } from '../../components/ChoiceDialog'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { CopyButton } from '../../components/CopyButton'
 import { Notice } from '../../components/Notice'
 import { adminText } from '../../translations'
 import type { ProductStatus } from '@/lib/enums'
-import { PRICE_CENTS_RANGE, parseEuroInput } from '@/lib/money'
+import { formatEuroInput, PRICE_CENTS_RANGE, parseEuroInput } from '@/lib/money'
 
 import type { PieceAction } from './piecesQuery'
 
 // Knöpfe einer Karte in „Meine Stücke“ (PLAN P5.8, KONZEPT §7.5) auf die Endpunkte aus P5.7. Aktionen mit Wirkung auf
-// den Bestand (Offline verkauft, Offline nehmen, Ausblenden, Löschen, Wieder verkaufen) fragen vorher nach und nennen
-// die Folge. Nach jeder Aktion wird die Liste neu geladen.
+// den Bestand (Verkauft (Markt/privat), Aus dem Shop nehmen, Weglegen, Löschen, Wieder verkaufen) fragen vorher nach und
+// nennen die Folge. V-34 (P20.6): „Aus dem Shop nehmen“ fragt „Kommt es wieder?“ – Ja = zurück zum Entwurf (P3), Nein =
+// weglegen (P12, „ausgeblendet“). V-33 a: erzielten Markt-Preis nachtragen. Nach jeder Aktion wird die Liste neu geladen.
 
 export interface PieceCardActionsProps {
   id: number
@@ -28,8 +30,10 @@ export interface PieceCardActionsProps {
   publicUrl: string
   orderId: number | null
   showInArchive: boolean
-  /** U-60: Markt-Termine für „Offline verkauft“ (neueste zuerst). */
+  /** U-60: Markt-Termine für „Verkauft (Markt/privat)“ (neueste zuerst). */
   tourOptions?: { id: number; label: string }[]
+  /** V-33 a: erzielter Preis eines Markt-Verkaufs (Cent) – nachtragen oder ändern. */
+  offlinePriceCents?: number | null
 }
 
 async function send(url: string, method: 'PATCH' | 'DELETE', body?: unknown) {
@@ -205,6 +209,165 @@ function SellOfflineButton({
   )
 }
 
+type TakeOffChoice = 'back' | 'gone'
+
+/** V-34: „Aus dem Shop nehmen“ → „Kommt es wieder?“ (Ja = P3 zurück zum Entwurf, Nein = P12 weglegen). */
+function TakeOffButton({ id, nr, onDone }: { id: number; nr: string; onDone: () => void }) {
+  const [open, setOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const running = useRef(false)
+
+  const choose = async (choice: TakeOffChoice) => {
+    if (running.current) return
+    running.current = true
+    setBusy(true)
+    setError(null)
+    try {
+      await postAdminAction(`/api/products/${id}/${choice === 'back' ? 'unpublish' : 'archive'}`)
+      setOpen(false)
+      onDone()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      running.current = false
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className="pc-admin-btn pc-admin-btn--secondary"
+        onClick={() => {
+          setError(null)
+          setOpen(true)
+        }}
+        data-testid="piece-take-off"
+      >
+        {adminText('piecesTakeOff')}
+      </button>
+      <ChoiceDialog<TakeOffChoice>
+        open={open}
+        title={adminText('piecesTakeOffTitle', { nr })}
+        consequence={adminText('piecesTakeOffText')}
+        busy={busy}
+        onCancel={() => setOpen(false)}
+        onChoose={(c) => void choose(c)}
+        choices={[
+          {
+            key: 'back',
+            label: adminText('piecesTakeOffBack'),
+            hint: adminText('piecesTakeOffBackHint'),
+            variant: 'primary',
+            'data-testid': 'piece-take-off-back',
+          },
+          {
+            key: 'gone',
+            label: adminText('piecesTakeOffGone'),
+            hint: adminText('piecesTakeOffGoneHint'),
+            'data-testid': 'piece-take-off-gone',
+          },
+        ]}
+      >
+        {error ? <Notice tone="error">{error}</Notice> : null}
+      </ChoiceDialog>
+    </>
+  )
+}
+
+/** V-33 a: erzielten Preis eines Markt-/Privatverkaufs nachtragen oder ändern (leer = ohne Preis). */
+function OfflinePriceButton({
+  id,
+  nr,
+  cents,
+  onDone,
+}: {
+  id: number
+  nr: string
+  cents: number | null
+  onDone: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [price, setPrice] = useState(cents === null ? '' : formatEuroInput(cents))
+  const [error, setError] = useState<string | null>(null)
+  const running = useRef(false)
+  const priceId = useId()
+
+  const save = async () => {
+    if (running.current) return
+    const value = price.trim()
+      ? parseEuroInput(price, { min: 0, max: PRICE_CENTS_RANGE.max })
+      : null
+    if (price.trim() && value === null) {
+      setError(adminText('piecesOfflinePriceInvalid'))
+      return
+    }
+    running.current = true
+    setBusy(true)
+    setError(null)
+    try {
+      await send(`/api/products/${id}?depth=0`, 'PATCH', { offlineSalePriceCents: value })
+      setOpen(false)
+      onDone()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      running.current = false
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      {cents !== null ? (
+        <span className="pc-pieces__price-note" data-testid="piece-offline-price">
+          {adminText('piecesOfflinePriceShown', { price: `${formatEuroInput(cents)} €` })}
+        </span>
+      ) : null}
+      <button
+        type="button"
+        className="pc-admin-btn pc-admin-btn--secondary"
+        onClick={() => {
+          setPrice(cents === null ? '' : formatEuroInput(cents))
+          setError(null)
+          setOpen(true)
+        }}
+        data-testid="piece-offline-price-edit"
+      >
+        {adminText(cents === null ? 'piecesOfflinePriceAdd' : 'piecesOfflinePriceEdit')}
+      </button>
+      <ConfirmDialog
+        open={open}
+        title={adminText('piecesOfflinePriceTitle', { nr })}
+        consequence={adminText('piecesOfflinePriceText')}
+        confirmLabel={adminText('piecesOfflinePriceSave')}
+        busy={busy}
+        onConfirm={() => void save()}
+        onCancel={() => setOpen(false)}
+      >
+        <div className="pc-field">
+          <label htmlFor={priceId} className="pc-field__label">
+            {adminText('piecesOfflinePrice')}
+          </label>
+          <input
+            id={priceId}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            data-testid="piece-offline-price-input"
+          />
+        </div>
+        {error ? <Notice tone="error">{error}</Notice> : null}
+      </ConfirmDialog>
+    </>
+  )
+}
+
 export function PieceCardActions({
   id,
   nr,
@@ -214,6 +377,7 @@ export function PieceCardActions({
   orderId,
   showInArchive,
   tourOptions = [],
+  offlinePriceCents = null,
 }: PieceCardActionsProps) {
   const router = useRouter()
   const refresh = () => router.refresh()
@@ -260,20 +424,7 @@ export function PieceCardActions({
           {adminText('piecesToOrder')}
         </a>
       ) : null}
-      {has('unpublish') ? (
-        <ActionButton
-          variant="secondary"
-          action={post('unpublish')}
-          onDone={refresh}
-          effects={['stock']}
-          confirm={{
-            title: adminText('piecesUnpublishTitle', { nr }),
-            consequence: adminText('piecesUnpublishText'),
-          }}
-        >
-          {adminText('piecesUnpublish')}
-        </ActionButton>
-      ) : null}
+      {has('takeOff') ? <TakeOffButton id={id} nr={nr} onDone={refresh} /> : null}
       {has('toggleArchive') ? (
         <ActionButton
           variant="secondary"
@@ -306,13 +457,18 @@ export function PieceCardActions({
           action={post(has('archive') ? 'archive' : 'archive-after-return')}
           onDone={refresh}
           effects={['stock']}
+          data-testid="piece-shelve"
           confirm={{
-            title: adminText('piecesArchiveTitle', { nr }),
-            consequence: adminText('piecesArchiveText'),
+            title: adminText('piecesShelveTitle', { nr }),
+            consequence: adminText('piecesShelveText'),
+            confirmLabel: adminText('piecesShelveConfirm'),
           }}
         >
-          {adminText('piecesArchive')}
+          {adminText('piecesShelve')}
         </ActionButton>
+      ) : null}
+      {has('offlinePrice') ? (
+        <OfflinePriceButton id={id} nr={nr} cents={offlinePriceCents} onDone={refresh} />
       ) : null}
       {has('restore') ? (
         <ActionButton variant="secondary" action={post('restore')} onDone={refresh}>
