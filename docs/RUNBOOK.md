@@ -504,6 +504,16 @@ lädt die Datei im Chat hoch (Anleitung für sie: `docs/owner/IPAD.md`).
    @-Namen, Telefonnummern oder Adressen von Käufer:innen prüfen und auf Ort/Markt kürzen (Jutta kurz Bescheid geben).
 5. Prüfen: `pnpm check` (Texte: auch `tests/unit/i18n`, Verbotsliste), bei Bestand zusätzlich
    `pnpm bestand:pruefliste`. Commit `feat(pflege): …` mit Listen-Nr. in der Nachricht.
+   **Rahmentexte prüfen – nach jedem Bestandsimport (V-21, U-93):** Passen Kategorie-Texte
+   (`content/seed/data/base.json`), die Texte der Startseiten-Stationen (`content/seed/data/pages.json`), die
+   Shop-Einleitung (`shop.list.intro`) und die Beschreibungen für Google (`seo.descriptions.*`) noch zu den Stücken?
+   Der Test `tests/unit/seed/frame-texts.unit.spec.ts` (läuft in `pnpm check` mit) meldet Stückarten, die ein Text nennt,
+   die es nicht (mehr) gibt, und Stückarten, die in den Google-Texten fehlen. Er kennt nur die Wörter in `CLAIMS` – neue
+   Stückarten (erste Zeichnung, ein Kleid, Lebensmittel-Keramik, Schmuck ohne Kette …) zusätzlich selbst gegen die Texte
+   lesen und `CLAIMS` ergänzen. Texte immer DE **und** EN anpassen; einen geänderten Kategorie-Text vorher in
+   `SUPERSEDED_CATEGORY_INTROS` (`src/lib/seed/globals.ts`) aufnehmen, sonst erreicht er bestehende Datenbanken nicht.
+   Jutta die geänderten Sätze in einfachen Worten im Chat zeigen – sie liest sie am iPad oder am Computer (U-94) und kann
+   widersprechen. Den Leitsatz „Tinte auf Haut, Ton und Papier“ ändert nur sie.
 6. Neue Liste für Jutta: `pnpm pflege:export` → `dist/pflege/planet-claire-{bestand,texte}-<Listen-Nr.>.xlsx`, dazu bei
    Bedarf `pnpm pflege:ansichten` (Katalog- und Rundgang-PDF; Rundgang braucht vorher `pnpm preview:export`); den neuen Stand
    (`content/pflege/stand/*.json`) **mit committen**, die Dateien mit `SendUserFile` schicken.
@@ -511,3 +521,7 @@ lädt die Datei im Chat hoch (Anleitung für sie: `docs/owner/IPAD.md`).
 **Nach dem Start:** Die Datenbank ist der Stand. Bestand sowie Seiten- und FAQ-Texte lädt Jutta selbst in der Verwaltung
 hoch (P19). Feste Programmtexte (Sprachdateien, Standardtexte) kommen weiter über eine Sitzung (Schritte oben) und das
 nächste Update. `content/bestand/products.json` dann nicht mehr über die Liste ändern (nur Erstimport).
+Auch dann gilt nach jedem Bestandsimport: Rahmentexte prüfen (V-21). Jutta schaut am iPad oder am Computer auf die
+Startseite und die Kategorien im Shop; Kategorie-Texte ändert sie in der Verwaltung unter **Shop → Kategorien**, die
+Stationstexte unter **Inhalte → Seiten → Startseite** – oder sie schreibt Claude, was nicht mehr passt (HANDBUCH §11).
+Google-Texte (`seo.descriptions.*`) passt eine Sitzung an.

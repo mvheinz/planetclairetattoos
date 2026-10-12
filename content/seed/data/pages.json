@@ -35,8 +35,8 @@
           "en": "Ceramics"
         },
         "text": {
-          "de": "Ton erinnert sich an jede Berührung. Schalen, Tellerchen und Fliesen, gekniffen, gedreht, bemalt – alle ein wenig schief, und genau richtig so. Dekoration, nicht für Lebensmittel.",
-          "en": "Clay remembers every touch. Bowls, little plates and tiles, pinched, turned, painted – all a little crooked, and exactly right. Decorative, not for food."
+          "de": "Ton erinnert sich an jede Berührung. Schalen, Figuren und Becher, von Hand geformt und bemalt – alle ein wenig schief, und genau richtig so. Dekoration, nicht für Lebensmittel.",
+          "en": "Clay remembers every touch. Bowls, figures and cups, shaped and painted by hand – all a little crooked, and exactly right. Decorative, not for food."
         },
         "cocoPose": "sniff",
         "ornament": "planet",
@@ -57,8 +57,8 @@
           "en": "Textiles & caps"
         },
         "text": {
-          "de": "Stoffe, die schon ein Leben hatten, und ein zweites bekommen: Shirts, Kleider und Caps, von Hand bemalt. Jedes Teil gibt es nur einmal, in genau einer Größe.",
-          "en": "Cloth that has already had one life and is given a second: shirts, dresses and caps, painted by hand. Each piece exists once, in exactly one size."
+          "de": "Stoffe, die schon ein Leben hatten und ein zweites bekommen: Shirts, Stoffbeutel und Caps, von Hand bemalt. Jedes Teil gibt es nur einmal, in genau einer Größe.",
+          "en": "Cloth that has already had one life and is given a second: shirts, tote bags and caps, painted by hand. Each piece exists once, in exactly one size."
         },
         "cocoPose": "sniff",
         "ornament": "star",
@@ -79,8 +79,8 @@
           "en": "Drawings"
         },
         "text": {
-          "de": "Tusche, Aquarell, Seiten aus dem Skizzenbuch. Hier beginnt jedes Wesen, bevor es eine Haut oder eine Schale findet.",
-          "en": "Ink, watercolour, sketchbook pages. This is where every creature begins, before it finds a skin or a bowl."
+          "de": "Hier beginnt jedes Wesen: mit Tusche auf Papier, bevor es eine Haut oder eine Schale findet.",
+          "en": "This is where every creature begins: in ink on paper, before it finds a skin or a bowl."
         },
         "cocoPose": "sit",
         "ornament": "none",
@@ -101,8 +101,8 @@
           "en": "Jewellery"
         },
         "text": {
-          "de": "Winzige Anhänger aus Keramik: Füchse, Planeten, Rehköpfchen. Klein genug für die Hosentasche, groß genug, um einen Tag zu verändern.",
-          "en": "Tiny ceramic pendants: foxes, planets, little deer heads. Small enough for a pocket, big enough to change a day."
+          "de": "Anhänger aus Keramik: Katzen, Fledermäuse, Pferdeköpfe, meist an Kette, Band oder Kordel. Klein genug für die Hosentasche, groß genug, um einen Tag zu verändern.",
+          "en": "Ceramic pendants: cats, bats, horse heads, mostly on a chain, ribbon or cord. Small enough for a pocket, big enough to change a day."
         },
         "cocoPose": "jump",
         "ornament": "none",
