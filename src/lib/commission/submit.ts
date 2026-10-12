@@ -10,7 +10,7 @@ import { dbFor } from '@/lib/db/tx'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { enqueueEmail, runEmailJobNow } from '@/lib/email/outbox'
 import { INQUIRY_OBJECT_TYPES, LOCALES, type Locale } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { ipHash } from '@/lib/security/ipHash'
@@ -299,12 +299,8 @@ export async function submitCommission(
         reference: created.reference,
         receivedAt,
         deleteAfter: new Date(created.deleteAfter).toISOString(),
-        name: value.name,
+        // keine Freitexte an die ungeprüfte Adresse (Name, Idee, Zeitraum, Budget, „Etwas anderes“), P18.5
         objectType: value.objectType,
-        objectTypeOther: value.objectTypeOther,
-        idea: value.idea,
-        desiredTimeframe: value.desiredTimeframe,
-        budget: value.budget,
         imageCount: uploads.length,
         responseTime: reply,
       },
@@ -352,7 +348,7 @@ export async function submitCommission(
   })
   for (const job of tx.jobs) {
     await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error('commission.mail_failed', { error: (e as Error)?.message }),
+      log.error('commission.mail_failed', { error: errorSummary(e) }),
     )
   }
   return {

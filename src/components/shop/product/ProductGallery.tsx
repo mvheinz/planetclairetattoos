@@ -174,11 +174,13 @@ export async function ProductGallery({
                   aria-label={t('position', { n: i + 1, total })}
                   aria-current={i === 0 ? 'true' : undefined}
                 >
+                  {/* U-83: Miniaturen ohne Goth-Rahmen – mit Rahmen blieb vom Foto kaum etwas zu sehen */}
                   <ResponsiveImage
                     media={media}
                     aspectRatio="4 / 5"
                     sizes="64px"
                     srcSizes={['thumb']}
+                    frameSize="none"
                   />
                 </button>
               </li>

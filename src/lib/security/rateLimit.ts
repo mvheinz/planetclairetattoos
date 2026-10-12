@@ -36,6 +36,11 @@ export const RATE_LIMITS = {
   token_pages: { limit: 60, windowMs: MINUTE },
   /** „Widerruf bestätigen“ (R26): großzügig, damit echte Widerrufe nie blockiert werden (KONZEPT §3.16, R-134). */
   withdrawal_submit: { limit: 30, windowMs: HOUR },
+  /**
+   * Widerruf Schritt 1 → Suche der Bestellung (Bestellnummer + E-Mail) für die Auswahl der Stücke (R26, Prüfung P18.5):
+   * darüber keine Auswahl, weiter wie ohne Treffer – der Widerruf selbst bleibt immer möglich (§ 356a BGB).
+   */
+  withdrawal_lookup: { limit: 10, windowMs: HOUR },
   /** Auftragsanfrage absenden (R10): 5 / h und zusätzlich 20 / Tag (KONZEPT §10.3, P7.12). */
   commission_submit: { limit: 5, windowMs: HOUR },
   commission_submit_day: { limit: 20, windowMs: 24 * HOUR },

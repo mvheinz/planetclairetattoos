@@ -9,7 +9,7 @@ import { runEmailJobNow } from '@/lib/email/outbox'
 import { notifyAdmin } from '@/lib/email/notifyAdmin'
 import { seedPreviewModeActive } from '@/lib/env'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getAppContext, requestNow } from '@/lib/payload/context'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
@@ -184,7 +184,7 @@ export async function runRevenueGuardCheck(
   })
   for (const job of tx.jobs) {
     await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error('revenue_guard.mail_failed', { error: (e as Error)?.message }),
+      log.error('revenue_guard.mail_failed', { error: errorSummary(e) }),
     )
   }
   if (tx.jobs.length > 0) {

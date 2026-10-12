@@ -1473,7 +1473,7 @@ Jedes Foto – Shop-Karten, Produktseite (Galerie), Galerie, Flash, „Über mic
 - **Technik (PF-10):** **eine** SVG-Datei `public/art/photo-frame.v1.svg` (≈ 3,9 KB, 9 Teile à 40 Einheiten; Ecke und Kante je einmal gezeichnet und per `<use>` für alle vier Seiten gespiegelt/gedreht; erzeugt von `pnpm art:frame`, `scripts/art/build-photo-frame.ts`). Sie hängt als `border-image: url(…) 40 / var(--pf-band) round` am Bildrahmen in `ResponsiveImage` (`.frame`, `data-photo-frame`): kein zusätzliches Element, **kein SVG je Foto** und kein SVG im DOM der Seite. Das Kantenband wiederholt sich (`round`), die Ecken bleiben ganz.
 - **Maße und CLS:** Das Band (`--pf-band`: `clamp(14px, 6.5cqi, 28px)`; `frameSize="thumb"` für Vorschauen ≤ 96 px: 6 px) liegt **innerhalb** der festen `aspect-ratio` (Border-Box). Außenmaße ändern sich nie (CLS 0); das Foto füllt die Innenfläche (`object-fit: cover`, Fokuspunkt). Bis die Datei geladen ist, steht ein Papierrand gleicher Breite. `border-image` ist kein LCP-Kandidat.
 - **Leine:** Rahmen und Foto liegen im Inhalt, die Leine läuft in der Rinne (U-07a); keine Leine-Datei kennt den Rahmen (Test). Forced-Colors: einfache `CanvasText`-Linie.
-- **Test:** `tests/unit/design/photo-frame.unit.spec.ts` (Datei = Skript-Ausgabe, ≤ 4 KB, dünne Linie, Registry-Suche „jede Foto-Stelle über `ResponsiveImage`“); Playwright-Prüfung der Rahmen je Kontext; visuelle Referenzen. Ausnahmen ohne Rahmen: Wortmarke/Icons, QR-Code (BankDetails), Vorschau eigener Uploads im Anfrageformular, Lightbox-Vollbild.
+- **Test:** `tests/unit/design/photo-frame.unit.spec.ts` (Datei = Skript-Ausgabe, ≤ 4 KB, dünne Linie, Registry-Suche „jede Foto-Stelle über `ResponsiveImage`“); Playwright-Prüfung der Rahmen je Kontext; visuelle Referenzen. Ausnahmen ohne Rahmen: Wortmarke/Icons, QR-Code (BankDetails), Vorschau eigener Uploads im Anfrageformular, Lightbox-Vollbild und – seit U-83 (P17.3) – die Miniaturen unter dem Produktfoto (`frameSize="none"`, `data-photo-frame="none"`, Ecken 4 px gerundet): Bei 64 px Breite ließ das Rahmenband vom Foto kaum etwas übrig.
 
 ### 12.3 Platzhalter-Illustrationen
 
@@ -1532,14 +1532,14 @@ Die potrace-Ausgabe ist ein gefüllter Umriss (Juttas echte Strichbreite bleibt 
 
 ---
 
-### 12.7 „Planet Claire on Tour“ als Schaukasten (P12.8 U-20, P13.3 U-42)
+### 12.7 „on Tour“ als Schaukasten (P12.8 U-20, P13.3 U-42; bis P16 „Planet Claire on Tour“, U-82)
 
 **Platz (U-42):** oben rechts auf der Startseite **Koko links, direkt rechts daneben ein schmaler Schaukasten** (ab 1100 px
 neben dem Titel „Planet Claire“, Koko `clamp(13rem, 20vw, 16rem)`, Schaukasten 14,5rem; bis ≈ 1240 px rutscht die Planet-Marke über den Titel; beides über
 dem Falz bei 1280 × 800; die Stationen laufen darunter über die volle Breite). 600–1099 px: Koko und Schaukasten
 nebeneinander unter dem Kopf; Handy: untereinander (Koko ≤ 17rem mittig, darunter der Schaukasten).
 
-Überschrift „Planet Claire on Tour“ in **Spectral** (U-43). Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen
+Überschrift „on Tour“ (U-82, P17.2) in **Spectral** (U-43). U-81 (P17.2): Tafel ≈ 20 % länger als in P15 (mehr Luft in und zwischen den Zetteln, Abstand 22 px). Gerahmte Tafel in `--petrol-deep` (Tusche-Rahmen 2 px, innen
 gestrichelte Hilfslinie, `--shadow-press`), darauf **nur die nächsten drei Termine** als angepinnte Zettel in
 `--paper-field`/`--paper` mit statischer Neigung (±0,3–0,8°, keine Animation). Zettel kompakt: Datumsblock links
 (Tageszahl in Spectral 700, mehrtägig „14–16“, Monat als Mono-Kürzel), rechts Name (Spectral 700) und **eine Zeile** „Ort ·

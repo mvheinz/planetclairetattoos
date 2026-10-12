@@ -2,13 +2,16 @@ import { describe, expect, it } from 'vitest'
 
 import {
   assertOrderTransition,
+  deliveryFacts,
   evaluateOrderTransition,
   ORDER_INITIAL,
   ORDER_TRANSITIONS,
+  restDeliveryAllowed,
 } from '@/lib/commerce/orderTransitions'
 import { ORDER_STATUSES, type OrderStatus } from '@/lib/enums'
 
-// DM-ORD-01 (Tabelle): DATENMODELL §6.8.5, KONZEPT §5.3 (O3–O18, O20, O21).
+// DM-ORD-01 (Tabelle): DATENMODELL §6.8.5, KONZEPT §5.3 (O3–O18, O20, O21); Rest-Lieferung aus `partially_refunded`
+// (O6–O10 mit Bedingungen, DATENMODELL §6.8.5 Umsetzungsnotiz).
 
 /** Erlaubte Paare mit Übergangs-ID (ohne O17/O20, die vom gemerkten Vorstatus abhängen). */
 const ALLOWED: Record<string, string> = {
@@ -117,6 +120,70 @@ describe('orderTransitions (DM-ORD-01)', () => {
       ).toBe('O20')
       expect(evaluateOrderTransition('withdrawal_received', before, {}).ok).toBe(false)
     }
+  })
+
+  it('DM-ORD-01 Rest-Lieferung: aus partially_refunded O6–O10 nur mit aktiver Position, vor Abholung bzw. Zustellung', () => {
+    const open = { activeItemCount: 1 }
+    expect(assertOrderTransition('partially_refunded', 'packed', open)).toBe('O6')
+    expect(assertOrderTransition('partially_refunded', 'shipped', open)).toBe('O7')
+    expect(assertOrderTransition('partially_refunded', 'ready_for_pickup', open)).toBe('O8')
+    const ready = { ...open, readyForPickupAt: '2026-10-02T10:00:00.000Z' }
+    expect(assertOrderTransition('partially_refunded', 'picked_up', ready)).toBe('O9')
+    const shipped = { ...open, shippedAt: '2026-10-02T10:00:00.000Z' }
+    expect(assertOrderTransition('partially_refunded', 'delivered', shipped)).toBe('O10')
+    // „Abgeholt“ erst nach „abholbereit“, „Zugestellt“ erst nach dem Versand
+    expect(evaluateOrderTransition('partially_refunded', 'picked_up', open).ok).toBe(false)
+    expect(evaluateOrderTransition('partially_refunded', 'delivered', open).ok).toBe(false)
+    // nach „abholbereit“ bzw. dem Versand nicht noch einmal packen, versenden, bereitstellen
+    for (const facts of [ready, shipped]) {
+      for (const to of ['packed', 'shipped', 'ready_for_pickup'] as const) {
+        expect(evaluateOrderTransition('partially_refunded', to, facts).ok, to).toBe(false)
+      }
+    }
+    expect(
+      evaluateOrderTransition('partially_refunded', 'picked_up', { ...ready, ...shipped }).ok,
+    ).toBe(false)
+    // keine aktive Position (alles erstattet/widerrufen), schon zugestellt oder abgeholt → nein
+    for (const facts of [
+      {},
+      { activeItemCount: 0 },
+      { activeItemCount: 0, shippedAt: '2026-10-02T10:00:00.000Z' },
+      { ...shipped, deliveredAt: '2026-10-04T10:00:00.000Z' },
+      { ...ready, pickedUpAt: '2026-10-03T10:00:00.000Z' },
+    ]) {
+      for (const to of [
+        'packed',
+        'shipped',
+        'ready_for_pickup',
+        'picked_up',
+        'delivered',
+      ] as const) {
+        expect(evaluateOrderTransition('partially_refunded', to, facts).ok, to).toBe(false)
+      }
+    }
+    // nie Rückweg o. Ä. – und aus anderen Status ändert sich nichts
+    for (const to of ['paid', 'withdrawal_received', 'return_received', 'cancelled'] as const) {
+      expect(
+        evaluateOrderTransition('partially_refunded', to, { ...ready, ...shipped }).ok,
+        to,
+      ).toBe(false)
+    }
+    expect(evaluateOrderTransition('withdrawal_received', 'shipped', open).ok).toBe(false)
+    expect(evaluateOrderTransition('refunded', 'shipped', open).ok).toBe(false)
+    expect(evaluateOrderTransition('delivered', 'shipped', open).ok).toBe(false)
+    expect(restDeliveryAllowed('refunded', open)).toBe(false)
+    expect(
+      deliveryFacts({
+        items: [{ status: 'active' }, { status: 'refunded' }, { status: null }],
+        timestamps: { readyForPickupAt: '2026-10-02T10:00:00.000Z' },
+      }),
+    ).toEqual({
+      activeItemCount: 2,
+      shippedAt: null,
+      deliveredAt: null,
+      readyForPickupAt: '2026-10-02T10:00:00.000Z',
+      pickedUpAt: null,
+    })
   })
 
   it('DM-ORD-01 Paare mit disputed (P4.22): O16 aus genau neun Status, von disputed nur O18 bzw. O17 zum Vorstatus', () => {

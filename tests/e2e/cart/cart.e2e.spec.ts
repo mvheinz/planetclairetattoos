@@ -137,7 +137,7 @@ test.describe('Korb mit Seed-Ankern', () => {
     await expectAmount(page, '[data-cart-shipping]', 0)
     await expectAmount(page, '[data-cart-total]', s11.priceCents)
     await expect(page.locator('[data-cart-summary] [data-delivery-time="pickup"]')).toContainText(
-      'Abholbereit innerhalb von 2–5 Werktage',
+      'Abholbereit: 2–5 Werktage',
     )
     const after = (await context.cookies()).find((c) => c.name === 'pc_cart')!
     expect(decodeCartCookie(after.value)?.delivery).toBe('pickup')

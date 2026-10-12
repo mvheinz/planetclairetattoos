@@ -2,6 +2,7 @@ import 'server-only'
 
 import de from '@/i18n/messages/de.json'
 import en from '@/i18n/messages/en.json'
+import { AUTO_DELIVERED_AFTER_DAYS } from '@/lib/commerce/shipped'
 import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import { SERVICES } from '@/lib/legal/services.generated'
@@ -12,6 +13,7 @@ import {
   L_08_WITHDRAWALS,
   L_10_INQUIRIES,
   L_12_EMAIL_LOG_UNRELATED,
+  L_13I_FAILED_MAIL_JOBS,
   L_17_EXPORT_FILES,
   L_17_PRIVACY_REQUESTS,
 } from '@/lib/retention/policy'
@@ -20,9 +22,11 @@ import { formatBerlin } from '@/lib/time'
 import type { PersonMatches } from './search'
 
 // `auskunft.html` im DSGVO-Export (PLAN P6.17, LOESCHKONZEPT §5.4, R-150): Angaben nach Art. 15 Abs. 1 lit. a–h DSGVO in
-// der Sprache der Anfrage – Zwecke, Kategorien, Empfänger laut DIENSTE (`services.generated.ts`), Speicherdauer laut
-// LOESCHKONZEPT (Fristen aus `src/lib/retention/policy.ts`), Rechte, Beschwerderecht bei der Berliner Beauftragten,
-// Herkunft, automatisierte Entscheidungen – plus Baustein `privacyRequest.accessResponse` (bis zum Kanzlei-Wortlaut als
+// der Sprache der Anfrage – Zwecke, Kategorien, Empfänger laut DIENSTE (`services.generated.ts` plus die Empfänger ohne
+// technische Einbindung aus DIENSTE §3.13: Apple/Google bei Wallet-Zahlung, Bank bei Vorkasse, Finanzamt/
+// Steuerberatung), Speicherdauer laut LOESCHKONZEPT (Fristen aus `src/lib/retention/policy.ts`), Rechte,
+// Beschwerderecht bei der Berliner Beauftragten, Herkunft (Versandstatus trägt Jutta ein, `CARRIER_DRIVER=manual`),
+// automatisierte Entscheidungen – plus Baustein `privacyRequest.accessResponse` (bis zum Kanzlei-Wortlaut als
 // Platzhalter gekennzeichnet) und die Anzahl gefundener Datensätze je Bereich. Ohne Skripte, ohne externe Ressourcen.
 
 const MESSAGES = { de: de.privacyExport, en: en.privacyExport } as const
@@ -49,6 +53,8 @@ export interface AccessReportInput {
   }
   counts: Record<keyof PersonMatches, number>
   invoiceYears?: number
+  /** Name der Bank für Vorkasse (Einstellungen → Zahlung), sonst nur „Meine Bank“. */
+  bankName?: string | null
 }
 
 /** Fristen je Bereich (Text mit Zahlen aus `policy.ts`). */
@@ -63,6 +69,7 @@ export function retentionLines(
     fill(t.retention.inquiries, { months: L_10_INQUIRIES.duration.months ?? 6 }),
     fill(t.retention.checkouts, { days: L_03_CHECKOUTS.duration.days ?? 30 }),
     fill(t.retention.emailLog, { days: L_12_EMAIL_LOG_UNRELATED.duration.days ?? 90 }),
+    fill(t.retention.mailJobs, { days: L_13I_FAILED_MAIL_JOBS.duration.days ?? 30 }),
     fill(t.retention.consentLog, { days: L_03_CHECKOUTS.duration.days ?? 30 }),
     fill(t.retention.privacyRequests, {
       years: L_17_PRIVACY_REQUESTS.duration.years ?? 3,
@@ -76,6 +83,17 @@ export function recipientLines(t: Texts, locale: Locale): string[] {
   return SERVICES.filter((s) => s.production && s.personalData !== 'no' && s.role !== 'none').map(
     (s) => `${s.name} – ${t.role[s.role]}; ${s.seat[locale]}; ${t.thirdCountry[s.thirdCountry]}`,
   )
+}
+
+/** Empfänger ohne technische Einbindung (DIENSTE §3.13) – stehen nicht in der Dienste-Liste (kein CSP, kein AVV). */
+export function furtherRecipientLines(t: Texts, bankName?: string | null): string[] {
+  const bank = bankName?.trim()
+  return [
+    t.furtherRecipients.applePay,
+    t.furtherRecipients.googlePay,
+    fill(t.furtherRecipients.bank, { bank: bank ? ` (${bank})` : '' }),
+    t.furtherRecipients.tax,
+  ]
 }
 
 const list = (items: readonly string[]) =>
@@ -120,12 +138,13 @@ export function renderAccessReport(input: AccessReportInput): string {
     section(t.categoriesHeading, list(t.categories)),
     section(
       t.recipientsHeading,
-      `<p>${esc(t.recipientsIntro)}</p>${list(recipientLines(t, input.locale))}`,
+      `<p>${esc(t.recipientsIntro)}</p>${list(recipientLines(t, input.locale))}` +
+        `<p>${esc(t.furtherRecipientsIntro)}</p>${list(furtherRecipientLines(t, input.bankName))}`,
     ),
     section(t.retentionHeading, list(retentionLines(t, input.invoiceYears))),
     section(t.rightsHeading, list(t.rights)),
     section(t.complaintHeading, `<p>${esc(t.complaint)}</p>`),
-    section(t.sourceHeading, `<p>${esc(t.source)}</p>`),
+    section(t.sourceHeading, `<p>${esc(fill(t.source, { days: AUTO_DELIVERED_AFTER_DAYS }))}</p>`),
     section(t.automatedHeading, `<p>${esc(t.automated)}</p>`),
     section(t.noteHeading, `<p>${esc(t.notesHint)}</p>`),
   ].join('\n')

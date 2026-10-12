@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { RichTextContent } from '@/components/content/RichTextContent'
-import { getLegalText } from '@/lib/data/legal'
+import { getLegalText, type LegalTextView } from '@/lib/data/legal'
 import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import { localizedPath } from '@/lib/routes/paths'
@@ -13,6 +13,9 @@ import styles from './Checkout.module.css'
 // AGB, Widerrufsbelehrung und Datenschutzerklärung. Mit JavaScript öffnen die Links die aktive Fassung in einem
 // `<dialog>` auf der Seite (kein Seitenwechsel, kein neuer Tab; die Kassen-Komponente fängt den Klick ab), ohne
 // JavaScript sind es normale Links auf die Rechtsseiten. Darunter der Baustein `withdrawal.returnCostsNote` (E-27).
+// Der Dialog „Widerrufsbelehrung“ zeigt wie R24 auch das Muster-Widerrufsformular samt PDF und einen Link auf die ganze
+// Seite (P18.5; die Belehrung verweist auf das Formular „im Abschnitt darunter und als PDF-Download“). PDF und Seite
+// verlassen die Kasse nicht: das PDF wird heruntergeladen, die Seite öffnet in einem neuen Tab (Eingaben bleiben, R-063).
 
 export const LEGAL_DIALOGS = [
   { type: 'agb', route: 'R23' },
@@ -45,12 +48,80 @@ function linkify(
   return out
 }
 
+interface FormLabels {
+  form: string
+  formUnavailable: string
+  fullPage: string
+  pdfForm: string
+}
+
+/** Muster-Widerrufsformular unter der Belehrung im Dialog: Text, PDF-Download (wie LegalPage) und Link auf R24. */
+function WithdrawalFormPart({
+  view,
+  locale,
+  labels,
+}: {
+  view: LegalTextView
+  locale: Locale
+  labels: FormLabels
+}) {
+  return (
+    <section
+      className={styles.dialogForm}
+      aria-label={labels.form}
+      data-legal-dialog-form="widerrufsformular"
+    >
+      {view.state === 'ok' ? (
+        <>
+          <div lang={view.germanOnly ? 'de' : undefined}>
+            <RichTextContent data={view.content} />
+          </div>
+          {view.hasPdf ? (
+            <p>
+              <a
+                href={`/api/legal/widerrufsformular.pdf?locale=${locale}`}
+                className={styles.textLink}
+                data-legal-pdf="widerrufsformular"
+                type="application/pdf"
+                download
+              >
+                {labels.pdfForm}
+              </a>
+            </p>
+          ) : null}
+        </>
+      ) : (
+        <p>{labels.formUnavailable}</p>
+      )}
+      <p>
+        <a
+          href={localizedPath('R24', locale)}
+          className={styles.textLink}
+          target="_blank"
+          rel="noopener"
+          data-legal-dialog-page="R24"
+        >
+          {labels.fullPage}
+        </a>
+      </p>
+    </section>
+  )
+}
+
 export async function LegalNotice({ locale }: { locale: Locale }) {
-  const [tLinks, tDialogs, views] = await Promise.all([
+  const [tLinks, tDialogs, tLegal, views, formView] = await Promise.all([
     getTranslations({ locale, namespace: 'checkout.legalLinks' }),
     getTranslations({ locale, namespace: 'checkout.dialogs' }),
+    getTranslations({ locale, namespace: 'legal' }),
     Promise.all(LEGAL_DIALOGS.map((d) => getLegalText(d.type, locale))),
+    getLegalText('widerrufsformular', locale),
   ])
+  const formLabels: FormLabels = {
+    form: tDialogs('form'),
+    formUnavailable: tDialogs('formUnavailable'),
+    fullPage: tDialogs('fullPage'),
+    pdfForm: tLegal('pdfForm'),
+  }
   const notice = getSnippet('checkout.legalNotice', locale)
   const returnCosts = getSnippet('withdrawal.returnCostsNote', locale)
   const links = LEGAL_DIALOGS.map((d) => ({
@@ -100,6 +171,9 @@ export async function LegalNotice({ locale }: { locale: Locale }) {
                   <a href={localizedPath(d.route, locale)}>{tDialogs(d.type)}</a>
                 </p>
               )}
+              {d.type === 'widerrufsbelehrung' ? (
+                <WithdrawalFormPart view={formView} locale={locale} labels={formLabels} />
+              ) : null}
             </div>
           </dialog>
         )

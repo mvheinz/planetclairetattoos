@@ -7,7 +7,7 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import { getCategoryBySlug, loadAllCategories, type PublicCategory } from '@/lib/data/categories'
 import { getPublicPage } from '@/lib/data/pages'
 import { loadArchiveCategoryKeys, loadArchiveProducts, loadShopProducts } from '@/lib/data/products'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { isLocale, localizedPath } from '@/lib/routes/paths'
 import { DEFAULT_LOCALE, LOCALES, type Locale } from '@/lib/routes/registry'
 import { buildListMetadata } from '@/lib/seo/metadata'
@@ -134,7 +134,7 @@ export async function shopVariantKeys(locale: Locale): Promise<string[]> {
     ])
     keys.push(...pageKeys(all.totalPages), ...pageKeys(available.totalPages, { available: true }))
   } catch (err) {
-    log.warn('shop.static_params_skipped', { reason: (err as Error).message })
+    log.warn('shop.static_params_skipped', { reason: errorSummary(err) })
   }
   return keys
 }
@@ -144,7 +144,7 @@ export async function categorySlugs(locale: Locale): Promise<string[]> {
   try {
     return (await loadAllCategories(locale)).map((c) => c.slug)
   } catch (err) {
-    log.warn('category.static_params_skipped', { reason: (err as Error).message })
+    log.warn('category.static_params_skipped', { reason: errorSummary(err) })
     return []
   }
 }
@@ -159,7 +159,7 @@ export async function categoryVariantKeys(locale: Locale, slug: string): Promise
       keys.push(...pageKeys(res.totalPages))
     }
   } catch (err) {
-    log.warn('category.static_params_skipped', { reason: (err as Error).message })
+    log.warn('category.static_params_skipped', { reason: errorSummary(err) })
   }
   return keys
 }
@@ -180,7 +180,7 @@ export async function archiveVariantKeys(locale: Locale): Promise<string[]> {
       ...pageKeys(res.totalPages),
     )
   } catch (err) {
-    log.warn('archive.static_params_skipped', { reason: (err as Error).message })
+    log.warn('archive.static_params_skipped', { reason: errorSummary(err) })
   }
   return keys
 }

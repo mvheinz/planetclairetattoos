@@ -6,7 +6,7 @@ import { getPayload } from 'payload'
 
 import { TAGS } from '@/lib/cache/tags'
 import { processorTableRows, type ProcessorTableRow } from '@/lib/legal/services'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { dbGate } from '@/lib/db/buildGate'
 
 // Daten der Auftragsverarbeiter-Tabelle unter der Datenschutzerklärung (PLAN P6.21, DIENSTE §7, R-155): Dienste aus der
@@ -32,7 +32,7 @@ export async function loadProcessorTableRows(): Promise<ProcessorTableRow[]> {
       })),
     )
   } catch (err) {
-    log.warn('processors.settings_unavailable', { error: (err as Error)?.message })
+    log.warn('processors.settings_unavailable', { error: errorSummary(err) })
     return processorTableRows([])
   }
 }

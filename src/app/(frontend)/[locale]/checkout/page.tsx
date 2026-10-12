@@ -61,7 +61,9 @@ export default async function Page({
   const token = jar.get(CHECKOUT_COOKIE)?.value ?? null
   const data = await loadCheckoutPage({ token, locale, now })
   if (data.state === 'redirect') {
-    redirect(`${localizedPath('R06', locale)}${cartNoticeSearch(data.notice)}`)
+    redirect(
+      `${localizedPath('R06', locale)}${cartNoticeSearch(data.notice, { itemNumbers: data.itemNumbers })}`,
+    )
   }
   const { checkout, display } = data
   const rawNotice = typeof search.hinweis === 'string' ? search.hinweis : null
@@ -136,6 +138,7 @@ export default async function Page({
             : null
         }
         deliveryLabels={deliveryLabels}
+        pickupAvailable={data.pickupAvailable}
         pickupCity={city}
         district={data.studioDistrict}
         defaults={{
@@ -184,7 +187,8 @@ export default async function Page({
         expired={data.expired}
         paymentRunning={data.paymentRunning}
         notice={notice && notice !== 'cart_changed' ? notice : null}
-        privacyHref={localizedPath('R22', locale)}
+        // R-138: Link direkt auf den Abschnitt „Bestellung“ der Datenschutzerklärung (Anker aus src/lib/legal/anchors.ts)
+        privacyHref={`${localizedPath('R22', locale)}#bestellung`}
         cartHref={localizedPath('R06', locale)}
       />
     </div>

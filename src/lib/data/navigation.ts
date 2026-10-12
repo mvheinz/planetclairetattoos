@@ -3,7 +3,7 @@ import 'server-only'
 import { unstable_cache } from 'next/cache'
 
 import { TAGS } from '@/lib/cache/tags'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicPayload, getPublicSettings } from '@/lib/payload/public'
 import type { Locale } from '@/lib/routes/registry'
 import { pickShopDisplaySettings } from '@/lib/shop/displaySettings'
@@ -76,7 +76,7 @@ export async function loadNavigation(locale: Locale): Promise<SiteNavigation> {
       pickupCity: display.pickupCity,
     }
   } catch (err) {
-    log.warn('navigation.load_failed', { reason: (err as Error).message })
+    log.warn('navigation.load_failed', { reason: errorSummary(err) })
   }
   return result
 }

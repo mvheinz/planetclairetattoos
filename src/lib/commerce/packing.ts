@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { PackagingMaterial, ShippingClass } from '@/lib/enums'
 import { PACKAGING_MATERIALS, SHIPPING_CLASS_RANK } from '@/lib/enums'
+import { formatItemNumber } from '@/lib/products/itemNumber'
 
 import { carrierEmailConsentActive, type AddressOrderLike } from './address'
 
@@ -11,7 +12,15 @@ import { carrierEmailConsentActive, type AddressOrderLike } from './address'
 
 // --- Hinweise ------------------------------------------------------------------------------------------------------
 
-export type PackingHintKey = 'withdrawal' | 'ceramic' | 'insurance' | 'letter' | 'carrierEmail'
+export type PackingHintKey =
+  | 'withdrawal'
+  | 'withdrawalUnassigned'
+  | 'withdrawnItems'
+  | 'refundedItems'
+  | 'ceramic'
+  | 'insurance'
+  | 'letter'
+  | 'carrierEmail'
 
 export interface PackingHint {
   key: PackingHintKey
@@ -29,7 +38,16 @@ export interface PackingOrderLike extends AddressOrderLike {
   statusBeforeWithdrawal?: string | null
   shippingClass?: ShippingClass | null
   subtotalCents: number
-  items?: { shippingClass?: ShippingClass | null }[] | null
+  items?:
+    | {
+        shippingClass?: ShippingClass | null
+        status?: string | null
+        itemNumber?: number | null
+        priceCents?: number | null
+        handedOverAt?: string | null
+      }[]
+    | null
+  timestamps?: { shippedAt?: string | null } | null
 }
 
 /** „500 €“ bei ganzen Euro, sonst „500,50 €“ (Text der Hinweise wie in KONZEPT §7.6). */
@@ -57,28 +75,112 @@ export function withdrawnBeforeShipping(order: PackingOrderLike): boolean {
   )
 }
 
-/** Hinweise der Karte (wörtlich KONZEPT §7.6, R-100, R-101). */
+/**
+ * Stücke der Sendung bzw. Abholung (Packliste, Packzettel, Versandklassen, M06, M07): nach „Versendet“ bzw. „Abgeholt“
+ * die dabei übergebenen (`handedOverAt`, P18.5 – auch wenn sie danach widerrufen oder erstattet wurden, etwa bei
+ * „Erneut senden“), davor nur Positionen `active` – nach einem Teil-Widerruf oder einer Teil-Erstattung vor
+ * Versand/Abholung fehlen die übrigen. Ohne erfasste Übergabe und ohne aktive Position (Bestellung vor P18.5), alle.
+ */
+export function handoverItems<T extends { status?: string | null; handedOverAt?: string | null }>(
+  items: readonly T[],
+): T[] {
+  const handed = items.filter((i) => !!i.handedOverAt)
+  if (handed.length > 0) return handed
+  const active = items.filter((i) => (i.status ?? 'active') === 'active')
+  return active.length > 0 ? active : [...items]
+}
+
+/**
+ * Versandklassen der Sendung (höchste zuerst): nur die Stücke aus `handoverItems` – nach Teil-Widerruf bzw.
+ * Teil-Erstattung vor dem Versand zählt die Klasse der übrigen nicht mehr (Sendungsnummer-Pflicht, Keramik-Packfoto,
+ * Checkliste, Verpackungsvorlage, Versanddienst). Ohne Positionen die Klasse der Bestellung.
+ */
+export function shipmentClassesOf(
+  order: Pick<PackingOrderLike, 'shippingClass' | 'items'>,
+): ShippingClass[] {
+  const items = handoverItems(order.items ?? [])
+  const classes = shippingClassesOf({ shippingClass: null, items })
+  return classes.length > 0 ? classes : shippingClassesOf({ shippingClass: order.shippingClass })
+}
+
+/** Höchste Versandklasse der Sendung (`shipmentClassesOf`), z. B. für Versanddienst und Verpackungsvorlage. */
+export function shipmentClassOf(
+  order: Pick<PackingOrderLike, 'shippingClass' | 'items'>,
+): ShippingClass | null {
+  return shipmentClassesOf(order)[0] ?? null
+}
+
+/** Warenwert der Sendung (Versicherung, Brief): Summe der Stücke aus `handoverItems`, sonst die Zwischensumme. */
+export function shipmentValueCents(
+  order: Pick<PackingOrderLike, 'subtotalCents' | 'items'>,
+): number {
+  const items = handoverItems(order.items ?? [])
+  if (items.length === 0 || items.some((i) => typeof i.priceCents !== 'number')) {
+    return order.subtotalCents
+  }
+  return items.reduce((n, i) => n + (i.priceCents as number), 0)
+}
+
+/** Noch nicht versendet (Packen/Versand offen, auch Rest-Lieferung nach Teil-Erstattung). */
+const beforeShipping = (order: PackingOrderLike) =>
+  ['paid', 'packed', 'partially_refunded'].includes(order.status) && !order.timestamps?.shippedAt
+
+const numbersOf = (order: PackingOrderLike, statuses: readonly string[]) =>
+  (order.items ?? [])
+    .filter((i) => statuses.includes(i.status ?? 'active') && typeof i.itemNumber === 'number')
+    .map((i) => formatItemNumber(i.itemNumber as number, 'de'))
+
+/**
+ * Hinweise der Karte (wörtlich KONZEPT §7.6, R-100, R-101). Teil-Widerruf bzw. Teil-Erstattung vor dem Versand:
+ * „Nicht mehr versenden“ nur an den betroffenen Stücken; Teil-Widerruf nur im Freitext: erst Stücke zuordnen.
+ * Keramik, Warenwert und Brief beziehen sich nur auf die Stücke der Sendung (`shipmentClassesOf`/`shipmentValueCents`).
+ */
 export function packingHints(
   order: PackingOrderLike,
-  options: { insuranceThresholdCents?: number | null } = {},
+  options: { insuranceThresholdCents?: number | null; unassignedWithdrawal?: string | null } = {},
 ): PackingHint[] {
   const threshold = options.insuranceThresholdCents ?? DEFAULT_INSURANCE_THRESHOLD_CENTS
-  const classes = shippingClassesOf(order)
+  const classes = shipmentClassesOf(order)
+  const valueCents = shipmentValueCents(order)
   const hints: PackingHint[] = []
   if (withdrawnBeforeShipping(order)) {
     hints.push({ key: 'withdrawal', text: 'Nicht mehr versenden – Widerruf!', tone: 'error' })
+  } else if (beforeShipping(order)) {
+    if (options.unassignedWithdrawal) {
+      hints.push({
+        key: 'withdrawalUnassigned',
+        text: `Noch nicht versenden – Teil-Widerruf ${options.unassignedWithdrawal}: erst Stücke zuordnen!`,
+        tone: 'error',
+      })
+    }
+    const withdrawn = numbersOf(order, ['withdrawn', 'returned'])
+    if (withdrawn.length > 0) {
+      hints.push({
+        key: 'withdrawnItems',
+        text: `Nicht mehr versenden – Widerruf: ${withdrawn.join(', ')}`,
+        tone: 'error',
+      })
+    }
+    const refunded = numbersOf(order, ['refunded'])
+    if (refunded.length > 0) {
+      hints.push({
+        key: 'refundedItems',
+        text: `Nicht mehr versenden – erstattet: ${refunded.join(', ')}`,
+        tone: 'error',
+      })
+    }
   }
   if (classes.includes('keramik')) {
     hints.push({ key: 'ceramic', text: 'Keramik – Karton in Karton', tone: 'warning' })
   }
-  if (order.subtotalCents > threshold) {
+  if (valueCents > threshold) {
     hints.push({
       key: 'insurance',
       text: `Warenwert > ${euroLabel(threshold)} – Transportversicherung buchen`,
       tone: 'warning',
     })
   }
-  if (order.shippingClass === 'brief' && order.subtotalCents > LETTER_LIABILITY_CENTS) {
+  if (classes[0] === 'brief' && valueCents > LETTER_LIABILITY_CENTS) {
     hints.push({
       key: 'letter',
       text: `Brief über ${euroLabel(LETTER_LIABILITY_CENTS)} – Einschreiben haftet nur bis ${euroLabel(LETTER_LIABILITY_CENTS)}`,
@@ -113,14 +215,17 @@ export interface ChecklistItem {
   done: boolean
 }
 
-/** Checkliste der Bestellung: Punkte je Versandklasse der Stücke plus Punkte für alle Sendungen, ohne Doppelungen. */
+/**
+ * Checkliste der Bestellung: Punkte je Versandklasse der Stücke der Sendung (`shipmentClassesOf`) plus Punkte für alle
+ * Sendungen, ohne Doppelungen.
+ */
 export function packingChecklist(
   order: Pick<PackingOrderLike, 'shippingClass' | 'items'> & { packingChecklistState?: unknown },
   settings: ChecklistSettings,
 ): ChecklistItem[] {
   const state = checklistState(order.packingChecklistState)
   const texts: string[] = []
-  for (const cls of shippingClassesOf(order)) {
+  for (const cls of shipmentClassesOf(order)) {
     const list = (settings.packingChecklists ?? []).find((c) => c.shippingClass === cls)
     for (const item of list?.items ?? []) if (item.text?.trim()) texts.push(item.text.trim())
   }
@@ -213,10 +318,12 @@ export function defaultTemplateFor(
   return packagingTemplates(settings).find((t) => t.key === key) ?? null
 }
 
-/** Erfasste Verpackung der Bestellung oder – noch nicht erfasst – die Vorbelegung aus der Standard-Vorlage. */
+/**
+ * Erfasste Verpackung der Bestellung oder – noch nicht erfasst – die Vorbelegung aus der Standard-Vorlage der
+ * höchsten Versandklasse der Sendung (`shipmentClassOf`).
+ */
 export function packagingForOrder(
-  order: {
-    shippingClass?: ShippingClass | null
+  order: Pick<PackingOrderLike, 'shippingClass' | 'items'> & {
     packaging?: {
       templateKey?: string | null
       templateName?: string | null
@@ -235,7 +342,7 @@ export function packagingForOrder(
       recorded: true,
     }
   }
-  const t = defaultTemplateFor(order.shippingClass, settings)
+  const t = defaultTemplateFor(shipmentClassOf(order), settings)
   return {
     templateKey: t?.key ?? null,
     templateName: t?.name ?? null,

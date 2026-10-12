@@ -17,7 +17,8 @@ import styles from './CartLine.module.css'
 // (`MoneyAmount`), Text-Knopf „Entfernen“ (POST-Formular, ohne JavaScript 303 zurück auf den Korb). Nicht kaufbar →
 // Zeile gedämpft, Hinweis als Text („Reserviert bis 14:30 …“, U-58 b bzw. Stempel-Text „sold“ in `--fox` ≥ 24 px + „Leider schon
 // verkauft“), aus der Summe ausgeschlossen. „Preis wurde aktualisiert“, wenn der DB-Preis vom Preis beim Hinzufügen
-// abweicht (angezeigt wird immer der DB-Preis).
+// abweicht (angezeigt wird immer der DB-Preis). Nur zur Abholung bei ausgeschalteter Abholung (P18.5): gedämpft mit
+// „Gerade nicht bestellbar – Abholung ist im Moment nicht möglich“.
 
 const removeAction = removeFromCart as unknown as (formData: FormData) => Promise<void>
 
@@ -26,12 +27,15 @@ export async function CartLine({
   locale,
   media,
   now = new Date(),
+  reservationMinutes,
 }: {
   line: CartLineData
   locale: Locale
   media: Media | null
   /** Bezugszeit für „reserviert bis …“ (U-58 b). */
   now?: Date
+  /** Reservierungsdauer aus den Einstellungen für „schau in … Minuten nochmal“ (P18.5). */
+  reservationMinutes: number
 }) {
   const t = await getTranslations({ locale, namespace: 'cart' })
   const product = line.product
@@ -57,7 +61,7 @@ export async function CartLine({
       ? t('state.reservedUntilDate', { date: until.date, time: until.time })
       : t('state.reservedUntil', { time: until.time })
     : line.state === 'reserved' || line.state === 'sold' || line.state === 'reserved_by_you'
-      ? t(`state.${line.state}`)
+      ? t(`state.${line.state}`, { minutes: reservationMinutes })
       : null
 
   return (
@@ -91,6 +95,10 @@ export async function CartLine({
             <span className={styles.note} data-cart-line-note="sold">
               {stateNote}
             </span>
+          </p>
+        ) : line.pickupBlocked ? (
+          <p className={styles.note} data-cart-line-note="pickup-blocked">
+            {t('state.pickupBlocked')}
           </p>
         ) : stateNote ? (
           <p className={styles.note} data-cart-line-note={line.state}>

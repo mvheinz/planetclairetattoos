@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { getPublicProductByItemNumber } from '@/lib/data/products'
-import { logger } from '@/lib/monitoring/logger'
+import { errorSummary, logger } from '@/lib/monitoring/logger'
 import { productPath } from '@/lib/shop/format'
 import { SHORT_LINK_HEADERS, parseShortLinkNumber, shortLinkLocale } from '@/lib/shop/shortLink'
 import type { Locale } from '@/lib/routes/registry'
@@ -27,7 +27,7 @@ async function notFoundPage(request: Request, locale: Locale): Promise<Response>
     }
   } catch (err) {
     logger.warn('nr.not_found_page_unavailable', {
-      error: err instanceof Error ? err.message : String(err),
+      error: errorSummary(err),
     })
   }
   return new Response('Not Found', {

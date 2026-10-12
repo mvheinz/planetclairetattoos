@@ -51,6 +51,18 @@ describe('Tattoo-Verwaltung (P7.6–P7.9)', () => {
     expect(TATTOO_TEXT_PAGES.tattoo_aftercare.addable).toContain('aftercareSteps')
   })
 
+  it('P18.5 Foto vom Stand: eigener Hinweis gegen erkennbare Gesichter anderer Menschen', () => {
+    const editor = readFileSync(path.join(DIR, 'TourEditor.tsx'), 'utf8')
+    expect(editor).toContain("hint={tattooText('tourPhotoHint')}")
+    expect(TATTOO_TEXT.tourPhotoHint).toContain(
+      'Bitte ohne erkennbare Gesichter anderer Menschen (Besucher:innen, Nachbarstände) – sonst nur mit deren Einverständnis.',
+    )
+    const book = readFileSync(path.resolve('docs/owner/HANDBUCH.md'), 'utf8').replace(/\s+/g, ' ')
+    expect(book).toContain(
+      'ohne erkennbare Gesichter anderer Menschen (Besucher:innen, Nachbarstände) – sonst nur mit deren Einverständnis.',
+    )
+  })
+
   it('V-25 keine Eingabefelder oder Beschriftungen für Gesundheitsdaten', () => {
     const re = /Allergi|Krankheit|Medikament|Schwanger|Hauterkrank/i
     for (const file of readdirSync(DIR)) {

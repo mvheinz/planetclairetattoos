@@ -43,13 +43,19 @@ import {
 // (gleichartig zur Seed-Kundin „Mara“, SEED-SPEC §6) mit Daten in allen Collections – Bestellungen, Kasse, Beleg (mit
 // PDF), Widerruf, Reklamation (mit Foto), Anfrage (mit Bild), Mail- und Einwilligungs-Protokoll, frühere Datenschutz-
 // Anfrage. Der Export enthält jeden Datensatz (Zählvergleich gegen eigene Abfragen), `daten.json` ist valides JSON,
-// Bilder und PDFs liegen bei, Daten anderer Personen und interne Notizen fehlen. M14 nur an die gespeicherte Adresse;
-// Download-Link ohne Personendaten, nach 7 Tagen 410.
+// Bilder und PDFs liegen bei, Daten anderer Personen und interne Notizen fehlen. Eine Namensvetterin mit anderer
+// E-Mail-Adresse und eine Geschenk-Bestellung, die nur über den Liefernamen passt, sind nur „mögliche Treffer“ und
+// bleiben samt Anhängen draußen, bis Jutta sie bestätigt (LOESCHKONZEPT §5.4 Nr. 2). M14 nur an die gespeicherte
+// Adresse; Download-Link ohne Personendaten, nach 7 Tagen 410.
 
 const NUMBERS = [988, 989]
 const EMAIL = 'mara.auskunft@planetclaire.local'
 const NAME = 'Mara Auskunft'
 const OTHER = 'jonas.dritter@planetclaire.local'
+/** Gleicher Name, andere Person (andere Adresse). */
+const NAMESAKE = 'mara.namensvetterin@planetclaire.local'
+/** Schenkt Mara etwas: Käuferin mit eigener Adresse, Liefername „Mara Auskunft“. */
+const GIFT_BUYER = 'paula.schenk@planetclaire.local'
 const NOW = new Date('2026-10-10T10:00:00.000Z')
 const PHOTO = path.resolve('tests/fixtures/images/landscape-small.jpg')
 
@@ -57,6 +63,9 @@ let payload: Payload
 let restoreBusiness: () => Promise<void>
 let orderA: Order
 let orderB: Order
+let thirdParty: Order
+let namesakeOrder: Order
+let giftOrder: Order
 let request: PrivacyRequest
 const db = () => dbOf(payload)
 
@@ -82,12 +91,26 @@ async function count(query: ReturnType<typeof sql>): Promise<number> {
 
 async function cleanup() {
   await db().execute(
-    sql`DELETE FROM email_log WHERE lower("to") IN (${EMAIL}, ${OTHER}) OR template = 'privacy_access_response'`,
+    sql`DELETE FROM email_log WHERE lower("to") IN (${EMAIL}, ${OTHER}, ${NAMESAKE}, ${GIFT_BUYER})
+      OR template = 'privacy_access_response'`,
   )
-  await db().execute(sql`DELETE FROM consent_log WHERE lower(email) IN (${EMAIL}, ${OTHER})`)
-  await db().execute(sql`DELETE FROM privacy_requests WHERE contact_email IN (${EMAIL}, ${OTHER})`)
-  await db().execute(sql`DELETE FROM inquiries WHERE email IN (${EMAIL}, ${OTHER})`)
+  await db().execute(
+    sql`DELETE FROM consent_log WHERE lower(email) IN (${EMAIL}, ${OTHER}, ${NAMESAKE}, ${GIFT_BUYER})`,
+  )
+  await db().execute(
+    sql`DELETE FROM privacy_requests WHERE contact_email IN (${EMAIL}, ${OTHER}, ${NAMESAKE})`,
+  )
+  await db().execute(sql`DELETE FROM inquiries WHERE email IN (${EMAIL}, ${OTHER}, ${NAMESAKE})`)
 }
+
+async function exportZip(created: { upload: PrivateUpload }) {
+  const bytes = await readStoredFile('private', created.upload.filename!, created.upload.prefix)
+  const zip = unzipSync(new Uint8Array(bytes!))
+  return { zip, data: JSON.parse(strFromU8(zip['daten.json']!)) as PrivacyExportData }
+}
+
+const idsOf = (rows: Record<string, unknown>[]) =>
+  rows.map((r) => Number(r.id)).sort((a, b) => a - b)
 
 async function req(now = NOW) {
   return createLocalReq({ context: { now: now.toISOString() } }, payload)
@@ -133,7 +156,7 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
         paymentMethod: 'prepayment',
       }),
     )) as Order
-    await createOrder(
+    thirdParty = (await createOrder(
       payload,
       orderData(983, [items[1]!], {
         customer: { name: 'Jonas Dritter', email: OTHER },
@@ -145,7 +168,72 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
           country: 'DE',
         },
       }),
-    )
+    )) as Order
+    // Namensvetterin: gleicher Name, andere Adresse – Bestellung und Anfrage
+    namesakeOrder = (await createOrder(
+      payload,
+      orderData(984, [items[0]!], {
+        customer: { name: NAME, email: NAMESAKE },
+        shippingAddress: {
+          name: NAME,
+          addressLine1: 'Fremdgasse 9',
+          postalCode: '80331',
+          city: 'München',
+          country: 'DE',
+        },
+      }),
+    )) as Order
+    await payload.create({
+      collection: 'inquiries',
+      data: {
+        reference: 'AA-2026-0987',
+        name: NAME,
+        email: NAMESAKE,
+        idea: 'Ein Teller mit Möwen für die Namensvetterin.',
+        objectType: 'teller',
+        locale: 'de',
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    // Geschenk: Paula kauft, Mara steht nur im Liefernamen – samt Kasse und Mail an Paula
+    giftOrder = (await createOrder(
+      payload,
+      orderData(985, [items[0]!], {
+        customer: { name: 'Paula Schenk', email: GIFT_BUYER },
+        shippingAddress: {
+          name: NAME,
+          addressLine1: 'Wiesenweg 3',
+          postalCode: '10999',
+          city: 'Berlin',
+          country: 'DE',
+        },
+        billingAddress: {
+          name: 'Paula Schenk',
+          addressLine1: 'Geschenkstraße 5',
+          postalCode: '50667',
+          city: 'Köln',
+          country: 'DE',
+        },
+      }),
+    )) as Order
+    const giftCheckout = checkoutData([items[0]!], {
+      customer: { email: GIFT_BUYER },
+      shippingAddress: {
+        name: NAME,
+        addressLine1: 'Wiesenweg 3',
+        postalCode: '10999',
+        city: 'Berlin',
+        country: 'DE',
+      },
+      order: giftOrder.id,
+    })
+    await payload.create({
+      collection: 'checkouts',
+      data: giftCheckout.data as never,
+      overrideAccess: true,
+      context: { system: true },
+    })
     // Beleg mit PDF
     const r = await createLocalReq({ context: { system: true } }, payload)
     const inv = await inTransaction(r, () =>
@@ -226,6 +314,7 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
       ['prepayment_instructions', EMAIL, orderB.id],
       ['admin_order_placed', 'jutta@planetclaire.local', orderA.id],
       ['order_confirmation', OTHER, null],
+      ['order_confirmation', GIFT_BUYER, giftOrder.id],
     ] as const) {
       await payload.create({
         collection: 'email-log',
@@ -297,14 +386,27 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
   it('R-150 Suche nach E-Mail (ohne Groß-/Kleinschreibung), Bestellnummer oder Name findet dieselben Bestellungen', async () => {
     const r = await req()
     const byMail = await searchPerson(r, { email: '  MARA.auskunft@planetclaire.LOCAL ' })
-    expect(byMail.orders).toEqual([orderA.id, orderB.id].sort((a, b) => a - b))
-    const byName = await searchPerson(r, { name: 'mara   AUSKUNFT' })
-    expect(byName.orders).toEqual(byMail.orders)
-    const byNumber = await searchPerson(r, {
-      orderNumber: String(orderA.orderNumber).toLowerCase(),
-    })
-    expect(byNumber.orders).toEqual([orderA.id])
-    expect(byNumber.invoices).toHaveLength(1)
+    expect(byMail.matches.orders).toEqual([orderA.id, orderB.id].sort((a, b) => a - b))
+    expect(byMail.candidates).toEqual([])
+    // eigene Adresse = gespeicherte Adresse der Anfrage
+    const own = { ownEmails: [' Mara.Auskunft@planetclaire.local'] }
+    const byName = await searchPerson(r, { name: 'mara   AUSKUNFT' }, own)
+    expect(byName.matches.orders).toEqual(byMail.matches.orders)
+    const byNumber = await searchPerson(
+      r,
+      { orderNumber: String(orderA.orderNumber).toLowerCase() },
+      own,
+    )
+    expect(byNumber.matches.orders).toEqual([orderA.id])
+    expect(byNumber.matches.invoices).toHaveLength(1)
+    // ohne bekannte Adresse ist ein Treffer nur über die Bestellnummer bloß ein möglicher Treffer – ohne Anhänge
+    const unknown = await searchPerson(r, { orderNumber: String(orderA.orderNumber) })
+    expect(unknown.matches.orders).toEqual([])
+    expect(unknown.matches.invoices).toEqual([])
+    expect(unknown.matches.files).toEqual([])
+    expect(unknown.candidates).toEqual([
+      { area: 'orders', id: orderA.id, label: orderA.orderNumber, email: EMAIL, confirmed: false },
+    ])
     await expect(searchPerson(r, {})).rejects.toMatchObject({ status: 400 })
   })
 
@@ -383,6 +485,83 @@ describe('DSGVO: Personensuche und Auskunft-Export (P6.17)', () => {
     )
     expect(audit.rows).toHaveLength(1)
     expect(String(audit.rows[0]!.summary)).not.toContain(EMAIL)
+  })
+
+  it('R-150 Namensvetterin und Geschenk-Bestellung (nur Liefername) bleiben ohne Bestätigung samt Anhängen draußen', async () => {
+    const own = [orderA.id, orderB.id].sort((a, b) => a - b)
+    // jede Exportdatei trägt die Uhrzeit im Namen (R-122: nie überschreiben) → je Export eine Minute später
+    const at = (min: number) => new Date(NOW.getTime() + min * 60_000)
+    // Suche wie in der Verwaltung: Adresse der Anfrage plus Name
+    const r1 = await req(at(1))
+    const first = await inTransaction(r1, () =>
+      createPrivacyExport(r1, request.id, { email: EMAIL, name: NAME }, at(1)),
+    )
+    const a = await exportZip(first)
+    expect(idsOf(a.data.data.orders)).toEqual(own)
+    expect(a.data.counts.checkouts).toBe(1)
+    expect(a.data.counts.emailLog).toBe(2)
+    expect(a.data.counts.inquiries).toBe(1)
+    const json = strFromU8(a.zip['daten.json']!)
+    for (const foreign of [
+      NAMESAKE,
+      GIFT_BUYER,
+      'Paula',
+      'Fremdgasse',
+      'Möwen',
+      namesakeOrder.orderNumber,
+      giftOrder.orderNumber,
+    ]) {
+      expect(json, foreign).not.toContain(foreign)
+    }
+    // Verwaltung sieht die möglichen Treffer mit gespeicherter Adresse, nicht angekreuzt; die Kasse der Geschenk-
+    // Bestellung folgt ihrer Bestellung (keine eigene Zeile)
+    const inquiry = await db().execute(sql`SELECT id FROM inquiries WHERE email = ${NAMESAKE}`)
+    expect(
+      [...first.candidates].sort((x, y) => x.area.localeCompare(y.area) || x.id - y.id),
+    ).toEqual([
+      {
+        area: 'inquiries',
+        id: Number(inquiry.rows[0]!.id),
+        label: 'AA-2026-0987',
+        email: NAMESAKE,
+        confirmed: false,
+      },
+      ...[namesakeOrder, giftOrder]
+        .sort((x, y) => x.id - y.id)
+        .map((o) => ({
+          area: 'orders',
+          id: o.id,
+          label: o.orderNumber,
+          email: o.id === giftOrder.id ? GIFT_BUYER : NAMESAKE,
+          confirmed: false,
+        })),
+    ])
+    expect(first.request.matchedOrders).toEqual(own)
+    expect(first.request.matchedInquiries).toHaveLength(1)
+
+    // Jutta bestätigt die Geschenk-Bestellung: sie kommt samt Kasse und Mail-Nachweis dazu, die Namensvetterin nicht;
+    // eine „Bestätigung“ für einen nicht gefundenen Datensatz (fremde Bestellung) bewirkt nichts
+    const r2 = await req(at(2))
+    const second = await inTransaction(r2, () =>
+      createPrivacyExport(r2, request.id, { email: EMAIL, name: NAME }, at(2), {
+        orders: [giftOrder.id, thirdParty.id],
+      }),
+    )
+    const b = await exportZip(second)
+    expect(idsOf(b.data.data.orders)).toEqual([...own, giftOrder.id].sort((x, y) => x - y))
+    expect(b.data.counts.checkouts).toBe(2)
+    expect(b.data.counts.emailLog).toBe(3)
+    const json2 = strFromU8(b.zip['daten.json']!)
+    expect(json2).toContain(GIFT_BUYER)
+    expect(json2).not.toContain(NAMESAKE)
+    expect(json2).not.toContain(OTHER)
+    expect(second.candidates.find((c) => c.id === giftOrder.id)?.confirmed).toBe(true)
+    expect(second.candidates.find((c) => c.id === namesakeOrder.id)?.confirmed).toBe(false)
+    expect(second.request.matchedOrders).toEqual([...own, giftOrder.id].sort((x, y) => x - y))
+
+    // zurück zum Stand ohne Bestätigung (für M14 unten)
+    const r3 = await req(at(3))
+    await inTransaction(r3, () => createPrivacyExport(r3, request.id, { email: EMAIL }, at(3)))
   })
 
   it('R-150 R-137 M14 nur an die gespeicherte Adresse, Link ohne Personendaten, nach 7 Tagen 410', async () => {

@@ -315,7 +315,16 @@ describe('deletion-log (DATENMODELL §6.27, L-18)', () => {
       overrideAccess: true,
     })
 
-  for (const ok of ['L-10', 'L-13 a', 'L-23 d', 'L-05 Stufe C', 'L-04 Stufe 1', 'DSGVO', 'ADMIN']) {
+  for (const ok of [
+    'L-10',
+    'L-13 a',
+    'L-13 i',
+    'L-23 d',
+    'L-05 Stufe C',
+    'L-04 Stufe 1',
+    'DSGVO',
+    'ADMIN',
+  ]) {
     it(`AK-P1.7-04 ruleId „${ok}“ wird akzeptiert`, async () => {
       expect((await create(ok)).ruleId).toBe(ok)
     })
@@ -323,7 +332,7 @@ describe('deletion-log (DATENMODELL §6.27, L-18)', () => {
   for (const bad of [
     'L-1',
     'L-100',
-    'L-13 i',
+    'L-13 j',
     'L-05 Stufe E',
     'l-10',
     'dsgvo',

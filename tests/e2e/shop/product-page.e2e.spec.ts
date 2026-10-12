@@ -198,7 +198,7 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
       'pickup',
     )
     await expect(page.locator('[data-product-price] [data-delivery-time]')).toHaveText(
-      'Abholbereit innerhalb von 2–5 Werktage nach Zahlungseingang, Termin nach Absprache per E-Mail',
+      'Abholbereit: 2–5 Werktage nach Zahlungseingang, Termin nach Absprache per E-Mail',
     )
     await expect(page.locator('[data-product-legal] [data-legal-note]')).toHaveCount(0)
     await expect(page.locator('[data-add-to-cart] button')).toHaveText('In den Korb')

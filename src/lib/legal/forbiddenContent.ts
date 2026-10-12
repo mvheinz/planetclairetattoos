@@ -1,0 +1,96 @@
+import 'server-only'
+
+// Verbotsmuster für Inhalte (RECHT §5, V-xx), soweit sie sich per Textsuche prüfen lassen. Genutzt von den Tests
+// (`tests/helpers/forbiddenPatterns.ts`: Seed, Scan über `src/**` und `content/**`) und beim Zurückspielen der
+// Texte-Liste (U-87, U-89): Ein korrigierter Text mit neuem Treffer wird nicht übernommen.
+
+import { V16_THIRD_PARTY_MARKS } from './forbidden'
+
+export interface ForbiddenPattern {
+  id: string
+  re: RegExp
+}
+
+const p = (id: string, source: string): ForbiddenPattern => ({ id, re: new RegExp(source, 'iu') })
+
+export const FORBIDDEN_CONTENT_PATTERNS: readonly ForbiddenPattern[] = [
+  p('V-01', String.raw`ec\.europa\.eu/consumers/odr|Online-Streitbeilegung|OS-Plattform|\bODR\b`),
+  p(
+    'V-02',
+    String.raw`inkl\.?\s*(MwSt|USt|Mehrwertsteuer|Umsatzsteuer)|zzgl\.?\s*(MwSt|USt)|\bMwSt\b|incl\.?\s*VAT|VAT included`,
+  ),
+  p(
+    'V-04',
+    String.raw`fonts\.googleapis\.com|fonts\.gstatic\.com|use\.typekit\.net|fonts\.bunny\.net|cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com`,
+  ),
+  p(
+    'V-08',
+    String.raw`kein(e|en)?\s+(Widerruf|Umtausch|Rückgabe|Rücknahme)|vom\s+(Umtausch|Widerruf)\s+ausgeschlossen|Rückgabe\s+ausgeschlossen|no\s+returns|final\s+sale`,
+  ),
+  p(
+    'V-10',
+    String.raw`auf\s+(Gefahr|Risiko)\s+(des|der)\s+(Käufer|Kund)|keine\s+Haftung\s+für\s+(Transport|Versand)schäden|Versand\s+auf\s+eigene\s+Gefahr`,
+  ),
+  p('V-12', String.raw`unfrei(e)?\s+(Rück)?sendung.{0,40}(nicht\s+angenommen|verweigert)`),
+  p(
+    'V-14',
+    String.raw`nachhaltig|umweltfreundlich|klimaneutral|CO2-neutral|(?<!\p{L})öko|eco-friendly|sustainable`,
+  ),
+  p(
+    'V-15',
+    String.raw`heilt\s+garantiert|schmerzfrei|allergiefrei|hautfreundlich|medizinisch\s+geprüft`,
+  ),
+  p(
+    'V-17',
+    String.raw`nur\s+noch\s+heute|\d+\s+(Personen|Leute)\s+(sehen|schauen)|Bestseller|Kundenbewertung|★★★★★`,
+  ),
+  p(
+    'V-19',
+    String.raw`14\s*Tage\s*(Widerrufs|Rückgabe)recht|2\s*Jahre\s*Gewährleistung|DSGVO-konform|rechtssicher|abmahnsicher`,
+  ),
+  p('V-21', String.raw`(PayPal|Karten?)-?(Gebühr|Aufschlag)|Zahlungsgebühr`),
+  p('V-24', String.raw`Anzahlung.{0,30}(nicht\s+erstatt|verfällt|einbehalten)|non-?refundable`),
+  p('V-26', String.raw`barrierefrei(e|er|en)?\s+(Shop|Website|Seite)|WCAG-konform|BFSG-konform`),
+  p('V-27', String.raw`mystaelectric`),
+]
+
+/** V-20 Streich-, Rabatt- und „statt“-Preise in Texten. */
+export const V20_TEXT: ForbiddenPattern = p('V-20', String.raw`\bstatt\b|\bUVP\b|\bSale\b|-\d+\s*%`)
+/** V-25 Gesundheitsdaten (Formular-Labels, Texte). */
+export const V25_HEALTH: ForbiddenPattern = p(
+  'V-25',
+  String.raw`Allergi|Krankheit|Medikament|Schwanger|Hauterkrank`,
+)
+/** V-30 Funktionen für „später“ im öffentlichen UI. */
+export const V30_LATER: ForbiddenPattern = p(
+  'V-30',
+  String.raw`Newsletter|Warteliste|Benachrichtige\s+mich|Mein\s+Konto|Registrieren|Gutschein`,
+)
+/** V-16 fremde Figuren und Marken (für Inhalte unter `content/`). */
+export const V16_CONTENT: readonly ForbiddenPattern[] = V16_THIRD_PARTY_MARKS.map((r) => ({
+  id: 'V-16',
+  re: new RegExp(r.pattern.source, 'iu'),
+}))
+
+/** Wohin ein Text gehört: Sprachdateien (`messages`), Inhalte unter `content/`, sonstiger Code. */
+export type ForbiddenTarget = 'messages' | 'content' | 'code'
+
+/** Muster wie im Test über `src/**` und `content/**` (tests/unit/legal/forbidden.unit.spec.ts) – eine Quelle. */
+export function forbiddenPatternsFor(target: ForbiddenTarget): readonly ForbiddenPattern[] {
+  return [
+    ...FORBIDDEN_CONTENT_PATTERNS,
+    ...(target === 'content' ? V16_CONTENT : []),
+    ...(target === 'messages' ? [V20_TEXT, V25_HEALTH, V30_LATER] : []),
+  ]
+}
+
+/** Neue Treffer in `value`, die `original` noch nicht hatte (z. B. ein Text mit freigegebenem Altwortlaut). */
+export function newForbiddenHits(
+  original: string,
+  value: string,
+  target: ForbiddenTarget = 'code',
+): string[] {
+  return forbiddenPatternsFor(target)
+    .filter((f) => f.re.test(value) && !f.re.test(original))
+    .map((f) => f.id)
+}

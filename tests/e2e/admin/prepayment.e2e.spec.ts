@@ -13,8 +13,9 @@ import {
 
 // P5.18 – „Vorkasse offen“ `/vorkasse` (KONZEPT §7.7): Fixture analog O13 (`awaiting_prepayment`, Versand) mit Frist und
 // Erinnerung; „Zahlung erhalten“ (Dialog mit erwartetem Betrag und Verwendungszweck, Abweichung → Warnung) → `paid`,
-// M05 genau einmal; „Stornieren“ mit Grund; Unterliste „Kürzlich automatisch storniert“: „Nachträglich bezahlt“ (O5)
-// bzw. Hinweis „Stück ist schon weg“. Handy 390 px, axe.
+// M05 genau einmal; „Stornieren“ mit Grund; Unterliste „Kürzlich storniert oder widerrufen“: „Nachträglich bezahlt“
+// (O5) bzw. Hinweis „Stück ist schon weg“, nach eigenem Storno nur „Rücküberweisung erledigt“ (P18.5). Handy 390 px,
+// axe.
 
 const DAY = 86_400_000
 
@@ -132,6 +133,14 @@ test('@a11y „Vorkasse offen“: Frist, Zahlung erhalten (M05), Stornieren, Nac
     await expect
       .poll(async () => (await orderStatus(payload, toCancel.id as number)).status)
       .toBe('cancelled')
+    // P18.5: von dir storniert → in der Unterliste nur „Rücküberweisung erledigt“, nie „Nachträglich bezahlt“
+    const cancelledCard = page.locator(
+      `[data-testid="prepayment-cancelled-card"][data-order-number="${toCancel.orderNumber}"]`,
+    )
+    await expect(cancelledCard).toHaveAttribute('data-cancel-reason', 'admin')
+    await expect(cancelledCard.getByTestId('late-refund-only')).toContainText('Von dir storniert')
+    await expect(cancelledCard.getByTestId('late-paid')).toHaveCount(0)
+    await expect(cancelledCard.getByTestId('late-refund-done')).toBeVisible()
 
     // Unterliste: Stück weg → Hinweis; Stück frei → „Nachträglich bezahlt“ (O5)
     const goneCard = page.locator(`[data-order-number="${gone.orderNumber}"]`)

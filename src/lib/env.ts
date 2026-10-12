@@ -3,6 +3,7 @@ import 'server-only'
 import { z } from 'zod'
 
 import { EXAMPLE_PAYLOAD_SECRET, envSchema, type AppEnv } from './env.schema'
+import { SERVICES } from './legal/services.generated'
 
 // Einzige Stelle, an der die App process.env liest (ARCHITEKTUR §5.1, AK-A-5-02).
 
@@ -55,6 +56,69 @@ export function resetEnvCache(): void {
 
 const ADMIN_ROUTE_PROD = /^\/[a-z0-9-]{5,39}$/
 const PROD_SITE_URL = 'https://planetclairetattoos.com'
+
+/** Hostname einer URL (auch `postgres://…`); `null` bei leerem oder unlesbarem Wert. */
+function hostOf(url: string | undefined): string | null {
+  if (!url) return null
+  try {
+    return new URL(url).hostname.toLowerCase() || null
+  } catch {
+    return null
+  }
+}
+
+/** Host-Muster aus DIENSTE §7 (`serverHosts`, z. B. `*.ingest.de.sentry.io`): `*.` steht für mindestens ein Label. */
+export function hostMatchesPattern(host: string, pattern: string): boolean {
+  const p = pattern.toLowerCase()
+  if (!p.startsWith('*.')) return host === p
+  const suffix = p.slice(1)
+  return (
+    host.endsWith(suffix) &&
+    host.length > suffix.length &&
+    !host.slice(0, -suffix.length).endsWith('.')
+  )
+}
+
+function serviceHosts(id: string): readonly string[] {
+  return SERVICES.find((s) => s.id === id)?.serverHosts ?? []
+}
+
+/**
+ * EU-Regionen laut Datenschutzerklärung/DIENSTE (Prüfung P18.5): Sentry nur mit EU-DSN (`*.ingest.de.sentry.io`),
+ * Neon nur in `aws-eu-central-1`. Andere Postgres-Hosts (Docker-Exit-Pfad, ARCHITEKTUR §13) sind erlaubt, brauchen aber
+ * einen neuen Eintrag in DIENSTE.md – daher eine Warnung.
+ */
+function collectRegionViolations(env: Env, errors: string[], warnings: string[]): void {
+  const sentryHost = hostOf(env.SENTRY_DSN)
+  const sentry = serviceHosts('sentry')
+  if (env.SENTRY_DSN && !(sentryHost && sentry.some((p) => hostMatchesPattern(sentryHost, p)))) {
+    errors.push(
+      `SENTRY_DSN muss auf die EU-Region zeigen (${sentry.join(', ')}) – Sentry-Projekt in der Region „EU (Frankfurt)“ anlegen.`,
+    )
+  }
+  const neon = serviceHosts('neon')
+  const urls = [
+    ['DATABASE_URL', env.DATABASE_URL],
+    ['DATABASE_URL_UNPOOLED', env.DATABASE_URL_UNPOOLED],
+  ] as const
+  for (const [name, url] of urls) {
+    if (!url) continue
+    const host = hostOf(url)
+    if (!host) {
+      errors.push(`${name}: Host nicht lesbar.`)
+    } else if (host.endsWith('.neon.tech')) {
+      if (!neon.some((p) => hostMatchesPattern(host, p))) {
+        errors.push(
+          `${name} muss auf die Neon-Region aws-eu-central-1 zeigen (${neon.join(', ')}).`,
+        )
+      }
+    } else {
+      warnings.push(
+        `${name} zeigt nicht auf Neon (${host}) – Datenschutzerklärung und DIENSTE.md (Datenbank-Hosting) anpassen.`,
+      )
+    }
+  }
+}
 
 /**
  * Sammelt alle Verstöße gegen die Start-Regeln (ARCHITEKTUR §4.2/§4.3, T-17).
@@ -127,6 +191,7 @@ export function collectEnvViolations(env: Env): EnvReport {
   if (!/^https:\/\/[a-z0-9-]+\.eu\.r2\.cloudflarestorage\.com\/?$/.test(env.S3_ENDPOINT ?? '')) {
     errors.push('S3_ENDPOINT muss in der EU-Jurisdiktion liegen (*.eu.r2.cloudflarestorage.com).')
   }
+  collectRegionViolations(env, errors, warnings)
   if (env.SEED_PREVIEW_MODE)
     errors.push('SEED_PREVIEW_MODE=true ist in Produktion verboten (R-181).')
   if (env.ART_QA) errors.push('ART_QA ist in Produktion verboten (QA-Seiten, KUNST-QA §3.1).')
@@ -159,6 +224,11 @@ export function artQaActive(env: Env = getEnv()): boolean {
 
 export function isProduction(env: Env = getEnv()): boolean {
   return env.APP_ENV === 'production'
+}
+
+/** Ausgerollte Umgebung (Vorschau, Staging, Produktion) – dort laufen Fehlerausgaben durch die Schwärzung (R-137). */
+export function isDeployedEnv(appEnv: Env['APP_ENV']): boolean {
+  return appEnv === 'preview' || appEnv === 'staging' || appEnv === 'production'
 }
 
 /** `next build` ohne Datenbank (Docker, Spike B-08): `BUILD_WITHOUT_DB=1` und Build-Phase (`NEXT_PHASE`). */

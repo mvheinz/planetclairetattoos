@@ -153,10 +153,10 @@ Lücken in der Nummerierung sind Reserve.
 | R-083 | Abholmail und Übergabe | P5 | int | nein | `tests/int/legal/pickup.int.spec.ts` |
 | R-084 | Weitere Pflichtmails | P4 | unit | nein | `tests/unit/legal/admin-templates.unit.spec.ts`, `tests/unit/legal/p6-mails.unit.spec.ts`, `tests/unit/email/templates/order-confirmation.unit.spec.ts`, `tests/unit/email/templates/oversold-apology.unit.spec.ts` |
 | R-090 | Link „Vertrag widerrufen“ überall | P2, P6 | unit, e2e | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/unit/legal/footer-links.unit.spec.ts`, `tests/unit/legal/mail-withdrawal-link.unit.spec.ts`, `tests/e2e/legal-pages.e2e.spec.ts` |
-| R-091 | Widerrufsfunktion Schritt 1: Erklärung erfassen | P6 | e2e | nein | `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
+| R-091 | Widerrufsfunktion Schritt 1: Erklärung erfassen | P6 | e2e | nein | `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/legal/withdrawal-view.unit.spec.tsx` |
 | R-092 | Widerrufsfunktion Schritt 2: „Widerruf bestätigen“ | P6 | e2e | nein | `tests/unit/legal/constants.unit.spec.ts`, `tests/int/legal/withdrawal-form.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts` |
 | R-093 | Widerruf speichern und sofort bestätigen | P6 | int, e2e | nein | `tests/int/legal/withdrawal.int.spec.ts`, `tests/e2e/legal/withdrawal-flow.e2e.spec.ts`, `tests/unit/email/templates/withdrawal-receipt.unit.spec.ts`, `tests/int/email/logs-admin.int.spec.ts` |
-| R-094 | Widerrufs-Posteingang in der Verwaltung | P6 | int | nein | `tests/int/legal/withdrawal-inbox.int.spec.ts`, `tests/int/collections/withdrawals.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts` |
+| R-094 | Widerrufs-Posteingang in der Verwaltung | P6 | int | nein | `tests/int/legal/withdrawal-inbox.int.spec.ts`, `tests/int/collections/withdrawals.int.spec.ts`, `tests/e2e/admin/withdrawal-inbox.e2e.spec.ts`, `tests/int/orders/partial-delivery.int.spec.ts` |
 | R-095 | Widerrufsbelehrung, Muster-Formular, Rücksendekosten | P6 | unit, manuell | ja | `tests/unit/legal/render-tokens.unit.spec.ts`, `tests/int/legal/legal-texts.int.spec.ts`, `tests/e2e/legal/pages.e2e.spec.ts`, `tests/unit/legal/legal-texts-p12.unit.spec.ts` |
 | R-096 | Kein Widerrufsausschluss im Shop | P3, P6 | unit | nein | `tests/unit/legal/forbidden.unit.spec.ts`, `tests/e2e/legal/forbidden.e2e.spec.ts` |
 | R-100 | Transportrisiko trägt die Verkäuferin | P5 | int | nein | `tests/int/legal/packing-hints.int.spec.ts`, `tests/int/legal/transport-risk.int.spec.ts` |
@@ -318,6 +318,7 @@ Lücken in der Nummerierung sind Reserve.
   | `{{shippingTable}}` | Tabelle aus `settings.shipping.rates` (Zone DE) plus Abholung und Regel „höchste Versandklasse“ |
   | `{{deliveryTime}}` | `settings.shipping.deliveryTimeText` in der Sprache des Inhalts |
   | `{{vorkasseDays}}` | `settings.payment.prepaymentDays` |
+  | `{{reservationMinutes}}` | `settings.payment.reservationMinutes` (ohne Wert der Standard 30 wie bei der Reservierung selbst; P18.5, damit die AGB nie eine feste Minutenzahl nennen) |
   | `{{returnCostsNote}}` | aktiver Baustein `withdrawal.returnCostsNote` (§6) |
 
   Ein unbekanntes oder unersetztes Token ist ein Render-Fehler (Aktivieren gesperrt, öffentliche Seiten zeigen nie
@@ -499,9 +500,13 @@ Lücken in der Nummerierung sind Reserve.
 - **Anforderung:** Der Warenkorb zeigt **vor** dem Button zur Kasse den Baustein `cart.paymentAndDeliveryInfo`:
   akzeptierte Zahlarten (Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung) und
   „Lieferung nur innerhalb Deutschlands; Abholung in Berlin nach Absprache“. Die Produktseite zeigt den Satz zum
-  Liefergebiet in der Nähe von „In den Korb“.
+  Liefergebiet in der Nähe von „In den Korb“. Ist Abholung (`settings.shipping.pickupEnabled`) oder Vorkasse
+  (`settings.payment.prepaymentEnabled`) aus, stünde im Baustein etwas, das gerade nicht angeboten wird: dann zeigt der
+  Korb dieselbe Angabe aus den Einstellungen gebaut – ohne Abhol-Satz bzw. ohne „Vorkasse“ (wie die Fußzeile, U-58 c;
+  P18.5).
 - **Rechtsgrundlage:** § 312j Abs. 1 BGB.
-- **Abnahme:** `e2e` – Warenkorb enthält beide Angaben oberhalb des Kassen-Buttons.
+- **Abnahme:** `e2e` – Warenkorb enthält beide Angaben oberhalb des Kassen-Buttons; mit Abholung aus fehlt der
+  Abhol-Satz (`tests/e2e/cart/pickup-off.e2e.spec.ts`).
 - **Phase:** P4 · **Owner:** nein
 
 ### 4.5 Produktangaben
@@ -709,7 +714,8 @@ Lücken in der Nummerierung sind Reserve.
 #### R-063 · Bestellübersicht unmittelbar vor dem Button
 - **Anforderung:** Direkt oberhalb des Bestell-Buttons (mobil ohne andere Inhalte dazwischen) stehen: je Position
   Miniaturbild, Titel, Objektnummer, wesentliche Eigenschaften (Kategorie, Maße, Material bzw. Faserzusammensetzung,
-  Größe und Zustand bei Textil, Lebensmittelkontakt-Status bei Keramik, Metallteile bei Schmuck, Abweichungstext),
+  „Second-Hand, von Hand bemalt“ (R-043; P18.5), Größe und Zustand bei Textil und Caps, Lebensmittelkontakt-Status bei
+  Keramik, Metallteile bei Schmuck, Abweichungstext),
   Einzelpreis; Versandart und -kosten; **Gesamtpreis** mit Kleinunternehmer-Hinweis; Lieferzeit (R-035);
   Rechnungs-/Lieferadresse bzw. „Abholung in Berlin“; gewählte Zahlart; bei Vorkasse die Zahlungsfrist. Jeder Block
   hat einen „Ändern“-Link, der ohne Datenverlust zum jeweiligen Schritt führt. Darunter Baustein
@@ -952,6 +958,10 @@ Lücken in der Nummerierung sind Reserve.
   Honeypot; großzügiges Rate-Limit von 30 Absendungen je Stunde und IP-Hash (Bucket `withdrawal_submit`,
   ARCHITEKTUR §8.5; der IP-Hash liegt nur im Rate-Limit-Zähler, nie im Widerrufs-Datensatz). Unbekannte
   Bestellnummern werden angenommen (`matchStatus = needs_manual_match`). Link auf die Datenschutzerklärung (R-138).
+  Umsetzungsnotiz (11.10.2026): Stehen Stücke nur im Freitext und ist keins angehakt, gilt der erklärte Teil-Widerruf
+  (§ 133 BGB), nicht der ganze Vertrag – Auswahl und Schritt 2 weisen neutral aufs Anhaken hin (nichts vorab
+  angehakt, Knopf frei), gebucht wird nichts automatisch, Jutta ordnet die Stücke im Posteingang zu (R-094,
+  DATENMODELL §6.11).
 - **Rechtsgrundlage:** § 356a BGB. Kanzlei: K-11.
 - **Abnahme:** `e2e` – Absenden mit unbekannter Bestellnummer funktioniert; „Grund“ leer funktioniert; kein
   CAPTCHA-Element im DOM; alle Checkboxen initial nicht angehakt.
@@ -1412,10 +1422,16 @@ Lücken in der Nummerierung sind Reserve.
   `privacy-requests`. Export als ZIP: `daten.json` (strukturiert, maschinenlesbar – Art. 20), `auskunft.html` (lesbar,
   mit den Angaben nach Art. 15 Abs. 1 lit. a–h aus Bausteinen der Datenschutzerklärung), Kopien der Bilder und PDFs.
   Exportdateien liegen privat (`private-uploads`, Zweck `data_export`) und werden 30 Tage nach Versand der Antwort
-  gelöscht (L-17).
+  gelöscht (L-17). Daten Dritter (P18.5): Datensätze, die nur über Name oder Bestellnummer gefunden wurden und eine
+  andere gespeicherte E-Mail-Adresse als die Anfrage tragen (Namensvetterin, Geschenk-Bestellung), zeigt die Verwaltung
+  als „mögliche Treffer“ mit ihrer Adresse und nicht angekreuztem Kästchen; sie kommen samt allem, was daran hängt, nur
+  nach ausdrücklicher Bestätigung in den Export. Empfänger in `auskunft.html`: Dienste laut DIENSTE §7 plus die
+  Empfänger ohne technische Einbindung aus DIENSTE §3.13 (Apple/Google, Bank, Finanzamt/Steuerberatung).
 - **Rechtsgrundlage:** Art. 12, 15, 20 DSGVO.
 - **Abnahme:** `int` – Seed-Person mit Daten in allen Collections → Export enthält jeden Datensatz (Zählvergleich),
-  JSON valide, Bilder enthalten.
+  JSON valide, Bilder enthalten; Namensvetterin mit anderer Adresse und Geschenk-Bestellung (nur Liefername) bleiben
+  ohne Bestätigung draußen (`tests/int/legal/privacy-export.int.spec.ts`); `unit` – Empfängerliste und Herkunft in
+  `auskunft.html` (`tests/unit/legal/access-report.unit.spec.ts`).
 - **Phase:** P6 · **Owner:** nein
 
 #### R-151 · Löschen und Einschränken mit Aufbewahrungssperre (Art. 17, 18 DSGVO)
@@ -1424,11 +1440,17 @@ Lücken in der Nummerierung sind Reserve.
   {Datum}** (gesetzliche Aufbewahrung: `privacy.processingRestricted = true`, keine weiteren Mails/Verarbeitung,
   nicht erforderliche Felder sofort entfernen – Telefon, Notizen, Packfotos), oder **behalten** (Legal Hold
   `privacy.legalHold` bei Rechtsstreit, Pflicht-Begründung, Art. 17 Abs. 3 lit. e). Unveränderliche Rechnungen bleiben
-  unverändert bis Fristende. Jede Aktion → `deletion-log`.
-  Vorlage für die Antwort-Mail.
+  unverändert bis Fristende. Jede Aktion → `deletion-log`. Bestellungen mit laufendem Vertrag (ohne bzw. mit künftigem
+  `timestamps.finalStatusAt`) bekommen „keine Aktion“ vorgeschlagen, weil „einschränken“ auch Versand- und
+  Erstattungsmails stoppt (P18.5).
+  Vorlage für die Antwort-Mail; sie meldet je Bereich den tatsächlichen Zustand („eingeschränkt“ nur bei echter
+  Einschränkung, sonst „aufbewahrt bis“ bzw. „brauche ich noch“) und den DHL-Widerruf nur, wenn er in diesem Lauf
+  geschah (P18.5).
 - **Rechtsgrundlage:** Art. 17, 18, 19 DSGVO; § 147 AO.
 - **Abnahme:** `int` – Person mit alter und neuer Bestellung: alte (Frist abgelaufen) gelöscht, neue eingeschränkt,
-  Rechnung unverändert, Log-Einträge vorhanden.
+  laufende mit Vorschlag „keine Aktion“, Rechnung unverändert, Log-Einträge vorhanden; M15 ohne Einschränkung und ohne
+  DHL-Widerruf nennt beides nicht; `unit` – `summarizeOutcomes` und M15 mit/ohne DHL-Widerruf
+  (`tests/unit/legal/privacy-erasure.unit.spec.ts`, `tests/unit/legal/p6-mails.unit.spec.ts`).
 - **Phase:** P6 · **Owner:** nein
 
 #### R-152 · Berichtigung, Widerspruch, Widerruf von Einwilligungen
@@ -1507,7 +1529,9 @@ Lücken in der Nummerierung sind Reserve.
   privaten Speicher (`private-uploads`, R-136), Metadaten entfernt (R-135). Benachrichtigung an Jutta
   (`admin_inquiry_received`) nur mit Referenznummer, Gegenstand, Anzahl der Bilder und Admin-Link – **ohne** Namen,
   Freitext, Bilder oder E-Mail-Adresse. Automatische Antwort (`inquiry_receipt`, Baustein `inquiry.autoReply`):
-  Eingang, Referenz, „noch kein Vertrag, keine Zahlung“, Löschung nach 6 Monaten, Link Datenschutz – ohne Bilder.
+  Eingang, Referenz, „noch kein Vertrag, keine Zahlung“, Löschung nach 6 Monaten, Link Datenschutz – ohne Bilder und
+  ohne Freitexte der Anfrage (kein Name in der Anrede, keine Idee, kein Zeitraum, kein Budget; die Adresse ist ungeprüft,
+  P18.5).
   Löschung 6 Monate nach Eingang (LOESCHKONZEPT L-10).
 - **Rechtsgrundlage:** Art. 6 Abs. 1 lit. b, Art. 5 Abs. 1 lit. c, e, Art. 13 DSGVO; E-11. Kanzlei: K-25.
 - **Abnahme:** `e2e` – Absenden mit 5 Bildern klappt, 6. Bild abgelehnt; `int` – `GET /api/inquiries` ohne Admin →
@@ -1819,7 +1843,7 @@ Feste UI-Texte (nicht editierbar, keine Bausteine): „Zahlungspflichtig bestell
 | `price.shippingNote` | Übersicht, Produktseite | ja | „zzgl. Versandkosten“ (als Link) |
 | `price.tattooNote` | Tattoo-Preise (R-034) | ja | „Gesamtpreis · gemäß § 19 UStG wird keine Umsatzsteuer berechnet“ |
 | `delivery.timeShipping` | R-035 | ja | „Lieferzeit: {{deliveryTime}} (bei Vorkasse ab Zahlungseingang)“ |
-| `delivery.timePickup` | R-035 | ja | „Abholbereit innerhalb von {{deliveryTime}} nach Zahlungseingang, Termin nach Absprache per E-Mail“ |
+| `delivery.timePickup` | R-035 | ja | „Abholbereit: {{deliveryTime}} nach Zahlungseingang, Termin nach Absprache per E-Mail“ (P18.5: Doppelpunkt statt „innerhalb von“, weil die Lieferzeit im Nominativ steht, z. B. „2–5 Werktage“) |
 | `cart.paymentAndDeliveryInfo` | Warenkorb (R-036) | ja | „Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache. Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung.“ |
 | `checkout.legalNotice` | Übersicht (R-063) | ja | „Es gelten unsere AGB. Informationen zu deinem Widerrufsrecht findest du in der Widerrufsbelehrung, Hinweise zum Datenschutz in der Datenschutzerklärung.“ |
 | `checkout.dhlEmailConsent` | Kasse (R-101) | ja | „Ich bin einverstanden, dass meine E-Mail-Adresse an DHL (DHL Paket GmbH bzw. Deutsche Post AG) übermittelt wird, damit DHL mich über die Zustellung informieren kann. Ich kann diese Einwilligung jederzeit per E-Mail an jutta@planetclairetattoos.com widerrufen.“ |

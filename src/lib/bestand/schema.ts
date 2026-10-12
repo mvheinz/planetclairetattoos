@@ -28,6 +28,8 @@ export const BESTAND_PHOTO_DIR = 'fotos'
 
 const text = (min = 1) => z.string().trim().min(min)
 const l10nBoth = z.strictObject({ de: text(), en: text() })
+/** Aus Juttas Excel-Liste (U-85) neu eingetragene Texte: Englisch ergänzt Claude danach (U-00). */
+const l10nDe = z.strictObject({ de: text(), en: text().optional() })
 const cm = z
   .number()
   .positive()
@@ -84,6 +86,8 @@ export const bestandProductSchema = z
       )
       .optional(),
     careInstructions: l10nBoth.optional(),
+    /** Schmuck: Material der Metallteile (Pflicht vor dem Veröffentlichen, R-045) – aus der Excel-Liste (U-85). */
+    metalPartsMaterial: l10nDe.optional(),
     blankBrandVisible: z.boolean().optional(),
     foodContact: z.enum(FOOD_CONTACT).optional(),
     smallPartsWarning: z.boolean().optional(),
@@ -94,6 +98,23 @@ export const bestandProductSchema = z
     scalePhoto: photo.optional(),
     /** Prüfpunkte für Jutta (Deutsch): landen als interne Notiz am Stück und in der Prüfliste. */
     review: z.array(text(3)).min(1),
+    /** Juttas Notiz aus der Excel-Liste (U-85): landet zusätzlich in der internen Notiz. */
+    ownerNote: text().max(500).optional(),
+    /**
+     * U-86: auf dem Markt (o. Ä.) verkauft, bevor das Stück online war – aus der Spalte „Verkauft“ der Excel-Liste.
+     * `bestand:import` legt es als verkauft an (Markt-Verkauf, nicht im Shop, nicht im Archiv, Umsatz-Wächter).
+     */
+    sold: z
+      .strictObject({
+        date: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/, 'Datum JJJJ-MM-TT')
+          .optional(),
+        note: text().max(300).optional(),
+        /** Erzielter Preis, falls in der Spalte genannt („35 €“); sonst zählt der Listenpreis. */
+        priceCents: z.number().int().min(1).max(1_000_000).optional(),
+      })
+      .optional(),
   })
   .superRefine((p, ctx) => {
     const issue = (message: string) =>
@@ -107,6 +128,8 @@ export const bestandProductSchema = z
       issue('Keramik braucht foodContact „deko“')
     if (p.category === 'schmuck' && p.smallPartsWarning !== true)
       issue('Schmuck braucht den Kleinteile-Hinweis')
+    if (p.metalPartsMaterial && p.category !== 'schmuck')
+      issue('metalPartsMaterial nur bei Schmuck')
     const textileOnly = [
       'sizeLabel',
       'isSecondHand',

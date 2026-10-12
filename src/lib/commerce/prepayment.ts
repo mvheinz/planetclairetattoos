@@ -14,7 +14,7 @@ import type { ActorType } from '@/lib/enums'
 import { createInvoiceForOrder } from '@/lib/invoices/create'
 import { runInvoicePdfJob } from '@/lib/invoices/issue'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
@@ -23,6 +23,7 @@ import type { Order } from '@/payload-types'
 import { transitionCheckout } from './checkoutTransitions'
 import { createOrderFromCheckout } from './createOrderFromCheckout'
 import { S17_NOTE } from './fulfillCheckout'
+import { paidAfterCancelMessage } from './prepaymentMessages'
 import { intArray, releaseInTransaction } from './reservation'
 import { lockOrder, loadOrder, transitionOrder, updateOrderFields } from './transitionOrder'
 
@@ -61,7 +62,7 @@ type JobId = number | string | null
 async function runMails(payload: Payload, jobs: JobId[], now: Date, event: string): Promise<void> {
   for (const job of jobs) {
     await runEmailJobNow(payload, job, { now }).catch((e: unknown) =>
-      log.error(`${event}.mail_failed`, { error: (e as Error)?.message }),
+      log.error(`${event}.mail_failed`, { error: errorSummary(e) }),
     )
   }
 }
@@ -228,7 +229,7 @@ export async function placePrepaymentOrder(
           // Die Session läuft beim Anbieter ohnehin ab; ein späteres `expired` gibt nichts frei (Quelle `prepayment`).
           log.warn('prepayment.session_expire_failed', {
             orderId: order.id,
-            error: (err as Error)?.message,
+            error: errorSummary(err),
           })
         }
       }
@@ -394,13 +395,16 @@ export async function markPrepaymentPaid(
     const locked = await lockOrder(req, orderId)
     const expected = options.late ? 'cancelled' : 'awaiting_prepayment'
     if (locked.status !== expected) {
-      throw new PrepaymentError('wrong_status', `Die Bestellung ist „${locked.status}“.`)
-    }
-    if (options.late && locked.cancelReason !== 'payment_timeout') {
       throw new PrepaymentError(
         'wrong_status',
-        '„Nachträglich bezahlt“ geht nur nach abgelaufener Zahlungsfrist.',
+        locked.status === 'cancelled'
+          ? paidAfterCancelMessage(locked.cancelReason)
+          : `Die Bestellung ist „${locked.status}“.`,
       )
+    }
+    if (options.late && locked.cancelReason !== 'payment_timeout') {
+      // nach Widerruf bzw. Storno durch Jutta nie wieder aufleben lassen – Geld zurück
+      throw new PrepaymentError('wrong_status', paidAfterCancelMessage(locked.cancelReason))
     }
     const before = await loadOrder(req, orderId)
     const mismatch = amountCents !== before.totalCents
@@ -478,7 +482,7 @@ export async function markPrepaymentPaid(
       await runInvoicePdfJob(payload, tx.invoiceJob, { now }).catch((e: unknown) =>
         log.error('prepayment.invoice_pdf_failed', {
           orderId,
-          error: (e as Error)?.message,
+          error: errorSummary(e),
         }),
       )
       await runMails(payload, [tx.m05], now, 'prepayment.paid')
@@ -578,7 +582,7 @@ export async function sendPrepaymentReminders(
       }
     } catch (err) {
       out.errors += 1
-      log.error('prepayment.reminder_failed', { orderId, error: (err as Error)?.message })
+      log.error('prepayment.reminder_failed', { orderId, error: errorSummary(err) })
     }
   }
   return finishRun(payload, now, out)
@@ -609,7 +613,7 @@ export async function cancelOverduePrepayments(
       await result.afterCommit()
     } catch (err) {
       out.errors += 1
-      log.error('prepayment.cancel_failed', { orderId, error: (err as Error)?.message })
+      log.error('prepayment.cancel_failed', { orderId, error: errorSummary(err) })
     }
   }
   return finishRun(payload, now, out)

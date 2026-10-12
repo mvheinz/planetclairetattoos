@@ -11,7 +11,7 @@ import {
   type LegalTextStatus,
   type Locale,
 } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 import { LEGAL_TOKENS } from './tokens'
 import { LEGAL_SNIPPET_SEED, SNIPPET_PLACEHOLDER_TEXT } from './snippetSeed'
@@ -232,7 +232,7 @@ export async function initLegalSnippets(payload: Payload): Promise<void> {
   try {
     await loadLegalSnippets(payload)
   } catch (err) {
-    log.warn('legal.snippets_load_failed', { reason: (err as Error)?.message })
+    log.warn('legal.snippets_load_failed', { reason: errorSummary(err) })
   }
 }
 
@@ -253,7 +253,7 @@ function refreshInBackground(): void {
   if (performance.now() - cache.loadedAt < SNIPPET_CACHE_TTL_MS) return
   refreshing = loadLegalSnippets(cachePayload)
     .catch((err: unknown) =>
-      log.warn('legal.snippets_refresh_failed', { reason: (err as Error)?.message }),
+      log.warn('legal.snippets_refresh_failed', { reason: errorSummary(err) }),
     )
     .finally(() => {
       refreshing = null

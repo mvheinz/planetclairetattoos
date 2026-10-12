@@ -58,6 +58,22 @@ describe('M08 withdrawal_receipt', () => {
     const unpaid = await render('de', { ...WITHDRAWAL_RECEIPT_FIXTURE, unpaidOrderCancelled: true })
     expect(unpaid.text).toContain('Deine Bestellung ist damit storniert. Bitte nichts überweisen.')
     expect(unpaid.text).not.toContain('Bitte sende die Ware an')
+    // schon überwiesenes Geld kommt bis zur Erstattungsfrist zurück (§ 357 Abs. 1 BGB, P18.5)
+    expect(unpaid.text).toContain(
+      'Hast du schon überwiesen, bekommst du das Geld spätestens 14 Tage nach Eingang deines Widerrufs (bis 26.10.2026) zurück, auf das Konto, von dem es kam.',
+    )
+    expect(unpaid.text).toContain('per E-Mail deine Bankverbindung')
+    expect(rawTokens(unpaid)).toEqual([])
+    const unpaidEn = await render('en', {
+      ...WITHDRAWAL_RECEIPT_FIXTURE,
+      unpaidOrderCancelled: true,
+    })
+    expect(unpaidEn.text).toContain('Please do not transfer any money.')
+    expect(unpaidEn.text).toContain(
+      "If you have already transferred it, you'll get the money back no later than 14 days after I received your withdrawal (by 26 Oct 2026), to the account it came from.",
+    )
+    expect(unpaidEn.text).toContain('email me your bank details')
+    expect(rawTokens(unpaidEn)).toEqual([])
     const whole = await render('de', { ...WITHDRAWAL_RECEIPT_FIXTURE, items: [], itemsText: null })
     expect(whole.text).toContain('der ganze Vertrag')
   })

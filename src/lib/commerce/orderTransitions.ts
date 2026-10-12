@@ -32,7 +32,7 @@ export const ORDER_TRANSITIONS: Readonly<Record<OrderStatus, readonly OrderStatu
   picked_up: ['withdrawal_received', 'refunded', 'partially_refunded', 'disputed'], // O11, O15, O16
   withdrawal_received: ['return_received', 'refunded', 'partially_refunded', 'disputed'], // + O20
   return_received: ['refunded', 'partially_refunded', 'disputed'], // O13, O14, O16
-  partially_refunded: ['refunded', 'disputed'], // O21, O16
+  partially_refunded: ['refunded', 'disputed'], // O21, O16; + O6–O10 Rest-Lieferung (restDeliveryAllowed)
   refunded: [],
   disputed: ['refunded'], // O18; + O17 → statusBeforeDispute
 }
@@ -73,6 +73,13 @@ export interface OrderTransitionFacts {
   statusBeforeDispute?: OrderStatus | null
   statusBeforeWithdrawal?: OrderStatus | null
   cancelReason?: OrderCancelReason | null
+  /** Positionen mit `status = active` (Rest-Lieferung aus `partially_refunded`, siehe `restDeliveryAllowed`). */
+  activeItemCount?: number | null
+  /** Bisherige Liefer-Zeitstempel (`timestamps.*`) – nur für die Rest-Lieferung. */
+  shippedAt?: string | null
+  deliveredAt?: string | null
+  readyForPickupAt?: string | null
+  pickedUpAt?: string | null
 }
 
 const BEFORE_FULFILMENT_END = new Set<OrderStatus>([
@@ -103,8 +110,65 @@ function tableId(from: OrderStatus, to: OrderStatus): OrderTransitionId {
 }
 
 /**
+ * Rest-Lieferung nach einer Teil-Erstattung (Bruch, Kulanz, erstatteter Teil-Widerruf; DATENMODELL §6.8.5
+ * Umsetzungsnotiz, KONZEPT §5.3): aus `partially_refunded` gehen O6–O10 wie aus `paid`, `ready_for_pickup` bzw.
+ * `shipped` – nur solange noch mindestens eine Position `active` ist und nichts abgeholt wurde. „Gepackt“, „Versendet“
+ * und „Bereit zur Abholung“ nur vor Versand und Abholbereitschaft, „Abgeholt“ nur nach „abholbereit“, „Zugestellt“ nur
+ * nach dem Versand (Teil-Erstattung während des Transports) und nur einmal.
+ */
+export function restDeliveryAllowed(to: OrderStatus, facts: OrderTransitionFacts = {}): boolean {
+  if ((facts.activeItemCount ?? 0) < 1 || facts.pickedUpAt) return false
+  switch (to) {
+    case 'packed':
+    case 'shipped':
+    case 'ready_for_pickup':
+      return !facts.shippedAt && !facts.readyForPickupAt
+    case 'picked_up':
+      return !facts.shippedAt && !!facts.readyForPickupAt
+    case 'delivered':
+      return !!facts.shippedAt && !facts.deliveredAt
+    default:
+      return false
+  }
+}
+
+/** Angaben für `restDeliveryAllowed` aus einer geladenen Bestellung (Positionen und Zeitstempel). */
+export function deliveryFacts(order: {
+  items?: readonly { status?: string | null }[] | null
+  timestamps?: {
+    shippedAt?: string | null
+    deliveredAt?: string | null
+    readyForPickupAt?: string | null
+    pickedUpAt?: string | null
+  } | null
+}): OrderTransitionFacts {
+  const t = order.timestamps ?? {}
+  return {
+    activeItemCount: (order.items ?? []).filter((i) => (i.status ?? 'active') === 'active').length,
+    shippedAt: t.shippedAt ?? null,
+    deliveredAt: t.deliveredAt ?? null,
+    readyForPickupAt: t.readyForPickupAt ?? null,
+    pickedUpAt: t.pickedUpAt ?? null,
+  }
+}
+
+type DeliveryOrder = Parameters<typeof deliveryFacts>[0]
+
+/** Rest-Lieferung (`partially_refunded`) steht noch aus: „Versendet melden“ geht noch („Zu packen“, „Heute“). */
+export function restShipmentPending(order: DeliveryOrder): boolean {
+  return restDeliveryAllowed('shipped', deliveryFacts(order))
+}
+
+/** Rest-Abholung (`partially_refunded`) steht noch aus: „Bereit zur Abholung“ bzw. „Abgeholt“ („Abholung“, „Heute“). */
+export function restPickupPending(order: DeliveryOrder): boolean {
+  const facts = deliveryFacts(order)
+  return restDeliveryAllowed('ready_for_pickup', facts) || restDeliveryAllowed('picked_up', facts)
+}
+
+/**
  * Übergangs-ID für `from → to` oder eine deutsche Begründung, warum der Wechsel nicht erlaubt ist. O17 (Anfechtung
- * gewonnen) und O20 (Widerruf ohne Erstattung) springen auf den gemerkten Vorstatus zurück.
+ * gewonnen) und O20 (Widerruf ohne Erstattung) springen auf den gemerkten Vorstatus zurück; aus `partially_refunded`
+ * gehen O6–O10 unter den Bedingungen von `restDeliveryAllowed`.
  */
 export function evaluateOrderTransition(
   from: OrderStatus,
@@ -119,6 +183,9 @@ export function evaluateOrderTransition(
           '„Nachträglich bezahlt“ geht nur bei Bestellungen, die wegen abgelaufener Zahlungsfrist storniert wurden.',
       }
     }
+    return { ok: true, id: tableId(from, to) }
+  }
+  if (from === 'partially_refunded' && restDeliveryAllowed(to, facts)) {
     return { ok: true, id: tableId(from, to) }
   }
   if (from === 'disputed' && facts.statusBeforeDispute && to === facts.statusBeforeDispute) {

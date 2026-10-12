@@ -11,7 +11,8 @@ import { loadPrepaymentList, type PrepaymentCard } from './prepaymentQuery'
 
 // Ansicht „Vorkasse offen“ `/vorkasse` (PLAN P5.18, KONZEPT §7.7): `awaiting_prepayment`, Fälligste zuerst, mit
 // Bestellnummer (= Verwendungszweck), Betrag, Bestelldatum, „noch X Tage bis Storno“ (am letzten Tag rot) und
-// „Erinnerung verschickt“. Darunter „Kürzlich automatisch storniert (30 Tage)“ mit „Nachträglich bezahlt“ (O5).
+// „Erinnerung verschickt“. Darunter „Kürzlich storniert oder widerrufen (30 Tage)“ mit „Nachträglich bezahlt“ (O5) bzw.
+// – nach Widerruf oder Storno durch Jutta – nur „Rücküberweisung erledigt“ (P18.5).
 
 function Deadline({ card }: { card: PrepaymentCard }) {
   if (card.daysLeft < 0) {
@@ -105,6 +106,7 @@ export async function PrepaymentListView({ adminRoute, req }: AdminViewBodyProps
                 data-testid="prepayment-cancelled-card"
                 data-order-number={card.orderNumber}
                 data-all-available={card.allAvailable ? 'true' : 'false'}
+                data-cancel-reason={card.cancelReason}
               >
                 <h3 className="pc-order__cardtitle">
                   <a href={`${adminRoute}/bestellungen/${card.id}`} className="pc-admin-link">
@@ -130,6 +132,8 @@ export async function PrepaymentListView({ adminRoute, req }: AdminViewBodyProps
                   orderId={card.id}
                   orderNumber={card.orderNumber}
                   allAvailable={card.allAvailable}
+                  cancelReason={card.cancelReason}
+                  refundDueDate={card.refundDueDate}
                   refundNoted={card.refundNoted}
                   templatesHref={templatesHref}
                 />

@@ -8,7 +8,8 @@ import { PickupActions } from './PickupActions'
 
 // Ansicht „Abholung“ `/abholung` (PLAN P5.17, KONZEPT §7.9): bezahlte Abholbestellungen und `ready_for_pickup` mit
 // Wartetagen (mehr als 14 Tage markiert). „Bereit zur Abholung“ mit vorbelegtem, editierbarem Abholtext (O8, M07),
-// „Abgeholt“ (O9, Beginn von Widerrufsfrist und Gewährleistung).
+// „Abgeholt“ (O9, Beginn von Widerrufsfrist und Gewährleistung). Nach Teil-Widerruf bzw. Teil-Erstattung vor der
+// Abholung nur die Stücke, die übergeben werden, und rot die übrigen; Teil-Widerruf nur im Freitext sperrt die Knöpfe.
 
 export async function PickupListView({ adminRoute, req }: AdminViewBodyProps) {
   const cards = await loadPickupList(req, new Date())
@@ -61,13 +62,24 @@ export async function PickupListView({ adminRoute, req }: AdminViewBodyProps) {
                 </li>
               ))}
             </ul>
-            <PickupActions
-              orderId={card.id}
-              orderNumber={card.orderNumber}
-              status={card.status}
-              template={card.template}
-              messageText={card.messageText}
-            />
+            {card.warnings.length > 0 ? (
+              <ul className="pc-order__hints" data-testid="pickup-warnings">
+                {card.warnings.map((text) => (
+                  <li key={text}>
+                    <StatusBadge tone="error">{text}</StatusBadge>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {card.blocked ? null : (
+              <PickupActions
+                orderId={card.id}
+                orderNumber={card.orderNumber}
+                step={card.step}
+                template={card.template}
+                messageText={card.messageText}
+              />
+            )}
           </li>
         ))}
       </ul>

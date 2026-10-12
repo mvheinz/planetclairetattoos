@@ -278,6 +278,21 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
     await expect(trigger).toBeFocused()
   })
 
+  test('U-78 (P17.1): Koko ist wach – die Datei zeigt den Tag (SEED_NOW 12 Uhr), auch wenn sie nachts erzeugt wurde', async ({
+    page,
+  }) => {
+    const report = PreviewReportSchema.parse(JSON.parse(readFileSync(REPORT, 'utf8')))
+    expect(report.seedNow).toMatch(/T12:00:00[+-]\d{2}:00$/)
+    for (const lang of LOCALES) {
+      await open(page, `#/${lang}`)
+      const koko = page.locator('#pv-root [data-chairwoman]')
+      await expect(koko).toHaveCount(1)
+      await expect(koko).not.toHaveAttribute('data-koko-sleep')
+      await expect(koko.locator('[data-koko-pupil]')).toHaveCount(2)
+      await expect(koko.locator('[data-koko-lid]')).toHaveCount(0)
+    }
+  })
+
   test('P3.10 Produktgalerie: Pfeiltaste, Lightbox mit eingebettetem Foto, Esc – ohne Anfragen', async ({
     page,
     watch,

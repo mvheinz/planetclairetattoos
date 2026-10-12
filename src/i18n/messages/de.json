@@ -139,7 +139,7 @@
     "chairwomanAltAsleep": "Koko, Vorsitzende der Goth Dogs Berlin: Kopf und Brust eines zotteligen schwarzen Hundes mit Narrenkappe, grünen Bommeln und spitzem Fellkragen, darunter orangefarbene Brust mit weißem Fleck; die Augen sind zu – nachts schläft Koko",
     "instagramLabel": "Planet Claire auf Instagram: @{handle}",
     "tour": {
-      "heading": "Planet Claire on Tour",
+      "heading": "on Tour",
       "intro": "Manchmal verlasse ich meinen Planeten und stelle einen Tisch auf – auf Floh-, Kunst- und Hinterhofmärkten, zwischen fremden Stimmen und Tüten voller Zeug.",
       "empty": "Gerade ruht mein Tisch im Schrank. Neue Termine erscheinen hier.",
       "pastSummary": "Wo ich schon war ({count})",
@@ -282,17 +282,20 @@
     "edit": "Ändern",
     "selectIntro": "Deine Bestellung habe ich gefunden. Wenn du nur einzelne Stücke widerrufen willst, hake sie an.",
     "selectWhole": "Hakst du nichts an, gilt der Widerruf für den ganzen Vertrag.",
+    "selectFromText": "Du hast oben Stücke genannt. Hake sie hier an, dann ist klar, welche du meinst. Hakst du nichts an, ordne ich die Stücke anhand deiner Angabe zu.",
     "selectLegend": "Stücke aus deiner Bestellung",
     "confirmIntro": "Bitte prüf deine Angaben. Erst mit dem Knopf unten ist dein Widerruf abgegeben.",
     "summaryItems": "Widerrufene Stücke",
     "summaryWhole": "Ganzer Vertrag",
+    "summaryFromText": "Die Stücke aus deiner Angabe (siehe unten)",
+    "confirmFromText": "Du hast Stücke genannt, aber keins angehakt. Wenn du sie über „Ändern“ anhakst, ist eindeutig, welche du meinst. Sonst ordne ich die Stücke anhand deiner Angabe zu – dein Widerruf gilt dann für diese Stücke.",
     "summaryEmpty": "–",
     "receivedAt": "Eingegangen am",
     "reference": "Vorgangsnummer",
     "mailNote": "Eine Bestätigung ist per E-Mail unterwegs.",
     "printNote": "Du kannst diese Seite drucken oder als PDF sichern.",
     "print": "Drucken / als PDF sichern",
-    "unpaidCancelled": "Deine noch nicht bezahlte Bestellung ist damit storniert – du musst nichts überweisen.",
+    "unpaidCancelled": "Deine noch nicht bezahlte Bestellung ist damit storniert – du musst nichts überweisen. Hast du schon überwiesen, bekommst du das Geld spätestens 14 Tage nach Eingang deines Widerrufs zurück, auf das Konto, von dem es kam. Soll es auf ein anderes Konto gehen, schick mir kurz per E-Mail deine Bankverbindung.",
     "spamDone": "Danke, deine Angaben sind angekommen.",
     "again": "Weiteren Widerruf erklären",
     "errorSummary": "Bitte prüf deine Angaben:",
@@ -345,7 +348,7 @@
       "decorative": "Deko – nicht für Lebensmittel",
       "foodSafe": "Lebensmittelecht – Konformitätserklärung ansehen",
       "reserved": "reserviert",
-      "reservedLong": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "reservedLong": "Gerade reserviert – schau in {minutes} Minuten nochmal",
       "secondHand": "Second-Hand / Vintage",
       "smallParts": "Kein Spielzeug – verschluckbare Kleinteile"
     },
@@ -358,6 +361,7 @@
       "factsLabel": "Kurzdaten",
       "detailsLabel": "Angaben zum Stück",
       "addToCart": "In den Korb",
+      "pickupBlocked": "Gerade nicht bestellbar – Abholung ist im Moment nicht möglich. Schreib mir gern, wenn du das Stück haben möchtest.",
       "inCart": "Liegt schon in deinem Korb",
       "toCart": "Zum Korb",
       "added": "Liegt im Korb",
@@ -368,6 +372,7 @@
         "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
         "shop_closed": "Der Shop schläft gerade – in den Korb legen ist im Moment nicht möglich.",
         "product_unavailable": "Dieses Stück ist gerade nicht mehr zu haben.",
+        "pickup_disabled": "Gerade nicht bestellbar – Abholung ist im Moment nicht möglich.",
         "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal."
       },
       "soldText": "Schon verkauft",
@@ -498,7 +503,7 @@
     "nextShipping": "Ich packe dein Stück in den nächsten Tagen sorgfältig ein und schreibe dir, sobald es sich auf den Weg macht.",
     "nextPickup": "Ich melde mich bei dir wegen der Abholung.",
     "nextPrepayment": "Bitte überweise den Betrag bis {date}. Bis dahin ist alles für dich reserviert. Sobald das Geld da ist, bekommst du eine Mail mit der Rechnung.",
-    "nextOther": "Den aktuellen Stand siehst du jederzeit im Bestellstatus.",
+    "nextOther": "Den aktuellen Stand siehst du im Bestellstatus.",
     "mailHint": "Eine Bestätigung mit allen Angaben ist per Mail zu dir unterwegs.",
     "statusLink": "Bestellstatus ansehen",
     "goneTitle": "Leider schon weg",
@@ -554,7 +559,7 @@
   },
   "cart": {
     "notes": {
-      "reserved": "{items} {count, plural, one {ist} other {sind}} gerade reserviert – schau in 30 Minuten nochmal.",
+      "reserved": "{items} {count, plural, one {ist} other {sind}} gerade reserviert – schau in {minutes} Minuten nochmal.",
       "unavailable": "{items} {count, plural, one {ist} other {sind}} leider schon verkauft.",
       "too_many": "Höchstens {max} Stücke pro Bestellung.",
       "shop_closed": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
@@ -562,6 +567,7 @@
       "empty": "Noch liegt nichts in deinem Korb.",
       "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
       "pickup_only": "{items} gibt es nur zur Abholung.",
+      "pickup_disabled": "{count, plural, =0 {Abholung ist im Moment nicht möglich – ich schicke dir deine Stücke gern zu.} one {{items} gibt es nur zur Abholung, und Abholung ist im Moment nicht möglich. Nimm das Stück bitte aus dem Korb.} other {{items} gibt es nur zur Abholung, und Abholung ist im Moment nicht möglich. Nimm die Stücke bitte aus dem Korb.}}",
       "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
       "invalid": "Das hat nicht geklappt. Bitte lade die Seite neu und versuch es noch einmal.",
       "checkout_ended": "Diese Kasse ist nicht mehr offen. Du kannst sie hier neu starten.",
@@ -575,12 +581,13 @@
     "remove": "Entfernen",
     "removeLabel": "{title} aus dem Korb entfernen",
     "state": {
-      "reserved": "Gerade reserviert – schau in 30 Minuten nochmal",
+      "reserved": "Gerade reserviert – schau in {minutes} Minuten nochmal",
       "sold": "Leider schon verkauft",
       "reserved_by_you": "Liegt für dich in der Kasse bereit",
       "priceChanged": "Preis wurde aktualisiert",
       "reservedUntil": "Reserviert bis {time} Uhr – danach wird es vielleicht wieder frei",
-      "reservedUntilDate": "Reserviert bis {date}, {time} Uhr – danach wird es vielleicht wieder frei"
+      "reservedUntilDate": "Reserviert bis {date}, {time} Uhr – danach wird es vielleicht wieder frei",
+      "pickupBlocked": "Gerade nicht bestellbar – Abholung ist im Moment nicht möglich"
     },
     "soldStamp": "sold",
     "unknownTitle": "Stück {number}",
@@ -595,9 +602,18 @@
     "total": "Gesamt",
     "shippingUnknown": "wird noch berechnet",
     "paymentMethods": "Karte · Apple Pay · Google Pay · PayPal · Vorkasse",
+    "paymentMethodsNoPrepayment": "Karte · Apple Pay · Google Pay · PayPal",
+    "shippingNoPickup": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Schreib mir bitte.",
+    "info": {
+      "delivery": "Wir liefern nur innerhalb Deutschlands.",
+      "pickup": "Abholung in {city} nach Absprache.",
+      "payment": "Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung.",
+      "paymentNoPrepayment": "Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal."
+    },
     "toCheckout": "Zur Kasse",
     "blocked": {
       "unavailable": "Entferne bitte zuerst die Stücke, die gerade nicht zu haben sind.",
+      "pickup_disabled": "{items} gibt es nur zur Abholung, und Abholung ist im Moment nicht möglich. Nimm {count, plural, one {das Stück} other {die Stücke}} bitte aus dem Korb.",
       "shop_closed": "Der Shop schläft gerade – bestellen ist im Moment nicht möglich.",
       "too_many": "Höchstens {max} Stücke pro Bestellung.",
       "shipping": "Der Versand für diesen Korb lässt sich gerade nicht berechnen. Wähl bitte Abholung oder schreib mir.",
@@ -738,6 +754,7 @@
         "invalid": "Bitte prüf deine Angaben.",
         "deviation_missing": "Bitte bestätige die Besonderheit bei jedem markierten Stück.",
         "prepayment_disabled": "Vorkasse ist gerade nicht verfügbar.",
+        "pickup_disabled": "Abholung ist im Moment nicht möglich. Starte die Kasse bitte im Korb neu – dann mit Versand.",
         "legal_missing": "Bestellen geht gerade nicht. Bitte versuch es später noch einmal.",
         "not_orderable_in_country": "Ein Stück in deinem Korb kann nicht in dieses Land geliefert werden.",
         "rate_limited": "Das ging gerade zu schnell. Bitte versuch es in ein paar Minuten noch einmal.",
@@ -763,7 +780,10 @@
       "agb": "AGB",
       "widerrufsbelehrung": "Widerrufsbelehrung",
       "datenschutz": "Datenschutzerklärung",
-      "unavailable": "Der Text ist gerade nicht verfügbar. Du findest ihn auch auf der eigenen Seite."
+      "unavailable": "Der Text ist gerade nicht verfügbar. Du findest ihn auch auf der eigenen Seite.",
+      "form": "Muster-Widerrufsformular",
+      "formUnavailable": "Das Muster-Widerrufsformular ist gerade nicht verfügbar. Du findest es auch auf der Seite zur Widerrufsbelehrung.",
+      "fullPage": "Widerrufsbelehrung und Formular als eigene Seite öffnen (neuer Tab)"
     },
     "legalLinks": {
       "agb": "AGB",
@@ -817,7 +837,7 @@
       "dhlConsent": "Du hast eingewilligt, dass ich deine E-Mail-Adresse an DHL weitergebe, damit DHL dich über die Zustellung informieren kann. Du kannst diese Einwilligung jederzeit widerrufen – eine kurze Mail an {email} genügt.",
       "unavailableHeading": "Leider schon weg",
       "unavailableLine": "Leider schon weg: {item} – erstattet: {amount}",
-      "statusLink": "Deine Bestellung kannst du jederzeit hier ansehen:",
+      "statusLink": "Den Stand deiner Bestellung siehst du hier:",
       "statusLinkLabel": "Bestellstatus",
       "privacyLink": "Wie ich mit deinen Daten umgehe, steht in der Datenschutzerklärung:",
       "privacyLinkLabel": "Datenschutzerklärung",
@@ -877,9 +897,7 @@
       "introOne": "es tut mir wirklich leid: Jemand war ein paar Sekunden schneller. Dein Stück war schon verkauft, als deine Zahlung ankam.",
       "introMany": "es tut mir wirklich leid: Jemand war ein paar Sekunden schneller. Deine Stücke waren schon verkauft, als deine Zahlung ankam.",
       "refund": "Den vollen Betrag von {amount} habe ich dir erstattet – über dasselbe Zahlungsmittel, mit dem du bezahlt hast. Je nach Bank dauert es meist 5–10 Werktage, bis du das Geld siehst.",
-      "noContract": "Für diese Bestellung bekommst du keine Rechnung, und du musst nichts weiter tun.",
-      "shop": "Hier geht es zurück zum Shop:",
-      "shopLabel": "Shop"
+      "noContract": "Für diese Bestellung bekommst du keine Rechnung, und du musst nichts weiter tun."
     },
     "orderShipped": {
       "subject": "Dein Paket ist unterwegs – {orderNumber}",
@@ -919,7 +937,7 @@
       "nextHeading": "So geht es weiter",
       "returnAddress": "Bitte sende die Ware an: {address}",
       "refund": "Die Erstattung bekommst du über dasselbe Zahlungsmittel, mit dem du bezahlt hast – spätestens 14 Tage nach Eingang deines Widerrufs (bis {date}). Ich darf sie zurückhalten, bis die Ware wieder bei mir ist oder du nachweist, dass du sie abgeschickt hast.",
-      "unpaidCancelled": "Deine Bestellung ist damit storniert. Bitte nichts überweisen.",
+      "unpaidCancelled": "Deine Bestellung ist damit storniert. Bitte nichts überweisen. Hast du schon überwiesen, bekommst du das Geld spätestens 14 Tage nach Eingang deines Widerrufs (bis {date}) zurück, auf das Konto, von dem es kam. Soll es auf ein anderes Konto gehen, schick mir kurz per E-Mail deine Bankverbindung.",
       "keep": "Bitte bewahre diese E-Mail auf – sie ist dein Nachweis für den Eingang."
     },
     "refundConfirmation": {
@@ -991,9 +1009,12 @@
       "deleted": "{area}: gelöscht",
       "restricted": "{area}: eingeschränkt bis {date} wegen gesetzlicher Aufbewahrungspflichten, danach automatisch gelöscht bzw. anonymisiert",
       "kept": "{area}: aufbewahrt bis {date}, weil die Daten zur Geltendmachung oder Abwehr von Rechtsansprüchen nötig sind (Art. 17 Abs. 3 lit. e DSGVO)",
+      "inUse": "{area}: aufbewahrt bis {date} wegen gesetzlicher Aufbewahrungspflichten, danach automatisch gelöscht bzw. anonymisiert",
+      "inUseOpen": "{area}: brauche ich noch, um deine Bestellung abzuwickeln (zum Beispiel Versand, Zahlung oder Erstattung); danach bewahre ich sie nur so lange auf, wie Handels- und Steuerrecht es verlangen, und lösche bzw. anonymisiere sie dann automatisch",
       "unchanged": "{area}: unverändert – Rechnungen und Gutschriften muss ich nach Steuerrecht bis {date} aufbewahren, danach werden sie anonymisiert",
       "restrictedMeaning": "„Eingeschränkt“ heißt: Ich nutze diese Daten nur noch, um gesetzliche Pflichten zu erfüllen, und schicke dir dazu keine Mails mehr.",
-      "recipients": "Falls du der Weitergabe deiner E-Mail-Adresse an DHL zugestimmt hattest, ist diese Einwilligung widerrufen. Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
+      "carrierConsentWithdrawn": "Deine Einwilligung zur Weitergabe deiner E-Mail-Adresse an DHL ist widerrufen: DHL bekommt deine E-Mail-Adresse von mir nicht mehr.",
+      "recipients": "Bei Zahlungen per Karte oder PayPal verarbeiten Stripe bzw. PayPal Daten in eigener Verantwortung – wende dich dafür bitte direkt an deren Datenschutz-Kontakt. Protokolle des Mail-Anbieters und Datensicherungen laufen automatisch ab.",
       "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
       "reply": "Wenn du Fragen hast, antworte einfach auf diese Mail."
     },
@@ -1012,15 +1033,11 @@
     "inquiryReceipt": {
       "subject": "Deine Anfrage {reference} ist angekommen",
       "title": "Deine Idee ist bei mir angekommen",
-      "intro": "danke für deine Anfrage! Hier ist noch einmal, was du mir geschickt hast:",
+      "intro": "danke für deine Anfrage! Sie ist gut bei mir angekommen – hier die Eckdaten:",
       "reference": "Referenz",
       "receivedAt": "Eingegangen am",
       "object": "Gegenstand",
-      "idea": "Deine Idee",
-      "timeframe": "Wunschzeitraum",
-      "budget": "Budget",
       "images": "Bilder",
-      "empty": "–",
       "responseTime": "Ich melde mich meist innerhalb einer Woche.",
       "offerByMail": "Mit deiner Anfrage kommt noch kein Vertrag zustande, und du zahlst nichts. Angebot und Bezahlung laufen per Mail, nicht über den Shop.",
       "deletion": "Deine Anfrage und deine Bilder werden spätestens 6 Monate nach Eingang gelöscht (am {date}).",
@@ -1089,6 +1106,7 @@
       "inquiries": "Anfragen zu Auftragsarbeiten",
       "complaints": "Reklamationen",
       "emailLog": "Versandnachweise von Mails an dich",
+      "mailJobs": "Mails in der Versand-Warteschlange (Kopie der Mail-Inhalte)",
       "consentLog": "Einwilligungsnachweise",
       "privacyRequests": "Frühere Datenschutz-Anfragen",
       "files": "Dateien (Bilder, Belege)"
@@ -1121,9 +1139,16 @@
       "none": "–"
     },
     "thirdCountry": {
-      "US": "Sitz in den USA (Übermittlung auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln)",
+      "US": "Bezug zu den USA (Sitz oder Mutterkonzern in den USA; Übermittlung auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln)",
       "EU": "EU/EWR",
       "none": "keine Übermittlung in Drittländer"
+    },
+    "furtherRecipientsIntro": "Außerdem bekommen diese Stellen Daten in eigener Verantwortung, aber nur, wenn es einen Anlass gibt:",
+    "furtherRecipients": {
+      "applePay": "Apple Distribution International Ltd., Cork, Irland – wenn du mit Apple Pay zahlst (Zahlungsdaten aus deinem Wallet, über Stripe)",
+      "googlePay": "Google Ireland Limited, Dublin, Irland – wenn du mit Google Pay zahlst (Zahlungsdaten aus deinem Wallet, über Stripe)",
+      "bank": "Meine Bank{bank} – bei Zahlung per Vorkasse und bei Rücküberweisungen (Name und IBAN der zahlenden Person, Betrag, Verwendungszweck)",
+      "tax": "Finanzamt und gegebenenfalls Steuerberatung – soweit das Steuerrecht es verlangt (Rechnungen, Gutschriften, Buchhaltungs-Exporte)"
     },
     "retentionHeading": "d) Wie lange ich deine Daten aufbewahre",
     "retention": {
@@ -1133,6 +1158,7 @@
       "inquiries": "Anfragen zu Auftragsarbeiten samt Bildern: {months} Monate nach Eingang.",
       "checkouts": "Kassenvorgänge ohne Bestellung: {days} Tage.",
       "emailLog": "Versandnachweise von Mails: so lange wie der zugehörige Vorgang, ohne Bezug {days} Tage.",
+      "mailJobs": "Mails in der Versand-Warteschlange: nach dem Versand sofort gelöscht; konnten sie nicht versendet werden, {days} Tage danach.",
       "consentLog": "Einwilligungsnachweise: so lange wie die zugehörige Bestellung, ohne Bestellung {days} Tage.",
       "privacyRequests": "Datenschutz-Anfragen: {years} Jahre nach Ende des Jahres der Antwort; die Export-Datei {days} Tage nach der Antwort."
     },
@@ -1148,7 +1174,7 @@
     "complaintHeading": "f) Beschwerde bei der Aufsichtsbehörde",
     "complaint": "Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin.",
     "sourceHeading": "g) Woher die Daten stammen",
-    "source": "Die Daten stammen von dir selbst (Kasse, Formulare, Mails). Den Zahlungsstatus melden die Zahlungsdienstleister, den Zustellstatus der Versanddienstleister.",
+    "source": "Die Daten stammen von dir selbst (Kasse, Formulare, Mails). Den Zahlungsstatus melden die Zahlungsdienstleister. Sendungsnummer und Versandstatus trage ich selbst ein; der Versanddienstleister übermittelt nichts an die Website. Ohne andere Nachricht gilt ein Paket {days} Tage nach dem Versand als zugestellt.",
     "automatedHeading": "h) Automatisierte Entscheidungen",
     "automated": "Ich treffe keine automatisierten Entscheidungen und erstelle kein Profiling. Stripe führt bei Zahlungen in eigener Verantwortung eine automatisierte Betrugs- und Risikoprüfung durch; Auskunft dazu gibt Stripe selbst.",
     "notesHint": "Interne Notizen, die auch andere Personen betreffen können, sind nicht in der Datei enthalten. Ich habe sie vor dem Versand geprüft; was dich betrifft, steht in meiner Antwort.",

@@ -221,7 +221,8 @@ Verknüpfung: A25, A33, ANLEITUNGEN D4.
 Projekt, Datenbank und Region wie in Abschnitt 1; Migration, Beispielbestand und Zweige wie in Abschnitt 3.
 
 **Prüfkriterium:** `pnpm seed:remove` (ohne `--yes`) zeigt in `main` die Mengen aus SEED-SPEC §0.1; Zweige vorhanden; keine
-Produktionsdaten in Preview/Staging.
+Produktionsdaten in Preview/Staging. Die Verbindungsadressen enthalten `.eu-central-1.aws.neon.tech` – sonst bricht der
+Produktionsstart ab (ARCHITEKTUR §4.3).
 
 ### P11.5 Lettermint und Mail-DNS (spätestens T−1, besser T−7)
 
@@ -258,7 +259,8 @@ Zusatzfeldern `email`, `token`, `iban`; kürzeste Aufbewahrung (L-14); Alarmrege
 alle 5 min, Alarm nach 2 Fehlschlägen (M-07, C-04); DPA akzeptieren; DSN für Produktion und Staging.
 
 **Prüfkriterium:** Einstellungen laut ARCHITEKTUR §11.4 gesetzt; nach P11.8 erscheint ein absichtlich ausgelöster Serverfehler
-auf Staging ohne Personendaten; Uptime-Monitore aktiv, sobald die Domain umgestellt ist.
+auf Staging ohne Personendaten; Uptime-Monitore aktiv, sobald die Domain umgestellt ist. Der DSN endet auf
+`.ingest.de.sentry.io` – sonst bricht der Produktionsstart ab (ARCHITEKTUR §4.3).
 
 ### P11.8 Vercel-Projekt, Umgebungsvariablen und Kostenbremse (A33)
 

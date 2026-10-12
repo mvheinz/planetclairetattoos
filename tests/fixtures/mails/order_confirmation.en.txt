@@ -62,7 +62,7 @@ You bear the direct costs of returning the goods.
 
 You agreed that I pass your email address on to DHL so that DHL can inform you about the delivery. You can withdraw this consent at any time – a short email to jutta@planetclairetattoos.com is enough.
 
-You can view your order at any time here:
+You can see the status of your order here:
 Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
 
 How I handle your data is explained in the privacy policy:

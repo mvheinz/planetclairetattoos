@@ -25,8 +25,8 @@ import { statusAndPrivacyBlocks } from './orderSections'
 // PLAN P5.17) mit Positionen und dem von Jutta bestätigten Abholtext (Ort steht nur in dieser Mail, E-29). Keine
 // Werbung, Bilder nur per CID; Fuß mit Bestellstatus und „Vertrag widerrufen“.
 
-export const ORDER_SHIPPED_VERSION = 'm06-v1'
-export const PICKUP_READY_VERSION = 'm07-v1'
+export const ORDER_SHIPPED_VERSION = 'm06-v2'
+export const PICKUP_READY_VERSION = 'm07-v2'
 
 const iso = z.iso.datetime({ offset: true })
 const orderNumber = z.string().regex(/^(BSP-)?PC-\d{4}-\d{5}$/)

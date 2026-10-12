@@ -2,6 +2,115 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-11 – P18.5 Datenschutz- und AGB-Prüfung – für Jutta
+
+Hallo Jutta,
+
+du hattest gebeten, die Seite noch einmal auf Datenschutz- und AGB-Probleme zu prüfen. Mehrere Prüfer haben unabhängig
+gesucht, jeder Fund wurde gegengeprüft. Übrig blieben 32 echte Punkte – alle sind behoben. Die wichtigsten in einfachen
+Worten:
+
+- **Nachweise bleiben, solange sie gebraucht werden:** Dass eine Kundin der Weitergabe ihrer E-Mail an DHL zugestimmt
+  oder eine Abweichung (z. B. kleiner Kratzer) ausdrücklich angenommen hat, wurde bisher nach 30 Tagen gelöscht. Jetzt
+  bleibt es so lange wie die Bestellung.
+- **Fehlermeldungen ohne Kundendaten:** Wenn intern etwas schiefgeht, landen Namen und Adressen nicht mehr in den
+  Fehlerprotokollen.
+- **Rechtstexte stimmen mit der Seite überein:** Instagram wird nirgends mehr als Weg für Anfragen genannt (nur E-Mail).
+  In den AGB stehen keine festen Zahlen mehr, die du in den Einstellungen ändern kannst (z. B. die 30 Minuten
+  Reservierung). Der Bestellstatus-Link gilt ehrlich „bis 180 Tage nach Abschluss“ statt „jederzeit“.
+- **Mails:** Die „Leider schon weg“-Mail lädt nicht mehr zum Weiterkaufen ein (das wäre Werbung). Die automatische
+  Antwort auf eine Auftragsanfrage ist kurz und ohne den Text der Anfrage – so wie du es ausgesucht hast. Bei Abholung
+  steht jetzt auch in der Bestellbestätigung, wann die Bestellung abholbereit ist.
+- **Kasse:** Bei Textilien und Caps steht direkt beim Bestellen „Second-Hand, von Hand bemalt“. Der Widerrufs-Hinweis
+  an der Kasse zeigt jetzt auch das Muster-Formular.
+- **Widerruf von einzelnen Stücken:** Behält eine Kundin einen Teil, kannst du den Rest normal verschicken oder übergeben.
+  Nennt sie Stücke nur im Text, ohne sie anzuhaken, ordnest du sie mit einem Klick zu, statt dass gleich alles widerrufen
+  ist. Hat jemand schon überwiesen und widerruft dann, gibt es den Knopf „Rücküberweisung erledigt“, und die Kundin
+  erfährt, dass sie ihr Geld zurückbekommt.
+- **Schalter „Abholung“:** Ist er aus, kann niemand mehr Abholung wählen. Stücke „nur Abholung“ bleiben sichtbar,
+  sind aber nicht bestellbar – so wie du es ausgesucht hast.
+- **Anfragen nach dem Datenschutz (Auskunft/Löschung):** Die Auskunft enthält nur Daten der fragenden Person. Treffer
+  mit gleichem Namen, aber anderer E-Mail-Adresse zeigt die Verwaltung dir zur Prüfung, statt sie mitzuschicken. Die
+  Antwort auf eine Löschanfrage sagt nur, was wirklich passiert ist.
+- **Tattoo-Galerie:** Ein Foto mit Einwilligung lässt sich nur nach „Einwilligung widerrufen“ löschen. Danach
+  verschwindet es wirklich, und nach drei Jahren wird auch der Nachweis gelöscht. Beim Foto vom Stand (Termine) erinnert
+  ein Hinweis daran, keine fremden Gesichter zu zeigen.
+- **Excel-Listen:** Bitte keine Namen von Käufer:innen eintragen – die Listen werden dauerhaft gespeichert. Die
+  Anleitung sagt das jetzt auch.
+
+Was du entscheiden kannst, steht in `docs/OFFENE-PUNKTE.md` (Einträge „P18.5“). Die Kanzlei schaut sich die
+überarbeiteten Texte in P11 ohnehin an.
+
+## 2026-10-11 – P18.5 Technik (U-91)
+
+- Prüfung: Workflow mit Suche und Gegenprüfung (32 bestätigte Funde, `fix`), Umsetzung in 7 Gruppen auf eigenen
+  Arbeitskopien mit eigenen Test-Datenbanken, danach zusammengeführt und erneut gegengelesen.
+- Gruppen: (1) Schwärzung von Datenbank-Fehlern (`errorSummary`, Sentry-Kette), Bucket `withdrawal_lookup`,
+  EU-Regionen beim Start, Löschregel L-13 i für Mail-Jobs; (2) `consent-log` an der Bestellung, Galerie-Löschschutz und
+  Freigabe der Bilder, L-19-b-Schritt für Galerie-Einträge, Hinweis Standfoto; (3) Auskunft nur eigene/bestätigte
+  Treffer, M15 wahrheitsgemäß (`inUse`, DHL-Satz nur bei Widerruf), Löschplan schont laufende Bestellungen,
+  Empfängerliste; (4) Rechtstexte (Instagram, `{{reservationMinutes}}`, 180 Tage, neue `sourceNote`), M01/M02
+  Abholzeit, M10 ohne Shop-Link, M11 ohne Freitext, Second-Hand-Merkmal, Muster-Formular im Kassendialog,
+  Datenschutz-Anker `#bestellung`; (5) Rest-Lieferung nach Teil-Widerruf/-Erstattung, Freitext-Teil-Widerruf mit
+  „Stücke zuordnen“; (6) Rücküberweisung nach Widerruf/Storno bei Vorkasse, „Wieder verkaufen“ nach Widerruf vor dem
+  Versand, Versandtarife als Snapshot (Migration `20261011_132759_p18_order_shipping_rates`); (7) Schalter Abholung
+  wirksam (`src/lib/shop/pickupPolicy.ts`). Dazu: Baustein `delivery.timePickup` grammatisch („Abholbereit: …“),
+  KANZLEI-BRIEFING und LOESCHKONZEPT Version 1.5.
+- Gegenprüfung der zusammengeführten Änderungen (4 Bereiche, je Fund ein skeptischer Prüfer): 15 echte Funde, alle
+  behoben (Übergabe je Stück `orders.items[].handedOverAt`, Migration `20261011_153702_p18_order_item_handover`;
+  Löschanfrage zweistufig geprüft, Nachlauf für laufende Verträge, DHL-Widerruf immer; Eigenschaftszeile begrenzt;
+  Abhol-Hinweise an der Kasse). Dazu: `console.error`/Payload-Logger geschwärzt (`consoleGuard.ts`).
+- Tests: Prüfschleuse `ci:local full` (Stand bf5d030): statisch, Unit, Int mit Abdeckung, Wiederherstellungs-Übung,
+  Build, Tempo-Budgets, Fremd-URLs, Bildvergleich (Kasse/AGB/Impressum neu), E2E desktop 1011, iPhone 15 alle Kernfälle,
+  Pixel 7 759 grün; je ein wackliger Test (Flash-Foto, Tour-Tafel) danach 3× einzeln grün; Docker nicht verfügbar.
+  Kunst-QA iter09: 60/62, PF-02/PF-03 knapp rot unter Last (Hinweis, OFFENE-PUNKTE).
+- Dateien für Jutta: Bestandsliste `B-2026-10-12-ffe712`, Texte-Liste `T-2026-10-12-7bc103` (Stand in
+  `content/pflege/stand/`), Katalog (19 S.), Rundgang (44 S.), Anleitung (3 S.).
+
+## 2026-10-11 – P17 und P18 abgeschlossen: Startseite, Listen fürs iPad – für Jutta
+
+Hallo Jutta,
+
+**Deine Änderungen an der Seite (P17):**
+
+- **Koko mit den wandernden Augen** ist wieder da. Die Augen fehlten nur, weil die Vorschau nachts erzeugt wurde – nachts
+  schläft Koko. Die Vorschau zeigt jetzt immer den Tag.
+- Der Text unter Koko ist **kleiner** als die übrige Schrift, Koko ist **20 % größer** (am Handy so groß, wie die Spalte
+  es erlaubt), die Tour-Tafel ist **20 % länger** und heißt nur noch **„on Tour“**.
+- Im Shop stehen die **kleinen Vorschaubilder ohne Rahmen** – man sieht die Fotos jetzt richtig.
+
+**Pflege vom iPad (P18) – dein dauerhafter Weg:**
+
+- **Bestandsliste (Excel):** alle Stücke mit kleinem Foto. Du änderst, was nicht stimmt, und trägst ganz rechts unter
+  **„Verkauft“** ein, was du verkauft hast (Datum, gern mit Preis und Notiz, z. B. „11.10.2026 35 € Markt“).
+- **Texte-Liste (Excel):** rund 1.000 Texte der Seite auf Deutsch und Englisch, nach Bereichen. Rechtstexte stehen nicht
+  darin (die kommen von der Kanzlei), feste Pflicht-Hinweise sind grau und nur zum Lesen.
+- **Sicher:** Ich übernehme nur, was du geändert hast. Schickst du eine ältere Liste oder dieselbe noch einmal, wird nichts
+  zurückgesetzt. Hat sich ein Feld inzwischen anders geändert, frage ich nach, statt zu überschreiben. Ungültiges (z. B.
+  ein fehlender Platzhalter oder eine verbotene Formulierung wie „inkl. MwSt.“) melde ich dir.
+- **Katalog (PDF)** zum Weiterschicken und **Rundgang (PDF)** mit Bildschirmfotos der Seite – Handy und großer Bildschirm,
+  ohne Fotos von Kund:innen.
+- **Anleitung:** `docs/owner/IPAD.md` – Schritt für Schritt mit der kostenlosen App Numbers.
+- **Nach dem Start** kommt das Gleiche in die Verwaltung (P19), dann geht es ganz ohne mich.
+
+Technik-Notiz: siehe unten bei P17/P18 und in `docs/OFFENE-PUNKTE.md`.
+
+## 2026-10-11 – P17, P18 Technik (U-78–U-90)
+
+- **P17.1:** Vorschau-Export rendert mit `SEED_NOW` (12 Uhr), `tourNow` mit `PREVIEW_EXPORT`; Phasen-Kennung aus der
+  höchsten vollständig abgehakten Phase. Tests: `tests/unit/home/koko-sleep.unit.spec.ts`,
+  `tests/unit/preview-export/phase.unit.spec.ts`, Vorschau-Abnahmetest (keine `data-koko-sleep`, zwei Pupillen).
+- **P17.2/P17.3:** Startseite (`Home.module.css`, `TourDates.module.css`, `ChairwomanKoko.tsx`), „on Tour“ DE/EN,
+  Galerie-Miniaturen `frameSize="none"`. Tests: E2E home, home-tour, home-koko, shop/gallery auf drei Geräten; visuelle
+  Referenzen erneuert.
+- **P18.1/P18.2:** gemeinsamer Kern `src/lib/pflege/` (Listen-Nr., gemerkter Stand mit `consumed`, Dreiwege-Abgleich,
+  kanonischer Vergleich, Tabellensuche, ZIP-Prüfung), Bestandsliste `src/lib/bestand/excel*.ts`, Texte-Liste
+  `src/lib/texte/` (ICU-Prüfung mit `@formatjs/icu-messageformat-parser`, Regeln aus dem Schema, Rechtsliste je Ziel),
+  `pnpm pflege:export|import`; Standardtexte der Verwaltung nach `src/globals/siteTexts.defaults.json` (gleich geblieben);
+  `bestand:import` legt verkaufte Stücke als Markt-Verkauf an. Tests: `tests/unit/{bestand,texte,pflege}/*`,
+  `tests/int/bestand/import.int.spec.ts`. Prüfung mit 4 Durchgängen + Gegenprüfung (alle Funde behoben).
+- **P18.3:** `pnpm pflege:ansichten` (Katalog- und Rundgang-PDF), `docs/owner/IPAD.md`, ARCHITEKTUR §16, RUNBOOK §15.
+
 ## 2026-10-10 – P16 abgeschlossen: dein echter Bestand – für Jutta
 
 Hallo Jutta,

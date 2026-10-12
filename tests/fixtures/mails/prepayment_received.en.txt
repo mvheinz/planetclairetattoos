@@ -11,7 +11,7 @@ Next, I'll pack your order carefully and send it off. As soon as it's on its way
 
 Your invoice (RE-2026-00043.pdf) is attached.
 
-You can view your order at any time here:
+You can see the status of your order here:
 Order status: https://planetclairetattoos.com/en/order/__STATUS_TOKEN__
 
 How I handle your data is explained in the privacy policy:

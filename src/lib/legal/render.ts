@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 
 import type { PayloadRequest } from 'payload'
 
+import { DEADLINE_DEFAULTS } from '@/lib/commerce/deadlines'
 import type { Locale } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
 import { preservingReq } from '@/lib/payload/localReq'
@@ -169,7 +170,7 @@ export interface LegalTokenSettings {
     vatId?: string | null
   } | null
   shipping?: (ShippingTableSettings & { deliveryTimeText?: string | null }) | null
-  payment?: { prepaymentDays?: number | null } | null
+  payment?: { prepaymentDays?: number | null; reservationMinutes?: number | null } | null
 }
 
 export interface LegalTokenInput {
@@ -190,6 +191,8 @@ export function buildLegalTokenValues(input: LegalTokenInput): LegalTokenValues 
   const name =
     b.legalName && b.tradeName ? `${b.legalName}, ${b.tradeName}` : (b.legalName ?? undefined)
   const days = input.settings.payment?.prepaymentDays
+  // Ohne Wert gilt wie bei der Reservierung selbst der Standard (30 min, `reservationTimes`), damit der Text stimmt.
+  const minutes = input.settings.payment?.reservationMinutes
   return {
     name,
     street: b.street,
@@ -204,6 +207,9 @@ export function buildLegalTokenValues(input: LegalTokenInput): LegalTokenValues 
     shippingTable: shippingTableText(shipping, input.locale),
     deliveryTime: shipping.deliveryTimeText,
     vorkasseDays: typeof days === 'number' ? String(days) : undefined,
+    reservationMinutes: String(
+      typeof minutes === 'number' ? minutes : DEADLINE_DEFAULTS.reservationMinutes.value,
+    ),
     returnCostsNote: input.returnCostsNote,
   }
 }

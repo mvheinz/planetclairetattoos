@@ -439,6 +439,7 @@ describe('U-67 b: Kunst-QA nur bei Kunst-Änderungen', () => {
       'src/lib/media/pipeline.ts',
       'src/i18n/messages/de.json',
       'src/globals/SiteTexts.ts',
+      'src/globals/siteTexts.defaults.json',
       'content/seed/data/pages.json',
       'content/seed/owner/own-jutta-coco.webp',
       'content/seed/coco/coco-frontal-nah-01.jpg',

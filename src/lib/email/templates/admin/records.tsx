@@ -16,7 +16,7 @@ import { ADMIN_MAIL_PATHS } from './paths'
 // vorgesehen sind (Namen, E-Mail-Adressen, Freitexte, Bilder), werden abgelehnt – bei A05 besonders wichtig (R-160).
 // Ausnahme A04: KONZEPT §6.4 verlangt eine Kopie des M08-Inhalts (`declaration`, P6.7) – Juttas Nachweis des Eingangs.
 
-export const ADMIN_WITHDRAWAL_RECEIVED_VERSION = 'a04-v1'
+export const ADMIN_WITHDRAWAL_RECEIVED_VERSION = 'a04-v2'
 export const ADMIN_INQUIRY_RECEIVED_VERSION = 'a05-v1'
 export const ADMIN_WITHDRAWAL_DEADLINE_VERSION = 'a13-v1'
 export const ADMIN_PRIVACY_REQUEST_DUE_VERSION = 'a14-v1'
@@ -42,6 +42,11 @@ export const adminWithdrawalReceivedDataSchema = z.strictObject({
   receivedAt: iso,
   /** Widerrufene Stücke laut Erklärung (leer = ganze Bestellung bzw. unbekannt). */
   items: z.array(item).max(50).default([]),
+  /**
+   * Stücke nur im Freitext genannt, keins angehakt: nichts gebucht, Jutta ordnet im Posteingang zu (bis dahin sind
+   * Packen, Versand und Übergabe gesperrt).
+   */
+  needsItemAssignment: z.boolean().default(false),
   /** Späteste Erstattung (§ 357 Abs. 1 BGB: 14 Tage ab Eingang). */
   refundDueAt: iso,
   /** Kopie der Erklärung wie in M08 (KONZEPT §6.4 A04). */
@@ -75,7 +80,19 @@ export async function renderAdminWithdrawalReceived(
     ]),
     ...(d.items.length > 0
       ? [block.p('Widerrufene Stücke:'), block.list(d.items.map(itemLine))]
-      : [block.p('Widerrufen: ganze Bestellung (keine einzelnen Stücke angegeben).')]),
+      : d.needsItemAssignment
+        ? [
+            block.p(
+              'Teil-Widerruf: Die Stücke stehen nur im Freitext (unten), angehakt ist keins. Bitte unter „Widerrufe“ mit „Stücke zuordnen“ festhalten, welche gemeint sind. Bis dahin ist kein Stück als widerrufen gebucht, und Packen, Versand und Übergabe der Bestellung sind gesperrt (was schon unterwegs ist, bleibt unterwegs).',
+            ),
+          ]
+        : d.declaration?.itemsText?.trim()
+          ? [
+              block.p(
+                'Stücke laut Freitext (unten): Nach dem Zuordnen der Bestellung bitte mit „Stücke zuordnen“ festhalten, welche gemeint sind.',
+              ),
+            ]
+          : [block.p('Widerrufen: ganze Bestellung (keine einzelnen Stücke angegeben).')]),
     ...(d.declaration
       ? [
           block.p('Kopie der Erklärung (wie in der Eingangsbestätigung):'),

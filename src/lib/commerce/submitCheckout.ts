@@ -10,13 +10,14 @@ import type { LegalSnippetKey, Locale } from '@/lib/enums'
 import { jobAlarm } from '@/lib/jobs/alarm'
 import { getActiveLegalText } from '@/lib/legal/getActive'
 import { getSnippet, loadLegalSnippets, type RenderedSnippet } from '@/lib/legal/snippets'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { preservingReq } from '@/lib/payload/localReq'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import { checkoutReturnUrl } from '@/lib/payments/checkoutSession'
 import { localizedPath } from '@/lib/routes/paths'
 import { padItemNumber } from '@/lib/products/itemNumber'
+import { pickupEnabledIn, pickupSelectable } from '@/lib/shop/pickupPolicy'
 import {
   LEGAL_TEXT_VERSION_KEYS,
   LEGAL_TEXT_VERSION_TYPES,
@@ -65,6 +66,7 @@ export type SubmitCheckoutCode =
   | 'invalid'
   | 'deviation_missing'
   | 'prepayment_disabled'
+  | 'pickup_disabled'
   | 'legal_missing'
   | 'not_orderable_in_country'
 
@@ -278,12 +280,24 @@ export async function submitCheckout(
     overrideAccess: true,
   })) as unknown as Parameters<typeof paymentOptionsFor>[1]
   const options = paymentOptionsFor(checkout, settings)
+  const pickupOnly = checkout.items.some((i) => i.shippingClass === 'nur_abholung')
+  const pickupAvailable = pickupSelectable(pickupEnabledIn(settings), pickupOnly)
   const validation = validateCheckoutInput(input.raw, {
     deviationProductIds: deviationProductIds(checkout),
     paymentChoices: options.choices,
-    pickupOnly: checkout.items.some((i) => i.shippingClass === 'nur_abholung'),
+    pickupOnly,
+    pickupAvailable,
   })
   if (!validation.ok) {
+    // Abholung inzwischen ausgeschaltet (P18.5): eigener Code ohne Feldfehler, damit die Kasse den Hinweistext
+    // (`checkout.errors.codes.pickup_disabled`) samt Weg zurück in den Korb zeigt statt „Bitte wähl eine der Möglichkeiten“.
+    if (
+      validation.errors.fulfillmentMethod === 'choice' &&
+      input.raw.fulfillmentMethod === 'pickup' &&
+      !pickupAvailable
+    ) {
+      return fail(409, 'pickup_disabled')
+    }
     const onlyChoice =
       validation.errors.paymentChoice === 'choice' &&
       input.raw.paymentChoice === 'prepayment' &&
@@ -433,7 +447,7 @@ export async function submitCheckout(
     try {
       await jobAlarm.bump(new Date(now.getTime() + CONFIRMING_RECONCILE_MS))
     } catch (err) {
-      log.error('checkout.job_alarm_failed', { checkoutId, error: (err as Error)?.message })
+      log.error('checkout.job_alarm_failed', { checkoutId, error: errorSummary(err) })
     }
   }
   log.info('checkout.submitted', { checkoutId, paymentChoice: value.paymentChoice })

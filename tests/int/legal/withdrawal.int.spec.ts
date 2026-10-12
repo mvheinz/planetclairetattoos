@@ -119,7 +119,10 @@ beforeEach(() => {
 describe('Widerruf annehmen (R-093)', () => {
   it('R-093 Datensatz unveränderlich, ohne IP; Bestellung O11; M08 mit Zeitstempel und allen Eingaben; A04 an die Admin-Adresse', async () => {
     const res = await submitWithdrawal(
-      input({ contractIdentification: `Bestellung ${orderNumber.toLowerCase()}, Tasse` }),
+      input({
+        contractIdentification: `Bestellung ${orderNumber.toLowerCase()}, Tasse`,
+        itemsText: null,
+      }),
       { now: new Date(T_SUMMER), ip: nextIp(), payload },
     )
     expect(res.ok && res.status === 201).toBe(true)
@@ -157,7 +160,8 @@ describe('Widerruf annehmen (R-093)', () => {
     expect(names.filter((n) => /ip|agent/i.test(n))).toEqual([])
     expect(JSON.stringify(doc)).not.toContain('203.0.113.')
 
-    // Bestellung O11 mit statusBeforeWithdrawal, alle aktiven Positionen widerrufen (keine Auswahl = ganzer Vertrag)
+    // Bestellung O11 mit statusBeforeWithdrawal, alle aktiven Positionen widerrufen (keine Auswahl und kein Freitext =
+    // ganzer Vertrag)
     const order = (await payload.findByID({
       collection: 'orders',
       id: typeof doc.order === 'object' ? doc.order!.id : (doc.order as number),
@@ -179,7 +183,7 @@ describe('Widerruf annehmen (R-093)', () => {
       r.reference,
       'Erika Beispiel',
       `Bestellung ${orderNumber.toLowerCase()}, Tasse`,
-      'die Tasse mit Coco',
+      'Betroffene Stücke: der ganze Vertrag',
       'Passt farblich doch nicht.',
       CUSTOMER,
       'Diese E-Mail bestätigt den Eingang deiner Widerrufserklärung',

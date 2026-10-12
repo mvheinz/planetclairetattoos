@@ -1,3 +1,5 @@
+import { randomBytes } from 'node:crypto'
+
 import { sql } from '@payloadcms/db-postgres'
 import type { Browser, Page } from '@playwright/test'
 
@@ -48,10 +50,17 @@ async function fillStep1(page: Page, values: { name: string; contract: string; e
   await page.locator('[name="email"]').fill(values.email)
 }
 
+/** Eigene Absender-IP je Test: die Bestellsuche ist auf 10 / h je IP begrenzt (`withdrawal_lookup`, ARCHITEKTUR §8.5). */
+const freshIp = () => `2001:db8:e2e:5::${randomBytes(3).toString('hex')}`
+
 const next = (page: Page) => page.getByRole('button', { name: 'Weiter', exact: true })
 const confirmButton = (page: Page) => page.getByRole('button', { name: CONFIRM, exact: true })
 
 test.describe('Widerrufsfunktion R26', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': freshIp() })
+  })
+
   test('R-091 unbekannte Bestellnummer, leerer Grund: Absenden funktioniert; kein CAPTCHA; Datenschutz-Link (R-138) @a11y', async ({
     page,
   }) => {
@@ -227,7 +236,10 @@ test.describe('Widerrufsfunktion R26', () => {
 
 test.describe('Widerrufsfunktion R26 ohne JavaScript', () => {
   async function noJs(browser: Browser) {
-    const context = await browser.newContext({ javaScriptEnabled: false })
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      extraHTTPHeaders: { 'x-forwarded-for': freshIp() },
+    })
     return { context, page: await context.newPage() }
   }
 

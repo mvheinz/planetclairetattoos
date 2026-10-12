@@ -9,6 +9,7 @@ import { getSnippet } from '@/lib/legal/snippets'
 import { vatNote } from '@/lib/legal/constants'
 import { localizedPath } from '@/lib/routes/paths'
 import { formatItemNumber } from '@/lib/products/itemNumber'
+import { deliveryTimeOrDefault } from '@/lib/shop/deliveryTime'
 
 import type { MailBusiness, MailLinks } from '../layout'
 import type { MailAttachment } from '../types'
@@ -42,6 +43,25 @@ export type MailBank = z.infer<typeof bankSchema>
 
 export const legalVersionSchema = z.object({ version: z.number().int().positive(), date: iso })
 
+/**
+ * Höchstlänge der Eigenschaftszeile je Stück in den Bestellmails. Die Zeile entsteht aus Pflegefeldern
+ * (`buildCharacteristics`: Material bis 200, Abweichung bis 300, Fasern, Größe …) und darf das Einreihen der Mail in der
+ * Bestell-Transaktion nie scheitern lassen – `buildOrderMailData` kürzt deshalb mit `clampMailText` auf diese Länge.
+ */
+export const MAIL_CHARACTERISTICS_MAX = 2000
+
+/** Kürzt einen Snapshot-Text für die Mail-Daten auf `max` Zeichen (mit „…“), ohne ein Ersatzzeichen-Paar zu trennen. */
+export function clampMailText(text: string, max: number): string {
+  if (text.length <= max) return text
+  const chars = Array.from(text)
+  let out = ''
+  for (const ch of chars) {
+    if (out.length + ch.length > max - 1) break
+    out += ch
+  }
+  return `${out.trimEnd()}…`
+}
+
 export const orderMailDataSchema = z.object({
   orderId: z.number().int().positive(),
   orderNumber: z.string().regex(/^(BSP-)?PC-\d{4}-\d{5}$/),
@@ -52,7 +72,7 @@ export const orderMailDataSchema = z.object({
       z.object({
         itemNumber: z.number().int().positive(),
         title: z.string().min(1).max(200),
-        characteristics: z.string().max(500),
+        characteristics: z.string().max(MAIL_CHARACTERISTICS_MAX),
         priceCents: cents,
         deviationText: z.string().max(1000).nullish(),
       }),
@@ -175,7 +195,11 @@ function addressLines(a: MailAddress | null | undefined): string[] {
   ].filter((x): x is string => typeof x === 'string' && x.trim() !== '')
 }
 
-/** Liefer- und Rechnungsadresse bzw. Abholung; Lieferzeit bzw. „Ich melde mich wegen der Abholung“. */
+/**
+ * Liefer- und Rechnungsadresse bzw. Abholung; Lieferzeit (R-035, R-081 Nr. 6) – bei Versand Baustein
+ * `delivery.timeShipping`, bei Abholung „Ich melde mich wegen der Abholung“ und Baustein `delivery.timePickup`. Leere oder
+ * vage Lieferzeit → Standard „2–5 Werktage“ (E-31), damit die Angabe nie fehlt (P18.5).
+ */
 export function addressBlocks(d: OrderMailData, locale: Locale): Block[] {
   const t = c(locale)
   const out: Block[] = [block.h(t.addressHeading)]
@@ -191,11 +215,12 @@ export function addressBlocks(d: OrderMailData, locale: Locale): Block[] {
     out.push(block.lines([`${t.billingAddress}:`, ...addressLines(d.billingAddress)]))
   }
   out.push(block.h(t.deliveryHeading))
-  if (d.fulfillmentMethod === 'pickup') out.push(block.p(t.pickupNote))
-  else if (d.deliveryTime) {
-    out.push(
-      block.p(getSnippet('delivery.timeShipping', locale, { deliveryTime: d.deliveryTime }).text),
-    )
+  const deliveryTime = deliveryTimeOrDefault(d.deliveryTime, locale)
+  if (d.fulfillmentMethod === 'pickup') {
+    out.push(block.p(t.pickupNote))
+    out.push(block.p(getSnippet('delivery.timePickup', locale, { deliveryTime }).text))
+  } else {
+    out.push(block.p(getSnippet('delivery.timeShipping', locale, { deliveryTime }).text))
   }
   return out
 }

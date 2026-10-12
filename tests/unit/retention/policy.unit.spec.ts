@@ -54,12 +54,12 @@ function part(cell: string, marker: RegExp): string {
   const m = marker.exec(cell)
   if (!m) return ''
   const rest = cell.slice(m.index + m[0].length)
-  const next = /(?:^|[\s;])(?:[a-h]\)|Stufe \d:)/.exec(rest)
+  const next = /(?:^|[\s;])(?:[a-i]\)|Stufe \d:)/.exec(rest)
   return next ? rest.slice(0, next.index) : rest
 }
 
 function docText(r: RetentionRule): { text: string; beginn: string } {
-  const m = /^(L-\d{2})(?: ([a-h]))?(?: Stufe ([A-D12]))?$/.exec(r.id)!
+  const m = /^(L-\d{2})(?: ([a-i]))?(?: Stufe ([A-D12]))?$/.exec(r.id)!
   const [, lid, letter, stage] = m
   if (lid === 'L-05' && stage) return { text: stages.get(stage)!, beginn: stages.get(stage)! }
   // L-05 ohne Stufe: Rückfall „shippedAt + 30 Tage“ aus dem Text von §3.1
@@ -153,7 +153,7 @@ describe('Löschfristen (LOESCHKONZEPT §2, src/lib/retention/policy.ts)', () =>
   })
 
   it('Regel-IDs passen zum deletion-log-Muster (DATENMODELL §6.27)', () => {
-    for (const r of RETENTION_RULES) expect(r.id).toMatch(/^L-\d{2}( [a-h])?( Stufe [A-D12])?$/)
+    for (const r of RETENTION_RULES) expect(r.id).toMatch(/^L-\d{2}( [a-i])?( Stufe [A-D12])?$/)
     expect(DELETION_ACTIONS).toEqual(['deleted', 'anonymized', 'restricted', 'files_deleted'])
   })
 })

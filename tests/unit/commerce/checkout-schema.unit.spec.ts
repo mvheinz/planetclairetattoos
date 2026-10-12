@@ -146,6 +146,25 @@ describe('checkoutSchema', () => {
     expect(!r.ok && r.errors.fulfillmentMethod).toBe('choice')
   })
 
+  it('P18.5 Abholung ausgeschaltet → pickup abgelehnt (choice), Versand unberührt; ohne Angabe wählbar', () => {
+    const pickup: CheckoutRawInput = {
+      email: 'erika@beispiel.de',
+      fulfillmentMethod: 'pickup',
+      name: 'Erika Beispiel',
+      billingLine1: 'Musterstraße 1',
+      billingPostalCode: '10115',
+      billingCity: 'Berlin',
+      paymentChoice: 'stripe',
+    }
+    const off = validateCheckoutInput(pickup, { ...ctx, pickupAvailable: false })
+    expect(off.ok).toBe(false)
+    if (off.ok) return
+    expect(off.errors).toEqual({ fulfillmentMethod: 'choice' })
+    expect(validateCheckoutInput(pickup, ctx).ok).toBe(true)
+    expect(validateCheckoutInput(pickup, { ...ctx, pickupAvailable: true }).ok).toBe(true)
+    expect(validateCheckoutInput(shipping, { ...ctx, pickupAvailable: false }).ok).toBe(true)
+  })
+
   it('FormData lesen und Fehler in Formular-Reihenfolge', () => {
     const fd = new FormData()
     fd.set('email', 'a@b.de')

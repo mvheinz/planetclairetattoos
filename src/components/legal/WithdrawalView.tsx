@@ -229,9 +229,16 @@ export function WithdrawalView({ part, state, flow, headingRef }: WithdrawalView
             />
           ))}
         </fieldset>
-        <p className={styles.small} data-withdraw-whole="">
-          {m.selectWhole}
-        </p>
+        {state.values.itemsText.trim() ? (
+          // Stücke im Freitext genannt: neutral auf das Anhaken hinweisen – nichts vorab anhaken (V-03)
+          <p className={styles.small} data-withdraw-from-text="">
+            {m.selectFromText}
+          </p>
+        ) : (
+          <p className={styles.small} data-withdraw-whole="">
+            {m.selectWhole}
+          </p>
+        )}
         <div className={styles.actions}>
           <Button type="submit" name="intent" value="edit" variant="secondary">
             {m.edit}
@@ -247,15 +254,25 @@ export function WithdrawalView({ part, state, flow, headingRef }: WithdrawalView
   if (state.step === 'confirm') {
     if (part === 'pre') {
       const items = state.selectedLabels.length > 0 ? state.selectedLabels : null
+      // Stücke nur im Freitext genannt, keins angehakt: so gebucht wie erklärt (Teil-Widerruf, Zuordnung durch mich),
+      // nicht „ganzer Vertrag“ – neutraler Hinweis, der Knopf bleibt frei
+      const fromText = state.matched && !items && state.values.itemsText.trim() !== ''
       return (
         <>
           {heading(m.stepConfirm)}
           {noticeBox}
           <p>{m.confirmIntro}</p>
+          {fromText ? <p data-withdraw-items-hint="">{m.confirmFromText}</p> : null}
           <dl className={styles.summary} data-withdraw-summary="">
             {summaryRows(
               state.values,
-              state.matched ? (items ? list(items) : m.summaryWhole) : null,
+              state.matched
+                ? items
+                  ? list(items)
+                  : fromText
+                    ? m.summaryFromText
+                    : m.summaryWhole
+                : null,
             )}
           </dl>
         </>

@@ -158,7 +158,11 @@ Quelle `content/seed/SEED-SPEC.md` §1.6). Ohne dieses Flag gilt immer die Spalt
   `src/lib/commerce/*.ts` bzw. `src/lib/legal/*.ts`. Collection-Hooks prüfen nur Invarianten, schreiben Audit-Einträge
   und reihen Mails ein; sie führen keine Geschäftslogik doppelt aus.
 - Mails werden **im selben Transaktionskontext** als Job eingereiht (Outbox-Muster): `email-log`-Zeile (`queued`) +
-  `payload.jobs.queue({ task: 'sendEmail', input: { emailLogId }, req })`.
+  `payload.jobs.queue({ task: 'sendEmail', input: { emailLogId, data, waits }, req })`. Abweichend vom ursprünglichen
+  Entwurf (`input: { emailLogId }`) trägt `data` die Vorlagen-Daten und damit eine Kopie personenbezogener Mail-Inhalte
+  (Name, Adressen, Positionen; nie Tokens). Erfolgreiche Jobs löscht Payload sofort; gescheiterte oder hängende Jobs
+  und Jobs ohne Protokoll-Eintrag löscht `retentionTechnical` (L-13 i, §11), die Löschung je Person nimmt sie mit
+  (LOESCHKONZEPT §5.6) – Prüfung P18.5.
 
 ### 1.6 Versionen und Entwürfe
 
@@ -227,7 +231,7 @@ Die **Verpackungsmengen** (E-47, R-201) sind dagegen im Umfang: je Sendung Verpa
 | 27 | `deletion-log` | Löschprotokoll | System | Nachweis jeder Löschung/Anonymisierung/Einschränkung ohne Inhalte; Grundlage für `pnpm retention:replay` (L-18) | nein | – | P1 (Logik P6) |
 | 28 | `legal-snippets` | Rechtsbausteine | Inhalte | versionierte kurze Rechtstexte (Schlüssel aus RECHT ANFORDERUNGEN §6, R-012) | ja (aktive) | – | P6 (Migration §10.1; bis dahin Konstanten) |
 | 29 | `complaints` | Reklamationen | Shop | Reklamationsakte je Bestellung: Art, Eingang, Fotos, Abhilfe, Fristen (R-110, R-111) | nein | ✓ | P6 (Migration §10.1) |
-| 30 | `tour-dates` | Termine (on Tour) | Tattoo | Märkte „Planet Claire on Tour“ (U-20) | ja (veröffentlichte) | – | P12 |
+| 30 | `tour-dates` | Termine (on Tour) | Tattoo | Märkte „on Tour“ (U-20, U-82) | ja (veröffentlichte) | – | P12 |
 | G1 | `settings` | Einstellungen | – | Betriebs-, Steuer-, Versand-, Verpackungs-, Aufbewahrungs-, Stamm- und Go-live-Daten | nur Whitelist | – | P1 |
 | G2 | `site-texts` | Texte & Navigation | – | UI-Texte DE/EN, Navigation | ja | – | P1 |
 
@@ -797,7 +801,7 @@ dann den Datensatz und schreibt `deletion-log`, §11/§12). „Ende des Jahres +
 | `return_photo` | `order.timestamps.returnReceivedAt + 12 Monate`; Legal Hold der Bestellung verschiebt | L-05 Stufe C · `retentionOrderMinimize` |
 | `complaint_photo` | mit der Reklamation, d. h. mit Stufe D der Bestellung (`orders.retainUntil`) | L-09 · `retentionOrders` |
 | `nickel_evidence`, `lab_report`, `supplier_document`, `technical_file` | leer (keine Auto-Löschung) | L-24: 10 Jahre ab Inverkehrbringen des letzten Stücks, nur Erinnerung · `complianceDocsReview`; manuelles Löschen erlaubt, wenn kein Verweis mehr |
-| `consent_evidence` | leer; nach Widerruf (`tattoo-gallery.consentWithdrawnAt`) bzw. Ende der Veröffentlichung des Galerie-Eintrags `+ 3 Jahre` | L-19 b · `retentionConsentEvidence` |
+| `consent_evidence` | leer; nach Widerruf (`tattoo-gallery.consentWithdrawnAt`) bzw. Ende der Veröffentlichung oder Löschen des Galerie-Eintrags `+ 3 Jahre` | L-19 b · `retentionConsentEvidence` |
 | `invoice_pdf`, `credit_note_pdf` | `retainUntil` = Ende des Belegjahres + `settings.retention.invoiceYears` (= `invoices.retainUntil`) | L-06 · `retentionInvoices` |
 | `monthly_export` | `retainUntil` = Ende des Exportjahres + 10 Jahre | L-07 · `retentionInvoices` |
 | `data_export` | `privacy-requests.answeredAt + 30 Tage` (bis zur Antwort leer) | L-17 · `retentionPrivacyRequests` |
@@ -949,7 +953,8 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 #### 6.6.2 Virtuelle Felder
 `adminTitle` („Nr. 017 · {title}“), `displayNumber` („017“), `isPublic` (status ∈ available/reserved oder sold+Archiv),
 `characteristics` (DE/EN-Zeile der wesentlichen Eigenschaften, z. B. „Keramik · Ø 14 cm · Steinzeug · Deko – nicht für
-Lebensmittel“; Funktion `buildCharacteristics(product, locale)` – wird in Kasse und Bestell-Snapshot verwendet).
+Lebensmittel“, bei Textil/Caps stets mit „Second-Hand, von Hand bemalt“ nach der Kategorie, R-043, P18.5; Funktion
+`buildCharacteristics(product, locale)` – wird in Kasse und Bestell-Snapshot verwendet).
 Umsetzung (P1.16): `adminTitle` ist als lokalisiertes, schreibgeschütztes Textfeld gespeichert und wird von den Hooks
 gesetzt, weil Payload ein rein virtuelles Feld nicht als `useAsTitle` zulässt (OFFENE-PUNKTE §5).
 
@@ -1072,9 +1077,9 @@ stateDiagram-v2
 | P8 | available → sold | `sell` | System `fulfillCheckout` (Reservierung abgelaufen, Stück noch frei) / Admin „Nachträglich bezahlt“ (O5) | – | wie P7 (§8.3, Zweig `available`) |
 | P9 | available → sold | `sellOffline` | Admin | – | `soldChannel = offline`, `soldAt`, `offlineSaleNote`, `showInArchiveAfterSale` wie im Dialog gewählt, seit U-60 optional `offlineSaleTourDate` und `offlineSalePriceCents`; Audit `product_offline_sold`; keine Bestellung, kein Beleg (R-127) |
 | P10 | reserved (Kasse, `source = checkout_session`) → sold | `sellOffline` mit `confirmReservedCheckout: true` | Admin nach Warndialog (KONZEPT §4.11 S5) | zugehörige Kasse im Status `open` (bei `confirming` gesperrt: „Zahlung läuft gerade“, DM-34) | zuerst Stripe-Session beenden: meldet der Anbieter „bezahlt“, bricht die Aktion ab und `fulfillCheckout` übernimmt; sonst Reservierung `released` (`releaseReason = admin`), Kasse `cancelled` (`closeReason = sold_offline`), dann wie P9 |
-| P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde (`shippedAt`/`pickedUpAt` leer; KONZEPT KA-37); `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
+| P11 | sold → available | `returnToStock` | Admin „Wieder verkaufen“ | `soldChannel = offline` (Korrektur) **oder** zugehörige Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, und das Stück ist nicht mehr zu liefern (Position nicht mehr `active` oder Bestellung `refunded`; KONZEPT KA-37) **oder** Position des Stücks `refunded` durch eine erfolgreiche Erstattung mit Grund `withdrawal` (`refunds[].itemIds`), Stück nie verschickt oder abgeholt (Widerruf vor dem Versand, P18.5). „Nie verschickt oder abgeholt“ gilt je Position: `items[].handedOverAt` leer, obwohl die Bestellung eine Übergabe erfasst hat (Rest-Lieferung); ohne erfasste Übergabe (Bestellung vor P18.5) `shippedAt`/`pickedUpAt` leer; `validateForPublish` | `soldAt`, `soldChannel`, `currentOrder` leeren; Verlauf bleibt; Audit |
 | P12 | draft/available → archived | `archive` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`; Revalidierung |
-| P13 | sold → archived | `archiveAfterReturn` | Admin „Ausblenden“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
+| P13 | sold → archived | `archiveAfterReturn` | Admin „Ausblenden“ nach Rückgabe oder Bruch (z. B. beschädigt) | Bestellposition `refunded` und Ware zurück (`timestamps.returnReceivedAt` gesetzt) **oder** Bestellung mit Grund `breakage` erstattet (`refunds[].reason`, §6.8.5 O15; DM-39) **oder** Widerruf vor dem Versand wie bei P11 (Position mit Grund `withdrawal` erstattet, Stück nie verschickt oder abgeholt – je Position wie bei P11; P18.5) | `archivedAt`, `soldAt`/`soldChannel`/`currentOrder` leeren; Audit |
 | P14 | archived → draft | `restore` | Admin „Wieder bearbeiten“ | – | `archivedAt = null`; danach wieder P2 |
 | P15 | draft → gelöscht | Payload-`delete` | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | nur von diesem Stück genutzte Bilder werden mit gelöscht; Nummer wieder frei; Audit `product_deleted` |
 
@@ -1221,6 +1226,7 @@ sind gefilterte Listen dieser Collection.
 | `billingAddress` | group `addressFields` | R bei `billingAddressDiffers` **und immer bei `pickup`** (R-061; DM-29) | – | – | Land wie Lieferadresse nur aus `settings.shipping.enabledCountries` (derzeit fest `DE`) | Rechnungsempfänger (§ 34a UStDV); bei `shipping` ohne Abweichung gilt die Lieferadresse |
 | `shippingZone` | select `ShippingZone` | S | – | – | leer bei `pickup` | – |
 | `shippingClass` | select `ShippingClass` | S | – | höchste Klasse im Korb | – | E-25 |
+| `shippingRatesAtOrder` | json | S | – | bei der Anlage (`createOrderFromCheckout`): `{ "zone": "<ShippingZone>", "rates": { "<ShippingClass>": <Cent> } }` für die Klassen der Positionen in der Zone der Kasse, die bezahlte Klasse mit `shippingCents` | unveränderlich; leer bei `pickup` und bei Bestellungen vor P18.5 (dann rechnet der Erstattungsvorschlag mit den aktuellen Tarifen) | Versanddifferenz beim Teil-Widerruf (KONZEPT §5.3, KA-32) |
 | `items` | array | R (1–10) | – | – | Snapshot, nach Anlage unveränderlich (außer `status`, `refundedCents`) | – |
 | ↳ `product` | relationship → `products` | R | – | – | – | – |
 | ↳ `itemNumber` | number | R | – | – | – | – |
@@ -1237,6 +1243,7 @@ sind gefilterte Listen dieser Collection.
 | ↳ `deviationAgreedAt` | date | – | – | – | Pflicht, wenn `deviationText` gesetzt | Kasse: eigene Checkbox (§ 476 BGB) |
 | ↳ `status` | select `OrderItemStatus` | R | – | `active` | – | Teilwiderruf |
 | ↳ `refundedCents` | number | R | – | 0 | ≤ `priceCents` | – |
+| ↳ `handedOverAt` | date | S | – | gesetzt vom Speicher-Hook bei O7 („Versendet“) bzw. O9 („Abgeholt“) an den dann übergebenen Positionen (`handoverItems`: die aktiven) | einmal je Bestellung, danach unveränderlich; leer bei Bestellungen vor P18.5 | Stück hat das Atelier verlassen: Inhalt von M06/M07 (auch „Erneut senden“), Versandklassen der Sendung, P11/P13 nach Widerruf bzw. Storno vor dem Versand (P18.5) |
 | `subtotalCents` | number | S, R | – | Σ Positionen | – | – |
 | `shippingCents` | number | S, R | – | aus `settings.shipping.rates`, `pickup` = 0 | – | – |
 | `totalCents` | number | S, R | – | `subtotal + shipping` | DB-CHECK | – |
@@ -1339,7 +1346,9 @@ Hash und Siegel wie bei echten Bestellungen) – nie aus `orderNumber` oder `PAY
   1. `status`-Änderung nur mit `context.transition` und erlaubtem Übergang (§6.8.5); jeder Wechsel hängt einen
      `statusHistory`-Eintrag an und setzt den passenden `timestamps.*`-Wert.
   2. Unveränderlich nach Anlage: `orderNumber`, `checkout` (außer Leeren durch `retentionAbandonedCheckouts`), `items`
-     (außer `items[].status`, `items[].refundedCents`), Summen, `legalTextVersions`, `taxModeAtOrder`, `paymentMethod`,
+     (außer `items[].status`, `items[].refundedCents` und `items[].handedOverAt`, das nur dieser Hook bei O7/O9 setzt),
+     Summen, `legalTextVersions`, `taxModeAtOrder`,
+     `shippingRatesAtOrder`, `paymentMethod`,
      `statusTokenHash`/`statusTokenSealed` (außer Rotation mit `context.transition = 'rotateToken'` und Löschung in
      Stufe B), `pickup.messageText` nach O8.
   3. Adressen änderbar nur bei `awaiting_prepayment`, `paid`, `packed`, `ready_for_pickup` → Audit `order_address_changed`.
@@ -1442,6 +1451,38 @@ export const ORDER_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
 `refund.failed` bzw. `refund.updated` mit `status = failed` → `refunds[].status = failed`, `adminAttention = refund_failed`,
 Mail `admin_refund_failed` (kein Statuswechsel). Stripe-Refund `pending` → Status bleibt, Anzeige „Erstattung läuft“.
 
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf und Teil-Erstattung vor Versand bzw.
+Abholung.** Die behaltenen, bezahlten Stücke müssen geliefert werden können (M06/M07, `shippedAt`/`pickedUpAt` = Beginn
+von Widerrufsfrist und Gewährleistung):
+- O11 nur, wenn danach keine Position mehr `active` ist (Widerruf des ganzen Vertrags) oder die Ware schon versendet
+  bzw. übergeben ist. Ein Teil-Widerruf aus `paid`, `packed` oder `ready_for_pickup` setzt nur die gewählten Positionen
+  auf `withdrawn`; die Bestellung bleibt im Lieferstatus (`applyWithdrawalToOrder`). Aus `partially_refunded` und
+  `disputed` markiert ein Widerruf nur die Positionen (DM-06).
+- Rest-Lieferung aus `partially_refunded` (`restDeliveryAllowed` in `orderTransitions.ts`): O6/O7/O8 wie aus `paid`,
+  O9 wie aus `ready_for_pickup`, O10 wie aus `shipped` – nur solange mindestens eine Position `active` ist und nichts
+  abgeholt wurde; O6–O8 nur ohne `shippedAt` und `readyForPickupAt`, O9 nur mit `readyForPickupAt`, O10 nur mit
+  `shippedAt` und ohne `deliveredAt` (Teil-Erstattung während des Transports; „Zugestellt“ von Hand und Task
+  `markDelivered`, Liste „Versendet“). Fakten aus der gesperrten Zeile (`lockOrder`) bzw. im Speicher-Hook aus
+  Positionen und Zeitstempeln. Danach normal weiter (O10, O15 …). Eine Erstattung mit Grund `withdrawal` aus
+  `paid`/`packed`/`ready_for_pickup` ist damit O15.
+- „Zu packen“ zeigt zusätzlich `partially_refunded` mit Rest-Lieferung, „Abholung“ ebenso; die Kacheln „Zu packen“ und
+  „Abholung“ auf „Heute“ zählen dieselben Bestellungen (`restShipmentPending`/`restPickupPending`; „Zu packen“ ohne den
+  Widerruf des ganzen Vertrags vor dem Versand). Packliste, Packzettel, Abholkarte, Liste „Versendet“, M06 und M07
+  nennen die Stücke der Sendung bzw. Abholung (`handoverItems`): vor „Versendet“/„Abgeholt“ die Positionen `active`,
+  danach die übergebenen (`items[].handedOverAt`, gesetzt bei O7/O9) – auch bei „Erneut senden“ und „Sendungsnummer
+  korrigieren“, wenn ein mitgeschicktes Stück später widerrufen oder erstattet wurde (Bestellungen vor P18.5 ohne
+  `handedOverAt`: die aktiven, ohne aktive alle). „Nicht mehr versenden – Widerruf: Nr. …“ bzw. „– erstattet: Nr. …“
+  steht an den übrigen. Versandklassen, Warenwert und Vorbelegungen der Sendung (Sendungsnummer-Pflicht, Rückfrage
+  „Ohne Packfoto versenden?“, Keramik-/Versicherungs-/Brief-Hinweis, Checkliste, Verpackungsvorlage, Versanddienst)
+  kommen nur aus diesen Stücken (`shipmentClassesOf`, `shipmentValueCents` in `packing.ts`), nicht aus
+  `orders.shippingClass`. Widerruf des ganzen Vertrags (`withdrawal_received` aus `paid`/`packed`/`ready_for_pickup`)
+  sperrt weiter mit 409 („Nicht mehr versenden – Widerruf!“ bzw. „Nicht mehr übergeben – Widerruf!“).
+- `applyWithdrawalToOrder` sperrt die Bestellung (`lockOrder`), bevor es zwischen „vor der Übergabe, kein
+  Statuswechsel“ und O11 wählt; ein gleichzeitiges „Versendet melden“ bzw. „Abgeholt“ ist dann schon festgeschrieben
+  (→ O11) oder wartet.
+- Teil-Widerruf nur im Freitext (§6.11 Umsetzungsnotiz): Packen, Versand, „Bereit zur Abholung“ und „Abgeholt“ →
+  409, bis die Stücke zugeordnet sind (`withdrawalHold.ts`).
+
 #### 6.8.6 Indizes & Constraints
 `order_number` UNIQUE · `checkout_id` UNIQUE · `stripe_checkout_session_id` UNIQUE · `stripe_payment_intent_id` UNIQUE ·
 `status_token_hash` UNIQUE · Index `status` · Index `customer_email` · Index `timestamps_placed_at` · Index
@@ -1451,7 +1492,8 @@ Mail `admin_refund_failed` (kein Statuswechsel). Stripe-Refund `pending` → Sta
 #### 6.8.7 Akzeptanzkriterien
 - DM-ORD-01: Matrix-Test über alle Paare aus `ORDER_STATUSES`: genau die Übergänge O3–O18, O20 und O21 gelingen (mit
   ihren Bedingungen), alle anderen werfen einen Fehler (KONZEPT AK-5-01); jeder Wechsel erzeugt einen
-  `statusHistory`-Eintrag.
+  `statusHistory`-Eintrag. Dazu O6–O10 aus `partially_refunded` nur unter den Bedingungen der Rest-Lieferung
+  (Umsetzungsnotiz §6.8.5).
 - DM-ORD-02: Nach Anlage lassen sich `items`, Summen und `legalTextVersions` per Local API nicht ändern.
 - DM-ORD-03: Doppelte Zustellung desselben Webhooks erzeugt genau eine Bestellung, eine Rechnung, eine Bestätigungsmail, einen Verkauf.
 - DM-ORD-04: Status-Seite mit falschem Token → 404; mit richtigem → keine Adresse der Rechnungsempfängerin außer Name, keine internen Felder; nach Stufe B „Link abgelaufen“.
@@ -1613,6 +1655,18 @@ Auch Erklärungen ohne passende Bestellung werden angenommen und manuell zugeord
 `refunded`, `closed` (ohne (weitere) Erstattung, mit `closeReason`) und `rejected` sind Endzustände. Niemals automatische
 Ablehnung (R-094). Die Zuordnung zu einer Bestellung (W2) ändert den Widerrufsstatus nicht.
 
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf nur im Freitext.** Keine Position angehakt,
+aber `itemsText` gefüllt → W1/W2 bzw. die manuelle Erfassung buchen keine Position automatisch (§ 133 BGB: es gilt der
+erklärte Teil-Widerruf): `affectedItemIds` bleibt leer, die Bestellung bekommt `adminAttention` (`manual`, Notiz
+„Teil-Widerruf WR-… im Freitext – bitte Stücke zuordnen“, nur wenn dort noch kein Hinweis steht), A04 bittet ums
+Zuordnen (`needsItemAssignment`, Vorlage `a04-v2`). Vor Versand/Übergabe kein Statuswechsel, Packen/Versand/Übergabe →
+409 (`withdrawalHold.ts`); danach O11 wie bisher. Posteingang „Stücke zuordnen“
+(`POST /api/withdrawals/:id/assign-items` `{ itemIds }`, nur `received`, nichts vorab angehakt) setzt `affectedItemIds` und bucht wie W1 mit Auswahl
+(Umsetzungsnotiz §6.8.5); der Hinweis verschwindet (ebenso bei W5/W7). Bis dahin W3 und „Erstatten“ mit Grund
+`withdrawal` → 409, im Dialog keine Vorauswahl. Leeres `affectedItemIds` heißt nirgends „alle Positionen“: Dialog ohne
+Vorauswahl, W3 ändert keine Position, W4 rechnet mit den für diesen Widerruf erstatteten Positionen. Ohne Haken und ohne
+Freitext weiter ganzer Vertrag (alle aktiven Positionen, R-091).
+
 **Hooks**
 - `beforeChange` (create, nur `context.system`): aus dem Route-Handler der Widerrufsfunktion (`channel = online_form`,
   `receivedAt` = aktuelle Serverzeit der injizierten Uhr) oder aus dem Admin-Endpunkt `POST /api/withdrawals/manual`
@@ -1673,7 +1727,8 @@ Schreibweisen): `{{name}}` (`business.legalName`, mit `business.tradeName`, fall
 nicht vorhanden), `{{ustIdNr}}` (`business.vatId`, ebenso), `{{siteUrl}}` (`NEXT_PUBLIC_SITE_URL`), `{{withdrawalUrl}}`
 (absolute URL von R26 in der Sprache der Fassung: `…/de/vertrag-widerrufen` bzw. `…/en/withdraw-from-contract`),
 `{{shippingTable}}` (Versandklassen und DE-Preise aus `settings.shipping.rates`), `{{deliveryTime}}`
-(`settings.shipping.deliveryTimeText`), `{{vorkasseDays}}` (`settings.payment.prepaymentDays`), `{{returnCostsNote}}`
+(`settings.shipping.deliveryTimeText`), `{{vorkasseDays}}` (`settings.payment.prepaymentDays`), `{{reservationMinutes}}`
+(`settings.payment.reservationMinutes`, ohne Wert 30 wie bei der Reservierung; P18.5), `{{returnCostsNote}}`
 (aktiver Baustein `withdrawal.returnCostsNote`, §6.28, E-27, DM-33). Ein unbekanntes oder nicht ersetzbares Token ist ein Render-Fehler; das gilt auch
 für `{{STEUERNUMMER}}` – die Steuernummer erscheint nie in Rechtstexten (E-46). Renderer: `src/lib/legal/render.ts`.
 Das PDF friert die Werte zum Aktivierungszeitpunkt ein. Die Tabelle der Auftragsverarbeiter ist **kein** Token: eine
@@ -1796,7 +1851,11 @@ Task-Läufe (auch auf gefüllter Datenbank). Die Nummer 15 bleibt unbelegt.
 **Hooks:** `beforeChange`: Veröffentlichungsregel; Aktion „Einwilligung widerrufen“ (`POST /api/tattoo-gallery/:id/withdraw-consent`)
 setzt `consentGiven = false`, `published = false`, `consentWithdrawnAt = $now` + Audit `gallery_consent_withdrawn`.
 `afterChange`: `media.restricted` der verknüpften Bilder = `!(published && (!showsCustomer || consentGiven))`;
-Revalidierung. **Versionen:** keine (§1.6).
+Revalidierung. `beforeDelete` (P18.5): Einträge mit `showsCustomer` und `consentGiven` (nicht Seed) → 409 „Bitte
+zuerst … „Einwilligung widerrufen“ nutzen“. `afterDelete` (P18.5): Bilder ohne weiteren Fremdschlüssel-Verweis werden
+mit gelöscht (samt Dateien, `src/lib/media/inUse.ts`), die übrigen bekommen `restricted` neu; `consentEvidence` erhält
+`deleteAfter` = Widerruf (sonst Löschzeitpunkt) + 3 Jahre (L-19 b), wenn kein anderer Eintrag ihn nutzt.
+**Versionen:** keine (§1.6).
 **Access:** `read`: öffentlich
 `{ and: [ { published: { equals: true } }, { or: [ { showsCustomer: { equals: false } }, { consentGiven: { equals: true } } ] } ] }`;
 Ausnahme ausschließlich bei `SEED_PREVIEW_MODE = 'true'` **und** `seed = true` (Vorschau des Beispielbestands, siehe
@@ -2001,9 +2060,9 @@ Geschrieben ausschließlich über `writeAudit(req, entry)` (`src/lib/audit.ts`, 
 | `snippetKey` / `snippetVersion` | text | S | Bausteinschlüssel (z. B. `checkout.dhlEmailConsent`) und Version (`draft-1` bis P6, danach `legal-snippets.version`) – R-101 „snippetVersionId“ |
 | `locale` | select `de`, `en` | R | – |
 | `email` | email | R | – |
-| `checkout` / `order` / `inquiry` / `product` | relationship | – | erfasst bei `submitCheckout` mit `checkout`; `order` wird bei der Bestellanlage ergänzt; `product` bei `deviation_agreement` |
+| `checkout` / `order` / `inquiry` / `product` | relationship | – | erfasst bei `submitCheckout` mit `checkout`; `order` wird bei der Bestellanlage ergänzt (`createOrderFromCheckout`, gleiche Transaktion, nur Einträge des maßgeblichen Absendens mit `createdAt = submittedAt` – frühere Versuche bleiben an der Kasse und gehen mit ihr nach L-03; `retainUntil` folgt dann der Bestellung, P18.5); `product` bei `deviation_agreement` |
 | `withdrawnAt` | date | – | Widerruf der Einwilligung (nur `carrier_email_forwarding`) |
-| `retainUntil` | date | S, R | = Bezugsobjekt (L-19 a: mit der Bestellung, Stufe D); ohne Bestellung wie die Kasse (30 Tage) · `retentionConsentEvidence` |
+| `retainUntil` | date | S, R | = Bezugsobjekt (L-19 a: mit der Bestellung, Stufe D); ohne Bestellung wie die Kasse (30 Tage) · `retentionConsentEvidence`; bei stornierten, nie bezahlten Vorkasse-Bestellungen löscht schon L-04 Stufe 1 (`retentionOrderMinimize`) |
 | `seed` / `seedKey` | `seedField()` | S | – |
 
 **Access:** `read`: `isAdmin` · `update`: nur `withdrawnAt` über Endpoint · `create`/`delete`: `none`.
@@ -2147,11 +2206,11 @@ Dashboard-Hinweis bei offenen Anfragen.
 | `identityVerified` | checkbox | R | – | `false` | – | – |
 | `identityMethod` | select `IdentityCheckMethod` | R bei `identityVerified` | – | – | keine Ausweiskopie außer bei begründeten Zweifeln | – |
 | `identityVerifiedAt` | date | S | – | – | – | – |
-| `matchedOrders` / `matchedWithdrawals` / `matchedInquiries` | relationship, hasMany | – | – | – | Treffer der Suche (R-150) | – |
+| `matchedOrders` / `matchedWithdrawals` / `matchedInquiries` | relationship, hasMany | – | – | – | Treffer der Suche (R-150): Datensätze mit der Adresse der Anfrage bzw. der gesuchten Adresse und ausdrücklich bestätigte mögliche Treffer; unbestätigte Treffer nur über Name/Bestellnummer mit anderer Adresse werden nicht gespeichert (P18.5) | – |
 | `exportFile` | upload → `private-uploads` | – | – | – | `purpose = data_export`; ZIP mit `daten.json`, `auskunft.html`, Kopien | Download-Link an die Person 7 Tage gültig |
 | `answeredAt` | date | R bei `answered`/`rejected` | – | – | ≥ `receivedAt` | – |
 | `resultNote` | textarea | R bei `rejected` | – | – | ≤ 2000; Ergebnis, Begründung, genannte Aufbewahrungsfristen | – |
-| `remindersSent` | json | S | – | `{}` | `{ "7d": ISO, "1d": ISO }` – Idempotenz des Erinnerungs-Tasks | – |
+| `remindersSent` | json | S | – | `{}` | `{ "7d": ISO, "1d": ISO, "erasureFollowUp": [{ "collection": "orders" \| "withdrawals", "id": n, "since": ISO }] }` – Idempotenz des Erinnerungs-Tasks; `erasureFollowUp` = Nachlauf der Löschung: Vorgänge, die beim Ausführen noch liefen und nach Abschluss automatisch eingeschränkt werden (Prüfung P18.5, LOESCHKONZEPT §5.6 Nr. 3); nicht in der Auskunft | – |
 | `adminNotes` | textarea | – | – | – | ≤ 3000 | – |
 | `retainUntil` | date | S | – | Ende des Jahres von `answeredAt` + 3 Jahre | L-17 · `retentionPrivacyRequests` | – |
 | `seed` / `seedKey` | `seedField()` | S | – | `false` | – | Beispielbestand (SEED-SPEC §11a) |
@@ -2183,7 +2242,7 @@ Wiederherstellung aus dem Backup. **Admin:** Gruppe „System“, nur lesen.
 |---|---|---|---|
 | `entityCollection` | text | R | Slug der betroffenen Collection (z. B. `orders`) |
 | `entityId` | text | R | interne ID; **keine** Nummer mit Personenbezug, kein Name |
-| `ruleId` | text | R | `^L-\d{2}( [a-h])?( Stufe [A-D12])?$` (z. B. `L-10`, `L-13 a`, `L-23 d`, `L-05 Stufe C`, `L-04 Stufe 1`) oder `DSGVO` (Aktion aus einer Anfrage) oder `ADMIN` („Jetzt löschen“) |
+| `ruleId` | text | R | `^L-\d{2}( [a-i])?( Stufe [A-D12])?$` (z. B. `L-10`, `L-13 a`, `L-13 i`, `L-23 d`, `L-05 Stufe C`, `L-04 Stufe 1`) oder `DSGVO` (Aktion aus einer Anfrage) oder `ADMIN` („Jetzt löschen“) |
 | `action` | select `DeletionAction` | R | `deleted`, `anonymized`, `restricted`, `files_deleted` |
 | `trigger` | select `DeletionTrigger` | R | – |
 | `taskSlug` | text | – | Task-Slug aus ARCHITEKTUR Anhang A.3 (bei `trigger = job`) |
@@ -2294,7 +2353,7 @@ Stufe D anonymisiert wird; `deletion-log` je Datensatz.
 ---
 
 
-### 6.30 `tour-dates` – Termine „Planet Claire on Tour“ (P12.8, U-20)
+### 6.30 `tour-dates` – Termine „on Tour“ (P12.8, U-20; Überschrift seit U-82)
 
 **Zweck:** Märkte, Flohmärkte, Kunstmärkte, auf denen Jutta steht; rechte Spalte der Startseite (KONZEPT §3.1a). Nur
 Textlink, keine Karte. Keine Versionen, keine Entwürfe.
@@ -2831,7 +2890,7 @@ KONZEPT §8.2.
 
 | Task-Slug | Queue | Auslösung | Eingabe | Verhalten | Retries |
 |---|---|---|---|---|---|
-| `sendEmail` | email | direkt nach dem Commit; Wiederholung per `waitUntil` + Weckzeit | `{ emailLogId, data, waits }` (`data` = Vorlagen-Daten ohne Tokens; `waits` = Anzahl Anhang-Wartezyklen) | Vorlage rendern, über `EMAIL_DRIVER` senden, `email-log` auf `sent`/`failed`; Empfänger `example.com`, `example.org`, `example.net`, `*.invalid`, `*.test` → `suppressed` (nie versendet). Fehlt ein Pflicht-Anhang noch (Rechnung `pending_pdf`, Rechtstext-PDF), wird der Job ohne Fehlversuch mit `waitUntil = $now + 1 min` neu eingereiht (max. 30×, dann `failed` + `admin_alert`). Wiederholung nach 1, 5, 15, 60, 240 min, danach `failed` + `admin_alert`; `withdrawal_receipt` (R-093): Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang des Widerrufs, `admin_alert` (A12) schon nach dem 2. Fehlversuch und erneut, wenn nach 24 h `failed` gesetzt wird | 5 (bei `withdrawal_receipt` bis 24 h) |
+| `sendEmail` | email | direkt nach dem Commit; Wiederholung per `waitUntil` + Weckzeit | `{ emailLogId, data, waits }` (`data` = Vorlagen-Daten ohne Tokens; `waits` = Anzahl Anhang-Wartezyklen) | Vorlage rendern, über `EMAIL_DRIVER` senden, `email-log` auf `sent`/`failed`; Empfänger `example.com`, `example.org`, `example.net`, `*.invalid`, `*.test` → `suppressed` (nie versendet). Fehlt ein Pflicht-Anhang noch (Rechnung `pending_pdf`, Rechtstext-PDF), wird der Job ohne Fehlversuch mit `waitUntil = $now + 1 min` neu eingereiht (max. 30×, dann `failed` + `admin_alert`). Wiederholung nach 1, 5, 15, 60, 240 min, danach `failed` + `admin_alert`; `withdrawal_receipt` (R-093): Wiederholung im Abstand von höchstens 5 min bis 24 h nach Eingang des Widerrufs, `admin_alert` (A12) schon nach dem 2. Fehlversuch und erneut, wenn nach 24 h `failed` gesetzt wird. Gibt es die `email-log`-Zeile nicht mehr (Löschfrist, Datenschutz-Löschung), endet der Job erfolgreich mit `missing` und wird gelöscht (L-13 i) | 5 (bei `withdrawal_receipt` bis 24 h) |
 | `renderInvoicePdf` | documents | bei Bedarf | `{ invoiceId }` | PDF aus `invoice.data` rendern, als `private-upload` speichern, `pdf`/`sha256`/`renderedAt`/`status = issued` setzen | 5 |
 | `renderLegalTextPdf` | documents | bei Bedarf | `{ legalTextId }` | PDFs DE/EN (Tokens aufgelöst) → `documents`, Hash setzen | 5 |
 | `monthlyClose` | documents | monatlich am 1. ab 04:00 | – | für den Vormonat: Monatsexport-CSV (KONZEPT §7.15, ohne Beispieldaten – auch im Vorschau-Modus; **keine** Namen, Adressen oder E-Mail-Adressen; mit Steuermodus und Stripe-Zahlungs- bzw. Erstattungs-ID; gleiche Eingaben ergeben eine byte-identische Datei, R-124) und Rechnungs-ZIP als `private-uploads` (`monthly_export`, L-07) ablegen; Mail `admin_monthly_close` inkl. Hinweis auf fehlende `revenue-entries` | 3 |
@@ -2845,18 +2904,18 @@ KONZEPT §8.2.
 | `revenueGuardCheck` | maintenance | täglich ab 07:00 + bei Bedarf | – | Gesamtumsatz laufendes Jahr = Rechnungen − Gutschriften (nach Rechnungsdatum) + `revenue-entries` aller Quellen; Vorjahr ebenso bzw. `manualYearTotals`. Stufen (KONZEPT §8.4, R-125): U1 ≥ `u1`, U2 > `previousYearLimitCents`, U3 ≥ `u3`, U3a ≥ `u3a`, U4 ≥ `u4`, U5 > `currentYearLimitCents`, U0 am 1. Januar, wenn das Vorjahr > `previousYearLimitCents` war. Jede Stufe einmal je Jahr: Mail `admin_revenue_guard`, Eintrag in `settings.revenueGuard.lastNotified` | 3 |
 | `invoiceIntegrityCheck` | maintenance | monatlich am 1. ab 04:00 (nach `monthlyClose`) | – | SHA-256 **aller** gespeicherten Rechnungs-/Gutschrift-PDFs gegen `invoices.sha256` (R-122); Abweichung oder fehlende Datei ⇒ `admin_alert` | 3 |
 | `retentionAbandonedCheckouts` | maintenance | täglich, LOESCHKONZEPT §4 | – | `checkouts` mit `createdAt ≤ $now − 30 Tage` löschen, `orders.checkout` leeren (L-03, §6.25.5) | 3 |
-| `retentionOrderMinimize` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-04 Stufe 1 (stornierte Vorkasse: nach 30 Tagen Liefer- und Rechnungsadresse und DHL-Einwilligung entfernen; Status-Token wie Stufe B); L-05 Stufe A (Telefon – ohne Wirkung, es gibt kein Telefonfeld, DM-28), B (`statusTokenHash` und `statusTokenSealed` 180 Tage nach `finalStatusAt`), C (Packfotos 12 Monate nach `shippedAt`, bei Abholung `pickedUpAt`; Rückgabefotos 12 Monate nach `returnReceivedAt`; nicht bei Legal Hold) | 3 |
+| `retentionOrderMinimize` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-04 Stufe 1 (stornierte Vorkasse: nach 30 Tagen Liefer- und Rechnungsadresse und DHL-Einwilligung entfernen, `consent-log`-Einträge der Bestellung löschen – je Eintrag `deletion-log` mit `L-04 Stufe 1`; Status-Token wie Stufe B); L-05 Stufe A (Telefon – ohne Wirkung, es gibt kein Telefonfeld, DM-28), B (`statusTokenHash` und `statusTokenSealed` 180 Tage nach `finalStatusAt`), C (Packfotos 12 Monate nach `shippedAt`, bei Abholung `pickedUpAt`; Rückgabefotos 12 Monate nach `returnReceivedAt`; nicht bei Legal Hold) | 3 |
 | `retentionOrders` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-04 Stufe 2, L-05 Stufe D, L-09: Bestellungen mit `retainUntil ≤ $now` anonymisieren (§6.8.3 Nr. 6), ihre Reklamationen samt Fotos löschen (ab P6) | 3 |
 | `retentionInvoices` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-06: Belege mit `retainUntil ≤ $now` anonymisieren (`pc.now`, §9.4), PDF-Datei + `private-uploads` löschen; L-07: Monatsexporte nach `retainUntil` löschen | 3 |
 | `retentionWithdrawals` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-08: Widerrufe mit `retainUntil ≤ $now` löschen | 3 |
 | `retentionCommissionInquiries` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-10: Anfragen mit `deleteAfter ≤ $now` samt Referenzbildern löschen | 3 |
 | `retentionEmailLog` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-12: `email-log` mit `retainUntil ≤ $now` löschen | 3 |
 | `retentionPrivacyRequests` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-17: Exportdateien 30 Tage nach `answeredAt`, Anfragen mit `retainUntil ≤ $now` löschen | 3 |
-| `retentionConsentEvidence` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-19/L-20: Galerie-Bilddateien spätestens 24 h nach Widerruf der Einwilligung (`consentWithdrawnAt`), `consent_evidence` 3 Jahre nach Widerruf bzw. Ende der Veröffentlichung, `consent-log` mit `retainUntil ≤ $now` löschen | 3 |
+| `retentionConsentEvidence` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-19/L-20: Galerie-Bilddateien spätestens 24 h nach Widerruf der Einwilligung (`consentWithdrawnAt`), `consent_evidence` 3 Jahre nach Widerruf bzw. Ende der Veröffentlichung, widerrufene Galerie-Einträge 3 Jahre nach Widerruf samt nicht mehr genutzter Bild-Einträge (P18.5), `consent-log` mit `retainUntil ≤ $now` löschen | 3 |
 | `retentionDeletionLog` | maintenance | täglich, LOESCHKONZEPT §4 | – | L-18: `deletion-log` mit `retainUntil ≤ $now` löschen (ohne eigenen Protokolleintrag) | 3 |
-| `retentionTechnical` | maintenance | stündlich | – | L-02: Reservierungen 7 Tage nach `releasedAt`/`convertedAt`; L-13 a: `rate_limit_hits` älter als 24 h; L-13 d: `webhook-events` älter als 90 Tage; L-13 f: nicht abgeschickte Anfrage-Uploads (`pending`) älter als 24 h; L-13 g: `job_runs` älter als 90 Tage; L-13 h: `audit-log` mit `retainUntil ≤ $now` | 3 |
+| `retentionTechnical` | maintenance | stündlich | – | L-02: Reservierungen 7 Tage nach `releasedAt`/`convertedAt`; L-13 a: `rate_limit_hits` älter als 24 h; L-13 d: `webhook-events` älter als 90 Tage; L-13 f: nicht abgeschickte Anfrage-Uploads (`pending`) älter als 24 h; L-13 g: `job_runs` älter als 90 Tage; L-13 h: `audit-log` mit `retainUntil ≤ $now`; L-13 i: `payload-jobs` des Tasks `sendEmail`, die gescheitert (`hasError`), hängend (`processing`) oder abgeschlossen sind, 30 Tage nach `updatedAt`, Jobs ohne `email-log`-Zeile sofort – nie ein Job, der gerade läuft (`processing` und `updatedAt` in der letzten Stunde) | 3 |
 | `legalHoldReview` | maintenance | täglich ab 08:00 | – | Legal Holds, deren letzte Prüfung (`legalHoldReviewedAt`, sonst `legalHoldSince`) ≥ 6 Monate her ist ⇒ Mail `admin_legal_hold_review`, `legalHoldReviewedAt` | 3 |
-| `privacyRequestsDeadlineReminder` | maintenance | täglich ab 08:00 | – | offene `privacy-requests` 7 Tage und 1 Tag vor `extendedDueAt ?? dueAt` ⇒ Mail `admin_privacy_request_due` je Stufe einmal (`remindersSent`) + Dashboard-Hinweis (R-153) | 3 |
+| `privacyRequestsDeadlineReminder` | maintenance | täglich ab 08:00 | – | offene `privacy-requests` 7 Tage und 1 Tag vor `extendedDueAt ?? dueAt` ⇒ Mail `admin_privacy_request_due` je Stufe einmal (`remindersSent`) + Dashboard-Hinweis (R-153); danach Nachlauf der Löschungen (`remindersSent.erasureFollowUp`, auch abgeschlossene Anfragen): abgeschlossene Verträge ohne wartende Mail einschränken (`deletion-log` `trigger = privacy_request`, `ruleId = DSGVO`; Prüfung P18.5) | 3 |
 | `complianceDocsReview` | maintenance | monatlich am 1. ab 08:10 | – | L-24: Übersicht der GPSR-/Konformitätsunterlagen (`nickel_evidence`, `lab_report`, `supplier_document`, `technical_file`, `conformity-declarations`) mit Hinweis auf die 10-Jahres-Frist ⇒ Mail `admin_compliance_docs_review`; keine Löschung | 3 |
 
 **Regeln für alle `retention*`-Tasks** (LOESCHKONZEPT §4): alle Fristen und Fristfunktionen als Konstanten mit L-ID in
@@ -2898,7 +2957,7 @@ es vor diesem Kapitel (ARCHITEKTUR Anhang A.3). Fristberechnung in Europe/Berlin
 |---|---|---|---|---|
 | Kassen (`checkouts`) inkl. Eingaben | L-03 | 30 Tage ab Anlage (auch mit Bestellung, DM-05) | löschen | `retentionAbandonedCheckouts` |
 | Reservierungen | L-02 | 7 Tage ab `releasedAt`/`convertedAt` | löschen | `retentionTechnical` |
-| Stornierte Vorkasse-Bestellungen (`cancelled`) | L-04 | Stufe 1: 30 Tage ab Storno (Liefer- und Rechnungsadresse, DHL-Einwilligung; Status-Token wie L-05 Stufe B); Stufe 2: Ende des Stornojahres + 6 Jahre | minimieren, dann anonymisieren | `retentionOrderMinimize`, `retentionOrders` |
+| Stornierte Vorkasse-Bestellungen (`cancelled`) | L-04 | Stufe 1: 30 Tage ab Storno (Liefer- und Rechnungsadresse, DHL-Einwilligung, `consent-log`-Einträge der Bestellung; Status-Token wie L-05 Stufe B); Stufe 2: Ende des Stornojahres + 6 Jahre | minimieren, dann anonymisieren | `retentionOrderMinimize`, `retentionOrders` |
 | Bestellungen mit Zahlung, auch widerrufen/erstattet | L-05 | ab `timestamps.finalStatusAt`: A 30 Tage (Telefon – ohne Wirkung, DM-28), B 180 Tage (`statusTokenHash`, `statusTokenSealed`), C 12 Monate ab `shippedAt` bzw. `pickedUpAt` (Packfotos) und ab `returnReceivedAt` (Rückgabefotos), D Ende des Jahres + 6 Jahre (`retainUntil`) | minimieren, dann anonymisieren (bleibt: Nummer, Daten, Status-Verlauf ohne Freitext, Positionen, Beträge, Zahlart-Typ, Belegnummern, Rechtstext- und Bausteinfassungen) | `retentionOrderMinimize`, `retentionOrders` |
 | Reklamationen (`complaints`) samt Fotos | L-09 | mit der Bestellung (Stufe D) | löschen | `retentionOrders` |
 | Rechnungen/Gutschriften + PDFs | L-06 | Ende des Ausstellungsjahres + `settings.retention.invoiceYears` (8/10, Standard 10) = `retainUntil`, beim Anlegen eingefroren | PDF löschen, Registerzeile anonymisieren (Trigger §9.4) | `retentionInvoices` |
@@ -2911,10 +2970,11 @@ es vor diesem Kapitel (ARCHITEKTUR Anhang A.3). Fristberechnung in Europe/Berlin
 | Webhook-Ereignisse | L-13 d | 90 Tage | löschen | `retentionTechnical` |
 | Job-Protokoll (`job_runs`) | L-13 g | 90 Tage ab Lauf | löschen | `retentionTechnical` |
 | Audit-Log (personenbezogene Werte maskiert) | L-13 h | Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre (`retainUntil`, §6.21) | löschen | `retentionTechnical` |
+| Mail-Jobs der Warteschlange (`payload-jobs`, Task `sendEmail`, Eingabe mit Kopie der Mail-Daten) | L-13 i | gescheitert, hängend oder abgeschlossen: 30 Tage nach `updatedAt`; ohne `email-log`-Zeile: sofort; erfolgreich: Payload löscht sofort | löschen | `retentionTechnical` |
 | DSGVO-Anfragen; Exportdateien | L-17 | Datensatz: Ende des Abschlussjahres + 3 Jahre; Exportdateien: 30 Tage nach Antwort | löschen | `retentionPrivacyRequests` |
 | Löschprotokoll | L-18 | 3 Jahre ab Eintrag | löschen | `retentionDeletionLog` |
-| DHL-E-Mail-Einwilligung und Abweichungsvereinbarungen (`consent-log`) | L-19 a | mit der Bestellung (Stufe D); ohne Bestellung wie die Kasse (L-03, 30 Tage) | löschen | `retentionConsentEvidence` |
-| Portfolio-Einwilligungsnachweise | L-19 b | Widerruf bzw. Ende der Veröffentlichung + 3 Jahre | löschen | `retentionConsentEvidence` |
+| DHL-E-Mail-Einwilligung und Abweichungsvereinbarungen (`consent-log`) | L-19 a | mit der Bestellung (Stufe D), bei stornierten, nie bezahlten Vorkasse-Bestellungen mit L-04 Stufe 1 (30 Tage); ohne Bestellung wie die Kasse (L-03, 30 Tage) | löschen | `retentionConsentEvidence` |
+| Portfolio-Einwilligungsnachweise (Nachweisdatei; widerrufener Galerie-Eintrag mit Häkchen, Datum, Umfang, Notiz, Instagram-Name und nicht mehr genutzten Bild-Einträgen, P18.5) | L-19 b | Widerruf bzw. Ende der Veröffentlichung + 3 Jahre | löschen | `retentionConsentEvidence` |
 | Portfolio-Fotos nach Widerruf | L-20 | sofort unveröffentlicht, Dateien spätestens nach 24 h | löschen | Aktion + `retentionConsentEvidence` |
 | GPSR-/Konformitätsunterlagen | L-24 | 10 Jahre ab Inverkehrbringen des letzten Stücks | nur Erinnerung | `complianceDocsReview` |
 | Beispielbestand | L-22 | vor Go-live | Knopf „Beispieldaten entfernen“ (§13.5) | – |

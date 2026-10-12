@@ -16,7 +16,7 @@ import {
 
 import styles from './TourDates.module.css'
 
-// „Planet Claire on Tour“ (P12.8 U-20, P13.3 U-42, KONZEPT §3.1a): schmaler, kompakter Schaukasten oben rechts auf der
+// „on Tour“ (bis P16 „Planet Claire on Tour“, U-82; P12.8 U-20, P13.3 U-42, KONZEPT §3.1a): schmaler, kompakter Schaukasten oben rechts auf der
 // Startseite direkt neben Koko (mobil darunter). Auf der Tafel stehen nur die nächsten drei Termine als kleine Zettel
 // (Datumsblock · Name · eine Zeile Ort und Uhrzeit), der erste mit Reiter „als Nächstes“. Alle weiteren kommenden und die
 // vergangenen Termine liegen ausführlich (Uhrzeit, Ort, Stand, Notiz, Link, Foto) in einem `<details>` darunter (ohne
@@ -256,7 +256,7 @@ export async function TourDates({
 
 /**
  * Handy und Tablet (U-51, P14.2): Der Schaukasten steht unter 1100 px **zusammengeklappt** hinter Station 01 – ein
- * `<details>` mit der Zusammenfassung „Planet Claire on Tour – nächster Termin: …“. Ab 1100 px ist er wie bisher offen
+ * `<details>` mit der Zusammenfassung „on Tour – nächster Termin: …“. Ab 1100 px ist er wie bisher offen
  * oben rechts: die Zusammenfassung verschwindet und der Inhalt bleibt sichtbar (`::details-content`, siehe CSS). Ein
  * einziges Element – keine doppelten Inhalte für Screenreader; ohne Unterstützung für `::details-content` (ältere Browser)
  * bleibt er auch am Desktop aufklappbar. Nach dem Laden setzt `tour-fold` am Desktop `open` (Zustand auch für Screenreader).

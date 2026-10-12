@@ -6,7 +6,7 @@ import { isCarrierCode, trackingTemplatesFromSettings } from '@/lib/carrier'
 import { createManualCarrierAdapter } from '@/lib/carrier/manual'
 import type { Locale, OrderStatus, TaxMode } from '@/lib/enums'
 import { legalAttachmentInfo } from '@/lib/legal/attachments'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { matchesHash, unsealToken } from '@/lib/security/tokens'
 import type { Order, Setting } from '@/payload-types'
 
@@ -115,7 +115,7 @@ async function bankOf(order: Order, settings: Setting): Promise<OrderViewBank | 
     const svg = await epcQrSvg(epc, { width: EPC_QR_DISPLAY_PX })
     qrDataUri = `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`
   } catch (err) {
-    log.warn('order_view.epc_failed', { orderId: order.id, error: (err as Error)?.message })
+    log.warn('order_view.epc_failed', { orderId: order.id, error: errorSummary(err) })
   }
   return {
     accountHolder: p.accountHolder,

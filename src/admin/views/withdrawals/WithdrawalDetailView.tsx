@@ -9,7 +9,7 @@ import { adminText } from '../../translations'
 import type { AdminViewBodyProps } from '../AdminViewBody'
 import { adminViewPath } from '../registry'
 import { ENUM_LABELS } from '@/lib/enumLabels'
-import { WITHDRAWAL_CLOSE_REASONS } from '@/lib/enums'
+import { WITHDRAWAL_CLOSE_REASONS, type OrderItemStatus } from '@/lib/enums'
 
 import { refundDialogData } from '@/lib/commerce/refundOrder'
 import { emailLogsFor } from '@/lib/privacy/logs'
@@ -46,7 +46,22 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
   const { card, declaration: d, order } = detail
   const refund =
     order && ['received', 'goods_returned', 'partially_refunded'].includes(card.status)
-      ? await refundDialogData(req, order.id, { affectedItemIds: detail.affectedItemIds })
+      ? await refundDialogData(req, order.id, {
+          affectedItemIds: detail.affectedItemIds,
+          order: order.id,
+          status: card.status,
+          itemsText: d.itemsText,
+        })
+      : null
+  // Teil-Widerruf nur im Freitext: offene Positionen zum Anhaken (nichts vorab angehakt)
+  const assign =
+    order && detail.needsItems
+      ? {
+          itemsText: d.itemsText ?? '',
+          items: order.items
+            .filter((i) => i.status === 'active' && i.id)
+            .map((i) => ({ id: i.id, label: `${i.nr} · ${i.title}` })),
+        }
       : null
   return (
     <div className="pc-order pc-order--detail" data-testid="withdrawal-detail">
@@ -107,6 +122,9 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
                 <li key={i} className="pc-order__item">
                   <span className="pc-order__nr">{item.nr}</span> {item.title} ·{' '}
                   <MoneyAmount cents={item.priceCents} locale="de" />
+                  {item.status !== 'active'
+                    ? ` · ${ENUM_LABELS.ORDER_ITEM_STATUSES[item.status as OrderItemStatus]?.de ?? item.status}`
+                    : ''}
                 </li>
               ))}
             </ul>
@@ -155,13 +173,18 @@ export async function WithdrawalDetailView({ adminRoute, req, match }: AdminView
           status={card.status}
           orderId={order?.id ?? null}
           returnProofReceivedAt={detail.returnProofReceivedAt}
+          assign={assign}
           items={(order?.items ?? []).map((i) => ({
             productId: i.productId,
             nr: i.nr,
             status: i.status,
           }))}
           refund={
-            refund ? (
+            refund?.needsItemAssignment ? (
+              <Notice tone="info" data-testid="refund-needs-items">
+                {adminText('refundNeedsItems')}
+              </Notice>
+            ) : refund ? (
               <RefundDialog
                 orderId={refund.orderId}
                 orderNumber={refund.orderNumber}

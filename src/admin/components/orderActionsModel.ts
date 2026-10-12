@@ -13,9 +13,10 @@ export interface OrderActionFacts {
 
 export function availableOrderActions(o: OrderActionFacts): OrderActionKind[] {
   if (o.status === 'awaiting_prepayment') return ['prepaymentReceived', 'cancel']
-  if (o.status === 'cancelled' && o.cancelReason === 'payment_timeout') {
-    return ['reactivate', 'refundTransferDone']
-  }
+  if (o.status !== 'cancelled') return []
+  if (o.cancelReason === 'payment_timeout') return ['reactivate', 'refundTransferDone']
+  // Nach Widerruf bzw. Storno durch Jutta: eingegangenes Geld zurück, die Bestellung lebt nie wieder auf (P18.5)
+  if (o.cancelReason === 'withdrawn' || o.cancelReason === 'admin') return ['refundTransferDone']
   return []
 }
 

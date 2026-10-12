@@ -28,7 +28,7 @@ registerMediaReference({
   collection: SLUG,
   path: 'image',
   where: { published: { equals: true } },
-  label: 'Termin (Planet Claire on Tour)',
+  label: 'Termin (on Tour)',
   titleField: 'name',
 })
 
@@ -89,7 +89,7 @@ export const TourDates: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'startsAt', 'endsAt', 'place', 'status', 'published'],
     description:
-      'Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.',
+      'Märkte, Flohmärkte und Kunstmärkte („on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.',
   },
   access: {
     // öffentlich: veröffentlichte Termine (auch vergangene – sie stehen eingeklappt), Seed-Filter wie bei allen Beispielen

@@ -12,7 +12,7 @@ import { immutableFields } from './hooks/immutable'
 // ohne Inhalte, Namen oder E-Mail-Adressen. Geschrieben ausschließlich über writeDeletionLog().
 
 /** `L-xx`, `L-xx a`, `L-xx Stufe C`, `L-04 Stufe 1`, `DSGVO` oder `ADMIN`. */
-export const DELETION_RULE_ID_REGEX = /^(?:L-\d{2}(?: [a-h])?(?: Stufe [A-D12])?|DSGVO|ADMIN)$/
+export const DELETION_RULE_ID_REGEX = /^(?:L-\d{2}(?: [a-i])?(?: Stufe [A-D12])?|DSGVO|ADMIN)$/
 /** Interne ID ohne Personenbezug. */
 export const DELETION_ENTITY_ID_REGEX = /^[A-Za-z0-9_-]{1,64}$/
 export const PRIVACY_REQUEST_REF_REGEX = /^DS-\d{4}-\d{4,}$/

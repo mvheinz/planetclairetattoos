@@ -32,6 +32,9 @@ function publicTexts(p: BestandProduct): string[] {
     ...l(p.sizeLabel),
     ...l(p.careInstructions),
     ...l(p.deviationDescription),
+    ...(p.metalPartsMaterial
+      ? [p.metalPartsMaterial.de, ...(p.metalPartsMaterial.en ? [p.metalPartsMaterial.en] : [])]
+      : []),
     ...photosOf(p).flatMap((i) => l(i.alt)),
   ]
 }
@@ -105,7 +108,7 @@ describe('Echter Bestand (content/bestand, P16.1)', async () => {
         expect(meta.orientation ?? 1, file).toBe(1)
       }
     }
-  })
+  }, 30_000) // 186 Fotos lesen – unter Last (parallele Prüfschleuse) mehr als 5 s
 
   it('Titel: „<Gegenstand> „<Name>““ in beiden Sprachen', () => {
     for (const p of products) {

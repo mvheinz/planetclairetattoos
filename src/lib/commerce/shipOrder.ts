@@ -16,12 +16,17 @@ import { enqueueEmail } from '@/lib/email/outbox'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Order } from '@/payload-types'
 
+import { restDeliveryAllowed } from './orderTransitions'
 import { loadSettings, packagingToRecord, type PackagingInput } from './packOrder'
-import { packagingRecorded, shippingClassesOf } from './packing'
-import { loadOrder, lockOrder, transitionOrder } from './transitionOrder'
+import { packagingRecorded, shipmentClassesOf } from './packing'
+import { loadOrder, lockOrder, transitionOrder, type LockedOrder } from './transitionOrder'
+import { itemsUnassignedMessage, unassignedWithdrawalOf } from './withdrawalHold'
 
-// „Versendet melden“ (O7, DATENMODELL §6.8.5, KONZEPT §7.6): nur `paid`/`packed` mit Versand; Versanddienst
-// (vorbelegt aus der Versandklasse), Sendungsnummer Pflicht bei `paket_klein`/`keramik`, bei `brief` optional;
+// „Versendet melden“ (O7, DATENMODELL §6.8.5, KONZEPT §7.6): nur `paid`/`packed` mit Versand (bzw. Rest-Lieferung
+// aus `partially_refunded`, `restDeliveryAllowed`; nie bei Teil-Widerruf ohne zugeordnete Stücke); Versanddienst
+// (vorbelegt aus der Versandklasse), Sendungsnummer Pflicht bei `paket_klein`/`keramik`, bei `brief` optional – nur die
+// Klassen der Stücke, die in die Sendung gehören (`shipmentClassesOf`; nach Teil-Widerruf bzw. Teil-Erstattung vor dem
+// Versand ohne die übrigen, P18.5);
 // Verpackung erfasst (Pflicht, DM-ORD-07 – wird hier mit der übergebenen bzw. vorbelegten Vorlage erfasst, falls
 // „Gepackt“ übersprungen wurde). Keramik ohne Packfoto: kein Zwang, aber Rückfrage „Ohne Packfoto versenden?“ – erst
 // mit `confirmWithoutPackingPhoto: true` wird versendet und Audit `packing_photo_skipped` geschrieben (R-100).
@@ -51,6 +56,12 @@ export interface ShipInput {
 
 const TRACKING_REQUIRED = new Set(['paket_klein', 'keramik'])
 
+/** Versand möglich: `paid`/`packed` oder Rest-Lieferung nach Teil-Erstattung (DATENMODELL §6.8.5). */
+export const shippableFrom = (locked: LockedOrder): boolean =>
+  locked.status === 'paid' ||
+  locked.status === 'packed' ||
+  (locked.status === 'partially_refunded' && restDeliveryAllowed('shipped', locked))
+
 export interface ShipResult {
   order: Order
   unchanged: boolean
@@ -71,7 +82,7 @@ export async function shipOrder(
     if (order.fulfillmentMethod !== 'shipping') {
       throw new ShipError(409, '„Versendet melden“ gibt es nur bei Bestellungen mit Versand.')
     }
-    if (locked.status !== 'paid' && locked.status !== 'packed') {
+    if (!shippableFrom(locked)) {
       throw new ShipError(
         409,
         locked.status === 'withdrawal_received'
@@ -79,15 +90,21 @@ export async function shipOrder(
           : 'Diese Bestellung lässt sich nicht (mehr) als versendet melden.',
       )
     }
+    const unassigned = await unassignedWithdrawalOf(req, order.id)
+    if (unassigned) {
+      throw new ShipError(409, itemsUnassignedMessage(unassigned), 'withdrawal_items_unassigned')
+    }
+    // Stand nach der Sperre (ein gleichzeitiger Teil-Widerruf ist dann schon gebucht bzw. wartet)
+    const current = await loadOrder(req, order.id)
+    const classes = shipmentClassesOf(current)
     const carrier: CarrierCode = isCarrierCode(input.carrier)
       ? input.carrier
-      : defaultCarrierFor(order.shippingClass)
+      : defaultCarrierFor(classes[0] ?? null)
     const rawTracking = typeof input.trackingNumber === 'string' ? input.trackingNumber.trim() : ''
     const trackingNumber = rawTracking ? parseTrackingNumber(rawTracking) : null
     if (rawTracking && !trackingNumber) {
       throw new ShipError(400, 'Sendungsnummer: 8–35 Buchstaben oder Ziffern, ohne Sonderzeichen.')
     }
-    const classes = shippingClassesOf(order)
     if (!trackingNumber && classes.some((c) => TRACKING_REQUIRED.has(c))) {
       throw new ShipError(
         409,
@@ -95,7 +112,6 @@ export async function shipOrder(
       )
     }
 
-    const current = await loadOrder(req, order.id)
     const packaging = input.packaging
       ? await packagingToRecord(req, current, input.packaging)
       : null
@@ -119,7 +135,7 @@ export async function shipOrder(
       : null
     const res = await transitionOrder(req, order.id, 'shipped', {
       now,
-      expectedFrom: ['paid', 'packed'],
+      expectedFrom: ['paid', 'packed', 'partially_refunded'],
       actorType: 'admin',
       data: {
         shipment: { ...(current.shipment ?? {}), carrier, trackingNumber, trackingUrl },

@@ -1,0 +1,31 @@
+import 'server-only'
+
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+
+import { snapshotSchema, type ListSnapshot } from './snapshot'
+
+// Gemerkte Stände vor dem Start (U-89 a): eine JSON-Datei je ausgegebener Liste unter `content/pflege/stand/`. Die
+// Sitzung, die eine Liste ausgibt, committet den Stand mit – sonst findet die nächste Sitzung ihn beim Zurückspielen
+// nicht (RUNBOOK „Jutta schickt eine Excel-Liste“).
+
+export const PFLEGE_STAND_DIR = path.join('content', 'pflege', 'stand')
+
+const fileOf = (root: string, id: string) => path.join(root, PFLEGE_STAND_DIR, `${id}.json`)
+
+export async function saveSnapshot(root: string, s: ListSnapshot): Promise<string> {
+  const file = fileOf(root, s.id)
+  await mkdir(path.dirname(file), { recursive: true })
+  await writeFile(file, `${JSON.stringify(s, null, 1)}\n`)
+  return file
+}
+
+export async function loadSnapshot(root: string, id: string): Promise<ListSnapshot | null> {
+  let raw: string
+  try {
+    raw = await readFile(fileOf(root, id), 'utf8')
+  } catch {
+    return null
+  }
+  return snapshotSchema.parse(JSON.parse(raw)) as ListSnapshot
+}

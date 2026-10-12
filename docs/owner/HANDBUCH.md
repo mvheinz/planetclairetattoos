@@ -74,7 +74,8 @@ allem anderen. Am Laptop steht dieselbe Liste als Seitenleiste links.
 Beim Öffnen siehst du, was ansteht:
 
 - **Kacheln:** „Zu packen“, „Vorkasse offen“, „Abholung“, „Widerrufe offen“ (mit der nächsten Frist) und „Neue Anfragen“. Tippe
-  auf eine Kachel, dann bist du in der passenden Liste.
+  auf eine Kachel, dann bist du in der passenden Liste. „Zu packen“ und „Abholung“ zählen auch Bestellungen, bei denen
+  du ein Stück schon erstattet hast und der Rest noch rausgeht bzw. abgeholt wird.
 - **Hinweise:** rot heißt „bitte bald kümmern“, gelb heißt „bitte ansehen“. Jeder Hinweis hat einen Link zur Stelle, an der
   du etwas tun kannst, zum Beispiel offene Datenschutz-Anfragen, der Umsatz-Wächter, eine fehlgeschlagene Mail,
   Rechtstexte, die geprüft werden sollten, oder „Startklar-Prüfung nicht grün“.
@@ -196,6 +197,13 @@ So gehst du vor:
    „Ja“, geht die Mail raus. Erst dann.
 
 Steht an einer Bestellung **„Nicht mehr versenden – Widerruf!“**, hat die Kundin schon widerrufen (Kapitel 8).
+Hat sie nur einzelne Stücke widerrufen oder hast du einzelne Stücke schon erstattet (zum Beispiel weil eins zerbrochen
+ist), steht an der Bestellung **„Nicht mehr versenden – Widerruf: Nr. …“** bzw. **„– erstattet: Nr. …“**. Die übrigen
+Stücke packst und versendest du ganz normal; Packzettel und Versandmail nennen nur sie. Versandart, Hinweise, Checkliste
+und Verpackung richten sich dann nur nach diesen Stücken: Bleibt zum Beispiel nur eine Postkarte übrig, geht sie als
+Brief, und die Sendungsnummer ist freiwillig. Das nicht verschickte Stück kannst du nach der Erstattung wieder verkaufen
+oder ausblenden, auch wenn der Rest schon unterwegs ist. Steht dort **„Noch nicht versenden – … erst Stücke
+zuordnen!“**, lies Kapitel 8.
 
 ![Die Liste „Versendet“](img/handbuch/versendet.webp)
 
@@ -221,7 +229,11 @@ ist so lange für die Kundin reserviert. Unter **Vorkasse** siehst du die offene
 - **Stornieren:** wenn die Kundin absagt. Der Grund ist Pflicht, das Stück wird wieder frei.
 - **Automatik:** Nach 3 Tagen erinnert der Shop die Kundin. Ist bis zum Ende des 5. Tages nach der Bestellung kein
   Geld da, storniert der Shop von selbst. Kommt das Geld später doch, hilft der Knopf „Nachträglich bezahlt“ unter
-  „Kürzlich automatisch storniert“.
+  „Kürzlich storniert oder widerrufen“.
+- **Geld nach Widerruf oder eigenem Storno:** Hat die Kundin widerrufen oder hast du storniert, bevor das Geld da war,
+  lebt die Bestellung nicht wieder auf. Kommt trotzdem Geld an, überweise es zurück (auf das Konto, von dem es kam;
+  nach einem Widerruf spätestens bis zu dem Datum, das die Karte zeigt – 14 Tage nach dem Widerruf) und tippe dann auf
+  „Rücküberweisung erledigt“. „Zahlung erhalten“ sagt dir das auch, falls du es dort versuchst.
 
 ## 7. Abholung
 
@@ -234,6 +246,8 @@ Bei Abholung zeigt die Liste, wie lange die Bestellung schon wartet. Länger als
 - **Bereit zur Abholung:** Du schreibst der Kundin, wann und wo sie abholen kann. Die Vorlage kommt aus den
   Einstellungen und lässt sich ändern. Die Kundin bekommt eine Mail.
 - **Abgeholt:** Tippe darauf, wenn die Kundin das Stück hat. Ab diesem Tag zählen die 14 Tage Widerrufsfrist.
+- Steht rot **„Nicht mehr übergeben – …: Nr. …“** an der Karte, gibst du nur die übrigen Stücke mit. Fehlen die Knöpfe,
+  musst du erst bei dem Widerruf die Stücke zuordnen (Kapitel 8).
 
 ## 8. Widerrufe und Erstattung
 
@@ -253,6 +267,9 @@ So gehst du vor:
 
 1. Widerruf öffnen: Dort steht die Erklärung unverändert, dazu die zugeordnete Bestellung. Passt keine Bestellung, nutze
    „Bestellung zuordnen“. Kam der Widerruf per Mail oder Brief, erfasst du ihn mit „Widerruf manuell erfassen“.
+   Hat die Kundin die Stücke nur in Worten genannt (zum Beispiel „nur die blaue Tasse“) und nichts angehakt, siehst du
+   **Stücke zuordnen**: Hake die gemeinten Stücke an und bestätige. Bis dahin lässt sich die Bestellung nicht packen,
+   versenden oder übergeben, und „Erstatten“ wartet. Die übrigen Stücke gehen danach ganz normal raus.
 2. Die Ware kommt zurück: Prüfe sie und tippe auf **Ware ist zurück**. Eine kurze Notiz zum Zustand hilft später.
 3. **Erstatten:** Die Verwaltung rechnet den Betrag nach den gesetzlichen Regeln vor (Kaufpreis und, bei vollständigem Widerruf, der Standardversand). Du kannst ihn erhöhen, mit Notiz.
    Bei Kartenzahlung läuft die Rückzahlung automatisch über den Zahlungsanbieter. Bei Vorkasse überweist du das Geld
@@ -284,7 +301,7 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 
 ![Der Bereich „Tattoo“](img/handbuch/tattoo.webp)
 
-**Flash** sind Motive, die du zu einem festen Preis stichst. Außerdem pflegst du hier die Galerie. Du findest die Reiter Flash, Galerie und Texte. Deine Markttermine („Planet Claire on Tour“) haben einen eigenen Menüpunkt **Termine** (siehe unten):
+**Flash** sind Motive, die du zu einem festen Preis stichst. Außerdem pflegst du hier die Galerie. Du findest die Reiter Flash, Galerie und Texte. Deine Markttermine („on Tour“) haben einen eigenen Menüpunkt **Termine** (siehe unten):
 
 ![Flash-Motive](img/handbuch/tattoo-flash.webp)
 
@@ -294,11 +311,12 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 
 ![Der Menüpunkt „Termine“](img/handbuch/termine.webp)
 
-- **Termine – „Planet Claire on Tour“ (eigener Menüpunkt „Termine“):** Hier trägst du Märkte, Flohmärkte und Kunstmärkte ein. Auf der Startseite stehen
+- **Termine – „on Tour“ (eigener Menüpunkt „Termine“):** Hier trägst du Märkte, Flohmärkte und Kunstmärkte ein. Auf der Startseite stehen
   sie in der rechten Spalte (am Handy darunter): kommende Termine oben, vergangene eingeklappt. Tippe auf „Neuer Termin“
   und fülle aus: Name des Marktes, Ort oder Bezirk, Datum von–bis (bei einem Tag das Enddatum leer lassen), Uhrzeiten,
   Adresse des Marktes, Standnummer, eine kurze Notiz (zum Beispiel „Coco ist dabei“) und – wenn du magst – einen Link zur
-  Seite des Marktes und ein Foto von deinem Stand. Es gibt keine Karte, nur Text. Bitte nie die Adresse deines
+  Seite des Marktes und ein Foto von deinem Stand. Bitte ohne erkennbare Gesichter anderer Menschen (Besucher:innen,
+  Nachbarstände) – sonst nur mit deren Einverständnis. Es gibt keine Karte, nur Text. Bitte nie die Adresse deines
   Privatstudios eintragen, die Verwaltung lehnt sie ab. Fällt ein Markt aus, tippst du bei dem Termin auf „Absagen“: Er
   steht dann durchgestrichen mit dem Hinweis „abgesagt“ auf der Seite. „Vorbei“ musst du nicht setzen, das passiert nach
   dem Datum von selbst. „Übersetzen“ füllt die englischen Texte vor. Die Beispiel-Termine verschwinden mit den übrigen
@@ -313,8 +331,10 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
   veröffentlichen, wenn die Person **vorher ausdrücklich zugestimmt hat**. Trage dann Datum und eine kurze Notiz ein
   und lade, wenn du magst, den Nachweis hoch (zum Beispiel die Nachricht). Fehlt die Einwilligung, lässt sich das Foto nicht
   veröffentlichen, die Verwaltung sagt dir: „Ohne Einwilligung der Kundin/des Kunden nicht veröffentlichen“. Widerruft
-  jemand, tippst du auf „Einwilligung widerrufen“, und das Foto ist sofort offline. Eine Vorlage für die Einwilligung
-  findest du in den [Anleitungen](ANLEITUNGEN.md#e1).
+  jemand, tippst du auf „Einwilligung widerrufen“, und das Foto ist sofort offline. Die Bilddateien löscht die
+  Verwaltung danach von selbst, den Eintrag mit deiner Notiz und dem Nachweis nach drei Jahren. Ein Foto mit gültiger
+  Einwilligung lässt sich nicht einfach löschen – nutze erst „Einwilligung widerrufen“. Eine Vorlage für die
+  Einwilligung findest du in den [Anleitungen](ANLEITUNGEN.md#e1).
 
 Preise, Ablauf, Pflegehinweise und häufige Fragen bearbeitest du unter „Texte“ (nächstes Kapitel).
 
@@ -339,6 +359,10 @@ und Zahlung) sind etwas Besonderes:
   keine Änderung“.
 
 Schreibe in Rechtstexten nie selbst um, was die Kanzlei geliefert hat.
+
+**Lieber mit Listen?** Bestand und alle Texte der Seite kannst du auch als Excel-Liste bearbeiten – vom iPad, mit der
+kostenlosen App Numbers. Wie das geht, steht in `docs/owner/IPAD.md` (Listen holen, ändern, zurückschicken). Ändert sich
+dasselbe Feld an zwei Stellen, wird nichts überschrieben, sondern nachgefragt.
 
 ## 12. Einstellungen
 
@@ -411,9 +435,24 @@ erfasst du sie hier. Die Verwaltung rechnet die Frist aus und erinnert dich 7 Ta
 1. **Anfrage erfassen:** Art (Auskunft, Löschung …) und Eingangsdatum.
 2. **Identität prüfen:** Antworte nur an die Person, die ihre Daten verlangt. Im Zweifel frag nach.
 3. **Auskunft:** Die Verwaltung sucht über E-Mail, Name oder Bestellnummer alle Daten und erstellt eine ZIP-Datei. Sie wird
-   privat gespeichert und 30 Tage nach dem Versand der Antwort gelöscht.
+   privat gespeichert und 30 Tage nach dem Versand der Antwort gelöscht. Findet die Suche etwas nur über den Namen oder
+   die Bestellnummer und steht dort eine **andere E-Mail-Adresse** (zum Beispiel eine Namensvetterin oder ein Geschenk,
+   das jemand anderes bestellt hat), erscheint es unter „Mögliche Treffer – andere E-Mail-Adresse, bitte prüfen“. Das
+   kommt nur in die ZIP-Datei, wenn du das Kästchen ankreuzt – mach das nur, wenn du sicher bist, dass es dieselbe
+   Person ist.
 4. **Löschung:** Die Verwaltung zeigt dir je Datensatz, was gelöscht wird. Rechnungen musst du **steuerlich aufbewahren**.
-   Sie bleiben erhalten, werden aber für andere Zwecke gesperrt. Das erklärt die Verwaltung bei jedem Datensatz.
+   Sie bleiben erhalten, werden aber für andere Zwecke gesperrt. Das erklärt die Verwaltung bei jedem Datensatz. Ist eine
+   Bestellung noch nicht fertig (zum Beispiel bezahlt, aber noch nicht verschickt, oder ein Widerruf mit Rücksendung und
+   Erstattung läuft noch), schlägt die Verwaltung „keine Aktion“ vor: Sonst würden auch die Versand- und
+   Erstattungsmails nicht mehr rausgehen. Die Antwort an die Person sagt dann, dass du die Daten noch für die Bestellung
+   brauchst. **Du musst dir nichts merken:** Sobald die Bestellung abgeschlossen ist, schränkt der Shop sie beim
+   täglichen Lauf (ab 8 Uhr) von selbst ein (nur noch Aufbewahrung, keine Mails mehr) und trägt das ins Löschprotokoll
+   ein. Solange das noch aussteht, steht an der
+   Anfrage „Nachlauf: nach Abschluss einschränken“ – die Anfrage darfst du trotzdem schon abschließen. Hat die Person
+   der Weitergabe ihrer E-Mail-Adresse an DHL zugestimmt, nimmt der Shop diese Zustimmung mit der Löschung sofort
+   zurück. Ist die Aufbewahrungszeit einer alten Bestellung schon vorbei, gibt es „keine Aktion“ nicht: Dann löschst du
+   sie oder schreibst einen Grund, warum sie bleiben muss. Der Shop prüft alle deine Entscheidungen, bevor er etwas
+   löscht.
 5. **Einwilligung widerrufen** (zum Beispiel für Tattoo-Fotos oder die Weitergabe der E-Mail an DHL): ein Knopf, wirkt
    sofort.
 

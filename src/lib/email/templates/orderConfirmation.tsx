@@ -40,9 +40,9 @@ import {
 // §6.3), M05 `prepayment_received` (O3/O5). Anhänge lädt der Versand-Job laut Registry (M01: Rechnung + Rechtstexte,
 // M02: Rechtstexte, M05: Rechnung).
 
-export const ORDER_CONFIRMATION_VERSION = 'm01-v1'
-export const PREPAYMENT_INSTRUCTIONS_VERSION = 'm02-v1'
-export const PREPAYMENT_RECEIVED_VERSION = 'm05-v1'
+export const ORDER_CONFIRMATION_VERSION = 'm01-v2'
+export const PREPAYMENT_INSTRUCTIONS_VERSION = 'm02-v2'
+export const PREPAYMENT_RECEIVED_VERSION = 'm05-v2'
 
 export { orderMailDataSchema }
 

@@ -121,6 +121,8 @@ export interface CheckoutSchemaContext {
   paymentChoices: readonly CheckoutChoice[]
   /** Stück „nur Abholung“ im Korb → Versand nicht wählbar. */
   pickupOnly?: boolean
+  /** `false` → Abholung gerade nicht wählbar (`settings.shipping.pickupEnabled` aus, P18.5); fehlt → wählbar. */
+  pickupAvailable?: boolean
 }
 
 export type CheckoutValidation =
@@ -206,6 +208,9 @@ export function validateCheckoutInput(
   if ((CHECKOUT_FULFILLMENT as readonly string[]).includes(method)) {
     fulfillmentMethod = method as CheckoutFulfillment
     if (fulfillmentMethod === 'shipping' && ctx.pickupOnly) errors.fulfillmentMethod = 'choice'
+    if (fulfillmentMethod === 'pickup' && ctx.pickupAvailable === false) {
+      errors.fulfillmentMethod = 'choice'
+    }
   } else {
     errors.fulfillmentMethod = method ? 'choice' : 'required'
   }

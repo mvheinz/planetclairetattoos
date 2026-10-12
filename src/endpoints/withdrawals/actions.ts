@@ -4,13 +4,14 @@ import { isAdminRequest } from '@/access'
 import { orderActionErrorResponse } from '@/endpoints/orders/_action'
 import { ADMIN_NO_STORE, adminActionResponse } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { requestNow } from '@/lib/payload/context'
 import { inTransaction } from '@/lib/payload/transaction'
 import type { Withdrawal } from '@/payload-types'
 
 // Admin-Endpunkte des Widerrufs-Posteingangs (PLAN P6.9, KONZEPT §7.10, R-094; nur `isAdmin`, sonst 403):
-// `POST /api/withdrawals/:id/match` `{ orderId, itemIds? }` (W2) · `/goods-returned` `{ note?, photoIds? }` (W3/O12) ·
+// `POST /api/withdrawals/:id/match` `{ orderId, itemIds? }` (W2) · `/assign-items` `{ itemIds }` („Stücke zuordnen“ bei
+// Teil-Widerruf nur im Freitext) · `/goods-returned` `{ note?, photoIds? }` (W3/O12) ·
 // `/return-proof` · `/close` `{ closeReason, closeNote? }` (W5/O20) · `/reject` `{ closeNote }` (W7) ·
 // `/spam` `{ reason }` · `GET /api/withdrawals/order-search?q=` (Zuordnen) · `POST /api/withdrawals/manual` (manuelle
 // Erfassung per Mail/Brief). Zustandsbasiert idempotent (`unchanged: true`); Mails nach dem Commit.
@@ -59,7 +60,7 @@ function withdrawalAction(path: string, handler: Handler): Endpoint {
           log.error('withdrawals.after_commit_failed', {
             id,
             path,
-            reason: (e as Error)?.message,
+            reason: errorSummary(e),
           }),
         )
         log.info('withdrawals.admin_action', { id, path, unchanged: !!result.unchanged })
@@ -78,6 +79,11 @@ export const withdrawalMatchEndpoint = withdrawalAction('match', async (req, id,
     { orderId: body.orderId, itemIds: body.itemIds },
     now,
   ),
+)
+export const withdrawalAssignItemsEndpoint = withdrawalAction(
+  'assign-items',
+  async (req, id, body, now) =>
+    (await inbox()).assignWithdrawalItems(req, id, { itemIds: body.itemIds }, now),
 )
 export const withdrawalGoodsReturnedEndpoint = withdrawalAction(
   'goods-returned',
@@ -128,12 +134,12 @@ export const withdrawalManualEndpoint: Endpoint = {
       await result
         .afterCommit?.()
         .catch((e: unknown) =>
-          log.error('withdrawals.manual_after_commit_failed', { reason: (e as Error)?.message }),
+          log.error('withdrawals.manual_after_commit_failed', { reason: errorSummary(e) }),
         )
       const { runEmailJobNow } = await outbox()
       for (const job of result.jobs) {
         await runEmailJobNow(req.payload, job, { now }).catch((e: unknown) =>
-          log.error('withdrawals.manual_mail_failed', { reason: (e as Error)?.message }),
+          log.error('withdrawals.manual_mail_failed', { reason: errorSummary(e) }),
         )
       }
       return Response.json({ doc: result.doc }, { status: 201, headers: ADMIN_NO_STORE })
@@ -158,7 +164,7 @@ export const withdrawalReceiptCopyEndpoint: Endpoint = {
       const res = await inTransaction(req, () => sendWithdrawalReceiptCopy(req, id, click, now))
       const { runEmailJobNow } = await outbox()
       await runEmailJobNow(req.payload, res.jobId, { now }).catch((e: unknown) =>
-        log.error('withdrawals.copy_mail_failed', { id, reason: (e as Error)?.message }),
+        log.error('withdrawals.copy_mail_failed', { id, reason: errorSummary(e) }),
       )
       return adminActionResponse({ doc: res.withdrawal })
     } catch (err) {
@@ -172,6 +178,7 @@ export const WITHDRAWAL_ADMIN_ENDPOINTS: Endpoint[] = [
   withdrawalOrderSearchEndpoint,
   withdrawalManualEndpoint,
   withdrawalMatchEndpoint,
+  withdrawalAssignItemsEndpoint,
   withdrawalGoodsReturnedEndpoint,
   withdrawalReturnProofEndpoint,
   withdrawalCloseEndpoint,

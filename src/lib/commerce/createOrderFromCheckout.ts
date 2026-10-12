@@ -18,6 +18,11 @@ import { getTaxModeAt } from '@/lib/tax'
 import type { Checkout, Media, Order, Product } from '@/payload-types'
 
 import { prepaymentDeadlines } from './deadlines'
+import {
+  snapshotShippingRates,
+  type ShippingRatesSnapshot,
+  type ShippingSettings,
+} from './shipping'
 import { issueStatusToken } from './statusToken'
 
 // Bestellanlage aus der Kasse (KONZEPT §4, §5.3 O1/O2/O19; DATENMODELL §6.8, §6.25). Einzige Stelle, die
@@ -104,6 +109,16 @@ function address(group: Checkout['shippingAddress']): Doc | undefined {
   return Object.keys(out).length > 0 ? out : undefined
 }
 
+/** Versandtarife zum Bestellzeitpunkt (Klassen der Positionen, Zone der Kasse) für den Teil-Widerruf (KA-32). */
+function ratesAtOrder(checkout: Checkout, settings: unknown): ShippingRatesSnapshot | null {
+  if (!checkout.shippingZone) return null
+  const paid = checkout.shippingClass
+    ? { shippingClass: checkout.shippingClass, shippingCents: checkout.shippingCents }
+    : null
+  const classes = checkout.items.map((i) => i.shippingClass)
+  return snapshotShippingRates(classes, checkout.shippingZone, settings as ShippingSettings, paid)
+}
+
 function coverOf(product: Product | undefined): { coverImage?: number; coverImageUrl?: string } {
   const first = product?.images?.[0]
   if (first === undefined || first === null) return {}
@@ -129,10 +144,51 @@ async function loadProducts(req: PayloadRequest, ids: number[]): Promise<Map<num
 }
 
 /**
+ * Nachweise der Kasse (`consent-log`: DHL-E-Mail-Einwilligung R-101, Abweichungsvereinbarung R-048) der neuen
+ * Bestellung zuordnen (DATENMODELL §6.23, LOESCHKONZEPT L-19 a): Der Hook der Collection rechnet `retainUntil` dann
+ * aus der Bestellung (Stufe D) statt 30 Tage wie die Kasse; Widerruf der DHL-Einwilligung, Bestellansicht und
+ * DSGVO-Löschung finden die Einträge über `order`. Nur die Einträge des maßgeblichen Absendens (`createdAt =
+ * submittedAt`, wie der Snapshot der Bestellung); frühere Versuche bleiben an der Kasse und gehen mit ihr (L-03).
+ * Gleiche Transaktion wie die Bestellanlage.
+ */
+async function linkConsentLog(
+  req: PayloadRequest,
+  checkout: Checkout,
+  orderId: number,
+  context: Record<string, unknown>,
+): Promise<void> {
+  const res = await preservingReq(req, () =>
+    req.payload.update({
+      collection: 'consent-log',
+      where: {
+        and: [
+          { checkout: { equals: checkout.id } },
+          { createdAt: { equals: checkout.submittedAt } },
+          { order: { exists: false } },
+        ],
+      },
+      data: { order: orderId } as never,
+      depth: 0,
+      overrideAccess: true,
+      req,
+      context,
+    }),
+  )
+  if (res.errors.length > 0) {
+    throw new Error(
+      `Nachweise der Kasse ${checkout.id} konnten der Bestellung nicht zugeordnet werden: ${res.errors
+        .map((e) => e.message)
+        .join('; ')}`,
+    )
+  }
+}
+
+/**
  * Legt die Bestellung zur Kasse `checkoutId` an (O1 `paid`, O2 `awaiting_prepayment`, O19 `refunded`), mit neuem
  * Status-Token (Hash + Siegel), erstem `statusHistory`-Eintrag und Audit `order_created` (Hook), und setzt
- * `checkouts.order`. Lehnt Kassen ohne `submittedAt`, mit Bestellung oder außerhalb von `open`/`confirming` ab; die
- * Kassenzeile wird dafür gesperrt (`FOR UPDATE`), zusätzlich schützt UNIQUE `orders.checkout_id`.
+ * `checkouts.order` sowie `consent-log.order` der Kassen-Nachweise. Lehnt Kassen ohne `submittedAt`, mit Bestellung
+ * oder außerhalb von `open`/`confirming` ab; die Kassenzeile wird dafür gesperrt (`FOR UPDATE`), zusätzlich schützt
+ * UNIQUE `orders.checkout_id`.
  * Der Klartext-Token geht nur an die Mail-Daten im Speicher, nie in Logs.
  */
 export async function createOrderFromCheckout(
@@ -238,6 +294,7 @@ export async function createOrderFromCheckout(
       ...(billingAddress ? { billingAddress } : {}),
       shippingZone: shipping ? checkout.shippingZone : null,
       shippingClass: checkout.shippingClass,
+      shippingRatesAtOrder: shipping ? ratesAtOrder(checkout, settings) : null,
       items,
       subtotalCents: checkout.subtotalCents,
       shippingCents: checkout.shippingCents,
@@ -294,6 +351,7 @@ export async function createOrderFromCheckout(
         context,
       }),
     )
+    await linkConsentLog(req, checkout, order.id, context)
     return { order, statusToken: issued.token }
   })
 }

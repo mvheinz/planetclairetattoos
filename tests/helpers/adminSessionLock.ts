@@ -164,8 +164,9 @@ export const holdConformityData = (mode: 'shared' | 'exclusive'): Promise<Releas
   hold(CONFORMITY_LOCK, mode)
 
 /**
- * Versandpreise in `settings.shipping.rates` (R-031): Tests, die einen Klassenpreis kurz ändern, halten den Lock
- * exklusiv; Tests, die die Grund-Seed-Preise erwarten (R25, Korb), geteilt.
+ * Versandpreise in `settings.shipping.rates` (R-031) und der Schalter `settings.shipping.pickupEnabled` (P18.5): Tests,
+ * die einen Klassenpreis kurz ändern oder Abholung ausschalten, halten den Lock exklusiv; Tests, die die Grund-Seed-Preise
+ * bzw. Abholung erwarten (R25, Korb, Fußzeile), geteilt.
  */
 export const holdShippingRates = (mode: 'shared' | 'exclusive'): Promise<ReleaseLock> =>
   hold(SHIPPING_RATES_LOCK, mode)

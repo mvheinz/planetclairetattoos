@@ -43,6 +43,15 @@ describe('Vorschau-Export: Phasen-Kennung (ARCHITEKTUR §14.9)', () => {
     expect(phaseFromPlan(plan(true, true, true))).toBe('p10')
   })
 
+  it('U-78: erledigte Nachbesserungen vor P11 (P12 ff.) zählen – höchste erledigte Phase vor dem ersten offenen Abschnitt', () => {
+    const later = plan(true, true, true).replace(
+      '## P11 – Go-live',
+      '## P12 – Überarbeitung\n- [x] **P12.1 a**\n\n## P17 – Fünfte Runde\n- [x] **P17.1 b**\n\n## P11 – Go-live',
+    )
+    expect(phaseFromPlan(later)).toBe('p17')
+    expect(phaseFromPlan(later.replace('- [x] **P17.1 b**', '- [ ] **P17.1 b**'))).toBe('p12')
+  })
+
   it('offenes „CI grün“ hält die Phase offen', () => {
     expect(phaseFromPlan(plan(true, false).replace('- [x] CI grün', '- [ ] CI grün'))).toBe('p0')
   })

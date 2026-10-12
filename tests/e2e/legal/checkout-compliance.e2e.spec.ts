@@ -182,6 +182,42 @@ test('R-012 § 312i Vertragsbestimmungen abrufbar und speicherbar: AGB, Widerruf
   expect(res.headers()['content-disposition'] ?? '').toMatch(/AGB/i)
 })
 
+test('R-095 P18.5 Dialog „Widerrufsbelehrung“ an der Kasse enthält das Muster-Widerrufsformular, das PDF und einen Link auf die ganze Seite', async ({
+  page,
+  context,
+  fixtureProducts,
+}) => {
+  const p = await keramik(fixtureProducts)
+  await startCheckoutFor(context, page, [{ id: p.id }])
+  await hydrated(page)
+  const pages = context.pages().length
+  await page.locator('[data-legal-notice] a[data-legal-dialog="widerrufsbelehrung"]').click()
+  const dialog = page.locator('dialog[data-legal-dialog-panel="widerrufsbelehrung"]')
+  await expect(dialog).toBeVisible()
+  // Formular unter der Belehrung, als eigener Abschnitt mit Überschrift und Formulartext (Anlage 2 EGBGB)
+  const form = dialog.locator('[data-legal-dialog-form="widerrufsformular"]')
+  await expect(form).toBeVisible()
+  await expect(form).toHaveAttribute('aria-label', 'Muster-Widerrufsformular')
+  await expect(form.getByRole('heading', { name: 'Muster-Widerrufsformular' })).toBeVisible()
+  await expect(form).toContainText('Hiermit widerrufe(n) ich/wir')
+  await expect(form).toContainText('Unzutreffendes streichen')
+  // PDF wie auf R24, als Download (die Kasse bleibt offen)
+  const pdf = form.locator('a[data-legal-pdf="widerrufsformular"]')
+  await expect(pdf).toHaveAttribute('href', '/api/legal/widerrufsformular.pdf?locale=de')
+  await expect(pdf).toHaveAttribute('download', '')
+  const res = await page.request.get((await pdf.getAttribute('href'))!)
+  expect(res.status()).toBe(200)
+  expect(res.headers()['content-type']).toBe('application/pdf')
+  // Link auf die ganze Seite R24 (neuer Tab, damit die Eingaben bleiben)
+  const full = form.locator('a[data-legal-dialog-page="R24"]')
+  await expect(full).toHaveAttribute('href', '/de/widerrufsbelehrung')
+  await expect(full).toHaveAttribute('target', '_blank')
+  await dialog.locator('[data-dialog-close]').click()
+  await expect(dialog).toBeHidden()
+  expect(page.url()).toContain(R07.de)
+  expect(context.pages().length).toBe(pages)
+})
+
 test('R-081 R-013 AK-6-02 Zugangs- und Vertragsbestätigung: M01 kommt sofort nach der Zahlung mit Rechnung, AGB und Widerrufsbelehrung samt Muster-Formular (Bestellfassung); vorher keine Bestellung', async ({
   page,
   context,

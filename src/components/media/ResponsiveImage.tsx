@@ -11,6 +11,8 @@ import styles from './ResponsiveImage.module.css'
 // Standard `loading="lazy"`; das LCP-Bild bzw. die ersten Karten mit `eager` (optional `fetchPriority="high"`, dann
 // `decoding="sync"`).
 // Jedes Foto trägt den Goth-Fotorahmen (`data-photo-frame`, `ResponsiveImage.module.css`, U-13): einzige Stelle für Fotos.
+// Einzige Ausnahme (U-83, P17.3): die Miniaturen unter dem Produktfoto (`frameSize="none"`, `data-photo-frame="none"`) –
+// mit Rahmen blieb vom Foto darin kaum etwas zu sehen.
 
 export type MediaSizeName = 'thumb' | 'card' | 'detail' | 'zoom'
 
@@ -51,8 +53,11 @@ export interface ResponsiveImageProps {
   /** `eager`: ohne `loading="lazy"` (erste Karten, LCP). */
   loading?: 'lazy' | 'eager'
   fetchPriority?: 'high' | 'auto'
-  /** `thumb`: schmales Rahmenband für kleine Vorschauen (≤ 96 px); sonst der volle Goth-Rahmen (U-13). */
-  frameSize?: 'full' | 'thumb'
+  /**
+   * `thumb`: schmales Rahmenband für kleine Vorschauen (≤ 96 px); `none`: ohne Rahmen (nur Galerie-Miniaturen, U-83);
+   * sonst der volle Goth-Rahmen (U-13).
+   */
+  frameSize?: 'full' | 'thumb' | 'none'
   className?: string
   /** Zusätzliche Klasse am `<img>`. */
   imgClassName?: string
@@ -77,20 +82,26 @@ export function ResponsiveImage({
   const src = media ? fallbackSrc(media, srcSizes) : null
   const frameClass = [
     styles.frame,
-    frameSize === 'thumb' ? styles.thumb : '',
+    frameSize === 'thumb' ? styles.thumb : frameSize === 'none' ? styles.plain : '',
     color ? '' : styles.hatch,
     className,
   ]
     .filter(Boolean)
     .join(' ')
+  const frameAttr = frameSize === 'none' ? 'none' : ''
   if (!media || !src)
     return (
-      <span className={frameClass} style={frameStyle} data-photo-frame="" data-image-missing="" />
+      <span
+        className={frameClass}
+        style={frameStyle}
+        data-photo-frame={frameAttr}
+        data-image-missing=""
+      />
     )
   const focal = `${media.focalX ?? 50}% ${media.focalY ?? 50}%`
   const card = media.sizes?.[srcSizes[srcSizes.length - 1]!]
   return (
-    <span className={frameClass} style={frameStyle} data-photo-frame="">
+    <span className={frameClass} style={frameStyle} data-photo-frame={frameAttr}>
       {/* eslint-disable-next-line @next/next/no-img-element -- keine Next-Bildoptimierung (ARCHITEKTUR §9.4), Größen aus der Pipeline */}
       <img
         className={imgClassName ? `${styles.img} ${imgClassName}` : styles.img}

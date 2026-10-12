@@ -20,45 +20,54 @@ import {
 } from './kit'
 
 // M11 `inquiry_receipt` – Bestätigung der Auftragsanfrage (KONZEPT §6.3 „M11“, §10.4, R-160, PLAN P7.12): Referenz,
-// Zusammenfassung (Gegenstand, Idee, Wunschzeitraum, Budget und nur die **Anzahl** der Bilder – nie die Bilder selbst),
-// Antwortzeit-Satz (`site-texts.emails.inquiryResponseTime`, sonst Standard), „Angebot und Bezahlung per Mail, nicht über
-// den Shop“, Baustein `inquiry.autoReply` („noch kein Vertrag, keine Zahlung“; Platzhalter bis zum Kanzleitext),
-// Löschung 6 Monate nach Eingang mit Datum und Link auf den Abschnitt „Auftragsarbeiten“ der Datenschutzerklärung.
+// Eingang, Gegenstand (nur die feste Auswahl) und die **Anzahl** der Bilder – nie die Bilder selbst –, Antwortzeit-Satz
+// (`site-texts.emails.inquiryResponseTime`, sonst Standard), „Angebot und Bezahlung per Mail, nicht über den Shop“,
+// Baustein `inquiry.autoReply` („noch kein Vertrag, keine Zahlung“; Platzhalter bis zum Kanzleitext), Löschung 6 Monate
+// nach Eingang mit Datum und Link auf den Abschnitt „Auftragsarbeiten“ der Datenschutzerklärung.
 // Keine Bestellmail (kein Status-Link, kein „Vertrag widerrufen“), keine Werbung.
+//
+// P18.5 (Missbrauchsschutz): Die Empfängeradresse ist ungeprüft. Damit niemand über das Formular beliebigen Text in
+// Juttas Namen an fremde Adressen schicken kann (und eine vertippte Adresse nichts Persönliches erfährt), wiederholt die
+// Mail **keine Freitexte**: keine Anrede mit Namen, keine Idee, kein „Etwas anderes: …“, kein Wunschzeitraum, kein Budget.
+// Die Felder fehlen deshalb auch im Datenschema (die Ausgangs-Warteschlange hält sie nicht vor). Rückbau, falls Jutta das
+// Echo wieder möchte: die Felder in `inquiryReceiptDataSchema` und `submitCommission` (src/lib/commission/submit.ts)
+// wieder aufnehmen, hier als Zeilen in `summaryRows` ergänzen und die Texte `email.inquiryReceipt.*` zurückholen
+// (Stand vor P18.5 in der Git-Historie).
 
-export const INQUIRY_RECEIPT_VERSION = 'm11-v1'
+export const INQUIRY_RECEIPT_VERSION = 'm11-v2'
 
 const iso = z.iso.datetime({ offset: true })
-const optional = (max: number) => z.string().max(max).nullish()
 
+/** Nur feste Angaben – keine Freitexte der Anfragenden (P18.5, siehe oben); `strictObject` weist zusätzliche Felder ab. */
 export const inquiryReceiptDataSchema = z.strictObject({
   inquiryId: z.number().int().positive(),
   reference: z.string().regex(/^(BSP-)?AA-\d{4}-\d{4,}$/),
   receivedAt: iso,
   deleteAfter: iso,
-  name: z.string().min(1).max(100),
   objectType: z.enum(INQUIRY_OBJECT_TYPES),
-  objectTypeOther: optional(80),
-  idea: z.string().min(1).max(3000),
-  desiredTimeframe: optional(120),
-  budget: optional(60),
   imageCount: z.number().int().min(0).max(5),
-  /** Antwortzeit-Satz aus `site-texts.emails.inquiryResponseTime` (leer = Standardtext). */
-  responseTime: optional(300),
+  /** Antwortzeit-Satz aus `site-texts.emails.inquiryResponseTime` (leer = Standardtext; Text von Jutta, kein Freitext). */
+  responseTime: z.string().max(300).nullish(),
 })
 export type InquiryReceiptData = z.infer<typeof inquiryReceiptDataSchema>
 
 export const inquiryReceiptSubject = (d: InquiryReceiptData, locale: Locale) =>
   fill(mailTexts(locale).inquiryReceipt.subject, { reference: d.reference })
 
-/** Anzeige des Gegenstands („Etwas anderes: Spiegel“). */
-export function inquiryObjectLabel(
-  type: InquiryObjectType,
-  other: string | null | undefined,
-  locale: Locale,
-): string {
-  const label = mailTexts(locale).inquiryReceipt.objectTypes[type]
-  return type === 'sonstiges' && other?.trim() ? `${label}: ${other.trim()}` : label
+/** Anzeige des Gegenstands: nur die feste Bezeichnung der Auswahl („Etwas anderes“ ohne den Freitext, P18.5). */
+export function inquiryObjectLabel(type: InquiryObjectType, locale: Locale): string {
+  return mailTexts(locale).inquiryReceipt.objectTypes[type]
+}
+
+/** Zusammenfassung: Referenz, Eingang, Gegenstand, Anzahl der Bilder – ausschließlich feste bzw. vom System erzeugte Werte. */
+function summaryRows(d: InquiryReceiptData, locale: Locale): [string, string][] {
+  const t = mailTexts(locale).inquiryReceipt
+  return [
+    [t.reference, d.reference],
+    [t.receivedAt, formatBerlinWithZone(new Date(d.receivedAt), locale)],
+    [t.object, inquiryObjectLabel(d.objectType, locale)],
+    [t.images, String(d.imageCount)],
+  ]
 }
 
 function autoReplyBlock(locale: Locale): Block {
@@ -74,7 +83,6 @@ export async function renderInquiryReceipt(
   const { data: d, locale, links, business } = input
   const t = mailTexts(locale).inquiryReceipt
   const common = mailTexts(locale).common
-  const or = (v: string | null | undefined) => v?.trim() || t.empty
   return renderCustomerMail({
     locale,
     subject: inquiryReceiptSubject(d, locale),
@@ -83,17 +91,10 @@ export async function renderInquiryReceipt(
     business,
     orderMail: false,
     blocks: [
-      greetingBlock(locale, d.name),
+      // Anrede ohne Namen („Hallo,“): der Name ist ein ungeprüfter Freitext (P18.5)
+      greetingBlock(locale),
       block.p(t.intro),
-      block.rows([
-        [t.reference, d.reference],
-        [t.receivedAt, formatBerlinWithZone(new Date(d.receivedAt), locale)],
-        [t.object, inquiryObjectLabel(d.objectType, d.objectTypeOther, locale)],
-        [t.idea, d.idea.trim()],
-        [t.timeframe, or(d.desiredTimeframe)],
-        [t.budget, or(d.budget)],
-        [t.images, String(d.imageCount)],
-      ]),
+      block.rows(summaryRows(d, locale)),
       block.p(d.responseTime?.trim() || t.responseTime),
       block.p(t.offerByMail),
       autoReplyBlock(locale),

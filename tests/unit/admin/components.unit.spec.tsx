@@ -7,7 +7,10 @@ import { ActionButton, type ActionButtonProps } from '@/admin/components/ActionB
 import { postAdminAction } from '@/admin/components/adminAction'
 import { CopyButton } from '@/admin/components/CopyButton'
 import { Notice } from '@/admin/components/Notice'
+import { PhotoPicker } from '@/admin/components/PhotoPicker/PhotoPicker'
 import { StatusBadge } from '@/admin/components/StatusBadge'
+import { TATTOO_TEXT } from '@/admin/views/tattoo/tattooText'
+import { adminText } from '@/admin/translations'
 
 // P5.1 – UI-Bausteine der Verwaltung: ActionButton (Doppeltipp = eine Anfrage, Bestätigung nennt die Folge),
 // Notice (aria-live), CopyButton (Clipboard, Rückfall), StatusBadge.
@@ -162,5 +165,31 @@ describe('Notice und StatusBadge (P5.1)', () => {
     render(<StatusBadge tone="warning">Vorkasse offen</StatusBadge>)
     const badge = screen.getByText('Vorkasse offen')
     expect(badge.className).toContain('pc-admin-badge--warning')
+  })
+})
+
+describe('PhotoPicker – eigener Hinweis (P18.5)', () => {
+  const picker = (hint?: string) =>
+    render(
+      <PhotoPicker
+        photos={[]}
+        setPhotos={vi.fn()}
+        altInfo={{ category: 'zeichnung', title: 'Kunstmarkt' }}
+        max={1}
+        recommended={0}
+        hint={hint}
+      />,
+    )
+
+  it('ohne Angabe der Standard-Hinweis; mit Angabe (Foto vom Stand) nur der eigene Hinweis', () => {
+    picker()
+    expect(screen.getByText(adminText('photoHint'))).toBeTruthy()
+    cleanup()
+    picker(TATTOO_TEXT.tourPhotoHint)
+    expect(screen.getByText(TATTOO_TEXT.tourPhotoHint)).toBeTruthy()
+    expect(screen.queryByText(adminText('photoHint'))).toBeNull()
+    expect(TATTOO_TEXT.tourPhotoHint).toMatch(/ohne erkennbare Gesichter anderer Menschen/)
+    expect(TATTOO_TEXT.tourPhotoHint).toMatch(/Besucher:innen, Nachbarstände/)
+    expect(TATTOO_TEXT.tourPhotoHint).toMatch(/Einverständnis/)
   })
 })

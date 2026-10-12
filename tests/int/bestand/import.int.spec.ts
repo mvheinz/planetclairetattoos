@@ -183,4 +183,73 @@ describe('bestand:import (P16.2)', () => {
     },
     SLOW,
   )
+
+  it(
+    'aus der Excel-Liste (U-85, U-86): verkauft → Markt-Verkauf (auch in der Vorschau), Notiz, Metallteile',
+    async () => {
+      await cleanup()
+      const now = new Date('2026-10-12T08:00:00.000Z')
+      const chain = all.find((p) => p.key === 'B017')!
+      const bowl = all.find((p) => p.key === 'B044')!
+      const edited: BestandProduct[] = all.map((p) =>
+        p.key === chain.key
+          ? {
+              ...p,
+              metalPartsMaterial: { de: 'Edelstahl', en: 'Stainless steel' },
+              ownerNote: 'Kette kürzen?',
+            }
+          : p.key === bowl.key
+            ? { ...p, sold: { date: '2026-10-11', priceCents: 3500, note: 'Markt Kreuzberg' } }
+            : p,
+      )
+      const res = await importBestand(payload, edited, {
+        only: [chain.key, bowl.key],
+        previewPublish: { now },
+      })
+      expect(res.created).toEqual([chain.key, bowl.key])
+
+      const c = (await productOf(chain))!
+      expect(c.status).toBe('available')
+      expect(c.metalPartsMaterial).toBe('Edelstahl')
+      expect((await productOf(chain, 'en'))!.metalPartsMaterial).toBe('Stainless steel')
+      expect(c.internalNote).toMatch(/^Deine Notiz: Kette kürzen\?\n\nAus deinen Fotos angelegt/)
+
+      const b = (await productOf(bowl))!
+      expect(b).toMatchObject({
+        status: 'sold',
+        soldChannel: 'offline',
+        soldAt: '2026-10-11T12:00:00.000Z',
+        offlineSaleNote: 'Markt Kreuzberg',
+        offlineSalePriceCents: 3500,
+        showInArchiveAfterSale: false,
+        seed: false,
+      })
+      expect(b.firstPublishedAt ?? null).toBeNull()
+      const audit = await payload.find({
+        collection: 'audit-log',
+        where: {
+          and: [
+            { action: { equals: 'product_offline_sold' } },
+            { entityId: { equals: String(b.id) } },
+          ],
+        },
+        overrideAccess: true,
+      })
+      expect(audit.docs).toHaveLength(1)
+      // Notiz nicht im Protokoll (könnte Namen enthalten, Datenminimierung)
+      expect(audit.docs[0]!.summary).toMatch(/offline verkauft \(aus der Excel-Liste\)$/)
+      expect(audit.docs[0]!.summary).not.toContain('Kreuzberg')
+
+      // ohne Datum und Preis: jetzt, Listenpreis
+      await cleanup()
+      const noDate = all.map((p) => (p.key === bowl.key ? { ...p, sold: {} } : p))
+      await importBestand(payload, noDate, { only: [bowl.key], now })
+      const d = (await productOf(bowl))!
+      expect(d.status).toBe('sold')
+      expect(d.soldAt).toBe(now.toISOString())
+      expect(d.offlineSalePriceCents).toBe(bowl.priceCents)
+      expect(d.offlineSaleNote ?? null).toBeNull()
+    },
+    SLOW,
+  )
 })

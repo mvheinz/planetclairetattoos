@@ -3,7 +3,7 @@ import 'server-only'
 import config from '@payload-config'
 import { createLocalReq, getPayload, type Payload } from 'payload'
 
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
 import { hashToken, matchesHash, TOKEN_RE } from '@/lib/security/tokens'
 import type { Checkout, Order } from '@/payload-types'
@@ -153,7 +153,7 @@ async function reconcile(
     // Anbieter nicht erreichbar oder Übergang zwischenzeitlich erledigt: weiter warten, der Job gleicht ab (S10).
     log.warn('thanks.reconcile_failed', {
       checkoutId: checkout.id,
-      error: (err as Error)?.message,
+      error: errorSummary(err),
     })
   }
   return waiting

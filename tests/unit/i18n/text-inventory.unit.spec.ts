@@ -14,6 +14,7 @@ const corpusFiles = [
   'src/i18n/messages/de.json',
   'src/i18n/messages/en.json',
   'src/globals/SiteTexts.ts',
+  'src/globals/siteTexts.defaults.json',
   ...readdirSync(path.join(root, 'content/seed/data'))
     .filter((f) => f.endsWith('.json'))
     .map((f) => `content/seed/data/${f}`),

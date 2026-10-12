@@ -18,9 +18,14 @@ export async function register(): Promise<void> {
       'Start abgebrochen – APP_ENV fehlt (Produktions-Build ohne APP_ENV, ARCHITEKTUR §4.2).',
     )
   }
-  const { assertProductionEnv, getEnv } = await import('./lib/env')
+  const { assertProductionEnv, getEnv, isDeployedEnv } = await import('./lib/env')
   const env = getEnv()
   assertProductionEnv(env)
+  // Fehlerausgaben von Next.js (`console.error`) ohne Abfragewerte und Personendaten (R-137, P18.5)
+  if (isDeployedEnv(env.APP_ENV)) {
+    const { installConsoleGuard } = await import('./lib/monitoring/consoleGuard')
+    installConsoleGuard()
+  }
   const { sentryActive, buildSentryOptions } = await import('./lib/monitoring/sentry')
   if (!sentryActive(env, process.env.NEXT_RUNTIME)) return
   const Sentry = await import('@sentry/nextjs')

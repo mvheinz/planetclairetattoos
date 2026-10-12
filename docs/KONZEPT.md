@@ -433,7 +433,7 @@ Link-Liste im Fuß erreichbar.
      Instagram-Link.
 - **Rechte Spalte (P12.7/P12.8, U-08, U-20):** Ab 1100 px steht rechts neben Kopf und Stationen eine Spalte (nicht haftend, damit aufgeklappte vergangene Termine erreichbar bleiben), mobil
   steht sie unter dem Kopf der Seite. Oben der leere, benannte Bereich `data-slot="chairwoman"` für Koko, die Vorsitzende
-  der Goth Dogs Berlin (P12.6 füllt ihn), darunter „Planet Claire on Tour“ (§3.1a). Instagram: nur im Fuß (U-15).
+  der Goth Dogs Berlin (P12.6 füllt ihn), darunter „on Tour“ (§3.1a; bis P16 „Planet Claire on Tour“, U-82). Instagram: nur im Fuß (U-15).
 - **Datenquelle:** `pages` mit `key = home` (Blöcke `hero` und `station`, Texte DE/EN), `settings.business`
   (Name/Geschäftsbezeichnung), Collections `products`, `categories`, `flash`.
 - **Zustände:** Kategorie ohne sichtbare Stücke → Station zeigt Zeichnung, Text „Gerade ist hier nichts – schau bald
@@ -446,7 +446,7 @@ Link-Liste im Fuß erreichbar.
 - **AK-3-01** Die Startseite zeigt die Kopf-Station „Planet Claire“ und danach genau 6 Stationen in dieser Reihenfolge (U-40: ohne „Hallo“/„Komm näher.“): Keramik, Textil, Zeichnungen, Schmuck, Tattoo, Jutta & Coco.
 - **AK-3-02** Pro Kategorie-Station höchstens 4 Stücke, nie `sold`, `draft` oder `archived`.
 
-### 3.1a Planet Claire on Tour (rechte Spalte der Startseite) [P12.8]
+### 3.1a on Tour (rechte Spalte der Startseite) [P12.8; Überschrift seit U-82 „on Tour“]
 
 - **Zweck (U-20):** Märkte, Flohmärkte und Kunstmärkte, auf denen Jutta steht. Komponente `TourDates` in der rechten Spalte
   der Startseite unter dem Platz für die Vorsitzende (`data-slot="chairwoman"`), mobil unter dem Kopf der Seite.
@@ -524,7 +524,8 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
        darüber der Text aus `settings.shop.closedMessage`.
      - `available`, nicht im eigenen Korb → **„In den Korb“** (EN „Add to basket“).
      - bereits im eigenen Korb → „Liegt schon in deinem Korb“ + Link zum Korb.
-     - `reserved` durch fremde Kasse → Knopf deaktiviert, Text „Gerade reserviert – schau in 30 Minuten nochmal“.
+     - `reserved` durch fremde Kasse → Knopf deaktiviert, Text „Gerade reserviert – schau in 30 Minuten nochmal“ (Minuten
+       aus `settings.payment.reservationMinutes`, P18.5).
      - `reserved` durch die eigene Kasse → „Du hast es gerade in der Kasse“ + Link „Zur Kasse“.
      - `sold` → „sold“-Stempel, Text „Schon verkauft“, Links „Ähnliche Stücke“ (Kategorie) und Archiv.
   7. **Beschreibung** (Rich Text DE/EN, EN fehlt → DE).
@@ -578,6 +579,8 @@ Lieferart-Wahl (Versand innerhalb Deutschlands / Abholung in Berlin); Versandkos
 Lieferzeit; Hinweis Liefergebiet („Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache.“);
 **akzeptierte Zahlarten** (Karte, Apple Pay, Google Pay, PayPal, Vorkasse – § 312j Abs. 1 BGB; Baustein
 `cart.paymentAndDeliveryInfo`, R-036); harmonisierte Mitteilung zur Gewährleistung (R-049); Knopf **„Zur Kasse“**.
+Ist Abholung oder Vorkasse in den Einstellungen aus, steht statt des Bausteins dieselbe Angabe aus den Einstellungen
+gebaut (ohne Abhol-Satz bzw. ohne „Vorkasse“, wie die Fußzeile U-58 c; P18.5), ebenso die Zahlarten-Zeile.
 Shop pausiert (`settings.shop.isOpen = false`, §4.2) → `settings.shop.closedMessage` über den Positionen, „Zur Kasse“
 gesperrt. Leer → Coco mit leerem Korb + „Zum Shop“. Tuschelinie still, Coco sitzt neben dem Korb (E-78).
 `noindex`. Kein Stripe.js auf dieser Seite.
@@ -692,6 +695,9 @@ Details §5.4 und §6. Zwei Schritte ohne Login (E-44, § 356a BGB):
   `WR-2026-00003`, Hinweis „Eine Bestätigung ist per E-Mail unterwegs“ und „Drucken/als PDF sichern“.
 - Kein CAPTCHA; Rate-Limit großzügig (30 pro IP-Hash und Stunde, Zähler höchstens 24 h gespeichert, ARCHITEKTUR §8.5),
   damit echte Widerrufe nie blockiert werden. Der Widerrufs-Datensatz selbst speichert keine IP und keinen IP-Hash (R-093).
+- Die Auswahl der Stücke nach Schritt 1 verrät, ob eine E-Mail-Adresse zu einer Bestellnummer gehört. Deshalb höchstens
+  10 Bestellsuchen pro IP-Hash und Stunde (`withdrawal_lookup`, ARCHITEKTUR §8.5); darüber erscheint keine Auswahl, und
+  es geht ohne Hinweis weiter wie bei einer unbekannten Bestellung – der Widerruf selbst bleibt immer möglich (Prüfung P18.5).
 - Widerrufe ohne passende Bestellung werden **trotzdem angenommen** und zur manuellen Zuordnung markiert
   (`matchStatus = needs_manual_match`).
 - Seite ist dauerhaft online (nicht nach 14 Tagen ausblenden).
@@ -756,13 +762,13 @@ Laufzeit, kein Tracking. Ob stattdessen ein Server-Warenkorb mit Zufalls-ID nöt
 |---|---|---|---|
 | Hinzufügen | „In den Korb“ (POST/Server-Action) | Shop geöffnet (`settings.shop.isOpen = true`); Stück öffentlich, `available`, noch nicht im Korb, Korb < 20 Stücke | Cookie gesetzt/aktualisiert; Knopf wird zu „Liegt schon in deinem Korb“; Kopf-Anzahl +1; kurze Bestätigung „Liegt im Korb“ mit Link „Zum Korb“ (kein Seitenwechsel). Coco-Hüpfer (P9). |
 | Entfernen | „Entfernen“ im Korb | – | Cookie aktualisiert; aktive Kasse wird abgebrochen (Reservierung frei, §4.6) |
-| Lieferart wählen | Auswahl im Korb oder in der Kasse | Stück mit Versandklasse `nur_abholung` erzwingt `pickup` | Cookie aktualisiert; Versandkosten neu; eine aktive Kasse wird neu gerechnet (Versandbetrag im Kassen-Snapshot und in der Stripe-Session aktualisiert oder Session neu angelegt, Mechanik ARCHITEKTUR §3.5) – **die Reservierung bleibt** |
+| Lieferart wählen | Auswahl im Korb oder in der Kasse | Stück mit Versandklasse `nur_abholung` erzwingt `pickup`; `pickup` nur, solange `settings.shipping.pickupEnabled` an ist (sonst `pickup_disabled`, §4.3 Regel 7) | Cookie aktualisiert; Versandkosten neu; eine aktive Kasse wird neu gerechnet (Versandbetrag im Kassen-Snapshot und in der Stripe-Session aktualisiert oder Session neu angelegt, Mechanik ARCHITEKTUR §3.5) – **die Reservierung bleibt** |
 | Zur Kasse | Knopf „Zur Kasse“ (**POST**, nie durch Seitenaufruf oder Prefetch) | Shop geöffnet (`settings.shop.isOpen = true`); alle Stücke `available` oder bereits durch diese Kasse reserviert; höchstens `settings.shop.maxItemsPerCheckout` Stücke (Standard 10; der Korb selbst fasst bis zu 20), sonst Meldung „Höchstens {n} Stücke pro Bestellung“ | §4.6 Reservierung, Kasse anlegen, Cookie `pc_checkout` setzen, Weiterleitung auf R07 |
 
 **Anzeige je Position im Korb:** Foto, Titel, `Nr. 017`, Preis, „Entfernen“ und Zustand:
 - `available` → nichts.
-- `reserved` durch andere Kasse → „Gerade reserviert – schau in 30 Minuten nochmal“; „Zur Kasse“ ist gesperrt, solange
-  diese Position im Korb liegt.
+- `reserved` durch andere Kasse → „Gerade reserviert – schau in 30 Minuten nochmal“ (Minuten aus
+  `settings.payment.reservationMinutes`, P18.5); „Zur Kasse“ ist gesperrt, solange diese Position im Korb liegt.
 - `sold`/nicht mehr öffentlich → „Leider schon verkauft“ + Knopf „Entfernen“; „Zur Kasse“ gesperrt.
 - Preis seit dem Hinzufügen geändert → aktueller Preis wird gezeigt, Hinweis „Preis wurde aktualisiert“.
 
@@ -802,6 +808,13 @@ nur DE, E-24) und `pickup` (Abholung in Berlin, 0,00 €, E-25/E-29).
    Pflicht-Bestätigungen aus R-202 (`settings.shipping.euShippingAcknowledged`), lebensmittelechte Keramik bleibt für
    NL und LU gesperrt; GB und US sind nicht wählbar (E-24, R-060).
 6. Gesamtpreis = Summe der Stückpreise + Versandkosten. Keine Zahlungsgebühren/Aufschläge.
+7. Schalter „Abholung möglich“ aus (`settings.shipping.pickupEnabled = false`, P18.5): Korb und Kasse zeigen kein
+   Abhol-Radio, alle Dienste (Lieferart im Korb, Kassenstart, Lieferartwechsel, Absenden) lehnen `pickup` mit
+   `pickup_disabled` ab und fallen auf `shipping` zurück (eine offene Kasse mit Abholung wird beim Aufruf zurück in den
+   Korb geschickt und bei „Zur Kasse“ durch eine mit Versand ersetzt; eine laufende Zahlung bleibt unberührt). Stücke
+   `nur_abholung` sind dann **nicht bestellbar**: „In den Korb“ aus mit „Gerade nicht bestellbar – Abholung ist im
+   Moment nicht möglich“, im Korb gedämpft und „Zur Kasse“ gesperrt (konservativer Standard, umstellbar über
+   `PICKUP_ONLY_BLOCKED_WHEN_PICKUP_OFF` in `src/lib/shop/pickupPolicy.ts`, OFFENE-PUNKTE).
 
 **AK-4-01** Korb mit `brief` + `keramik` bei `shipping` → Versand 8,90 €; mit `pickup` → 0,00 €.
 **AK-4-02** Korb mit einem `nur_abholung`-Stück bietet `shipping` nicht an (Server lehnt `shipping` ab).
@@ -851,8 +864,9 @@ Weitere Regeln:
 Abschnitt 5 „Übersicht“ steht **unmittelbar** über dem Knopf und aktualisiert sich live (§ 312j Abs. 2 BGB):
 
 1. Jede Position: Foto, Titel, `Nr. 017`, wesentliche Eigenschaften (`buildCharacteristics`, DATENMODELL §6.6.2:
-   Kategorie, Maße, Material bzw. bei Textil/Caps Faserzusammensetzung, Größe und Zustand, bei Keramik „Deko – nicht für
-   Lebensmittel“ bzw. „lebensmittelecht“, bei Schmuck Material der Metallteile, Abweichungstext), Preis.
+   Kategorie, Maße, Material bzw. bei Textil/Caps „Second-Hand, von Hand bemalt“ (immer gebraucht, R-043; P18.5),
+   Faserzusammensetzung, Größe und Zustand, bei Keramik „Deko – nicht für Lebensmittel“ bzw. „lebensmittelecht“, bei
+   Schmuck Material der Metallteile, Abweichungstext), Preis.
 2. Versand: Klasse und Preis (z. B. „Versand als Keramik-Paket (DHL) 8,90 €“) oder „Abholung in Berlin 0,00 €“.
 3. **Gesamtpreis** (hervorgehoben) mit Steuerhinweis (Kleinunternehmerin: „Gemäß § 19 UStG wird keine Umsatzsteuer
    berechnet.“; Regelbesteuerung: enthaltene MwSt. je Satz).
@@ -862,7 +876,9 @@ Abschnitt 5 „Übersicht“ steht **unmittelbar** über dem Knopf und aktualisi
    Zahlart **[Ändern → #zahlart]**.
 6. Hinweistext: Baustein `checkout.legalNotice` (Wortlaut nur in RECHT ANFORDERUNGEN §6, R-063) mit Links auf AGB,
    Widerrufsbelehrung und Datenschutzerklärung; die Links öffnen den Text in einem Dialog auf der Seite (kein
-   Seitenwechsel, kein neuer Tab). Darunter der Baustein `withdrawal.returnCostsNote` (Rücksendekosten, E-27).
+   Seitenwechsel, kein neuer Tab). Der Dialog der Widerrufsbelehrung zeigt wie R24 darunter das Muster-Widerrufsformular
+   mit PDF-Download und einen Link auf R24 (neuer Tab, damit die Eingaben bleiben; P18.5, R-095). Darunter der Baustein
+   `withdrawal.returnCostsNote` (Rücksendekosten, E-27).
 7. Die Bestätigungen zur abweichenden Beschaffenheit (falls vorhanden).
 8. **Knopf mit exakt dem Text „Zahlungspflichtig bestellen“** (E-21), EN „Order with obligation to pay“; kein weiterer
    Text im Knopf, keine Icons, die den Text ersetzen. Gleicher Knopf für Stripe und Vorkasse.
@@ -1192,9 +1208,9 @@ Zusatzfelder (DATENMODELL §6.6.1): `showInArchiveAfterSale` (bool, Standard `tr
 | P8 | `available` | `sold` | System `fulfillCheckout` (Reservierung war schon frei, Stück noch frei) / Admin „Nachträglich bezahlt“ | – | wie P7 |
 | P9 | `available` | `sold` | Admin „Offline verkauft“ | – | `soldChannel=offline`, `soldAt`; `showInArchiveAfterSale` wie im Dialog gewählt |
 | P10 | `reserved` (`source = checkout_session`) | `sold` | Admin „Offline verkauft“ mit Warnung (S5) | Bestätigung im Dialog | Stripe-Session beenden, Reservierung freigeben, `soldChannel=offline` |
-| P11 | `sold` | `available` | Admin „Wieder verkaufen“ | `soldChannel=offline` (Korrektur) **oder** zugehörige Bestellposition erstattet und Ware zurück **oder** Bestellung vor Versand bzw. Übergabe mit Grund `admin_cancellation` erstattet (Stück nie verschickt) [Annahme KA-37] | `soldAt`, `soldChannel`, `currentOrder` leeren; Historie bleibt; Veröffentlichungsprüfung erneut |
+| P11 | `sold` | `available` | Admin „Wieder verkaufen“ | `soldChannel=offline` (Korrektur) **oder** zugehörige Bestellposition erstattet und Ware zurück **oder** Bestellung vor Versand bzw. Übergabe mit Grund `admin_cancellation` erstattet (Stück nie verschickt und nicht mehr zu liefern) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5); „nie verschickt“ gilt je Stück, auch wenn der Rest der Bestellung danach verschickt bzw. abgeholt wurde [Annahme KA-37] | `soldAt`, `soldChannel`, `currentOrder` leeren; Historie bleibt; Veröffentlichungsprüfung erneut |
 | P12 | `draft`, `available` | `archived` | Admin „Ausblenden“ | keine aktive Reservierung | `archivedAt`, Revalidierung |
-| P13 | `sold` | `archived` | Admin „Ausblenden“ nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
+| P13 | `sold` | `archived` | Admin „Ausblenden“ nach Rückgabe oder Bruch (beschädigt) | Bestellposition erstattet und Ware zurück **oder** Bestellung wegen `breakage` erstattet (Stück vor dem Versand beschädigt, nie verschickt) **oder** Bestellposition des Stücks nach Widerruf vor Versand bzw. Übergabe mit Grund `withdrawal` erstattet (P18.5, KA-37; je Stück wie bei P11) | `archivedAt`; `soldAt`, `soldChannel`, `currentOrder` leeren; Revalidierung |
 | P14 | `archived` | `draft` | Admin „Wieder bearbeiten“ (Endpunkt `/restore`) | – | `archivedAt = null` |
 | P15 | `draft` | gelöscht | Admin „Löschen“ | `firstPublishedAt` leer (nie veröffentlicht) und keine Bestellposition verweist auf das Stück | Bilder gelöscht, Nummer wieder frei |
 
@@ -1289,12 +1305,26 @@ Bestellstatus nicht; jede weitere Erstattung entsteht als zusätzlicher `refunds
 die Summe den Gesamtbetrag nicht erreicht, bleibt die Bestellung `partially_refunded`; erreicht sie ihn, gilt O21
 (DATENMODELL DM-06).
 
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf und Teil-Erstattung vor Versand bzw.
+Abholung.** Die Stücke, die die Kundin behält, werden weiter geliefert – sonst fehlten M06/M07 und mit `shippedAt` bzw.
+`pickedUpAt` der Beginn von Widerrufsfrist und Gewährleistung. Ein Teil-Widerruf aus `paid`, `packed` oder
+`ready_for_pickup` (danach ist noch ein Stück aktiv) setzt nur die widerrufenen Positionen auf `withdrawn`; O11 gilt
+weiter für den Widerruf des ganzen Vertrags bzw. nach Versand oder Übergabe („Nicht mehr versenden“ bleibt dort, 409).
+Nach einer Teil-Erstattung vor Versand/Abholung (z. B. Bruch, Kulanz) gehen aus `partially_refunded` „Gepackt“,
+„Versendet melden“, „Bereit zur Abholung“ und „Abgeholt“ (O6–O9), solange noch ein Stück aktiv ist und nichts versendet
+bzw. abgeholt wurde; nach einer Teil-Erstattung während des Transports geht „Zugestellt“ (O10, auch automatisch).
+Packliste, Packzettel, Abholkarte, M06 und M07 nennen nur die Stücke, die rausgehen; „Nicht mehr versenden – Widerruf:
+Nr. …“ bzw. „– erstattet: Nr. …“ steht an den übrigen (DATENMODELL §6.8.5).
+
 Regeln zu Erstattungen:
 - **Voll-Widerruf:** Erstattet werden alle Stückpreise **und** die ursprünglichen Versandkosten (Standardversand).
   Rücksendekosten trägt die Kund:in (E-27). **Teil-Widerruf:** Preise der widerrufenen Stücke + Differenz zwischen
   bezahlten Versandkosten und den Versandkosten, die für die behaltenen Stücke angefallen wären. Diese
   kundenfreundliche Regel ist vorläufig, bis Kanzleifrage K-09 beantwortet ist (RECHT R-072); der Erstattungsdialog
-  weist darauf hin [Annahme KA-32].
+  weist darauf hin [Annahme KA-32]. Gerechnet wird mit den Tarifen **bei der Bestellung** (Snapshot
+  `orders.shippingRatesAtOrder`, P18.5; Bestellungen von vor dem Snapshot: aktuelle Tarife). Fehlt der Tarif der
+  behaltenen Stücke, enthält der Vorschlag keinen Versandanteil und der Dialog zeigt „Tarif fehlt – Versandanteil bitte
+  prüfen“.
 - Jutta kann den Betrag im Dialog **erhöhen** (Kulanz, z. B. Rücksendekosten übernehmen) mit Pflicht-Notiz; nie über den
   noch erstattbaren Betrag hinaus.
 - Stripe-Erstattung immer über dasselbe Zahlungsmittel (Refund-API). Vorkasse: Jutta überweist selbst und bestätigt
@@ -1330,6 +1360,17 @@ Begründung) ist kein Status; sie verkürzt die Aufbewahrung auf 30 Tage (L-08).
 | W7 | `received` | `rejected` | Admin „Ablehnen“ (`closeNote` Pflicht) | – |
 
 Die Erklärung selbst (Eingaben, Zeitpunkt) ist nach dem Anlegen **unveränderlich**; Admin-Notizen sind separat.
+
+**Umsetzungsnotiz (11.10.2026, Datenschutz-/AGB-Prüfung): Teil-Widerruf nur im Freitext.** Nennt die Person im Feld
+„Nur bestimmte Stücke?“ Stücke, hakt aber keins an, gilt der erklärte Teil-Widerruf (§ 133 BGB) – nicht „ganzer
+Vertrag“. W1/W2 (und die manuelle Erfassung) buchen dann keine Position automatisch: Die Bestellung bekommt den Hinweis
+„Teil-Widerruf WR-… im Freitext – bitte Stücke zuordnen“, A04 bittet darum, Packen, Versand und Übergabe sind bis dahin
+gesperrt (nach Versand/Übergabe trotzdem O11). Im Posteingang hält Jutta mit „Stücke zuordnen“ (nur `received`,
+nichts vorab angehakt) fest, welche Stücke gemeint sind; das bucht sie wie W1 mit Auswahl. Vorher gehen „Ware ist
+zurück“ und „Erstatten“ für diesen Widerruf nicht, im Erstattungsdialog ist nichts vorgewählt. M08 nennt als
+„Betroffene Stücke“ den Freitext – genau das, was gebucht ist. Schritt 2 der Widerrufsfunktion (und die Auswahl davor)
+weist neutral darauf hin, dass Anhaken die Zuordnung eindeutig macht; nichts ist vorab angehakt, der Knopf bleibt frei
+(V-03). Ohne Haken und ohne Freitext gilt weiter der ganze Vertrag (R-091).
 
 ### 5.5 Anfrage (Auftragsarbeit, E-11)
 
@@ -1422,7 +1463,9 @@ nach dem Zahlungs-Webhook (Outbox):
 3. Versandart und Versandkosten bzw. Abholung; Gesamtpreis; Steuerhinweis (Kleinunternehmerin: „Gemäß § 19 UStG wird keine
    Umsatzsteuer berechnet.“).
 4. Zahlart und „bezahlt am“.
-5. Lieferadresse und Rechnungsadresse; Lieferzeit bzw. „Ich melde mich wegen der Abholung“.
+5. Lieferadresse und Rechnungsadresse; Lieferzeit (Baustein `delivery.timeShipping`) bzw. bei Abholung „Ich melde mich
+   wegen der Abholung“ **und** die Abholzeit (Baustein `delivery.timePickup`) – die Zeitangabe fehlt nie (R-035; leer
+   oder vage → Standard „2–5 Werktage“, E-31; P18.5).
 6. Hinweis auf die Anhänge: Rechnung, AGB (`AGB_v{n}.pdf`) und Widerrufsbelehrung mit Muster-Widerrufsformular
    (`Widerrufsbelehrung-und-Formular_v{n}.pdf`) **in der Fassung vom {Datum der Version}** (Versionen aus
    `orders.legalTextVersions`); bei EN-Bestellung zusätzlich die vorhandenen EN-PDFs.
@@ -1468,7 +1511,10 @@ Absprache aus `settings.pickup.instructions`), „Antworte einfach auf diese Mai
 4. Nächste Schritte (Baustein `withdrawal.returnInfo`): Rücksendeadresse (`settings.business.returnAddress`, leer =
    Geschäftsadresse), „Die Kosten der Rücksendung trägst du“ (E-27), Erstattung über dasselbe Zahlungsmittel spätestens
    14 Tage nach Eingang, ggf. erst nach Eingang der Ware.
-5. Bei unbezahlter Vorkasse-Bestellung stattdessen: „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“
+5. Bei unbezahlter Vorkasse-Bestellung stattdessen: „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ und
+   (P18.5, § 357 Abs. 1 BGB): Wer schon überwiesen hat, bekommt das Geld spätestens 14 Tage nach Eingang des Widerrufs
+   (Datum) zurück, auf das Konto, von dem es kam; für ein anderes Konto kurz die Bankverbindung per E-Mail schicken.
+   Gleicher Hinweis auf der Ergebnisseite der Widerrufsfunktion.
 
 Versand sofort nach dem Commit; scheitert er, wiederholt `sendEmail` ihn im Abstand von höchstens 5 Minuten bis 24 Stunden
 nach Eingang. Nach dem 2. Fehlversuch geht A12 an Jutta, und erneut, wenn nach 24 Stunden noch kein Versand gelang (dann
@@ -1478,12 +1524,16 @@ Bestätigung manuell senden, §8.2).
 PayPal-Konto – sichtbar meist nach 5–10 Werktagen“ bzw. „per Überweisung am {Datum}“), Beleg GS im Anhang.
 
 **M10 Leider schon weg:** Entschuldigung, Erklärung („Jemand war ein paar Sekunden schneller“), voller Betrag erstattet über
-dasselbe Zahlungsmittel, Dauer 5–10 Werktage, Link zum Shop. Keine Rechnung, kein Rabattcode (§13).
+dasselbe Zahlungsmittel, Dauer 5–10 Werktage, ohne Shop-Link (R-080; eine Einladung zum Weiterkaufen wäre Werbung in einer
+Transaktionsmail, P18.5). Keine Rechnung, kein Rabattcode (§13). Die Webseite „Leider schon weg“ behält ihren Shop-Link.
 
-**M11 Anfrage-Bestätigung:** Referenz, Zusammenfassung (Gegenstand, Idee-Text, Wunschzeitraum, Budget, **Anzahl** der Bilder
-– nie die Bilder selbst), Antwortzeit-Satz (Baustein, Standard „Ich melde mich meist innerhalb einer Woche.“ [Annahme]),
-„Angebot und Bezahlung laufen per Mail, nicht über den Shop“, Datenschutz-Kurzinfo „Deine Anfrage und Bilder werden
-spätestens 6 Monate nach Eingang gelöscht“ mit Link R22.
+**M11 Anfrage-Bestätigung:** Anrede ohne Namen („Hallo,“), Referenz, Eingang, Gegenstand (nur die feste Auswahl, bei
+„Etwas anderes“ ohne den Freitext), **Anzahl** der Bilder – nie die Bilder selbst –, Antwortzeit-Satz (Baustein, Standard
+„Ich melde mich meist innerhalb einer Woche.“ [Annahme]), „Angebot und Bezahlung laufen per Mail, nicht über den Shop“,
+Datenschutz-Kurzinfo „Deine Anfrage und Bilder werden spätestens 6 Monate nach Eingang gelöscht“ mit Link R22.
+**Keine Freitexte** (Name, Idee, Wunschzeitraum, Budget): Die Adresse ist ungeprüft, sonst ließe sich das Formular
+nutzen, um beliebigen Text über Juttas Absender an fremde Adressen zu schicken, und eine vertippte Adresse bekäme
+persönliche Angaben (P18.5, Art. 5 Abs. 1 lit. c, f DSGVO; Rückbau siehe `src/lib/email/templates/inquiry.ts`).
 
 **M12 Reklamation: Reparatur oder Ersatz** (R-111, für Kaufverträge ab 31.07.2026): Bestellnummer, betroffene Stücke,
 Eingang der Reklamation, Baustein `complaint.repairChoice` (Wahlrecht Reparatur/Ersatzlieferung, bei Unikaten ist Ersatz in
@@ -1567,7 +1617,9 @@ Admin-Ansicht. Keine Kund:innen-Freitexte, keine Anfrage-Bilder.
 ### 7.3 Heute (Start-Ansicht)
 
 - **Kacheln mit Zahl und Link:** Zu packen · Vorkasse offen (davon heute fällig) · Abholung · Widerrufe offen (nächste Frist)
-  · Neue Anfragen.
+  · Neue Anfragen. „Zu packen“ und „Abholung“ zählen dieselben Bestellungen wie die Listen §7.6 bzw. §7.9, auch die
+  Rest-Lieferung bzw. Rest-Abholung nach einer Teil-Erstattung (P18.5); einen Widerruf vor dem Versand („Nicht mehr
+  versenden“) zählt „Zu packen“ nicht.
 - **Hinweise** (rot/gelb, jeweils mit Link): Umsatz-Wächter-Stufe (§8.4); Rechtstexte-Prüfung fällig (R-014); offene
   Datenschutz-Anfragen mit nächster Frist (R-153); Aufbewahrungssperren zur Prüfung; Stücke und Bestellungen mit
   `adminAttention` (z. B. Konformitätserklärung widerrufen, abweichender Zahlbetrag); fehlgeschlagene Mails;
@@ -1667,7 +1719,9 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
   Datum, Fotos + `Nr.` der Stücke, Versandklasse, Name und Ort, Badges: „Keramik – Karton in Karton“, „Warenwert > 500 € –
   Transportversicherung buchen“ (`settings.shipping.insuranceHintThresholdCents`, DHL haftet bis 500 €, Konzeptseite),
   „Brief über 25 € – Einschreiben haftet nur bis 25 €“, „E-Mail an DHL: ja/nein“ (`carrierEmailConsent` ohne
-  `carrierEmailConsentRevokedAt`), „Nicht mehr versenden – Widerruf!“ (falls O11).
+  `carrierEmailConsentRevokedAt`), „Nicht mehr versenden – Widerruf!“ (falls O11). Nach einem Teil-Widerruf bzw. einer
+  Teil-Erstattung vor dem Versand gelten Versandklasse, Warenwert, Checkliste, Verpackungsvorlage, Versanddienst und
+  Sendungsnummer-Pflicht nur für die Stücke, die noch in das Paket gehören (P18.5).
 - **Detail und Knöpfe:**
 
 | Knopf | Wirkung |
@@ -1690,7 +1744,10 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
 - Knöpfe: **„Zahlung erhalten“** (O3, Dialog mit Verwendungszweck, eingegangenem Betrag `prepayment.receivedAmountCents`
   (Pflicht; weicht er vom Gesamtbetrag ab, erscheint eine Warnung) und optional Eingangsdatum `prepayment.receivedAt`) ·
   **„Stornieren“** (O4, Grund Pflicht in `cancelNote`, M04) · „Bankdaten kopieren“.
-- Unterliste „Kürzlich automatisch storniert (30 Tage)“ mit Knopf **„Nachträglich bezahlt“** (O5 bzw. Rücküberweisungs-Hinweis, §4.8).
+- Unterliste „Kürzlich storniert oder widerrufen (30 Tage)“: nach abgelaufener Frist Knopf **„Nachträglich bezahlt“**
+  (O5 bzw. Rücküberweisungs-Hinweis, §4.8); nach Widerruf bzw. eigenem Storno nur Hinweis und **„Rücküberweisung
+  erledigt“** (Widerruf mit Frist 14 Tage ab Eingang; die Bestellung lebt nie wieder auf, P18.5). „Zahlung erhalten“
+  auf einer so stornierten Bestellung lehnt ab und sagt, was stattdessen zu tun ist.
 
 ### 7.8 Versendet
 
@@ -1774,7 +1831,8 @@ Unterbereiche (Details §9):
     und wird unveränderlich gespeichert.
   - Platzhalter im Text – genau diese Liste (R-012, KANZLEI-BRIEFING §16.3): `{{name}}`, `{{street}}`, `{{postalCode}}`,
     `{{city}}`, `{{email}}`, `{{phone}}`, `{{wIdNr}}`, `{{ustIdNr}}`, `{{siteUrl}}`, `{{withdrawalUrl}}` (= absolute URL von
-    R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`, `{{returnCostsNote}}` –
+    R26 in der Sprache der Fassung), `{{shippingTable}}`, `{{deliveryTime}}`, `{{vorkasseDays}}`, `{{reservationMinutes}}`,
+    `{{returnCostsNote}}` –
     ersetzt aus `settings`, Umgebung bzw. dem Baustein `withdrawal.returnCostsNote` (Quellen DATENMODELL §6.12). Ein unbekanntes oder nicht ersetzbares Token ist ein Render-Fehler und sperrt das
     Veröffentlichen; `{{STEUERNUMMER}}` wird nie ersetzt (E-46).
   - Prüfungen vor dem Veröffentlichen: `widerrufsbelehrung` muss `{{withdrawalUrl}}` oder die URL von R26 enthalten
@@ -1800,7 +1858,7 @@ Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Ände
 |---|---|
 | Stammdaten & Impressum | `settings.business.*`: Name (`legalName`), Geschäftsbezeichnung (`tradeName`, „Planet Claire“), Straße, PLZ, Ort, Land (Privatadresse, E-40; kein Postfach), E-Mail, Telefon, Steuernummer (`taxNumber`, nie öffentlich, E-46), W-IdNr./USt-IdNr. (`economicId`/`vatId`, optional), Rücksendeadresse (`returnAddress`, leer = Geschäftsadresse); dazu Bezirk des Privatstudios (`settings.tattoo.studioDistrict`, E-50) und Instagram-Handle (`settings.social.instagramHandle`); dienen Impressum, GPSR-Block, Rechnung, Packzettel, Etikett |
 | Steuer | Modus-Verlauf `settings.tax.modes` (Kleinunternehmerin/Regelbesteuerung + „gilt ab“, §4.14): neuer Eintrag nur mit Begründung und Häkchen „mit Steuerberatung abgestimmt“ (R-032), Warnhinweis; Knopf „Steuerangaben bestätigt“ (`settings.tax.confirmedAt`); Aufbewahrung Rechnungen/Gutschriften `settings.retention.invoiceYears` (10 oder 8 Jahre, Standard 10, §4.13, Kanzleifrage K-33) mit demselben Warnhinweis |
-| Versand | Tarife `settings.shipping.rates` je Zone und Versandklasse (E-25), Lieferzeit-Text DE/EN `deliveryTimeText` (Standard „2–5 Werktage“, E-31), Lieferländer `enabledCountries` (nur DE an; andere Länder erst nach der EU-Checkliste `euChecklist` und dem Häkchen `euShippingAcknowledged` mit Datum, R-202; lebensmittelechte Keramik nie nach NL/LU; CH vorbereitet aus, E-24), Abholung an/aus (`pickupEnabled`), Versicherungs-Hinweis ab `insuranceHintThresholdCents` (Standard 500 €), Sendungsverfolgungs-Vorlagen `trackingUrlTemplates` je Versanddienst (`dhl`, `deutsche_post`; Standard `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={trackingNumber}`), Abhol-Vorlage `settings.pickup.instructions`, Verpackungs-Checklisten `settings.packingChecklists` |
+| Versand | Tarife `settings.shipping.rates` je Zone und Versandklasse (E-25), Lieferzeit-Text DE/EN `deliveryTimeText` (Standard „2–5 Werktage“, E-31), Lieferländer `enabledCountries` (nur DE an; andere Länder erst nach der EU-Checkliste `euChecklist` und dem Häkchen `euShippingAcknowledged` mit Datum, R-202; lebensmittelechte Keramik nie nach NL/LU; CH vorbereitet aus, E-24), Abholung an/aus (`pickupEnabled`; aus: keine Abholung in Korb und Kasse, Stücke `nur_abholung` nicht bestellbar, §4.3 Regel 7), Versicherungs-Hinweis ab `insuranceHintThresholdCents` (Standard 500 €), Sendungsverfolgungs-Vorlagen `trackingUrlTemplates` je Versanddienst (`dhl`, `deutsche_post`; Standard `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={trackingNumber}`), Abhol-Vorlage `settings.pickup.instructions`, Verpackungs-Checklisten `settings.packingChecklists` |
 | Verpackung [P5] | Vorlagen `settings.packaging.templates` (Name, Materialien `paper_cardboard`/`plastic`/`other` mit Gewicht in g) und Standard je Versandklasse `settings.packaging.defaultsByShippingClass` (Startwerte sind Schätzwerte, Annahme KA-29); LUCID-Nummer `settings.business.lucidNumber` und duales System `settings.business.packagingScheme.*` (E-47, R-200) |
 | Zahlung | `settings.payment.*`: Vorkasse an/aus, Kontoinhaberin, IBAN (Prüfziffer wird geprüft; Beispiel-IBAN gilt als Platzhalter), BIC, Bank; Reservierungsdauer (`reservationMinutes`, 30–60); Anzeige des Zahlungsanbieters (Mock/Test/Live) ohne Schlüssel; Vorkasse-Fristen (`prepaymentReminderHours` Standard 72 h, `prepaymentDays` Standard 5 → Storno nach 23:59:59 Berlin am 5. Kalendertag nach dem Bestelltag; E-23, §4.8) |
 | Shop | Schalter „Shop geöffnet“ `settings.shop.isOpen` (aus = Shop-Pause: „In den Korb“ und „Zur Kasse“ gesperrt, Pausen-Text sichtbar, §4.2; einschalten in Produktion erst, wenn die Startklar-Prüfung grün ist, DATENMODELL §13.7), Pausen-Text `closedMessage` (DE/EN), `maxItemsPerCheckout` (Standard 10) |
@@ -1839,12 +1897,18 @@ Alle Werte liegen im Global `settings` (Feldnamen DATENMODELL §7.1); jede Ände
   - **Auskunft/Übertragbarkeit:** Suche nach E-Mail (normalisiert), Bestellnummer oder Name über Bestellungen, Kassen,
     Belege, Widerrufe, Anfragen (inkl. Bilder), Reklamationen, Mail- und Einwilligungs-Protokoll und frühere
     Datenschutz-Anfragen → ZIP mit `daten.json`, `auskunft.html` und Kopien der Bilder/PDFs, privat gespeichert und
-    30 Tage nach Versand der Antwort gelöscht (L-17); Antwort M14.
+    30 Tage nach Versand der Antwort gelöscht (L-17); Antwort M14. Treffer nur über Name/Bestellnummer mit anderer
+    gespeicherter E-Mail-Adresse sind „mögliche Treffer“ (mit Adresse, Kästchen nicht angekreuzt) und kommen samt
+    Anhängen nur nach Bestätigung in den Export (P18.5, LOESCHKONZEPT §5.4).
   - **Löschen/Einschränken:** zeigt je Datensatz die Regel aus dem LOESCHKONZEPT und die Aktion: sofort löschen (inkl.
     Dateien und Mail-Protokoll), einschränken bis {Datum} (`privacy.processingRestricted = true`: keine weiteren Mails, aus
     Listen ausgeblendet, nur für Export/Steuer; nicht erforderliche Felder wie Telefon, Notizen, Packfotos sofort
-    entfernen) oder behalten (Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung). Belege bleiben bis
-    Fristende unverändert. Antwort M15.
+    entfernen) oder behalten (Aufbewahrungssperre `privacy.legalHold` mit Pflicht-Begründung); bei laufendem Vertrag
+    (auch Widerruf, Rücksendung, Anfechtung oder Erstattung nach der Zustellung) Vorschlag „keine Aktion“ – der tägliche
+    Nachlauf schränkt solche Bestellungen und Widerrufe nach Abschluss automatisch ein (P18.5, LOESCHKONZEPT §5.6 Nr. 3).
+    Bei abgelaufener Frist gibt es „keine Aktion“ nicht; alle Entscheidungen werden vor der ersten Aktion geprüft. Die
+    Löschanfrage widerruft jede aktive DHL-Einwilligung der Person. Belege bleiben bis Fristende unverändert. Antwort M15
+    mit dem tatsächlichen Zustand je Bereich.
   - **Berichtigung:** Name/Adresse/E-Mail vor Rechnungsstellung editierbar, danach nur per Gutschrift + neuer Rechnung;
     **Einwilligungen widerrufen** (DHL-Weitergabe, Portfolio) per Knopf mit Wirkung ab sofort, Bestätigung M16 (R-152).
   - Jede Aktion → `deletion-log`.
@@ -1923,9 +1987,9 @@ Widerrufserklärungen nur lesen (Notizen separat); keine Lösch-Knöpfe für ver
 | `activateScheduledLegalTexts` | Weckzeitpunkt `validFrom`; stündliches Sicherheitsnetz | Rechtstexte (ab P6 auch Rechtsbausteine) im Status `scheduled` mit `validFrom ≤ jetzt` aktivieren, Vorgängerfassung `superseded` | P6 |
 | `markDelivered` | täglich ab 03:00 | `shipped` am 10. Berliner Kalendertag nach dem Versandtag (`timestamps.shippedAt`) → `delivered` (O10, `shipment.deliveredSource = auto`); in der Verwaltung als „geschätzt“ gekennzeichnet | P5 |
 | `retention…`-Tasks (`retentionAbandonedCheckouts`, `retentionOrderMinimize`, `retentionOrders`, `retentionInvoices`, `retentionWithdrawals`, `retentionCommissionInquiries`, `retentionEmailLog`, `retentionConsentEvidence`, `retentionPrivacyRequests`, `retentionDeletionLog`) | täglich ab 03:05 (Reihenfolge und Richtzeiten LOESCHKONZEPT §4) | Löschfristen §8.3 ausführen, `deletion-log` schreiben, Legal Holds überspringen (Details: LOESCHKONZEPT §4) | P6 |
-| `retentionTechnical` | stündlich | Reservierungen 7 Tage nach Ablauf/Umwandlung (L-02), nicht abgeschickte Uploads und Rate-Limit-Zähler älter als 24 h, Webhook-Event-IDs und Job-Protokoll älter als 90 Tage, `audit-log`-Einträge nach ihrer Frist (L-13) | P4 (Reservierungen), P7 (Uploads) |
+| `retentionTechnical` | stündlich | Reservierungen 7 Tage nach Ablauf/Umwandlung (L-02), nicht abgeschickte Uploads und Rate-Limit-Zähler älter als 24 h, Webhook-Event-IDs und Job-Protokoll älter als 90 Tage, `audit-log`-Einträge nach ihrer Frist, gescheiterte oder hängende Mail-Jobs nach 30 Tagen (L-13) | P4 (Reservierungen), P7 (Uploads) |
 | `legalHoldReview` | täglich ab 08:00 | Aufbewahrungssperren älter als 6 Monate (bzw. seit der letzten Prüfung) → A15 | P6 |
-| `privacyRequestsDeadlineReminder` | täglich ab 08:00 | offene Datenschutz-Anfragen 7 Tage und 1 Tag vor `dueAt` bzw. `extendedDueAt` → A14 (R-153) | P6 |
+| `privacyRequestsDeadlineReminder` | täglich ab 08:00 | offene Datenschutz-Anfragen 7 Tage und 1 Tag vor `dueAt` bzw. `extendedDueAt` → A14 (R-153); Nachlauf der Löschungen: abgeschlossene Verträge einschränken (P18.5) | P6 |
 | `withdrawalDeadlines` | täglich ab 08:00 | Widerrufe `received`/`goods_returned`, `refundDueAt` in ≤ 4 Tagen (Eingang vor ≥ 10 Tagen), ohne Erstattung → A13 (einmal je Widerruf, `deadlineReminderSentAt`) | P6 |
 | `legalReviewReminder` | täglich ab 08:30 | je Rechtstext-Typ: Sind `activatedAt` der aktiven Fassung und `settings.legal.reviews[type].reviewedAt` beide ≥ `settings.legal.reviewIntervalDays` (Standard 365) Tage alt und die letzte Erinnerung ≥ 30 Tage her → A10 und Hinweis unter „Heute“ (E-41, R-014) | P6 |
 | `revenueGuardCheck` | täglich ab 07:00 und bei Bedarf | Umsatz berechnen, Stufen prüfen (§8.4), A09 einmal je Stufe und Jahr; am 1. Januar Stufe U0 | P5 |
@@ -1953,7 +2017,7 @@ Umsetzung zentral in `src/lib/retention/policy.ts`, ausgeführt von den Tasks au
 | L-09 | Reklamationen (Fotos, Verlauf, gesendete Mails) | wie die Bestellung (L-05) | mit der Bestellung |
 | L-10 | Auftragsarbeiten: Anfrage inkl. Bilder | **6 Monate nach Eingang** (`createdAt`), unabhängig vom Bearbeitungsstand | löschen (Datenbank und privater Speicher) |
 | L-12 | Mail-Protokoll `email-log` | wie das Bezugsobjekt; ohne Bezug 90 Tage | löschen |
-| L-13 | Technische Protokolle: a) Rate-Limit-Zähler (HMAC der IP, nie Klar-IP); b) Sicherheitsprotokoll Admin-Login; c) eigene Anwendungslogs; d) Webhook-Ereignisse; f) nicht abgeschickte Uploads; g) Job-Protokoll der Jobs-Queue (nur IDs, §8.1 Nr. 4); h) Verwaltungsprotokoll `audit-log` | a) 24 h; b) 14 Tage; c) ≤ 14 Tage; d) 90 Tage; f) 24 h; g) 90 Tage; h) Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre | löschen |
+| L-13 | Technische Protokolle: a) Rate-Limit-Zähler (HMAC der IP, nie Klar-IP); b) Sicherheitsprotokoll Admin-Login; c) eigene Anwendungslogs; d) Webhook-Ereignisse; f) nicht abgeschickte Uploads; g) Job-Protokoll der Jobs-Queue (nur IDs, §8.1 Nr. 4); h) Verwaltungsprotokoll `audit-log`; i) gescheiterte oder hängende Mail-Jobs der Warteschlange (Kopie der Mail-Daten) und Mail-Jobs ohne Protokoll-Eintrag | a) 24 h; b) 14 Tage; c) ≤ 14 Tage; d) 90 Tage; f) 24 h; g) 90 Tage; h) Beleg-, Bestell-, Widerrufs- und Rechtstext-Aktionen 10 Jahre ab Ende des Jahres, sonst 3 Jahre; i) 30 Tage, ohne Protokoll-Eintrag sofort | löschen |
 | L-17 | Datenschutz-Anfragen; Exportdateien | 3 Jahre ab Ende des Abschlussjahres; Exporte 30 Tage nach der Antwort | löschen |
 | L-18 | Löschprotokoll `deletion-log` (keine Inhalte) | 3 Jahre | löschen |
 | L-19, L-20 | Einwilligungsnachweise; Portfolio-Fotos | DHL-Einwilligung mit der Bestellung; Portfolio-Nachweis 3 Jahre ab Widerruf bzw. Ende der Veröffentlichung; Fotos nach Widerruf sofort offline, Dateien spätestens nach 24 h gelöscht | löschen |
@@ -2084,7 +2148,7 @@ Instagram-Profil ist nur im Fuß verlinkt, ohne Anfrage-Aufforderung.
 „Angebote“ (Flash-Days und Aktionen, Collection `tattoo-offers`, Route R13, Task `revalidateEndedOffers`) gibt es nicht mehr.
 Seite, Navigationspunkt, Verwaltungs-Reiter, Collection samt Beispieldaten und Task sind entfernt (Migration
 `p12_remove_offers`); die Routen-IDs R14–R18 bleiben unverändert. Termine außer Haus zeigt die Startseite als
-„Planet Claire on Tour“ (§3.1a, U-20).
+„on Tour“ (§3.1a, U-20, U-82).
 
 ### 9.6 Preise
 
@@ -2596,7 +2660,7 @@ Einträge mit „geklärt (Abgleich vom 26.09.2026)“ sind zwischen den Fachdok
 | KA-34 | Zahlung zu einer beendeten Kasse (§4.10, §4.11 S16) | Meldet Stripe eine bezahlte Session zu einer Kasse in `expired`, `cancelled` oder `failed`, entsteht **keine** Bestellung (die Stücke können längst anders verkauft sein); der Shop erstattet nicht automatisch, sondern schickt A12 mit Betrag und Stripe-Zahlungs-ID, Jutta erstattet im Stripe-Dashboard. Änderbar in `processPaymentEvent()` (z. B. automatische Erstattung wie S4) | Jutta (P11) |
 | KA-35 | Karte/PayPal bezahlt, obwohl Vorkasse bestellt (§4.10, §4.11 S17) | Keine zweite Bestellung; die Vorkasse-Bestellung bleibt `awaiting_prepayment` und erhält einen Hinweis (`adminAttention` mit Notiz); A12 empfiehlt, die Kartenzahlung im Stripe-Dashboard zu erstatten oder mit der Kundin zu klären. Kein automatisches Umbuchen auf „bezahlt“, weil Zahlart, Rechnung und Frist dann nicht zur Bestellung passen. Änderbar in `processPaymentEvent()` | Jutta (P11) |
 | KA-36 | Shop-Pause und laufende Kassen (§4.2) | `settings.shop.isOpen = false` sperrt nur neue Aktionen („In den Korb“, „Zur Kasse“); eine schon gestartete Kasse läuft weiter und kann bis zu ihrem Ablauf bezahlt werden (kein Abbruch mitten in der Zahlung). Änderbar in der Prüfung von `submitCheckout` | Jutta |
-| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Ausblenden“ (P13). Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
+| KA-37 | Stück nach Storno vor dem Versand (§5.1 P11, §5.3 O15) | Wird eine bezahlte Bestellung mit Grund `admin_cancellation` erstattet, bevor das Stück verschickt oder übergeben wurde, darf Jutta es mit „Wieder verkaufen“ (P11) zurück in den Shop stellen, ohne dass „Ware zurück“ erfasst ist. Bei `breakage` gibt es stattdessen nur „Ausblenden“ (P13). Ebenso nach einem Widerruf vor dem Versand bzw. der Übergabe: Ist die Position des Stücks mit Grund `withdrawal` erstattet, gehen „Wieder verkaufen“ (P11) und „Ausblenden“ (P13) ohne „Ware zurück“ (P18.5). „Vor dem Versand“ gilt je Stück: Wurde der Rest der Bestellung danach verschickt bzw. abgeholt, zählt nur, ob dieses Stück dabei war (`orders.items[].handedOverAt`). Ein Stück, das nach einem Teil-Storno noch geliefert werden muss, bleibt verkauft. Änderbar in `src/lib/commerce/productTransitions.ts` | Jutta |
 
 ## Anhang B – Recherche-Empfehlungen, die nicht gelten
 

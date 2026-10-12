@@ -4,6 +4,8 @@ import { SHIPPING_OPTION_LABELS } from '@/lib/enumLabels'
 import {
   COUNTRY_CODES,
   SHIPPING_CLASS_RANK,
+  SHIPPING_CLASSES,
+  SHIPPING_ZONES,
   type CountryCode,
   type FulfillmentMethod,
   type ShippingClass,
@@ -176,4 +178,67 @@ export function computeShipping(
     shippingCents: rate.priceCents,
     label: SHIPPING_OPTION_LABELS[shippingClass],
   }
+}
+
+// --- Tarif-Snapshot der Bestellung (KA-32, KONZEPT §5.3 „Regeln zu Erstattungen“) ---------------------------------
+
+/**
+ * Versandtarife zum Zeitpunkt der Bestellung (`orders.shippingRatesAtOrder`): Zone des Lieferlands und Preis in Cent je
+ * Versandklasse der Positionen. Grundlage der Versanddifferenz beim Teil-Widerruf, damit spätere Tarifänderungen nicht
+ * zurückwirken. Fehlt eine Klasse, war für sie kein Tarif hinterlegt.
+ */
+export interface ShippingRatesSnapshot {
+  zone: ShippingZone
+  rates: Partial<Record<ShippingClass, number>>
+}
+
+const isCents = (v: unknown): v is number =>
+  typeof v === 'number' && Number.isSafeInteger(v) && v >= 0
+
+/**
+ * Snapshot für die Klassen `classes` in `zone` aus `settings.shipping.rates`. `paid` (Klasse und bezahlter Versand der
+ * Kasse) gilt für seine Klasse vorrangig – so stimmt der Snapshot immer mit dem überein, was tatsächlich bezahlt wurde.
+ */
+export function snapshotShippingRates(
+  classes: readonly ShippingClass[],
+  zone: ShippingZone,
+  settings: ShippingSettings | null | undefined,
+  paid?: { shippingClass: ShippingClass; shippingCents: number } | null,
+): ShippingRatesSnapshot {
+  const rates: Partial<Record<ShippingClass, number>> = {}
+  for (const c of new Set(classes)) {
+    if (c === 'nur_abholung') continue
+    const cents = (settings?.shipping?.rates ?? []).find(
+      (r) => r.zone === zone && r.shippingClass === c,
+    )?.priceCents
+    if (isCents(cents)) rates[c] = cents
+  }
+  if (paid && paid.shippingClass !== 'nur_abholung' && isCents(paid.shippingCents)) {
+    rates[paid.shippingClass] = paid.shippingCents
+  }
+  return { zone, rates }
+}
+
+/** Gespeicherten Snapshot (JSON) prüfen; `null`, wenn er fehlt oder unbrauchbar ist (Altbestellungen). */
+export function parseShippingRatesSnapshot(value: unknown): ShippingRatesSnapshot | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const { zone, rates } = value as { zone?: unknown; rates?: unknown }
+  if (!(SHIPPING_ZONES as readonly unknown[]).includes(zone)) return null
+  if (!rates || typeof rates !== 'object' || Array.isArray(rates)) return null
+  const out: Partial<Record<ShippingClass, number>> = {}
+  for (const [c, cents] of Object.entries(rates)) {
+    if ((SHIPPING_CLASSES as readonly string[]).includes(c) && isCents(cents)) {
+      out[c as ShippingClass] = cents
+    }
+  }
+  return { zone: zone as ShippingZone, rates: out }
+}
+
+/** Versand für `items` nach dem Snapshot (Tarif der höchsten Klasse); `null`, wenn dafür kein Tarif vorliegt. */
+export function shippingFromSnapshot(
+  items: readonly ShippingItem[],
+  snapshot: ShippingRatesSnapshot,
+): number | null {
+  if (items.length === 0) return 0
+  return snapshot.rates[highestShippingClass(items)] ?? null
 }

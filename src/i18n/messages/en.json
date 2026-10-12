@@ -139,7 +139,7 @@
     "chairwomanAltAsleep": "Koko, chairwoman of the Goth Dogs Berlin: head and chest of a shaggy black dog in a jester cap with green bobbles and a pointed fur collar, an orange chest with a white patch below; eyes closed – at night Koko sleeps",
     "instagramLabel": "Planet Claire on Instagram: @{handle}",
     "tour": {
-      "heading": "Planet Claire on Tour",
+      "heading": "on Tour",
       "intro": "Sometimes I leave my planet and set up a table – at flea, art and backyard markets, between strangers’ voices and bags full of things.",
       "empty": "For now my table rests in the cupboard. New dates will appear here.",
       "pastSummary": "Where I have been ({count})",
@@ -282,17 +282,20 @@
     "edit": "Change",
     "selectIntro": "I found your order. If you only want to withdraw from single pieces, tick them.",
     "selectWhole": "If you tick nothing, the withdrawal applies to the whole contract.",
+    "selectFromText": "You named pieces above. Tick them here so it's clear which ones you mean. If you don't tick any, I'll match the pieces using what you wrote.",
     "selectLegend": "Pieces in your order",
     "confirmIntro": "Please check your details. Your withdrawal is only submitted with the button below.",
     "summaryItems": "Pieces withdrawn",
     "summaryWhole": "Whole contract",
+    "summaryFromText": "The pieces you named (see below)",
+    "confirmFromText": "You named pieces but didn't tick any. If you tick them via “Change”, it's clear which ones you mean. Otherwise I'll match the pieces using what you wrote – your withdrawal then applies to those pieces.",
     "summaryEmpty": "–",
     "receivedAt": "Received on",
     "reference": "Reference number",
     "mailNote": "A confirmation is on its way by email.",
     "printNote": "You can print this page or save it as a PDF.",
     "print": "Print / save as PDF",
-    "unpaidCancelled": "Your unpaid order has been cancelled – you don't need to transfer anything.",
+    "unpaidCancelled": "Your unpaid order has been cancelled – you don't need to transfer anything. If you have already transferred the money, you'll get it back no later than 14 days after I received your withdrawal, to the account it came from. If you'd like it sent to a different account, just email me your bank details.",
     "spamDone": "Thank you, your details have arrived.",
     "again": "Declare another withdrawal",
     "errorSummary": "Please check your details:",
@@ -345,7 +348,7 @@
       "decorative": "Decorative – not for food use",
       "foodSafe": "Food-safe – view declaration",
       "reserved": "reserved",
-      "reservedLong": "Reserved right now – check back in 30 minutes",
+      "reservedLong": "Reserved right now – check back in {minutes} minutes",
       "secondHand": "Second-Hand / Vintage",
       "smallParts": "Not a toy – small parts can be swallowed"
     },
@@ -358,6 +361,7 @@
       "factsLabel": "Key facts",
       "detailsLabel": "About this piece",
       "addToCart": "Add to basket",
+      "pickupBlocked": "Can’t be ordered right now – pickup isn’t possible at the moment. Feel free to write to me if you’d like this piece.",
       "inCart": "Already in your basket",
       "toCart": "Go to basket",
       "added": "In your basket",
@@ -368,6 +372,7 @@
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
         "shop_closed": "The shop is asleep for now – adding to the basket isn’t possible at the moment.",
         "product_unavailable": "This piece is no longer available right now.",
+        "pickup_disabled": "Can’t be ordered right now – pickup isn’t possible at the moment.",
         "invalid": "That did not work. Please reload the page and try again."
       },
       "soldText": "Already sold",
@@ -498,7 +503,7 @@
     "nextShipping": "In the next few days I will wrap your piece with care and write to you as soon as it sets off.",
     "nextPickup": "I'll get in touch with you about the pickup.",
     "nextPrepayment": "Please transfer the amount by {date}. Until then everything is reserved for you. As soon as the money arrives, you'll get an email with the invoice.",
-    "nextOther": "You can always see the current status on the order status page.",
+    "nextOther": "You can see the current status on the order status page.",
     "mailHint": "A confirmation with all details is on its way to your inbox.",
     "statusLink": "View order status",
     "goneTitle": "Sorry, already gone",
@@ -554,7 +559,7 @@
   },
   "cart": {
     "notes": {
-      "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in 30 minutes.",
+      "reserved": "{items} {count, plural, one {is} other {are}} reserved right now – check back in {minutes} minutes.",
       "unavailable": "{items} {count, plural, one {has} other {have}} already been sold, sorry.",
       "too_many": "At most {max} pieces per order.",
       "shop_closed": "The shop is asleep for now – ordering isn’t possible at the moment.",
@@ -562,6 +567,7 @@
       "empty": "Nothing lies in your basket yet.",
       "shipping": "Shipping for this basket can't be calculated right now. Please choose pickup or write to me.",
       "pickup_only": "{items} {count, plural, one {is} other {are}} available for pickup only.",
+      "pickup_disabled": "{count, plural, =0 {Pickup isn’t possible at the moment – I’m happy to send your pieces to you.} one {{items} is available for pickup only, and pickup isn’t possible at the moment. Please take it out of your basket.} other {{items} are available for pickup only, and pickup isn’t possible at the moment. Please take them out of your basket.}}",
       "rate_limited": "That was a bit fast. Please try again in a few minutes.",
       "invalid": "That didn't work. Please reload the page and try again.",
       "checkout_ended": "This checkout is no longer open. You can start it again here.",
@@ -575,12 +581,13 @@
     "remove": "Remove",
     "removeLabel": "Remove {title} from the basket",
     "state": {
-      "reserved": "Reserved right now – check back in 30 minutes",
+      "reserved": "Reserved right now – check back in {minutes} minutes",
       "sold": "Sorry, already sold",
       "reserved_by_you": "Waiting for you at checkout",
       "priceChanged": "Price has been updated",
       "reservedUntil": "Reserved until {time} – it may be free again after that",
-      "reservedUntilDate": "Reserved until {date}, {time} – it may be free again after that"
+      "reservedUntilDate": "Reserved until {date}, {time} – it may be free again after that",
+      "pickupBlocked": "Can’t be ordered right now – pickup isn’t possible at the moment"
     },
     "soldStamp": "sold",
     "unknownTitle": "Piece {number}",
@@ -595,9 +602,18 @@
     "total": "Total",
     "shippingUnknown": "not calculated yet",
     "paymentMethods": "Card · Apple Pay · Google Pay · PayPal · Payment in advance",
+    "paymentMethodsNoPrepayment": "Card · Apple Pay · Google Pay · PayPal",
+    "shippingNoPickup": "Shipping for this basket can't be calculated right now. Please write to me.",
+    "info": {
+      "delivery": "We only deliver within Germany.",
+      "pickup": "Collection in {city} by arrangement.",
+      "payment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.",
+      "paymentNoPrepayment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal."
+    },
     "toCheckout": "Go to checkout",
     "blocked": {
       "unavailable": "Please remove the pieces that aren't available right now first.",
+      "pickup_disabled": "{items} {count, plural, one {is} other {are}} available for pickup only, and pickup isn’t possible at the moment. Please take {count, plural, one {it} other {them}} out of your basket.",
       "shop_closed": "The shop is asleep for now – ordering isn’t possible at the moment.",
       "too_many": "At most {max} pieces per order.",
       "shipping": "Shipping for this basket can't be calculated right now. Please choose pickup or write to me.",
@@ -738,6 +754,7 @@
         "invalid": "Please check your details.",
         "deviation_missing": "Please confirm the special feature of each marked piece.",
         "prepayment_disabled": "Payment in advance is currently not available.",
+        "pickup_disabled": "Pickup isn’t possible at the moment. Please restart the checkout from your basket – with shipping this time.",
         "legal_missing": "Ordering is not possible right now. Please try again later.",
         "not_orderable_in_country": "An item in your basket cannot be delivered to this country.",
         "rate_limited": "That was a bit too fast. Please try again in a few minutes.",
@@ -763,7 +780,10 @@
       "agb": "Terms and conditions",
       "widerrufsbelehrung": "Withdrawal policy",
       "datenschutz": "Privacy policy",
-      "unavailable": "The text is currently unavailable. You can also find it on its own page."
+      "unavailable": "The text is currently unavailable. You can also find it on its own page.",
+      "form": "Model withdrawal form",
+      "formUnavailable": "The model withdrawal form is currently unavailable. You can also find it on the withdrawal policy page.",
+      "fullPage": "Open the withdrawal policy and form as a separate page (new tab)"
     },
     "legalLinks": {
       "agb": "terms and conditions",
@@ -817,7 +837,7 @@
       "dhlConsent": "You agreed that I pass your email address on to DHL so that DHL can inform you about the delivery. You can withdraw this consent at any time – a short email to {email} is enough.",
       "unavailableHeading": "Sorry, already gone",
       "unavailableLine": "Sorry, already gone: {item} – refunded: {amount}",
-      "statusLink": "You can view your order at any time here:",
+      "statusLink": "You can see the status of your order here:",
       "statusLinkLabel": "Order status",
       "privacyLink": "How I handle your data is explained in the privacy policy:",
       "privacyLinkLabel": "Privacy policy",
@@ -877,9 +897,7 @@
       "introOne": "I'm really sorry: someone was a few seconds faster. Your piece had already been sold when your payment arrived.",
       "introMany": "I'm really sorry: someone was a few seconds faster. Your pieces had already been sold when your payment arrived.",
       "refund": "I have refunded the full amount of {amount} – to the same payment method you used. Depending on your bank, it usually takes 5–10 working days until you see the money.",
-      "noContract": "You won't receive an invoice for this order, and there is nothing else you need to do.",
-      "shop": "Back to the shop:",
-      "shopLabel": "Shop"
+      "noContract": "You won't receive an invoice for this order, and there is nothing else you need to do."
     },
     "orderShipped": {
       "subject": "Your parcel is on its way – {orderNumber}",
@@ -919,7 +937,7 @@
       "nextHeading": "What happens next",
       "returnAddress": "Please send the goods to: {address}",
       "refund": "You will receive the refund via the same means of payment you used – no later than 14 days after receipt of your withdrawal (by {date}). I may withhold it until I have received the goods back or you have provided proof that you have sent them.",
-      "unpaidCancelled": "Your order is therefore cancelled. Please do not transfer any money.",
+      "unpaidCancelled": "Your order is therefore cancelled. Please do not transfer any money. If you have already transferred it, you'll get the money back no later than 14 days after I received your withdrawal (by {date}), to the account it came from. If you'd like it sent to a different account, just email me your bank details.",
       "keep": "Please keep this email – it is your proof of receipt."
     },
     "refundConfirmation": {
@@ -991,9 +1009,12 @@
       "deleted": "{area}: deleted",
       "restricted": "{area}: restricted until {date} because of statutory retention duties, then deleted or anonymised automatically",
       "kept": "{area}: kept until {date} because the data is needed to establish, exercise or defend legal claims (Art. 17(3)(e) GDPR)",
+      "inUse": "{area}: kept until {date} because of statutory retention duties, then deleted or anonymised automatically",
+      "inUseOpen": "{area}: still needed to complete your order (for example shipping, payment or a refund); after that I keep them only as long as commercial and tax law require, then they are deleted or anonymised automatically",
       "unchanged": "{area}: unchanged – tax law requires me to keep invoices and credit notes until {date}, then they are anonymised",
       "restrictedMeaning": "“Restricted” means: I only use this data to meet legal obligations and will not send you any emails about it.",
-      "recipients": "If you had agreed to me passing your email address to DHL, that consent has been withdrawn. For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
+      "carrierConsentWithdrawn": "Your consent to me passing your email address to DHL has been withdrawn: DHL will no longer receive your email address from me.",
+      "recipients": "For card or PayPal payments, Stripe or PayPal process data as independent controllers – please contact their data protection team directly. Logs of the email provider and backups expire automatically.",
       "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information, Alt-Moabit 59–61, 10555 Berlin, Germany.",
       "reply": "If you have any questions, just reply to this email."
     },
@@ -1012,15 +1033,11 @@
     "inquiryReceipt": {
       "subject": "Your request {reference} has arrived",
       "title": "Your idea has reached me",
-      "intro": "thank you for your request! Here's what you sent me:",
+      "intro": "thank you for your request! It has safely reached me – here are the key details:",
       "reference": "Reference",
       "receivedAt": "Received on",
       "object": "Object",
-      "idea": "Your idea",
-      "timeframe": "Preferred timeframe",
-      "budget": "Budget",
       "images": "Images",
-      "empty": "–",
       "responseTime": "I usually get back to you within a week.",
       "offerByMail": "Your request does not yet create a contract, and you don't pay anything. The offer and payment are handled by email, not through the shop.",
       "deletion": "Your request and your images will be deleted 6 months after receipt at the latest (on {date}).",
@@ -1089,6 +1106,7 @@
       "inquiries": "Commission requests",
       "complaints": "Complaints",
       "emailLog": "Delivery records of emails to you",
+      "mailJobs": "Emails in the sending queue (copy of the email content)",
       "consentLog": "Consent records",
       "privacyRequests": "Earlier data protection requests",
       "files": "Files (images, documents)"
@@ -1121,9 +1139,16 @@
       "none": "–"
     },
     "thirdCountry": {
-      "US": "based in the USA (transfer under the EU-US Data Privacy Framework or standard contractual clauses)",
+      "US": "connection to the USA (registered office or parent company in the USA; transfer under the EU-US Data Privacy Framework or standard contractual clauses)",
       "EU": "EU/EEA",
       "none": "no transfer to third countries"
+    },
+    "furtherRecipientsIntro": "In addition, these bodies receive data as independent controllers, but only when there is a reason:",
+    "furtherRecipients": {
+      "applePay": "Apple Distribution International Ltd., Cork, Ireland – if you pay with Apple Pay (payment data from your wallet, via Stripe)",
+      "googlePay": "Google Ireland Limited, Dublin, Ireland – if you pay with Google Pay (payment data from your wallet, via Stripe)",
+      "bank": "My bank{bank} – for payment in advance by bank transfer and for refunds by transfer (name and IBAN of the payer, amount, payment reference)",
+      "tax": "The tax office and, where applicable, a tax adviser – as far as tax law requires (invoices, credit notes, accounting exports)"
     },
     "retentionHeading": "d) How long I keep your data",
     "retention": {
@@ -1133,6 +1158,7 @@
       "inquiries": "Commission requests including images: {months} months after receipt.",
       "checkouts": "Checkout sessions without an order: {days} days.",
       "emailLog": "Delivery records of emails: as long as the related matter, without one {days} days.",
+      "mailJobs": "Emails in the sending queue: deleted right after sending; if they could not be sent, {days} days later.",
       "consentLog": "Consent records: as long as the related order, without an order {days} days.",
       "privacyRequests": "Data protection requests: {years} years after the end of the year of the reply; the export file {days} days after the reply."
     },
@@ -1148,7 +1174,7 @@
     "complaintHeading": "f) Complaint to the supervisory authority",
     "complaint": "You can lodge a complaint with a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information (Berliner Beauftragte für Datenschutz und Informationsfreiheit), Alt-Moabit 59–61, 10555 Berlin, Germany.",
     "sourceHeading": "g) Where the data comes from",
-    "source": "The data comes from you (checkout, forms, emails). Payment providers report the payment status, the carrier reports the delivery status.",
+    "source": "The data comes from you (checkout, forms, emails). Payment providers report the payment status. I enter the tracking number and shipping status myself; the carrier does not send anything to the website. Unless I hear otherwise, a parcel counts as delivered {days} days after shipping.",
     "automatedHeading": "h) Automated decisions",
     "automated": "I do not make automated decisions or create profiles. For payments, Stripe runs an automated fraud and risk check as an independent controller; Stripe provides information about it.",
     "notesHint": "Internal notes that may also concern other people are not included in the file. I reviewed them before sending; anything that concerns you is in my reply.",

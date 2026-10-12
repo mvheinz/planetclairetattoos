@@ -33,6 +33,7 @@
 13. [Docker-Exit-Pfad](#13-docker-exit-pfad)
 14. [Single-File-Vorschau – Werkzeug](#14-single-file-vorschau--werkzeug)
 15. [Coding-Konventionen](#15-coding-konventionen)
+16. [Pflege per Excel](#16-pflege-per-excel)
 - [Anhang A – Namensabgleich mit anderen Dokumenten](#anhang-a--namensabgleich-mit-anderen-dokumenten)
 - [Anhang B – Spikes mit Rückfallebene](#anhang-b--spikes-mit-rückfallebene)
 - [Anhang C – Annahmen und offene Punkte](#anhang-c--annahmen-und-offene-punkte)
@@ -432,8 +433,8 @@ den eigenen Handler trifft.
 | `POST /api/{withdrawals,inquiries}/:id/notes` | Interne Notiz (`adminNotes`) separat speichern; alle anderen Angaben bleiben unberührt (Widerruf-Erklärung unveränderlich, DM-WDR-03) | KONZEPT §7.10, §7.11 |
 | `POST /api/inquiries/:id/{status,delete-now}` | Anfrage-Status nach `INQUIRY_TRANSITIONS` (409 sonst; Audit `inquiry_status_changed`, `lastActivityAt`) bzw. „Jetzt löschen“ mit Referenz als Bestätigung (Anfrage + Bilder, Audit `inquiry_deleted`, `deletion-log` `ADMIN`/`admin`) | KONZEPT §5.5, §7.11 |
 | `POST /api/privacy-requests/intake` · `POST /api/privacy-requests/:id/save` | Datenschutz-Anfrage erfassen (Art, Eingangstag, Kanal, Adresse, Sprache; Nummer und Frist vom Server) bzw. Status, Identität, Verlängerung, Abschluss und Notizen speichern (Regeln im Collection-Hook, 400 mit Meldung); Ansicht `/export/datenschutz` | KONZEPT §7.15; DATENMODELL §6.26; LOESCHKONZEPT §5 |
-| `POST /api/privacy-requests/:id/{search,export,send-access}` | Personensuche (E-Mail normalisiert, Bestellnummer, Name; Treffer in `matchedOrders`/`matchedWithdrawals`/`matchedInquiries`), Auskunft-Export als ZIP (`daten.json`, `auskunft.html`, Kopien der Bilder/PDFs; `private-uploads` Zweck `data_export`, Audit `data_exported`) bzw. Antwort M14 mit signiertem Download-Link (nur mit Export und geprüfter Identität, nur an `contactEmail`; setzt `answeredAt`) | KONZEPT §7.15; LOESCHKONZEPT §5.4; R-150 |
-| `POST /api/privacy-requests/:id/erasure` `{ decisions, notify? }` · `POST /api/privacy-requests/:id/rectify` `{ orderId, customerName?, customerEmail?, shippingAddress?, billingAddress? }` | Löschen/Einschränken/Behalten je Datensatz nach dem Plan aus dem LOESCHKONZEPT (Bestellungen nach Fristende anonymisiert, sonst `processingRestricted` mit Entfernen von Notizen/Packfotos und Widerruf der DHL-Einwilligung; Belege unverändert; `deletion-log` `trigger = privacy_request`, `ruleId = DSGVO`; Antwort M15) bzw. Berichtigung (ohne Rechnung direkt, sonst Gutschrift `correction` + neue Rechnung `replacesInvoice`, Vermerk im Verlauf); nur mit geprüfter Identität | KONZEPT §7.15; LOESCHKONZEPT §5.5–§5.7; R-151, R-152 |
+| `POST /api/privacy-requests/:id/{search,export,send-access}` | Personensuche (E-Mail normalisiert, Bestellnummer, Name; Treffer in `matchedOrders`/`matchedWithdrawals`/`matchedInquiries`; Treffer nur über Name/Bestellnummer mit anderer gespeicherter E-Mail-Adresse kommen als `candidates` zurück und zählen nur mit, wenn sie in `confirmed: [{ area, id }]` stehen – P18.5), Auskunft-Export als ZIP (`daten.json`, `auskunft.html`, Kopien der Bilder/PDFs; `private-uploads` Zweck `data_export`, Audit `data_exported`) bzw. Antwort M14 mit signiertem Download-Link (nur mit Export und geprüfter Identität, nur an `contactEmail`; setzt `answeredAt`) | KONZEPT §7.15; LOESCHKONZEPT §5.4; R-150 |
+| `POST /api/privacy-requests/:id/erasure` `{ decisions, notify? }` · `POST /api/privacy-requests/:id/rectify` `{ orderId, customerName?, customerEmail?, shippingAddress?, billingAddress? }` | Löschen/Einschränken/Behalten je Datensatz nach dem Plan aus dem LOESCHKONZEPT (Bestellungen nach Fristende anonymisiert, sonst `processingRestricted` mit Entfernen von Notizen/Packfotos; laufende Verträge „keine Aktion“ mit Nachlauf in `remindersSent.erasureFollowUp`, den `privacyRequestsDeadlineReminder` nach Abschluss einschränkt; alle Entscheidungen vor der ersten Aktion geprüft (400 ohne Änderung); aktive DHL-Einwilligungen der Person werden immer widerrufen; Belege unverändert; `deletion-log` `trigger = privacy_request`, `ruleId = DSGVO`; Antwort M15) bzw. Berichtigung (ohne Rechnung direkt, sonst Gutschrift `correction` + neue Rechnung `replacesInvoice`, Vermerk im Verlauf); nur mit geprüfter Identität | KONZEPT §7.15; LOESCHKONZEPT §5.5–§5.7; R-151, R-152 |
 | `POST /api/globals/settings/{section,tax-mode,password}` | Einstellungen Teil 1 je Bereich speichern (Whitelist, ganzes Global, Audit über die Hooks), neuer Steuermodus, eigenes Passwort ändern (≥ 12 Zeichen, bisheriges Passwort nötig) | KONZEPT §7.14; DATENMODELL §7.1 |
 | `GET /api/orders/:id/packing-slip.pdf` | Packzettel ohne Preise mit Beileger je Stück (R-203) | KONZEPT §7.6 |
 | `GET /api/admin/packaging-report?year=JJJJ` | Jahres-CSV der Verpackungsmengen nach Material (R-201, E-47) | DATENMODELL §6.8.8 |
@@ -802,6 +803,8 @@ Pflicht (sonst Abbruch mit Liste aller Verstöße):
 | Admin-Pfad | `ADMIN_ROUTE` ≠ `/admin`, ≠ `/werkstatt`, beginnt mit `/`, nur `[a-z0-9-]`, 6–40 Zeichen |
 | URL | `NEXT_PUBLIC_SITE_URL` = `https://planetclairetattoos.com` (ohne `/` am Ende) |
 | S3 | `S3_ENDPOINT` endet auf `.eu.r2.cloudflarestorage.com` (EU-Jurisdiktion) |
+| Sentry | `SENTRY_DSN` leer **oder** Host passt zu `serverHosts` des Dienstes `sentry` in DIENSTE §7 (`*.ingest.de.sentry.io`, EU-Region – Prüfung P18.5) |
+| Datenbank | `DATABASE_URL` und `DATABASE_URL_UNPOOLED`: ein Host unter `neon.tech` muss zu `serverHosts` des Dienstes `neon` passen (`*.eu-central-1.aws.neon.tech`); ein anderer Postgres-Host (Docker-Exit-Pfad, §13) ist erlaubt, ergibt aber eine Warnung (DIENSTE und Datenschutzerklärung anpassen – Prüfung P18.5) |
 | Beispieldaten | `SEED_PREVIEW_MODE` ≠ `true` (R-181) |
 
 Außerhalb von `production`: Verstöße gegen Formate → Abbruch; fehlende optionale Schlüssel → Warnung und Mock.
@@ -1734,6 +1737,7 @@ Umsetzung §3.9 (Postgres, Schlüssel = IP-Hash, Einträge ≤ 24 h). Antwort be
 | `commission_submit` | Auftragsanfrage absenden | IP-Hash | 5 / h und 20 / Tag (KONZEPT §10.3) |
 | `commission_upload` | `POST /api/uploads/commission` | IP-Hash | 15 / h |
 | `withdrawal_submit` | Widerruf bestätigen | IP-Hash | 30 / h (großzügig, RECHT) |
+| `withdrawal_lookup` | Widerruf Schritt 1: Suche der Bestellung (Bestellnummer + E-Mail) für die Auswahl der Stücke | IP-Hash | 10 / h (darüber keine Auswahl, weiter wie ohne Treffer; der Widerruf selbst bleibt möglich – Prüfung P18.5) |
 | `admin_login` | Payload-Login | IP-Hash | 10 / 15 min (zusätzlich Konto-Sperre) |
 | `forgot_password` | Passwort vergessen | IP-Hash | 3 / h (Antwort immer gleich, keine Konto-Aufzählung) |
 | `token_pages` | R08, R09, `GET /api/checkout/[token]/state`, Dokument-Downloads, `GET /api/privacy-export/[token]` | IP-Hash | 60 / min |
@@ -1835,6 +1839,17 @@ password, authorization, cookie` werden zu `"[redacted]"`; Freitext wird per Reg
 (`[A-Z]{2}\d{2}[A-Z0-9]{11,30}`) und 43-Zeichen-base64url-Tokens geprüft. Geloggt werden IDs und Nummern (`orderId`,
 `orderNumber`), nie Request-Bodies, Webhook-Payloads oder vollständige URLs von Token-Seiten (Pfad wird zu
 `/de/bestellung/[token]` normalisiert). Keine Log-Drains zu Dritten (DIENSTE §3.1).
+
+Datenbank-Fehler (R-137, Prüfung P18.5): `DrizzleQueryError` hängt die Werte der Abfrage als `\nparams: …` an die
+Meldung, Postgres nennt Werte in `detail` (`Failing row contains (…)`, `Key (…)=(…)`) und in `invalid input … : "…"`.
+`redactText` schneidet diese Teile vor allen anderen Mustern ab (SQL-Text, Spalten- und Constraint-Namen bleiben lesbar);
+Fehler-Objekte werden zu `{ name, code, constraint, message, cause }` (rekursiv, nie `query`, `params`, `detail`).
+Log-Felder mit Fehlern nutzen `errorSummary(err)` aus dem Logger-Modul (Name ohne das bloße `Error`, SQLSTATE-Code,
+geschwärzte Meldung, bis zu zwei Ebenen `cause`) statt `(err as Error).message`; ebenso `webhook_events.last_error`.
+Ausgaben außerhalb des Loggers (P18.5): In ausgerollten Umgebungen (`APP_ENV` preview/staging/production) hüllt
+`src/instrumentation.ts` `console.error`/`console.warn` ein (Next.js gibt unbehandelte Fehler so aus), und Payloads
+pino-Logger serialisiert `err` mit `serializeLogError` – beide aus `src/lib/monitoring/consoleGuard.ts`, gleiche
+Schwärzung, Stack ohne die Meldungszeile.
 
 **AK-A-8-01** Jede Antwort einer öffentlichen Route trägt die Header aus §8.1 ihres Kontexts (Test über alle Registry-Routen).
 **AK-A-8-02** `GET /admin` und `GET /admin/collections/users` → 404; `GET <ADMIN_ROUTE>` → Login-Seite; der Wert von
@@ -2188,7 +2203,9 @@ eine geplante Wartung keinen Alarm auslöst.
 - Optionen: `environment = SENTRY_ENVIRONMENT ?? APP_ENV`, `release = VERCEL_GIT_COMMIT_SHA`, `sendDefaultPii: false`,
   `tracesSampleRate: 0`, `maxBreadcrumbs: 20`, `ignoreErrors` für `NEXT_NOT_FOUND`/`NEXT_REDIRECT`; `beforeSend` und
   `beforeBreadcrumb` rufen `redactSentryEvent()` aus `src/lib/monitoring/sentry.ts` (Regeln §8.11; entfernt
-  `request.cookies`, `request.data`, alle Header außer `user-agent`, normalisiert Pfade von Token-Seiten).
+  `request.cookies`, `request.data`, alle Header außer `user-agent`, normalisiert Pfade von Token-Seiten; schwärzt die
+  Meldungen aller Ausnahmen der Kette einschließlich `cause`, verwirft lokale Variablen der Stack-Frames und die
+  Fehler-Eigenschaften `params`/`detail` in Kontexten und Extras – R-133, Prüfung P18.5).
 - **Nicht** verwenden: `sentry.client.config.ts`, `withSentryConfig`, Tunnel-Route, Session Replay, Performance-Tracing.
   Quellkarten werden nicht hochgeladen (Server-Stacktraces sind lesbar). `pnpm check:external` stellt sicher, dass kein
   Sentry-Host und kein Sentry-Code in `.next/static` landet.
@@ -2576,9 +2593,10 @@ Umsetzung von KONZEPT §12.4 und §12.5 mit `cheerio`:
 ### 14.9 Phasen-Kennung
 
 `PREVIEW_PHASE`, falls gesetzt (CI: `preview-export.yml` setzt es aus `[ci:full pN]` in der Nachricht des PR-Kopf-Commits,
-§6.2). Sonst ermittelt `phase.ts` aus `PLAN.md` die erste Phase mit offener Checkbox und nimmt die Phase davor, also die
-höchste vollständig abgehakte (`p0`, solange P1 offen ist; `p10`, wenn P1–P10 abgehakt sind – so im Lauf von
-`release.yml`). Am Phasenende ist in `PLAN.md` noch das Häkchen „CI grün“ offen (es folgt erst nach dem Lauf, §6.7 Nr. 3);
+§6.2). Sonst ermittelt `phase.ts` aus `PLAN.md` die höchste Phasennummer unter den Abschnitten vor dem ersten Abschnitt
+mit offener Checkbox, also die höchste vollständig abgehakte (`p0`, solange P1 offen ist; `p10`, wenn P1–P10 abgehakt
+sind – so im Lauf von `release.yml`; die Nachbesserungen P12 ff. stehen in `PLAN.md` vor P11 – sind sie erledigt, heißt
+die Datei z. B. `p17`, U-78). Am Phasenende ist in `PLAN.md` noch das Häkchen „CI grün“ offen (es folgt erst nach dem Lauf, §6.7 Nr. 3);
 deshalb gilt in CI immer die Kennung aus der Commit-Nachricht. Nie aus dem Branch-Namen (Cloud-Branches heißen
 `claude/…`). Nicht ermittelbar → `px`. Die Kennung erscheint im Banner („Phase P3“), im Bericht und im Artefakt-Namen
 `planet-claire-vorschau-<phase>-<sha7>` (§6.5).
@@ -2693,6 +2711,72 @@ und virtuellen Dateipfaden unter `src/` auf; keine absichtlich fehlerhaften Date
 
 ---
 
+## 16. Pflege per Excel
+
+Jutta pflegt Bestand und Texte dauerhaft über Excel-Listen, die sie auf dem iPad mit Numbers oder Excel bearbeitet
+(UEBERARBEITUNG U-85–U-90, PLAN P18/P19). Vor dem Start sind die Repo-Dateien der Stand; nach dem Start die Datenbank
+(P19: Herunter- und Hochladen in der Verwaltung).
+
+### 16.1 Bausteine
+
+| Ort | Aufgabe |
+|---|---|
+| `src/lib/pflege/cells.ts` | Zellwerte normalisiert vergleichen (`12,5` = `12.5`, `\r\n` = `\n`, Excel-Datum = Kalendertag) |
+| `src/lib/pflege/merge.ts` | Dreiwege-Entscheidung je Zelle (`keep` / `apply` / `conflict`), gemeinsamer Bericht (`PflegeReport`) |
+| `src/lib/pflege/snapshot.ts` | Listen-Nr. `B-JJJJ-MM-TT-xxxxxx` / `T-…` (Art, Berliner Tag, Prüfsumme) und gemerkter Stand |
+| `src/lib/pflege/repoStore.ts` | Stand vor dem Start: `content/pflege/stand/<Listen-Nr.>.json` (**committen**) |
+| `src/lib/pflege/workbook.ts` | Lesen: Datei prüfen (nur `.xlsx`, Größe, ZIP-Inhalt), Tabellen über die Überschriften finden (erste 10 Zeilen, jedes Blatt), Fehlerzellen und verbundene Zellen erkennen, Listen-Nr. in Zellen, Kommentaren, Dateieigenschaften oder Dateiname |
+| `src/lib/bestand/excel*.ts` | Bestandsliste: Spalten (letzte: „Verkauft“), Zeile je Stück, Rückweg, `keepValid` (ungültiges Stück bleibt alt) |
+| `src/lib/texte/*.ts` | Texte-Liste: Einträge mit fester Kennung, Platzhalter-Prüfung, Rückweg per Kennung |
+| `scripts/pflege/` | `pnpm pflege:export [bestand\|texte]`, `pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand] [--liste=<Listen-Nr.>]`, `pnpm pflege:ansichten [katalog\|rundgang]` (PDFs, P18.3) |
+
+### 16.2 Regeln
+
+1. **Listen-Nr. und gemerkter Stand:** Beim Ausgeben wird je Zeile der Wert jeder Spalte gemerkt (Bestand zusätzlich der
+   feste Schlüssel `_key` des Stücks). Beim Zurückspielen gilt je Zelle: gleich wie jetzt → nichts; gleich wie gemerkt
+   oder wie ein aus dieser Liste schon übernommener Wert → nichts; sonst, wenn jetzt noch wie gemerkt bzw. wie schon
+   übernommen → übernehmen; sonst **Rückfrage** („Bitte entscheiden“), nichts überschrieben. Nach dem Schreiben hält
+   `consumed` im Stand fest, was übernommen wurde – dieselbe Liste (oder ihr unbearbeitetes Original) noch einmal ändert
+   nichts, auch nach späteren Korrekturen. Verglichen wird in kanonischer Form (Datum, Häkchen, „100% Baumwolle“, Rundung
+   wie beim Speichern), damit Numbers-Umformungen nie Rückfragen auslösen. Eine Nr./Kennung, die beim Ausgeben nicht in
+   der Liste stand oder inzwischen zu einem anderen Stück gehört, wird nicht angewendet (Meldung).
+2. **Listen-Nr. finden:** im Blatt „Anleitung“, im Kommentar der ersten Überschrift, in den Dateieigenschaften und im
+   Dateinamen (`planet-claire-bestand-B-…xlsx`). Fehlt sie überall, schreibt `pflege:import` nichts (Exit-Code 3); die
+   Sitzung gibt sie nach Prüfung mit `--liste=<Listen-Nr.>` an oder übernimmt ausdrücklich mit `--ohne-stand` (dann
+   zählt jeder Unterschied zum jetzigen Stand). Kein Raten über das Datum.
+3. **Einlesen:** nur `.xlsx` (ZIP mit `xl/workbook.xml`; Numbers-Dateien und CSV mit Anleitung abgelehnt), höchstens
+   25 MB, ZIP-Inhalt begrenzt (Einträge, entpackte Größe). Tabellen über die Überschriften (erste 10 Zeilen jedes Blatts);
+   Fehlerzellen (`#NAME?` – Text mit „-“ oder „=“ am Anfang) und Teile verbundener Zellen ändern nichts und werden gemeldet.
+4. **Geprüft vor dem Schreiben:** Bestand mit `bestandSchema` (ein ungültiges Stück bleibt auf dem alten Stand; „Verkauft“
+   und „Deine Notiz“ gelten trotzdem, wenn das Stück damit gültig ist), Rechtsliste RECHT §5 je Ziel
+   (`src/lib/legal/forbiddenContent.ts`: `content` + V-16, `messages` + V-20/V-25/V-30 – dieselben Muster wie der Test
+   über `src/**`/`content/**`), bei öffentlichen Stücktexten zusätzlich V-13/V-16 (`lintProductText`). Texte: Pflichttext,
+   Höchstlänge und Prüfungen aus dem Schema der Verwaltung (Seiten-Blöcke, Fragen, Kategorien, Einstellungen, z. B.
+   Lieferzeit ohne „ca.“, R-035), Platzhalter fester Texte mit dem ICU-Parser der Seite
+   (`@formatjs/icu-messageformat-parser`). Kategorie-Wechsel, neue Stücke und neue Texte werden nie automatisch
+   übernommen, nur gemeldet.
+5. **Texte-Liste – Umfang:** `src/i18n/messages` ohne `legal`, `withdraw`, `privacyExport`, `qa`, `previewExport`,
+   amtliche Gewährleistungs-Mitteilung (`shop.warranty`), Rechtsseite „Versand & Zahlung“ (`shippingPayment`) und Mails zu
+   Widerruf, Reklamation, Schlichtung, Datenschutz und Einwilligung; von den Standardtexten der Verwaltung nur die von der
+   Seite genutzten (`emails.signature`, `emails.inquiryResponseTime`); Seed-Seiten außer „Widerruf“ und „Konformität“,
+   Fragen, Kategorien, drei Einstellungstexte. Nie: `slug`, Pflicht-Warnhinweise. Nur zum Lesen: Namen der Rechtsseiten,
+   Pflicht-Hinweise am Stück (`shop.badges.*`), Links auf Rechtstexte und Texte mit „Vertrag widerrufen“ /
+   „Zahlungspflichtig bestellen“ (`LOCKED_*` in `src/lib/texte/model.ts`).
+6. **„Verkauft“** (U-86), streng: verkauft nur mit Datum (auch Excel-Datum, „11.10.“ = dieses Jahr, liegt der Tag noch vor
+   uns das Vorjahr) oder „ja“/„x“ am Anfang, jeweils gern mit Preis („35 €“) und Notiz; leer, „nein“, „noch da“, „-“, „0“
+   = nicht verkauft; anderer Text, eine reine Zahl oder ein Datum in der Zukunft = Meldung. Ergebnis: `sold` in
+   `content/bestand/products.json`. `bestand:import` legt so ein Stück als Markt-Verkauf an (Status `sold`, Weg `offline`,
+   Verkaufstag 12:00 UTC, erzielter Preis sonst Listenpreis → Umsatz-Wächter, nicht im Archiv, Audit
+   `product_offline_sold`) – auch in der Vorschau-Datei nie „verfügbar“.
+7. **Englisch** (U-00): Wurde das Deutsche geschrieben und das Englische nicht, nennt der Bericht die Stelle unter
+   „Englisch zu ergänzen“; die Sitzung schreibt das Englische vor dem Commit.
+8. **Dateien:** geschrieben wird nur, was sich ändert; Format wie im Repo (`content/` ohne Prettier, sonst Prettier), damit
+   der Diff nur die geänderten Texte zeigt. Bericht: `dist/pflege/bericht-<Listen-Nr.>.md`.
+
+Ablauf für Sitzungen: RUNBOOK §15. Anleitung für Jutta: `docs/owner/IPAD.md`.
+
+---
+
 ## Anhang A – Namensabgleich mit anderen Dokumenten
 
 Andere Dokumente nannten für dieselbe Sache teils andere Namen. **Seit dem 26.09.2026 verwenden die Fachdokumente die
@@ -2765,7 +2849,7 @@ widersprüchlichen Fristen gilt für Löschungen LOESCHKONZEPT, für Abläufe KO
 | `retentionPrivacyRequests` | maintenance | täglich | – | – (DSGVO-Exporte aus §12) | `retentionPrivacyRequests` |
 | `retentionConsentEvidence` | maintenance | täglich | `retention` | `purgeLogs` (`consent-log`), `purgePrivateUploads` (Nachweise) | `retentionConsentEvidence` |
 | `retentionDeletionLog` | maintenance | täglich | – | – | `retentionDeletionLog` |
-| `retentionTechnical` | maintenance | stündlich | `temp-uploads-cleanup` | `purgePrivateUploads` (`pending`), `purgeLogs` (`webhook-events`, `audit-log`) | `retentionTechnical` (inkl. `rate_limit_hits` > 24 h) |
+| `retentionTechnical` | maintenance | stündlich | `temp-uploads-cleanup` | `purgePrivateUploads` (`pending`), `purgeLogs` (`webhook-events`, `audit-log`) | `retentionTechnical` (inkl. `rate_limit_hits` > 24 h; gescheiterte, hängende und verwaiste Mail-Jobs in `payload-jobs`, L-13 i – Prüfung P18.5) |
 | – | – | – | – | – | `retentionCarts`: **entfällt**, solange es keinen Server-Warenkorb gibt (§8.7); L-01 erfüllt `Max-Age` des Cookies, Kassen-Datensätze löscht `retentionAbandonedCheckouts` |
 | `legalHoldReview` | maintenance | täglich | – | – | `legalHoldReview` |
 | `privacyRequestsDeadlineReminder` | maintenance | täglich | – | – | `privacyRequestsDeadlineReminder` |

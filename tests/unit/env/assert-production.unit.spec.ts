@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   assertProductionEnv,
   collectEnvViolations,
+  hostMatchesPattern,
   parseEnv,
   seedPreviewModeActive,
 } from '@/lib/env'
@@ -10,7 +11,8 @@ import {
 // Gültige Produktionswerte (nur Testwerte, keine echten Schlüssel).
 const prod: Record<string, string> = {
   APP_ENV: 'production',
-  DATABASE_URL: 'postgres://u:p@db.example.test:5432/app',
+  DATABASE_URL:
+    'postgres://u:p@ep-test-000000-pooler.eu-central-1.aws.neon.tech/app?sslmode=require',
   PAYLOAD_SECRET: 'a'.repeat(64),
   CRON_SECRET: 'b'.repeat(40),
   NEXT_PUBLIC_SITE_URL: 'https://planetclairetattoos.com',
@@ -51,11 +53,52 @@ describe('T-17 Start-Prüfung in Produktion (ARCHITEKTUR §4.3)', () => {
     ['NEXT_PUBLIC_SITE_URL', { NEXT_PUBLIC_SITE_URL: 'https://www.planetclairetattoos.com' }],
     ['S3_ENDPOINT', { S3_ENDPOINT: 'https://abc123.r2.cloudflarestorage.com' }],
     ['SEED_PREVIEW_MODE', { SEED_PREVIEW_MODE: 'true' }],
+    // EU-Regionen laut Datenschutzerklärung (Prüfung P18.5): Sentry nur EU-Ingest, Neon nur aws-eu-central-1
+    ['SENTRY_DSN', { SENTRY_DSN: 'https://k@o1.ingest.us.sentry.io/2' }],
+    ['SENTRY_DSN', { SENTRY_DSN: 'https://k@o1.ingest.sentry.io/2' }],
+    ['SENTRY_DSN', { SENTRY_DSN: 'https://k@o1-ingest.de.sentry.io.example.com/2' }],
+    ['SENTRY_DSN', { SENTRY_DSN: 'kein-dsn' }],
+    ['DATABASE_URL', { DATABASE_URL: 'postgres://u:p@ep-x-pooler.us-east-2.aws.neon.tech/app' }],
+    ['DATABASE_URL', { DATABASE_URL: 'postgres://u:p@ep-x.eu-central-1.azure.neon.tech/app' }],
+    [
+      'DATABASE_URL_UNPOOLED',
+      { DATABASE_URL_UNPOOLED: 'postgres://u:p@ep-x.eu-west-2.aws.neon.tech/app' },
+    ],
   ])('T-17 Verstoß gegen %s bricht ab', (name, patch) => {
     const errors = errorsFor(patch)
     expect(errors.length).toBe(1)
     expect(errors[0]).toContain(name)
     expect(() => assertProductionEnv(parseEnv({ ...prod, ...patch }))).toThrow(name)
+  })
+
+  it('EU-Regionen: Sentry-DSN der EU und Neon aws-eu-central-1 (gepoolt und direkt) bestehen ohne Warnung', () => {
+    const r = collectEnvViolations(
+      parseEnv({
+        ...prod,
+        SENTRY_DSN: 'https://abc123@o450000.ingest.de.sentry.io/4500000000000000',
+        DATABASE_URL_UNPOOLED: 'postgres://u:p@ep-test-000000.eu-central-1.aws.neon.tech/app',
+      }),
+    )
+    expect(r).toEqual({ errors: [], warnings: [] })
+  })
+
+  it('EU-Regionen: eigener Postgres (Docker-Exit-Pfad, ARCHITEKTUR §13) ist erlaubt, aber eine Warnung', () => {
+    const r = collectEnvViolations(
+      parseEnv({ ...prod, DATABASE_URL: 'postgres://planetclaire:x@postgres:5432/planetclaire' }),
+    )
+    expect(r.errors).toEqual([])
+    expect(r.warnings).toEqual([
+      'DATABASE_URL zeigt nicht auf Neon (postgres) – Datenschutzerklärung und DIENSTE.md (Datenbank-Hosting) anpassen.',
+    ])
+  })
+
+  it('Host-Muster aus DIENSTE §7: `*.` verlangt mindestens ein Label davor', () => {
+    expect(hostMatchesPattern('o1.ingest.de.sentry.io', '*.ingest.de.sentry.io')).toBe(true)
+    expect(hostMatchesPattern('ingest.de.sentry.io', '*.ingest.de.sentry.io')).toBe(false)
+    expect(hostMatchesPattern('evilingest.de.sentry.io', '*.ingest.de.sentry.io')).toBe(false)
+    expect(hostMatchesPattern('a..ingest.de.sentry.io', '*.ingest.de.sentry.io')).toBe(false)
+    expect(hostMatchesPattern('api.stripe.com', 'api.stripe.com')).toBe(true)
+    expect(hostMatchesPattern('x.api.stripe.com', 'api.stripe.com')).toBe(false)
   })
 
   it('T-17 TRANSLATION_DRIVER ≠ deepl ist nur eine Warnung', () => {

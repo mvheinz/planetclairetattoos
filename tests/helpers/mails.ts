@@ -223,12 +223,7 @@ export const INQUIRY_RECEIPT_FIXTURE = {
   reference: 'AA-2026-0007',
   receivedAt: '2026-10-12T12:03:00.000Z',
   deleteAfter: '2027-04-12T12:03:00.000Z',
-  name: 'Erika Beispiel',
   objectType: 'cap',
-  objectTypeOther: null,
-  idea: 'Eine Cap mit meinem Dackel Bruno, gern in Grün und mit kleinen Sternen drumherum.',
-  desiredTimeframe: 'bis Weihnachten',
-  budget: 'ca. 80 €',
   imageCount: 2,
   responseTime: null,
 }
@@ -284,8 +279,10 @@ export const PRIVACY_ERASURE_RESPONSE_FIXTURE = {
     { area: 'inquiries', outcome: 'deleted' },
     { area: 'checkouts', outcome: 'deleted' },
     { area: 'orders', outcome: 'restricted', until: '2033-01-01T00:00:00.000+01:00' },
+    { area: 'orders', outcome: 'inUse', until: null },
     { area: 'invoices', outcome: 'unchanged', until: '2037-01-01T00:00:00.000+01:00' },
   ],
+  carrierConsentWithdrawn: true,
 }
 
 /** M16 (P6.18): Widerruf der DHL-Einwilligung. */

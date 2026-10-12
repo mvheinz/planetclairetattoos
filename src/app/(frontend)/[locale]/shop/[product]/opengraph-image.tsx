@@ -1,7 +1,7 @@
 import { toLocale } from '@/components/shop/listRoutes'
 import { getOgProduct } from '@/lib/data/ogProduct'
 import { getPublicProductByItemNumber } from '@/lib/data/products'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { OG_CONTENT_TYPE, productOgAlt, renderProductOg } from '@/og/render'
 import { OG_SIZE } from '@/og/templates'
 import { parseProductSegment } from '@/lib/shop/format'
@@ -42,7 +42,7 @@ export async function generateImageMetadata({ params }: { params: Params | Promi
       },
     ]
   } catch (err) {
-    log.warn('og.metadata_failed', { reason: (err as Error).message })
+    log.warn('og.metadata_failed', { reason: errorSummary(err) })
     return []
   }
 }

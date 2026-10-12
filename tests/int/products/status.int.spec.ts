@@ -436,11 +436,13 @@ describe('Admin-Endpunkte (DATENMODELL §6.6.10)', () => {
       overrideAccess: true,
       depth: 0,
     })
+    // Storno der ganzen Bestellung: Position mit erstattet (sonst stünde das Stück noch zur Lieferung aus, KA-37)
     await payload.update({
       collection: 'orders',
       id: orderId,
       data: {
-        refunds: [refund],
+        refunds: [{ ...refund, itemIds: order.items.map((i) => i.id) }],
+        items: order.items.map((i) => ({ ...i, status: 'refunded', refundedCents: i.priceCents })),
         timestamps: { ...order.timestamps, shippedAt: '2026-09-28T09:00:00.000Z' },
       } as never,
       overrideAccess: true,

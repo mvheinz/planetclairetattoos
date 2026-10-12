@@ -3,7 +3,7 @@ import type { Endpoint } from 'payload'
 import { isAdminRequest } from '@/access'
 import { ADMIN_NO_STORE, pdfResponse } from '@/endpoints/adminResponse'
 import { PRODUCT_CATEGORIES, type ProductCategory } from '@/lib/enums'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 // `GET /api/admin/compliance/template.pdf?category=<Kategorie>` (PLAN P5.13, RECHT R-203, ARCHITEKTUR §2.5): Vorlage
 // „Technische Unterlagen je Kategorie“ als PDF – nur Verwaltung (sonst 403), unbekannte Kategorie 400.
@@ -27,7 +27,7 @@ export const complianceTemplateEndpoint: Endpoint = {
       const pdf = await renderComplianceTemplate(req, category)
       return pdfResponse(pdf, `technische-unterlagen-${category}.pdf`)
     } catch (err) {
-      log.error('compliance.template_failed', { category, reason: (err as Error)?.message })
+      log.error('compliance.template_failed', { category, reason: errorSummary(err) })
       return error(500, 'Vorlage konnte nicht erstellt werden.')
     }
   },

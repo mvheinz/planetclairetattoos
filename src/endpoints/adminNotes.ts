@@ -3,7 +3,7 @@ import { ValidationError, type CollectionSlug, type Endpoint } from 'payload'
 import { isAdminRequest } from '@/access'
 import { ADMIN_NO_STORE, adminActionResponse } from '@/endpoints/adminResponse'
 import { readJsonBody } from '@/endpoints/products/actions'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 // `POST /api/<collection>/:id/notes` `{ adminNotes }` (PLAN P5.19/P5.20): interne Notizen separat speichern – nur das
 // Feld `adminNotes`, alle anderen Angaben bleiben unberührt (Widerrufe: Erklärung unveränderlich, DM-WDR-03). Nur
@@ -57,7 +57,7 @@ export function adminNotesEndpoint(
         return adminActionResponse({ doc: updated })
       } catch (err) {
         if (err instanceof ValidationError) return json(400, err.message)
-        log.error('admin_notes.save_failed', { collection, id, reason: (err as Error)?.message })
+        log.error('admin_notes.save_failed', { collection, id, reason: errorSummary(err) })
         return json(500, 'Speichern hat nicht geklappt. Bitte noch einmal versuchen.')
       }
     },

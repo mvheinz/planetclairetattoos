@@ -241,7 +241,7 @@ test.describe('Startseite mit Beispielbestand (P8.17)', () => {
       expect(await flash.count()).toBeLessThanOrEqual(3)
 
       // U-50 (P14.1): Foto von Jutta und Coco oben links (keine Station mehr); U-70 (P15.2): der Text mit „Mehr über uns“
-      // mittig unter Koko, größer als Fließtext
+      // mittig unter Koko; U-79 (P17.2): kleiner als der Fließtext
       await expect(page.locator('[data-home-station="jutta-und-coco"]')).toHaveCount(0)
       const jutta = page.locator('[data-home-intro]')
       await expect(jutta.locator('[data-photo-frame] img')).toHaveCount(1)
@@ -258,7 +258,7 @@ test.describe('Startseite mit Beispielbestand (P8.17)', () => {
             parseFloat(getComputedStyle(document.body).fontSize)
           )
         }),
-      ).toBeGreaterThanOrEqual(1.18)
+      ).toBeLessThanOrEqual(0.95)
       expect(await juttaText.evaluate((el) => getComputedStyle(el).textAlign)).toBe('center')
       await expect(jutta.locator('a[href*="instagram.com"]')).toHaveCount(0)
       await expect(juttaText.locator('a[href*="instagram.com"]')).toHaveCount(0)

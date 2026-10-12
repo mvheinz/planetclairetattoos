@@ -16,7 +16,7 @@ import type {
   VatCategory,
 } from '@/lib/enums'
 import { jobAlarm } from '@/lib/jobs/alarm'
-import { createLogger } from '@/lib/monitoring/logger'
+import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { pickPublicSettings, toPublicPayload } from '@/lib/payload/public'
 import { inTransaction } from '@/lib/payload/transaction'
 import { getPaymentsAdapter, type PaymentsAdapter } from '@/lib/payments'
@@ -27,6 +27,7 @@ import { ipHash } from '@/lib/security/ipHash'
 import { hit } from '@/lib/security/rateLimit'
 import { createToken, hashToken, TOKEN_RE } from '@/lib/security/tokens'
 import { pickShopDisplaySettings } from '@/lib/shop/displaySettings'
+import { pickupOnlyOrderable, pickupSelectable } from '@/lib/shop/pickupPolicy'
 import type { Checkout } from '@/payload-types'
 
 import type { CartCookie } from './cartCookie'
@@ -45,6 +46,8 @@ import { computeTotals, type TotalsSettings } from './totals'
 // Kassenstart „Zur Kasse“ (KONZEPT §4.2/§4.6/§4.11, DATENMODELL §6.25/§8.1, PLAN P4.6). Ablauf:
 // (1) Shop geöffnet, Korb prüfen (öffentlich, `available`, ≤ `settings.shop.maxItemsPerCheckout`); eine offene Kasse
 //     desselben `pc_checkout` mit gleicher Stückliste wird wiederverwendet und nie verlängert (S14), sonst `replaced`;
+//     Abholung nur, solange sie wählbar ist (`settings.shipping.pickupEnabled`, P18.5): sonst Versand, eine Kasse mit
+//     Abholung wird ersetzt und `nur_abholung`-Stücke werden abgelehnt (`pickup_disabled`);
 // (2) „lazy release“ abgelaufener Reservierungen der angefragten Stücke (Session beim Anbieter zuerst beenden);
 // (3) eine Transaktion: Kasse `open` mit Snapshot anlegen, dann atomar reservieren (alles oder nichts, S1);
 // (4) nach dem Commit Zahlungs-Session anlegen – Fehler ⇒ Kasse bleibt `open` ohne Session, nur Vorkasse (S13);
@@ -81,7 +84,14 @@ export function checkoutCookieAttributes(
 }
 
 export type StartCheckoutCode =
-  'shop_closed' | 'empty' | 'too_many' | 'unavailable' | 'reserved' | 'payment_running' | 'shipping'
+  | 'shop_closed'
+  | 'empty'
+  | 'too_many'
+  | 'unavailable'
+  | 'reserved'
+  | 'payment_running'
+  | 'pickup_disabled'
+  | 'shipping'
 
 export type StartCheckoutResult =
   | {
@@ -100,7 +110,7 @@ export type StartCheckoutResult =
   | {
       ok: false
       code: StartCheckoutCode
-      /** Betroffene Stücknummern (`reserved`, `unavailable`). */
+      /** Betroffene Stücknummern (`reserved`, `unavailable`, `pickup_disabled`). */
       itemNumbers?: number[]
       /** Höchstzahl bei `too_many`. */
       max?: number
@@ -254,7 +264,16 @@ export async function startCheckout(
     // Countdown („Nochmal reservieren“, KO-15) wird die noch gehaltene Reservierung ersetzt.
     const held = new Date(existing.expiresAt).getTime() > now.getTime()
     const current = held && new Date(existing.displayExpiresAt).getTime() > now.getTime()
-    if (current && sameItems(itemIdsOf(existing), ids)) {
+    // Abholung inzwischen ausgeschaltet (P18.5): eine offene Kasse mit Abholung wird nicht weiterverwendet, sondern ersetzt
+    // (eine laufende Zahlung bleibt, wie sie ist).
+    const deliveryStillValid =
+      existing.status === 'confirming' ||
+      existing.fulfillmentMethod !== 'pickup' ||
+      pickupSelectable(
+        shop.pickupEnabled,
+        existing.items.some((i) => i.shippingClass === 'nur_abholung'),
+      )
+    if (current && deliveryStillValid && sameItems(itemIdsOf(existing), ids)) {
       return {
         ok: true,
         reused: true,
@@ -296,6 +315,15 @@ export async function startCheckout(
   if (gone.length > 0) {
     return fail('unavailable', { itemNumbers: await itemNumbersOf(payload, gone) })
   }
+  // Nur zur Abholung, Abholung gerade aus (P18.5): nicht bestellbar.
+  const blocked = ids
+    .map((id) => byId.get(id)!)
+    .filter((p) => p.shippingClass === 'nur_abholung' && !pickupOnlyOrderable(shop.pickupEnabled))
+  if (blocked.length > 0) {
+    return fail('pickup_disabled', {
+      itemNumbers: blocked.map((p) => p.itemNumber).sort((a, b) => a - b),
+    })
+  }
 
   // (2) Lazy release abgelaufener Reservierungen dieser Stücke.
   const expired = ids.filter((id) => {
@@ -308,7 +336,7 @@ export async function startCheckout(
   })
   if (expired.length > 0) await releaseExpiredFor(expired, now, { ...deps, payload })
 
-  // Snapshot und Summen (immer DB-Preise; `nur_abholung` erzwingt Abholung).
+  // Snapshot und Summen (immer DB-Preise; `nur_abholung` erzwingt Abholung, ohne Abholung gilt Versand).
   const products = ids.map((id) => byId.get(id)!)
   const items = products.map((p) => {
     const deviation = p.hasDeviation
@@ -328,9 +356,12 @@ export async function startCheckout(
       ...(deviation ? { deviationText: deviation } : {}),
     }
   })
-  const fulfillmentMethod: FulfillmentMethod = items.some((i) => i.shippingClass === 'nur_abholung')
+  const hasPickupOnly = items.some((i) => i.shippingClass === 'nur_abholung')
+  const fulfillmentMethod: FulfillmentMethod = hasPickupOnly
     ? 'pickup'
-    : cart.delivery
+    : cart.delivery === 'pickup' && pickupSelectable(shop.pickupEnabled, false)
+      ? 'pickup'
+      : 'shipping'
   let totals: ReturnType<typeof computeTotals>
   try {
     totals = computeTotals(
@@ -440,7 +471,7 @@ export async function startCheckout(
     log.warn('checkout.payment_session_failed', {
       checkoutId,
       error: (err as Error)?.name,
-      message: (err as Error)?.message,
+      message: errorSummary(err),
     })
   }
 
@@ -448,7 +479,7 @@ export async function startCheckout(
   try {
     await jobAlarm.bump(times.expiresAt)
   } catch (err) {
-    log.error('checkout.job_alarm_failed', { checkoutId, error: (err as Error)?.message })
+    log.error('checkout.job_alarm_failed', { checkoutId, error: errorSummary(err) })
   }
   for (const id of ids) {
     revalidateProduct(id, { immediate: true, inServerAction: deps.inServerAction })
@@ -490,6 +521,7 @@ export const CART_NOTICE_CODES: readonly CartNoticeCode[] = [
   'unavailable',
   'reserved',
   'payment_running',
+  'pickup_disabled',
   'shipping',
   'pickup_only',
   'rate_limited',

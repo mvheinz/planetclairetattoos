@@ -673,6 +673,15 @@ export interface Order {
   };
   shippingZone?: ('DE' | 'EU' | 'CH') | null;
   shippingClass?: ('brief' | 'paket_klein' | 'keramik' | 'nur_abholung') | null;
+  shippingRatesAtOrder?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   items: {
     product: number | Product;
     itemNumber: number;
@@ -691,6 +700,7 @@ export interface Order {
     deviationAgreedAt?: string | null;
     status: 'active' | 'withdrawn' | 'returned' | 'refunded';
     refundedCents: number;
+    handedOverAt?: string | null;
     id?: string | null;
   }[];
   subtotalCents: number;
@@ -1381,7 +1391,7 @@ export interface Product {
   createdAt: string;
 }
 /**
- * Märkte, Flohmärkte und Kunstmärkte („Planet Claire on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
+ * Märkte, Flohmärkte und Kunstmärkte („on Tour“, rechte Spalte der Startseite). Vergangene Termine stehen eingeklappt.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tour-dates".
@@ -3397,6 +3407,7 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   shippingZone?: T;
   shippingClass?: T;
+  shippingRatesAtOrder?: T;
   items?:
     | T
     | {
@@ -3417,6 +3428,7 @@ export interface OrdersSelect<T extends boolean = true> {
         deviationAgreedAt?: T;
         status?: T;
         refundedCents?: T;
+        handedOverAt?: T;
         id?: T;
       };
   subtotalCents?: T;

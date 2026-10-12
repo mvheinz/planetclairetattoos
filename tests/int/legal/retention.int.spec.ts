@@ -16,9 +16,11 @@ import {
   L_03_CHECKOUTS,
   L_10_INQUIRIES,
   L_13D_WEBHOOK_EVENTS,
+  L_13I_FAILED_MAIL_JOBS,
   L_04_CANCELLED_PREPAYMENT_STAGE_1,
   L_05_ORDERS_STAGE_B,
   L_05_ORDERS_STAGE_C,
+  L_19B_PORTFOLIO_CONSENT,
   retainUntil,
 } from '@/lib/retention/policy'
 import { readStoredFile } from '@/lib/storage/read'
@@ -168,7 +170,7 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     expect((await run('retentionAbandonedCheckouts', plus(due, 2 * DAY))).processed).toBe(0)
   })
 
-  it('R-154 L-04 Stufe 1: stornierte Vorkasse nach 30 Tagen ohne Adressen und DHL-Einwilligung; Legal Hold bleibt', async () => {
+  it('R-154 L-04 Stufe 1: stornierte Vorkasse nach 30 Tagen ohne Adressen, DHL-Einwilligung und Einwilligungsnachweise; Legal Hold bleibt', async () => {
     const cancelledAt = new Date('2026-10-05T09:00:00.000Z')
     const base = {
       status: 'cancelled',
@@ -186,9 +188,33 @@ describe('Löschjobs Teil 1 (R-154)', () => {
         legalHoldSince: iso(cancelledAt),
       },
     })
+    // schon früher minimiert (vor Prüfung P18.5): Adressen leer, Nachweise noch da
+    const legacy = await order(base)
+    await dbOf(payload).execute(sql`UPDATE orders SET shipping_address_name = NULL,
+      shipping_address_address_line1 = NULL, shipping_address_postal_code = NULL, shipping_address_city = NULL,
+      billing_address_name = NULL, billing_address_address_line1 = NULL, billing_address_postal_code = NULL,
+      billing_address_city = NULL, carrier_email_consent = false WHERE id = ${legacy.id}`)
+    // Nachweise hängen seit Prüfung P18.5 schon an der Vorkasse-Bestellung (Frist der Bestellung, Stufe 2)
+    const consent = async (orderId: number, purpose: string) =>
+      Number(
+        (
+          await dbOf(payload).execute(sql`
+      INSERT INTO consent_log (purpose, granted, text_snapshot, text_sha256, locale, email, retain_until, order_id, seed, updated_at, created_at)
+      VALUES (${purpose}, true, 'Text', ${'c'.repeat(64)}, 'de', 'erika@planetclaire.local',
+              '2032-12-31T23:00:00Z'::timestamptz, ${orderId}, false, now(), now()) RETURNING id`)
+        ).rows[0]!.id,
+      )
+    const consents = [
+      await consent(o.id, 'carrier_email_forwarding'),
+      await consent(o.id, 'deviation_agreement'),
+    ]
+    const legacyConsent = await consent(legacy.id, 'deviation_agreement')
+    const heldConsent = await consent(held.id, 'carrier_email_forwarding')
     const due = retainUntil(L_04_CANCELLED_PREPAYMENT_STAGE_1, cancelledAt)
     await run('retentionOrderMinimize', plus(due, -DAY))
     expect((await orderRow(o.id))?.shipping_address_name).toBe('Erika Beispiel')
+    for (const id of [...consents, legacyConsent])
+      expect(await exists('consent_log', id)).toBe(true)
     await run('retentionOrderMinimize', plus(due, DAY))
     const row = await orderRow(o.id)
     expect(row).toMatchObject({
@@ -199,8 +225,18 @@ describe('Löschjobs Teil 1 (R-154)', () => {
     })
     expect(row?.order_number).toBe(o.orderNumber)
     expect((await logsFor('orders', o.id)).map((l) => l.ruleId)).toEqual(['L-04 Stufe 1'])
+    for (const id of [...consents, legacyConsent]) {
+      expect(await exists('consent_log', id)).toBe(false)
+      expect(
+        (await logsFor('consent-log', id)).map((l) => [l.ruleId, l.action, l.trigger]),
+      ).toEqual([['L-04 Stufe 1', 'deleted', 'job']])
+    }
     expect((await orderRow(held.id))?.shipping_address_name).toBe('Erika Beispiel')
     expect(await logsFor('orders', held.id)).toHaveLength(0)
+    expect(await exists('consent_log', heldConsent)).toBe(true)
+    // idempotent
+    const again = await run('retentionOrderMinimize', plus(due, 2 * DAY))
+    expect(again.steps.find((st) => st.ruleId === 'L-04 Stufe 1')?.count).toBe(0)
   })
 
   it('R-154 L-05 Stufe B: Status-Token (Hash und Siegel) 180 Tage nach finalStatusAt entfernt', async () => {
@@ -735,6 +771,122 @@ describe('Löschjobs Teil 2 (R-154, R-134)', () => {
     await dbOf(payload).execute(sql`DELETE FROM tattoo_gallery WHERE id = ${g.id}`)
   })
 
+  it('R-154 L-19 b Galerie-Eintrag: 3 Jahre nach Widerruf Eintrag, Nachweisdatei und ungenutzte Bild-Einträge gelöscht (Tag vorher noch da)', async () => {
+    const image = await createTestImage(payload, 'Tattoo am Oberarm')
+    const extra = await createTestImage(payload, 'Tattoo am Oberarm, Detail')
+    const shared = await createTestImage(payload, 'Schwalbe (auch in einem anderen Eintrag)')
+    const screenshot = await readFile(PHOTO)
+    const proof = await payload.create({
+      collection: 'private-uploads',
+      data: { purpose: 'consent_evidence' } as never,
+      file: {
+        data: screenshot,
+        name: 'einwilligung.jpg',
+        mimetype: 'image/jpeg',
+        size: screenshot.length,
+      },
+      overrideAccess: true,
+      context: { system: true },
+    })
+    const withdrawn = new Date('2026-10-10T12:00:00.000Z')
+    const g = await payload.create({
+      collection: 'tattoo-gallery',
+      data: {
+        image,
+        extraImages: [extra, shared],
+        kind: 'fresh',
+        showsCustomer: true,
+        consentGiven: true,
+        consentDate: '2026-05-01T00:00:00.000Z',
+        consentNote: 'per Mail bestätigt',
+        consentEvidence: proof.id,
+        creditHandleAllowed: true,
+        creditHandle: 'erika.tattoo',
+        published: false,
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    const other = await payload.create({
+      collection: 'tattoo-gallery',
+      data: { image: shared, kind: 'fresh', showsCustomer: false, published: false } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    await dbOf(payload).execute(sql`
+      UPDATE tattoo_gallery SET consent_withdrawn_at = ${iso(withdrawn)}::timestamptz, consent_given = false
+       WHERE id = ${g.id}`)
+    const due = retainUntil(L_19B_PORTFOLIO_CONSENT, withdrawn)
+    expect(iso(due)).toBe('2029-10-10T12:00:00.000Z')
+
+    await run('retentionConsentEvidence', plus(due, -DAY))
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(true)
+    expect(await exists('private_uploads', proof.id as number)).toBe(true)
+    for (const id of [image, extra, shared]) expect(await exists('media', id)).toBe(true)
+
+    await run('retentionConsentEvidence', plus(due, DAY))
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(false)
+    expect(await exists('private_uploads', proof.id as number)).toBe(false)
+    expect(await exists('media', image)).toBe(false)
+    expect(await exists('media', extra)).toBe(false)
+    // noch von einem anderen Eintrag genutzt: bleibt, aber gesperrt
+    expect(await exists('media', shared)).toBe(true)
+    const sharedRow = await dbOf(payload).execute(
+      sql`SELECT restricted FROM media WHERE id = ${shared}`,
+    )
+    expect(sharedRow.rows[0]?.restricted).toBe(true)
+    expect(await exists('tattoo_gallery', other.id as number)).toBe(true)
+
+    const entryLogs = await logsFor('tattoo-gallery', g.id as number)
+    expect(entryLogs).toHaveLength(1)
+    expect(entryLogs[0]).toMatchObject({
+      ruleId: 'L-19 b',
+      action: 'deleted',
+      trigger: 'job',
+      taskSlug: 'retentionConsentEvidence',
+    })
+    expect((await logsFor('private-uploads', proof.id as number)).map((l) => l.ruleId)).toEqual([
+      'L-19 b',
+    ])
+    for (const id of [image, extra]) {
+      const ruleIds = (await logsFor('media', id)).map((l) => `${l.ruleId}:${l.action}`).sort()
+      expect(ruleIds).toEqual(['L-19 b:deleted', 'L-20:files_deleted'])
+    }
+    expect((await logsFor('media', shared)).map((l) => l.ruleId)).toEqual(['L-20'])
+    // keine Inhalte im Protokoll
+    expect(JSON.stringify(entryLogs)).not.toContain('erika.tattoo')
+    // idempotent
+    await run('retentionConsentEvidence', plus(due, 2 * DAY))
+    expect(await logsFor('tattoo-gallery', g.id as number)).toHaveLength(1)
+    await dbOf(payload).execute(sql`DELETE FROM tattoo_gallery WHERE id = ${other.id}`)
+  })
+
+  it('L-19 b erneut eingewilligt oder wieder online: Eintrag bleibt trotz altem Widerrufsdatum', async () => {
+    const image = await createTestImage(payload, 'Tattoo an der Wade')
+    const withdrawn = new Date('2026-10-10T12:00:00.000Z')
+    const g = await payload.create({
+      collection: 'tattoo-gallery',
+      data: {
+        image,
+        kind: 'fresh',
+        showsCustomer: true,
+        consentGiven: true,
+        consentDate: '2026-05-01T00:00:00.000Z',
+        consentNote: 'neu eingewilligt per Mail',
+        published: false,
+      } as never,
+      overrideAccess: true,
+      context: { seed: true },
+    })
+    await dbOf(payload).execute(sql`
+      UPDATE tattoo_gallery SET consent_withdrawn_at = ${iso(withdrawn)}::timestamptz WHERE id = ${g.id}`)
+    const later = plus(retainUntil(L_19B_PORTFOLIO_CONSENT, withdrawn), 2 * DAY)
+    await run('retentionConsentEvidence', later)
+    expect(await exists('tattoo_gallery', g.id as number)).toBe(true)
+    expect(await logsFor('tattoo-gallery', g.id as number)).toHaveLength(0)
+    await dbOf(payload).execute(sql`DELETE FROM tattoo_gallery WHERE id = ${g.id}`)
+  })
+
   it('R-154 L-18 Löschprotokoll nach 3 Jahren gelöscht, ohne eigenen Eintrag', async () => {
     const old = await dbOf(payload).execute(sql`
       INSERT INTO deletion_log (entity_collection, entity_id, rule_id, action, trigger, task_slug, storage_objects_count,
@@ -754,10 +906,15 @@ describe('Löschjobs Teil 2 (R-154, R-134)', () => {
     expect(await count()).toBe(before - 1)
   })
 
-  it('R-134 rate_limit_hits nach 24 h weg; L-02, L-13 d/f/g/h im stündlichen retentionTechnical', async () => {
+  it('R-134 rate_limit_hits nach 24 h weg; L-02, L-13 d/f/g/h/i im stündlichen retentionTechnical', async () => {
     const now = new Date('2027-02-10T12:00:00.000Z')
     const db = dbOf(payload)
     await db.execute(sql`DELETE FROM rate_limit_hits`)
+    // L-13 i: Mail-Job ohne Protokoll-Eintrag (verwaist) – kann nie mehr versendet werden
+    const orphanJob = await db.execute(sql`
+      INSERT INTO payload_jobs (input, task_slug, queue, has_error, processing, total_tried, updated_at, created_at)
+      VALUES (${JSON.stringify({ emailLogId: 999_999_998, data: {}, waits: 0 })}::jsonb, 'sendEmail', 'email',
+              false, false, 0, ${iso(plus(now, -2 * 3_600_000))}::timestamptz, now()) RETURNING id`)
     await db.execute(sql`
       INSERT INTO rate_limit_hits (bucket, key_hash, window_start, count) VALUES
         ('withdrawal_submit', ${'d'.repeat(64)}, ${iso(plus(now, -25 * 3_600_000))}::timestamptz, 3),
@@ -809,17 +966,89 @@ describe('Löschjobs Teil 2 (R-154, R-134)', () => {
     expect(await exists('job_runs', Number(run91.rows[0]!.id))).toBe(false)
     expect(await exists('audit_log', Number(audit.rows[0]!.id))).toBe(false)
     expect(await exists('private_uploads', pending.id as number)).toBe(false)
+    expect(await exists('payload_jobs', Number(orphanJob.rows[0]!.id))).toBe(false)
     expect(
       res.steps
         .filter((s) => s.count > 0)
         .map((s) => s.ruleId)
         .sort(),
-    ).toEqual(['L-02', 'L-13 a', 'L-13 d', 'L-13 f', 'L-13 g', 'L-13 h'])
+    ).toEqual(['L-02', 'L-13 a', 'L-13 d', 'L-13 f', 'L-13 g', 'L-13 h', 'L-13 i'])
     expect(retainUntil(L_02_RESERVATIONS, released).getTime()).toBeLessThan(now.getTime())
     expect(retainUntil(L_13D_WEBHOOK_EVENTS, plus(now, -91 * DAY)).getTime()).toBeLessThan(
       now.getTime(),
     )
     await db.execute(sql`DELETE FROM reservations WHERE id = ${Number(fresh.rows[0]!.id)}`)
+  })
+
+  it('Prüfung P18.5 L-13 i Mail-Jobs: gescheiterte und hängende nach 30 Tagen, verwaiste sofort, laufende und andere Tasks nie', async () => {
+    const now = new Date('2027-03-01T12:00:00.000Z')
+    const db = dbOf(payload)
+    const mail = await db.execute(sql`
+      INSERT INTO email_log (template, "to", locale, subject, status, attempts, retain_until, seed, updated_at, created_at)
+      VALUES ('admin_alert', 'jutta@planetclaire.local', 'de', 'Test', 'failed', 1,
+              ${iso(plus(now, 60 * DAY))}::timestamptz, false, now(), now()) RETURNING id`)
+    const logId = Number(mail.rows[0]!.id)
+    const job = async (o: {
+      ageMs: number
+      task?: string
+      emailLogId?: number
+      hasError?: boolean
+      processing?: boolean
+      waitUntil?: Date
+    }) => {
+      const at = iso(plus(now, -o.ageMs))
+      const input = {
+        emailLogId: o.emailLogId ?? logId,
+        data: { customerName: 'Erika Beispiel' },
+        waits: 0,
+      }
+      const res = await db.execute(sql`
+        INSERT INTO payload_jobs (input, task_slug, queue, has_error, processing, wait_until, total_tried, updated_at, created_at)
+        VALUES (${JSON.stringify(input)}::jsonb, ${o.task ?? 'sendEmail'}, 'email', ${o.hasError ?? false},
+                ${o.processing ?? false}, ${o.waitUntil ? iso(o.waitUntil) : null}::timestamptz, 1, ${at}::timestamptz,
+                ${at}::timestamptz) RETURNING id`)
+      return Number(res.rows[0]!.id)
+    }
+    const failedOld = await job({ hasError: true, ageMs: 31 * DAY })
+    const failedYoung = await job({ hasError: true, ageMs: 29 * DAY })
+    const stuckOld = await job({ processing: true, ageMs: 31 * DAY })
+    const waiting = await job({ ageMs: 31 * DAY, waitUntil: plus(now, DAY) })
+    const orphan = await job({ emailLogId: 999_999_999, ageMs: 10 * 60_000 })
+    const orphanRunning = await job({
+      emailLogId: 999_999_999,
+      processing: true,
+      ageMs: 5 * 60_000,
+    })
+    const otherTask = await job({ task: 'markDelivered', hasError: true, ageMs: 40 * DAY })
+    const kept = [failedYoung, waiting, orphanRunning, otherTask]
+    const gone = [failedOld, stuckOld, orphan]
+
+    // Löschvorschau (Trockenlauf) nennt genau die fälligen, ändert nichts
+    const preview = await runRetentionTask(payload, 'retentionTechnical', { now, dryRun: true })
+    const ids = preview.steps.find((s) => s.ruleId === 'L-13 i')!.ids.map(Number)
+    expect(ids).toEqual(expect.arrayContaining(gone))
+    for (const id of kept) expect(ids).not.toContain(id)
+    for (const id of [...gone, ...kept]) expect(await exists('payload_jobs', id)).toBe(true)
+
+    const res = await run('retentionTechnical', now)
+    expect(res.failed).toBe(0)
+    for (const id of gone) {
+      expect(await exists('payload_jobs', id), `gelöscht ${id}`).toBe(false)
+      expect(await logsFor('payload-jobs', id)).toEqual([
+        expect.objectContaining({
+          ruleId: 'L-13 i',
+          action: 'deleted',
+          taskSlug: 'retentionTechnical',
+        }),
+      ])
+    }
+    for (const id of kept) expect(await exists('payload_jobs', id), `bleibt ${id}`).toBe(true)
+    // Frist: 30 Tage nach der letzten Änderung
+    expect(retainUntil(L_13I_FAILED_MAIL_JOBS, plus(now, -31 * DAY)).getTime()).toBeLessThan(
+      now.getTime(),
+    )
+    await db.execute(sql`DELETE FROM payload_jobs WHERE id IN (${sql.raw(kept.join(','))})`)
+    await db.execute(sql`DELETE FROM email_log WHERE id = ${logId}`)
   })
 
   it('legalHoldReview: Sperre ≥ 6 Monate ohne Prüfung → A15 und legalHoldReviewedAt; Beispieldaten ohne Mail', async () => {

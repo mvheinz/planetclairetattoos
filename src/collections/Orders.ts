@@ -19,11 +19,13 @@ import {
 } from '@/fields'
 import { writeAudit } from '@/lib/audit'
 import {
+  deliveryFacts,
   evaluateOrderTransition,
   ORDER_FINAL_STATUSES,
   ORDER_INITIAL,
   ORDER_TIMESTAMP_FIELD,
 } from '@/lib/commerce/orderTransitions'
+import { handoverItems } from '@/lib/commerce/packing'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import {
   ACTOR_TYPES,
@@ -108,6 +110,7 @@ const IMMUTABLE = [
   'totalCents',
   'currency',
   'taxModeAtOrder',
+  'shippingRatesAtOrder',
   'paymentMethod',
   'legalTextVersions',
   'legalSnippetVersions',
@@ -167,6 +170,18 @@ function stampStatus(data: Doc, original: Doc, status: OrderStatus, now: Date): 
     data.retainUntil = retainUntil(L_05_ORDERS_STAGE_D, final).toISOString()
   }
   data.timestamps = ts
+}
+
+/**
+ * Übergabe je Position (P18.5, DATENMODELL §6.8.1): „Versendet“ (O7) bzw. „Abgeholt“ (O9) setzt `items[].handedOverAt`
+ * an den Stücken, die jetzt übergeben werden (`handoverItems`: die aktiven, ohne aktive alle). Einmal je Bestellung –
+ * eine Rest-Lieferung gibt es nur vor dem ersten Versand bzw. der Abholung; spätere Übergänge (O17, O20) ändern nichts.
+ */
+function stampHandover(data: Doc, original: Doc, now: Date): void {
+  const items = (('items' in data ? data.items : original.items) ?? []) as Doc[]
+  if (items.some((i) => !!i.handedOverAt)) return
+  const handed = new Set(handoverItems(items as { status?: string | null }[]))
+  data.items = items.map((i) => (handed.has(i) ? { ...i, handedOverAt: now.toISOString() } : i))
 }
 
 const prepareOrder: CollectionBeforeValidateHook = ({ data }) => {
@@ -302,6 +317,11 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
       statusBeforeDispute: original.statusBeforeDispute as OrderStatus | null,
       statusBeforeWithdrawal: original.statusBeforeWithdrawal as OrderStatus | null,
       cancelReason: (data.cancelReason ?? original.cancelReason) as OrderCancelReason | null,
+      // Rest-Lieferung aus `partially_refunded` (DATENMODELL §6.8.5 Umsetzungsnotiz)
+      ...deliveryFacts({
+        items: ('items' in data ? data.items : original.items) as { status?: string | null }[],
+        timestamps: groupOf(original, 'timestamps') as Record<string, string | null>,
+      }),
     })
     if (!result.ok) return fail(result.message, 'status')
     if (status === 'disputed') data.statusBeforeDispute = from
@@ -321,6 +341,7 @@ const guardOrder: CollectionBeforeChangeHook = ({ data, originalDoc, operation, 
       },
     ]
     stampStatus(data, original, status, now)
+    if (result.id === 'O7' || result.id === 'O9') stampHandover(data, original, now)
   }
   const cancelReason = data.cancelReason ?? original.cancelReason
   const cancelNote = (data.cancelNote ?? original.cancelNote) as string | null | undefined
@@ -499,6 +520,14 @@ const itemFields: Field[] = [
         ? true
         : 'Erstattet: 0 bis Preis (ganze Cent).',
   } as Field,
+  {
+    // P18.5: Das Stück hat das Atelier verlassen – gesetzt nur vom Speicher-Hook bei „Versendet“ (O7) bzw. „Abgeholt“
+    // (O9) an den dann übergebenen Positionen (`stampHandover`). Leer bei Bestellungen davor.
+    name: 'handedOverAt',
+    type: 'date',
+    label: 'Übergeben am',
+    admin: ro,
+  },
 ]
 
 const shippingRequired = (data: Record<string, unknown>) =>
@@ -641,6 +670,14 @@ export const Orders: CollectionConfig = {
     select('shippingClass', 'Versandklasse', SHIPPING_CLASSES, ENUM_LABELS.SHIPPING_CLASSES, {
       admin: ro,
     }),
+    {
+      // Tarif-Snapshot bei der Anlage (KA-32): `{ zone, rates: { <Versandklasse>: Cent } }` für die Klassen der
+      // Positionen; Grundlage der Versanddifferenz beim Teil-Widerruf. Leer bei Abholung und bei Altbestellungen.
+      name: 'shippingRatesAtOrder',
+      type: 'json',
+      label: 'Versandtarife bei Bestellung',
+      admin: ro,
+    },
     {
       name: 'items',
       type: 'array',

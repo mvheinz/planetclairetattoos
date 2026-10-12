@@ -358,7 +358,7 @@ describe('Idempotenz und Fehler (DATENMODELL §8.8)', () => {
     expect(first.status).toBe(500)
     expect(await webhookRow(payload, emission.event.id)).toMatchObject({
       status: 'failed',
-      last_error: 'Error: erzwungen',
+      last_error: 'erzwungen',
     })
     expect(await mailCount('admin_alert')).toBe(0)
 

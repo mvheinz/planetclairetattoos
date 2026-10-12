@@ -56,6 +56,8 @@ export interface CheckoutFormProps {
   fulfillmentMethod: CheckoutFulfillment
   pickupOnlyNote: string | null
   deliveryLabels: { shipping: React.ReactNode; pickup: React.ReactNode }
+  /** Abholung wählbar (`settings.shipping.pickupEnabled`, P18.5); sonst kein Abhol-Radio. */
+  pickupAvailable: boolean
   pickupCity: string
   district: string
   defaults: {
@@ -186,6 +188,8 @@ export function CheckoutForm(props: CheckoutFormProps) {
     expired || props.paymentRunning || noChoice || deviationMissing || status !== 'idle'
   const shipping = method === 'shipping'
   const pickupOnly = props.pickupOnlyNote !== null
+  // Abhol-Radio nur, solange Abholung wählbar ist – oder die Kasse schon Abholung hat (laufende Zahlung, P18.5).
+  const showPickup = props.pickupAvailable || props.fulfillmentMethod === 'pickup'
 
   const errorText = (key: CheckoutFieldKey) => {
     const code = errors[key]
@@ -261,6 +265,7 @@ export function CheckoutForm(props: CheckoutFormProps) {
       deviationProductIds: props.deviations.map((d) => d.productId),
       paymentChoices: props.paymentChoices,
       pickupOnly,
+      pickupAvailable: props.pickupAvailable,
     })
     setPaymentError(null)
     if (!validation.ok) {
@@ -370,7 +375,10 @@ export function CheckoutForm(props: CheckoutFormProps) {
     (m.errors.codes as Record<string, string>)[code] ??
     (code === 'declined' ? m.mock.declinedMessage : m.errors.codes.failed)
   const showCartLink =
-    serverCode === 'cart_changed' || serverCode === 'expired' || serverCode === 'not_found'
+    serverCode === 'cart_changed' ||
+    serverCode === 'expired' ||
+    serverCode === 'not_found' ||
+    serverCode === 'pickup_disabled'
 
   // --- Übersicht (live) ---
   const v = (name: string) => (values[name] ?? '').trim()
@@ -515,15 +523,17 @@ export function CheckoutForm(props: CheckoutFormProps) {
                   hint={props.pickupOnlyNote ?? undefined}
                   label={props.deliveryLabels.shipping}
                 />
-                <Radio
-                  id="checkout-delivery-pickup"
-                  name={F.fulfillmentMethod}
-                  value="pickup"
-                  checked={props.fulfillmentMethod === 'pickup'}
-                  label={props.deliveryLabels.pickup}
-                />
+                {showPickup ? (
+                  <Radio
+                    id="checkout-delivery-pickup"
+                    name={F.fulfillmentMethod}
+                    value="pickup"
+                    checked={props.fulfillmentMethod === 'pickup'}
+                    label={props.deliveryLabels.pickup}
+                  />
+                ) : null}
               </div>
-              {!hydrated && !pickupOnly ? (
+              {!hydrated && !pickupOnly && showPickup ? (
                 <button
                   type="submit"
                   formAction={deliveryAction}

@@ -78,7 +78,7 @@ Grund-Seed und den Mini-Satz an (Spalte „Phase“, §1.8).
 - **Anfragen:** alle `INQUIRY_STATUSES`, eine mit Referenzbild, zwei auf Englisch.
 - **Datenschutz-Anfragen** (`privacy-requests`): alle `PRIVACY_REQUEST_STATUSES`; Arten Auskunft, Löschung; Kanäle E-Mail,
   Brief, Instagram-Nachricht; eine auf Englisch; Fristen `dueAt` vor und nach `N`.
-- **Tattoo:** 10 Flash (4 wiederholbar, 2 vergeben), 8 Termine „Planet Claire on Tour“ (§12.5), 6 Galerie-Einträge
+- **Tattoo:** 10 Flash (4 wiederholbar, 2 vergeben), 8 Termine „on Tour“ (§12.5), 6 Galerie-Einträge
   (2 echte Fotos ohne Einwilligung, 4 Platzhalter), Preisrahmen.
 - **Texte:** alle 13 Seiten, Startseite mit Kopf-Station + 7 Stationen, 12 FAQ, Aftercare-Phasen – DE und EN.
 
@@ -252,7 +252,7 @@ Ausnahmen gelten nur bei `req.context.seed === true`, nie über die Verwaltung o
 | `content/seed/data/orders.json` | §7, §8, §9 (Kassen, Bestellungen inkl. Reservierungen, Erstattungen, Belegen) |
 | `content/seed/data/withdrawals.json`, `complaints.json`, `inquiries.json`, `privacy-requests.json` | §10, §10a, §11, §11a |
 | `content/seed/data/tattoo.json` | §12 (Flash, Galerie) |
-| `content/seed/data/tour.json` | §12.5 (Termine „Planet Claire on Tour“) |
+| `content/seed/data/tour.json` | §12.5 (Termine „on Tour“) |
 | `content/seed/data/pages.json`, `faqs.json` | §13, §14 |
 | `content/seed/data/revenue.json` | §15 |
 | `content/seed/data/logs.json` | §16 (Regeln + Ausnahmen) |
@@ -1183,7 +1183,7 @@ Alle mit `channel = online_form` (Widerrufsfunktion R26). `submissionSnapshot` b
 | W2 | WR-2026-90002 | O05 | `D-14@22:47` | C05 | manually_matched (Zuordnung `D-13@09:00`) | partially_refunded | goodsReturnedAt `D-8@11:30`, refundedAt `D-7@10:05`, `affectedItemIds` [O05-L2] |
 | W3 | WR-2026-90003 | O04 | `D-9@19:30` | C04 | auto_matched | goods_returned | goodsReturnedAt `D-2@11:15`, `returnTrackingNumber` `SEEDRET9000000000004`, refundDueAt `D+5@19:30` |
 | W4 | WR-2026-90004 | – | `D-4@16:02` | C15 | needs_manual_match | received | – |
-| W5 | WR-2026-90005 | O06 | `D-1@21:18` | C06 (`locale en`) | auto_matched | received | refundDueAt `D+13@21:18` |
+| W5 | WR-2026-90005 | O06 | `D-1@21:18` | C06 (`locale en`) | auto_matched | received | refundDueAt `D+13@21:18`, `affectedItemIds` [O06-L1] (Kleid im Freitext genannt, schon zugeordnet) |
 | W6 | WR-2026-90006 | – | `D-1@23:05` | C15 | needs_manual_match | closed (`closeReason = duplicate`) | closedAt `D+0@08:40` |
 | W7 | WR-2026-90007 | – | `D+0@03:12` | C23 | no_order | rejected | rejectedAt `D+0@08:45`, `closeNote` (unten), `spam.markedAt` `D+0@08:45` |
 
@@ -1355,7 +1355,7 @@ gelöscht (§18).
 
 Kommen aus `settings.tattoo` (§3.1): Mindestpreis 80 €, eigene Ideen meist 150–400 €. Text im Block `priceInfo` (§13.5).
 
-### 12.5 Termine „Planet Claire on Tour“ (`tour-dates`, 8)
+### 12.5 Termine „on Tour“ (`tour-dates`, 8)
 
 Fiktive Märkte in Berlin (Straßen heißen „Beispiel…“), `published = true`, ohne Link und Foto; Datum relativ zu `N`, ganze Berliner Tage (Beginn 00:00, Ende 23:59:59). „vorbei“ ergibt sich aus dem Datum, `cancelled` ist abgesagt. Alle Texte DE und EN.
 

@@ -7,7 +7,7 @@ import { clientIp } from '@/lib/security/rateLimit'
 
 // Server Action der Widerrufsfunktion R26 (PLAN P6.8): ein Schritt je Absenden (mit `useActionState`, ohne JavaScript
 // als normales POST-Formular). Die Sprache kommt aus dem versteckten Feld `locale`, die Uhrzeit vom Server, die IP nur
-// für das Rate-Limit beim Bestätigen (nie am Datensatz, R-093).
+// für die Rate-Limits der Bestellsuche (Schritt 1) und beim Bestätigen (nie am Datensatz, R-093).
 export async function withdrawalAction(
   prev: WithdrawalFlowState,
   formData: FormData,

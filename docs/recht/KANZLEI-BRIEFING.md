@@ -2,7 +2,7 @@
 
 > **Mandantin:** [Vorname Nachname] („Jutta“), Künstlerin und Tätowiererin, Berlin – Geschäftsbezeichnung
 > [z. B. „Planet Claire“]
-> **Stand:** 02.10.2026 · **Version:** 1.4 · **Vertraulich**
+> **Stand:** 11.10.2026 · **Version:** 1.5 · **Vertraulich**
 > **Erstellt** mit KI-Unterstützung (Claude, Anthropic) auf Grundlage eines Interviews mit der Mandantin und einer
 > Recherche mit Quellen (Stand September 2026). Das Briefing ist keine Rechtsberatung; alle rechtlichen Einordnungen
 > darin sind Arbeitshypothesen, um deren Prüfung wir bitten.
@@ -46,7 +46,7 @@ Bitte senden Sie uns vorab ein **Pauschalangebot**.
 | T6 | Versand- und Zahlungsinformationen | Liefergebiet, Versandkosten (Tabelle wird eingesetzt, §16.3), Lieferzeit, Abholung, Zahlarten, Vorkasse-Frist | Pflicht |
 | T7 | Kurze Textbausteine | Liste in §1.4 (Kasse, Produktseite, Mails) | Pflicht |
 | T8 | Vorlage Angebot/Vertrag Auftragsarbeit per E-Mail | Informationspflichten Fernabsatz, Widerrufsrecht bzw. Ausschluss nur bei individueller Anfertigung, GPSR-Angaben | optional, empfohlen |
-| T9 | Unterlagen Tattoo-Termine per E-Mail/DM | Widerrufsbelehrung für Dienstleistungen, Formulierung „vorzeitiger Beginn“, Formulierungsvorschlag Terminkaution | optional, empfohlen |
+| T9 | Unterlagen Tattoo-Termine per E-Mail | Widerrufsbelehrung für Dienstleistungen, Formulierung „vorzeitiger Beginn“, Formulierungsvorschlag Terminkaution | optional, empfohlen |
 | T10 | Einwilligung zur Veröffentlichung von Tattoo-Fotos | § 22 KUG, Art. 6/7 DSGVO; abgestuft (nur Tattoo / mit Gesicht; @-Nennung ja/nein); widerruflich | optional, empfohlen |
 | T11 | Datenschutzhinweise für das Instagram-Profil | falls erforderlich (K-29) | optional |
 | T12 | Antwortvorlagen für Datenschutz-Anfragen | Auskunft (Art. 15), Löschung/Einschränkung (Art. 17/18) | optional |
@@ -165,8 +165,8 @@ Lieferzeit, Maße und Material.
 - Inhalte: Stil, **Flash-Motive mit Festpreis** (einmalig oder wiederholbar; Status verfügbar/vergeben),
   **Flash-Days/Aktionen mit Datum** (nach Ablauf automatisch ausgeblendet), **Preisrahmen** für Custom-Motive,
   Galerie „fresh & healed“, Ablauf, Pflegehinweise, FAQ (u. a. Mindestalter 18).
-- Anfragen **nur per E-Mail-Link oder Instagram-DM**; kein Formular, keine Uploads, keine Online-Buchung, keine
-  Online-Anzahlung. Eine Kaution wird individuell per E-Mail/DM vereinbart und außerhalb der Website bezahlt;
+- Anfragen **nur per E-Mail-Link** (Instagram ist kein Anfrageweg); kein Formular, keine Uploads, keine Online-Buchung,
+  keine Online-Anzahlung. Eine Kaution wird individuell per E-Mail vereinbart und außerhalb der Website bezahlt;
   Einwilligungs-/Aufklärungsbogen auf Papier vor Ort (K-26).
 - Portfolio-Fotos, die Kund:innen zeigen, werden nur mit dokumentierter Einwilligung veröffentlicht (Häkchen je Foto;
   K-27, T10).
@@ -202,8 +202,9 @@ auf der Website nur verlinkt, nicht eingebettet (K-29).
 3. **Kasse** (eigene Seite, erreicht über den Button „Zur Kasse“, der ein kurzlebiges Kassen-Cookie setzt, §11.3):
    E-Mail, Name (ein Feld „Vor- und Nachname“), bei Versand die Lieferadresse; eine abweichende Rechnungsadresse nur
    über ein nicht vorangekreuztes Häkchen, bei Abholung ist die Rechnungsadresse Pflicht (K-07); Zahlart. **Kein**
-   Telefonfeld. Mit Beginn des Bezahlvorgangs ist das Stück **30 Minuten reserviert** (sichtbarer Countdown); läuft
-   die Zeit ab, wird es freigegeben.
+   Telefonfeld. Mit Beginn des Bezahlvorgangs ist das Stück **30 Minuten reserviert** (sichtbarer Countdown; die Dauer
+   ist einstellbar, 30–60 Minuten, und steht in den AGB als Platzhalter `{{reservationMinutes}}`); läuft die Zeit ab,
+   wird es freigegeben.
 4. Optionale, nicht vorangekreuzte Checkbox: Weitergabe der E-Mail-Adresse an DHL (K-31).
 5. Bei Stücken mit beschriebenen Mängeln: je Stück eine gesonderte Pflicht-Checkbox zur Vereinbarung der Abweichung
    (K-17).
@@ -224,7 +225,8 @@ auf der Website nur verlinkt, nicht eingebettet (K-29).
   Bestellbestätigung, die danach verschickt wird. Scheitert die Zahlung, entsteht keine Bestellung und kein Vertrag.
 - **Vorkasse:** Die Bestellbestätigung mit Zahlungsdaten geht sofort raus. Das Stück bleibt bis zum Ende der
   **Zahlungsfrist** reserviert: 23:59 Uhr (Berliner Zeit) am 5. Kalendertag nach dem Bestelltag (Bestellung am 12.10. →
-  Frist 17.10., 23:59 Uhr). 72 Stunden nach der Bestellung folgt eine Erinnerung; ist bis zum Fristende kein Geld
+  Frist 17.10., 23:59 Uhr). Vor Fristende folgt eine Erinnerung (derzeit 72 Stunden nach der Bestellung; die Verwaltung
+  lässt nur Werte vor Fristende zu); ist bis zum Fristende kein Geld
   eingegangen, wird die Bestellung **automatisch storniert** und das Stück wieder angeboten. Wir benötigen hierfür
   eine tragfähige Regelung in den AGB und die Formulierungen der Mails.
 
@@ -236,8 +238,9 @@ auf der Website nur verlinkt, nicht eingebettet (K-29).
   mit Muster-Formular als PDF-Anhang in der bei Bestellung gültigen Fassung**, Link zur Widerrufsfunktion, Link zum
   Bestellstatus, bei Zahlung die Rechnung als PDF. Keine Werbung.
 - Der Shop speichert jede Bestellung mit den Versionen der geltenden Rechtstexte. Die Kund:in kann die Texte über den
-  Bestellstatus-Link erneut abrufen; die Rechnung gibt es dort bewusst nicht (sie enthält die volle Anschrift und kommt
-  per E-Mail).
+  Bestellstatus-Link bis 180 Tage nach Abschluss der Bestellung erneut abrufen (danach läuft der Link ab, Löschkonzept
+  L-05; auf Anfrage schickt die Mandantin die Texte per E-Mail); die Rechnung gibt es dort bewusst nicht (sie enthält
+  die volle Anschrift und kommt per E-Mail).
 - Eingabefehler lassen sich über „Ändern“-Links vor dem Absenden korrigieren.
 
 ## 6. Zahlungsarten
@@ -307,8 +310,10 @@ Keine Aufschläge je Zahlart. Kein Klarna, keine SEPA-Lastschrift, kein Rechnung
   - **Eingangsbestätigung** (Mail M08) sofort: gesamter Inhalt der Erklärung, Datum und Uhrzeit des Eingangs,
     Vorgangsnummer, Rücksendeadresse, Hinweis zu Rücksendung und Rücksendekosten (Bausteine
     `withdrawal.receiptNotice`, `withdrawal.returnInfo`) und zur Erstattung; bei noch nicht bezahlter Vorkasse der Satz
-    „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ Scheitert der Versand, wird er bis 24 Stunden nach
-    Eingang wiederholt und die Mandantin benachrichtigt. Kopie an die Mandantin (Mail A04).
+    „Deine Bestellung ist damit storniert. Bitte nichts überweisen.“ und der Hinweis, dass schon überwiesenes Geld
+    spätestens 14 Tage nach Eingang des Widerrufs auf das Herkunftskonto zurückgeht (§ 357 Abs. 1 BGB). Scheitert der
+    Versand, wird er bis 24 Stunden nach Eingang wiederholt und die Mandantin benachrichtigt. Kopie an die Mandantin
+    (Mail A04).
   - **Gespeicherte Felder** je Erklärung: Vorgangsnummer, Eingangszeit (Serverzeit), Name, Angaben zum Vertrag,
     E-Mail, Stückauswahl bzw. Freitext, Grund, Sprache, Eingangsweg; der Datensatz ist unveränderlich. **Keine**
     IP-Adresse, kein IP-Hash, kein Browser-Kennzeichen. Eine automatische Zuordnung zur Bestellung erfolgt nur, wenn
@@ -544,6 +549,7 @@ Bitte verwenden Sie für änderbare Angaben diese Platzhalter; das System setzt 
 | `{{shippingTable}}` | Tabelle der Versandklassen und Preise |
 | `{{deliveryTime}}` | Lieferzeit, derzeit „2–5 Werktage“ |
 | `{{vorkasseDays}}` | Vorkasse-Frist, derzeit 5 |
+| `{{reservationMinutes}}` | Reservierungsdauer an der Kasse in Minuten, derzeit 30 |
 | `{{returnCostsNote}}` | Satz zur Tragung der Rücksendekosten (Textbaustein `withdrawal.returnCostsNote`, §1.4) |
 
 Weitere Platzhalter oder andere Schreibweisen gibt es nicht; ein unbekannter Platzhalter verhindert die
@@ -644,8 +650,8 @@ Zu jeder Frage steht in Klammern die **vorläufige Umsetzung**, die bis zu Ihrer
   § 312g Abs. 2 Nr. 1 BGB? Gilt § 356a BGB, wenn der Vertrag nur per E-Mail geschlossen wird? Bitte Vorlage T8.
 - **K-25** Anfrageformular: Genügt Art. 6 Abs. 1 lit. b DSGVO (ohne Einwilligungs-Checkbox)? Ist die Löschung 6 Monate
   nach Eingang angemessen? Umgang mit unaufgefordert hochgeladenen Personenfotos.
-- **K-26** Tattoo-Termine: Termin und Kaution werden per E-Mail/DM vereinbart. Handelt es sich um Fernabsatzverträge mit
-  Widerrufsrecht? Bitte Unterlagen T9 (Belehrung, „vorzeitiger Beginn“, Formulierung Terminkaution) sowie Hinweise zu
+- **K-26** Tattoo-Termine: Termin und Kaution werden per E-Mail vereinbart (Instagram ist kein Anfrageweg, U-15).
+  Handelt es sich um Fernabsatzverträge mit Widerrufsrecht? Bitte Unterlagen T9 (Belehrung, „vorzeitiger Beginn“, Formulierung Terminkaution) sowie Hinweise zu
   FAQ-Formulierungen (Mindestalter 18, Absagen).
 - **K-27** Einwilligung zur Veröffentlichung von Tattoo-Fotos (T10): abgestuft, widerruflich; Umgang mit Fotos, die
   bereits mit Einwilligung für Instagram gezeigt wurden.
@@ -742,6 +748,7 @@ Briefing und die dort genannten Arbeitsfassungen; Abweichungen zwischen Briefing
 | 26.09.2026 | 1.2 | Kasse ohne Telefonfeld, Name in einem Feld, Rechnungsadresse per Häkchen (§5.1, §12, §11.4); Bestellung erst nach Zahlung (§5.2); keine Rechnung über den Status-Link (§5.3); Versandnachweise mit neuer Frage K-40 (§7); Verpackung nur noch Detailfragen (§7, K-35); vorläufige Teilwiderrufs-Regel (§8, K-09); Widerruf im Wartungsmodus (§8); Browser-Fehler-Endpunkt (§11.2, K-30 c); CSP mit neuer Frage K-41 (§11.2); Speicherdauern (§11.6); Baustein `withdrawal.returnCostsNote` und abschließende Platzhalterliste (§1.4, §16.3); Kennzeichnung der Fassungen (§16.1) |
 | 26.09.2026 | 1.3 | Warenkorb-Cookie mit Preis beim Hinzufügen (§5.1, §11.3, §11.4 V2, K-38); Empfänger-Tabelle wird vom System erzeugt, Platzhalterliste unverändert (§16.3); CSP-Rückfall auch für die Verwaltung (K-41) |
 | 02.10.2026 | 1.4 | An die Umsetzung angeglichen (P6.22): Widerrufsablauf mit Schritten, Feldern, Eingangsbestätigung und englischer Beschriftung (§8); Cookie-/Speicherliste mit den technischen Namen `payload-token` und `pc-motion` (§11.3); Verarbeitungen = Verzeichnis `VVT.md` inkl. V20 Verwaltung, Versand ohne Schnittstelle (§11.4); Speicherdauern mit Verweis auf Anlage C (§11.6); Formulare: Kasse mit Bestellknopf, Widerruf mit Auswahl, Anfrage ohne Einwilligungs-Checkbox mit höchstens 5 Bildern (§12); Empfänger-Tabelle als Komponente, Platzhalterliste unverändert geschlossen (§16.3); Anlage E (Bildschirmfotos) und F (VVT) (§18) |
+| 11.10.2026 | 1.5 | Datenschutz- und AGB-Prüfung (P18.5): Instagram kein Anfrageweg (§3.4); Reservierungsdauer als Platzhalter `{{reservationMinutes}}`, Erinnerung „vor Fristende“ (§5.1, §5.2, §16.3); Status-Link 180 Tage nach Abschluss (§5.3); Widerrufsbestätigung bei unbezahlter Vorkasse mit Hinweis auf Rückzahlung schon überwiesenen Geldes (§8); Teil-Widerruf nur im Freitext wird zugeordnet statt als ganzer Vertrag gebucht, Rest-Lieferung nach Teil-Widerruf (§8, K-11); Mail M11 ohne Freitexte, M10 ohne Shop-Link |
 
 Für Rückfragen steht Ihnen die Mandantin gern zur Verfügung. Vielen Dank für Ihre Unterstützung.
 

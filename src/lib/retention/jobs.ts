@@ -21,6 +21,7 @@ import {
   L_13D_WEBHOOK_EVENTS,
   L_13F_PENDING_UPLOADS,
   L_13G_JOB_RUNS,
+  L_13I_FAILED_MAIL_JOBS,
   L_17_EXPORT_FILES,
   L_19B_PORTFOLIO_CONSENT,
   L_20_GALLERY_FILES_AFTER_WITHDRAWAL,
@@ -132,12 +133,30 @@ const cancelledMinimizeStep: RetentionStep = {
          AND timestamps_cancelled_at <= ${iso(eventCutoff(L_04_CANCELLED_PREPAYMENT_STAGE_1, until))}::timestamptz
          AND (shipping_address_name IS NOT NULL OR shipping_address_address_line1 IS NOT NULL
               OR billing_address_name IS NOT NULL OR billing_address_address_line1 IS NOT NULL
-              OR carrier_email_consent IS TRUE)
+              OR carrier_email_consent IS TRUE
+              OR EXISTS (SELECT 1 FROM consent_log c WHERE c.order_id = orders.id))
        ORDER BY timestamps_cancelled_at, id LIMIT ${limit}`)
     return byEvent(L_04_CANCELLED_PREPAYMENT_STAGE_1, res.rows, until)
   },
   async apply(req, id, now) {
     const db = await dbFor(req)
+    // Einwilligungs- und Abweichungsnachweise der nie bezahlten Bestellung (L-19 a) – ohne erfüllten Vertrag gibt es
+    // nichts nachzuweisen; Bestellungen hängen sie schon bei der Vorkasse an (Prüfung P18.5)
+    const consents = await db.execute(
+      sql`DELETE FROM consent_log WHERE order_id = ${id} RETURNING id`,
+    )
+    for (const c of consents.rows) {
+      await writeDeletionLog(req, {
+        entityCollection: 'consent-log',
+        entityId: Number(c.id),
+        ruleId: L_04_CANCELLED_PREPAYMENT_STAGE_1.id,
+        action: 'deleted',
+        trigger: 'job',
+        taskSlug: 'retentionOrderMinimize',
+        storageObjectsCount: 0,
+        executedAt: now,
+      })
+    }
     await db.execute(sql`
       UPDATE orders SET
         shipping_address_name = NULL, shipping_address_address_line1 = NULL,
@@ -606,6 +625,85 @@ const consentEvidenceStep: RetentionStep = {
   },
 }
 
+// L-19 b Galerie-Eintrag: 3 Jahre nach dem Widerruf geht der Eintrag selbst (Häkchen, Datum, Umfang, Notiz,
+// Instagram-Name, Bildunterschrift) – zuerst die Nachweisdatei, dann der Eintrag, dann die nicht mehr genutzten
+// Bild-Einträge (ihre Dateien sind seit L-20 weg). Erneut eingewilligte oder wieder veröffentlichte Einträge bleiben.
+const galleryEntryStep: RetentionStep = {
+  ruleId: L_19B_PORTFOLIO_CONSENT.id,
+  collection: 'tattoo-gallery',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT id, consent_withdrawn_at AS event_at FROM tattoo_gallery
+       WHERE consent_withdrawn_at IS NOT NULL AND consent_given IS NOT TRUE AND published IS NOT TRUE
+         AND consent_withdrawn_at <= ${iso(eventCutoff(L_19B_PORTFOLIO_CONSENT, until))}::timestamptz
+       ORDER BY consent_withdrawn_at, id LIMIT ${limit}`)
+    return byEvent(L_19B_PORTFOLIO_CONSENT, res.rows, until)
+  },
+  async apply(req, id, now) {
+    return deleteWithdrawnGalleryEntry(req, Number(id), now, 'retentionConsentEvidence')
+  },
+}
+
+/**
+ * Widerrufenen Galerie-Eintrag löschen (L-19 b): Nachweisdatei (wenn kein anderer Eintrag sie nutzt), Eintrag über die
+ * Local API (Hook `afterDelete` löscht Bild-Einträge ohne weiteren Verweis und sperrt die übrigen), je gelöschte Datei
+ * bzw. gelöschtes Bild ein eigener Protokolleintrag. Den Eintrag selbst protokolliert der Runner.
+ */
+async function deleteWithdrawnGalleryEntry(
+  req: PayloadRequest,
+  id: number,
+  now: Date,
+  taskSlug: string,
+): Promise<{ storageObjectsCount: number } | { changed: false }> {
+  const db = await dbFor(req)
+  const res = await db.execute(sql`
+    SELECT consent_evidence_id FROM tattoo_gallery
+     WHERE id = ${id} AND consent_withdrawn_at IS NOT NULL AND consent_given IS NOT TRUE`)
+  const row = res.rows[0]
+  if (!row) return { changed: false }
+  const log = (collection: string, entityId: number, count: number) =>
+    writeDeletionLog(req, {
+      entityCollection: collection,
+      entityId,
+      ruleId: L_19B_PORTFOLIO_CONSENT.id,
+      action: 'deleted',
+      trigger: 'job',
+      taskSlug,
+      storageObjectsCount: count,
+      executedAt: now,
+    })
+  let files = 0
+  const evidence = row.consent_evidence_id == null ? null : Number(row.consent_evidence_id)
+  if (evidence !== null) {
+    const shared = await db.execute(sql`
+      SELECT 1 FROM tattoo_gallery WHERE consent_evidence_id = ${evidence} AND id <> ${id} LIMIT 1`)
+    if (shared.rows.length === 0) {
+      const n = await deletePrivateUpload(req, evidence)
+      if (n) await log('private-uploads', evidence, n)
+      files += n
+    }
+  }
+  const media = await db.execute(sql`
+    SELECT image_id AS id FROM tattoo_gallery WHERE id = ${id} AND image_id IS NOT NULL
+    UNION SELECT media_id FROM tattoo_gallery_rels WHERE parent_id = ${id} AND media_id IS NOT NULL`)
+  await preservingReq(req, () =>
+    req.payload.delete({
+      collection: 'tattoo-gallery',
+      id,
+      overrideAccess: true,
+      req,
+      context: { ...req.context, system: true },
+    }),
+  )
+  for (const m of media.rows) {
+    const mediaId = Number(m.id)
+    const left = await db.execute(sql`SELECT 1 FROM media WHERE id = ${mediaId}`)
+    if (left.rows.length === 0) await log('media', mediaId, 0)
+  }
+  return { storageObjectsCount: files }
+}
+
 // L-18 Löschprotokoll: 3 Jahre (ohne eigenen Protokolleintrag)
 const deletionLogStep = sqlDeleteStep(
   'L-18',
@@ -616,7 +714,7 @@ const deletionLogStep = sqlDeleteStep(
      WHERE retain_until <= ${iso(until)}::timestamptz ORDER BY retain_until, id LIMIT ${limit}`,
 )
 
-// --- retentionTechnical (stündlich): L-02, L-13 a/d/f/g/h -------------------------------------------------------
+// --- retentionTechnical (stündlich): L-02, L-13 a/d/f/g/h/i -----------------------------------------------------
 
 const reservationsStep = sqlDeleteStep(
   L_02_RESERVATIONS.id,
@@ -666,6 +764,92 @@ const auditLogStep = sqlDeleteStep(
     SELECT id, retain_until AS due_at FROM audit_log
      WHERE retain_until <= ${iso(until)}::timestamptz ORDER BY retain_until, id LIMIT ${limit}`,
 )
+
+// L-13 i Mail-Jobs (`payload-jobs`, Task `sendEmail`, Prüfung P18.5): Die Job-Eingabe trägt eine Kopie der Mail-Daten
+// (`input.data`: Name, Adressen, Positionen – Abweichung von DATENMODELL §1.5). Erfolgreiche Jobs löscht Payload sofort
+// (`deleteJobOnComplete`); übrig bleiben gescheiterte (`hasError`), hängende (`processing` nach Absturz/Zeitüberschreitung)
+// und abgeschlossene, aber nicht gelöschte Jobs – sie werden 30 Tage nach der letzten Änderung gelöscht. Jobs, deren
+// Protokoll-Eintrag (`email-log`) nicht mehr existiert, können nie mehr versendet werden und gehen sofort. Ein Job, der
+// gerade läuft (`processing` und in der letzten Stunde geändert), bleibt immer unberührt.
+
+/** So lange gilt ein Job mit `processing = true` als laufend (Funktionslaufzeit ≤ wenige Minuten). */
+export const MAIL_JOB_RUNNING_MS = 3_600_000
+
+/** `input.emailLogId` als Zahl (sonst NULL – ein Job ohne gültigen Verweis zählt als verwaist). */
+const JOB_EMAIL_LOG_ID = sql.raw(
+  `(CASE WHEN j.input->>'emailLogId' ~ '^[0-9]{1,9}$' THEN (j.input->>'emailLogId')::int END)`,
+)
+const MAIL_JOB = sql`j.task_slug = 'sendEmail'`
+const MAIL_JOB_ORPHANED = sql`NOT EXISTS (SELECT 1 FROM email_log e WHERE e.id = ${JOB_EMAIL_LOG_ID})`
+const MAIL_JOB_DEAD = sql`(j.has_error IS TRUE OR j.processing IS TRUE OR j.completed_at IS NOT NULL)`
+const mailJobNotRunning = (now: Date) =>
+  sql`NOT (j.processing IS TRUE AND j.updated_at > ${iso(new Date(now.getTime() - MAIL_JOB_RUNNING_MS))}::timestamptz)`
+
+const failedMailJobsStep: RetentionStep = {
+  ruleId: L_13I_FAILED_MAIL_JOBS.id,
+  collection: 'payload-jobs',
+  action: 'deleted',
+  async candidates(db, until, limit) {
+    const res = await db.execute(sql`
+      SELECT j.id, j.updated_at AS event_at, ${MAIL_JOB_ORPHANED} AS orphaned FROM payload_jobs j
+       WHERE ${MAIL_JOB} AND ${mailJobNotRunning(until)}
+         AND ((${MAIL_JOB_DEAD} AND j.updated_at <= ${iso(eventCutoff(L_13I_FAILED_MAIL_JOBS, until))}::timestamptz)
+           OR ${MAIL_JOB_ORPHANED})
+       ORDER BY j.updated_at, j.id LIMIT ${limit}`)
+    const orphaned = res.rows
+      .filter((r) => r.orphaned === true)
+      .map((r) => ({ id: Number(r.id), dueAt: asDate(r.event_at) }))
+    const dead = byEvent(
+      L_13I_FAILED_MAIL_JOBS,
+      res.rows.filter((r) => r.orphaned !== true),
+      until,
+    )
+    return [...orphaned, ...dead].sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime())
+  },
+  async apply(req, id, now) {
+    const db = await dbFor(req)
+    const res = await db.execute(sql`
+      DELETE FROM payload_jobs j
+       WHERE j.id = ${Number(id)} AND ${MAIL_JOB} AND ${mailJobNotRunning(now)}
+         AND ((${MAIL_JOB_DEAD} AND j.updated_at <= ${iso(eventCutoff(L_13I_FAILED_MAIL_JOBS, now))}::timestamptz)
+           OR ${MAIL_JOB_ORPHANED})
+       RETURNING j.id`)
+    return { changed: res.rows.length > 0 }
+  },
+}
+
+/** Mail-Jobs, deren Eingabe auf einen dieser Protokoll-Einträge zeigt (Auskunft und Löschung, LOESCHKONZEPT §5). */
+export async function mailJobsFor(
+  db: SqlExecutor,
+  emailLogIds: readonly number[],
+): Promise<number[]> {
+  if (emailLogIds.length === 0) return []
+  const list = sql.raw(`ARRAY[${emailLogIds.map((n) => Number(n)).join(',')}]::int[]`)
+  const res = await db.execute(sql`
+    SELECT j.id FROM payload_jobs j WHERE ${MAIL_JOB} AND ${JOB_EMAIL_LOG_ID} = ANY(${list}) ORDER BY j.id`)
+  return res.rows.map((r) => Number(r.id))
+}
+
+/**
+ * Löschung je Person (Art. 17): Mail-Jobs der Person, die nicht mehr versendet werden – gescheitert, hängend,
+ * abgeschlossen oder ohne Protokoll-Eintrag (eben mitgelöscht) –, sofort entfernen. Wartende Mails zu aufbewahrten
+ * Vorgängen bleiben (sie werden versendet bzw. bei Einschränkung unterdrückt und danach von Payload gelöscht); ein
+ * gerade laufender Job auch (endet ohne Protokoll-Eintrag als `missing` und wird dann gelöscht).
+ */
+export async function deleteSpentMailJobs(
+  db: SqlExecutor,
+  jobIds: readonly number[],
+  now: Date,
+): Promise<number[]> {
+  if (jobIds.length === 0) return []
+  const list = sql.raw(`ARRAY[${jobIds.map((n) => Number(n)).join(',')}]::int[]`)
+  const res = await db.execute(sql`
+    DELETE FROM payload_jobs j
+     WHERE j.id = ANY(${list}) AND ${MAIL_JOB} AND ${mailJobNotRunning(now)}
+       AND (${MAIL_JOB_DEAD} OR ${MAIL_JOB_ORPHANED})
+     RETURNING j.id`)
+  return res.rows.map((r) => Number(r.id)).sort((a, b) => a - b)
+}
 
 /**
  * Technische Tabellen ohne Collection (L-13 a `rate_limit_hits`, L-13 g `job_runs`): nur Zähler bzw. IDs, keine
@@ -780,7 +964,12 @@ export const RETENTION_TASK_STEPS = {
   retentionCommissionInquiries: [inquiriesStep],
   retentionEmailLog: [emailLogStep],
   retentionPrivacyRequests: [privacyExportsStep, privacyRequestsStep],
-  retentionConsentEvidence: [consentLogStep, galleryFilesStep, consentEvidenceStep],
+  retentionConsentEvidence: [
+    consentLogStep,
+    galleryFilesStep,
+    consentEvidenceStep,
+    galleryEntryStep,
+  ],
   retentionDeletionLog: [deletionLogStep],
   retentionTechnical: [
     reservationsStep,
@@ -789,6 +978,7 @@ export const RETENTION_TASK_STEPS = {
     pendingUploadsStep,
     bulkTableStep('L-13 g', 'job_runs'),
     auditLogStep,
+    failedMailJobsStep,
   ],
 } as const satisfies Record<string, readonly RetentionStep[]>
 

@@ -134,6 +134,10 @@ describe('Fragmente ohne JavaScript (303 der Server-Action)', () => {
     expect(buyFragment({ ok: false, code: 'cart_full', state: 'available', message: null })).toBe(
       'cart-full',
     )
+    // P18.5: nur zur Abholung, Abholung aus
+    expect(
+      buyFragment({ ok: false, code: 'pickup_disabled', state: 'available', message: null }),
+    ).toBe('cart-pickup')
     const ids = BUY_NOTE_CODES.map((c) => BUY_NOTE_FRAGMENTS[c])
     expect(new Set([...ids, 'in-cart']).size).toBe(BUY_NOTE_CODES.length + 1)
   })

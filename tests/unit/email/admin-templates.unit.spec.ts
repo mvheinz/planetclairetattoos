@@ -78,6 +78,31 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
       items: [],
     })
     expect(open.subject).toBe('Widerruf eingegangen: WR-2026-00003 (nicht zugeordnet)')
+    expect(open.text).toContain('Widerrufen: ganze Bestellung (keine einzelnen Stücke angegeben).')
+  })
+
+  it('A04 Teil-Widerruf nur im Freitext: kein „ganze Bestellung“, sondern Bitte ums Zuordnen (Sperre bis dahin)', async () => {
+    const declaration = {
+      name: 'Erika Beispiel',
+      contractIdentification: 'PC-2026-00017',
+      email: 'erika@planetclaire.local',
+      itemsText: 'nur die Tasse',
+      receivedAtText: '14.10.2026, 11:12 Uhr (MESZ)',
+    }
+    const base = { ...MAIL_FIXTURE_DATA.admin_withdrawal_received!, items: [], declaration }
+    const matched = await render('admin_withdrawal_received', {
+      ...base,
+      needsItemAssignment: true,
+    })
+    expect(matched.text).toContain('Teil-Widerruf: Die Stücke stehen nur im Freitext')
+    expect(matched.text).toContain('„Stücke zuordnen“')
+    expect(matched.text).toContain('Packen, Versand und Übergabe der Bestellung sind gesperrt')
+    expect(matched.text).toContain('Stücke (Freitext): nur die Tasse')
+    expect(matched.text).not.toContain('ganze Bestellung')
+    const unmatched = await render('admin_withdrawal_received', { ...base, orderNumber: null })
+    expect(unmatched.text).toContain('Stücke laut Freitext (unten)')
+    expect(unmatched.text).not.toContain('ganze Bestellung')
+    expect(getTemplate('admin_withdrawal_received').version).toBe('a04-v2')
   })
 
   it('R-160 A05: nur Referenz, Gegenstand, Anzahl Bilder, Link – Name, E-Mail, Freitext und Bilder werden abgelehnt', async () => {

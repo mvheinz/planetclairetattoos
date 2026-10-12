@@ -6,6 +6,7 @@ import type { Payload, PayloadRequest } from 'payload'
 import sharp from 'sharp'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
+import { GALLERY_DELETE_CONSENT_MESSAGE } from '@/collections/TattooGallery'
 import { getEnv } from '@/lib/env'
 import { runRetentionTask } from '@/lib/retention/jobs'
 import { fileResponseHandler } from '@/lib/storage'
@@ -33,11 +34,11 @@ const galleryIds: number[] = []
 const mediaIds: number[] = []
 const uploadIds: number[] = []
 
-async function customerPhoto(alt: string): Promise<Media> {
+async function customerPhoto(alt: string, showsPerson = 'customer'): Promise<Media> {
   const buf = await readFile(IMAGE)
   const doc = await payload.create({
     collection: 'media',
-    data: { alt, showsPerson: 'customer' } as never,
+    data: { alt, showsPerson } as never,
     file: {
       data: buf,
       name: `widerruf-${randomUUID().slice(0, 8)}.jpg`,
@@ -311,5 +312,111 @@ describe('Galerie: Einwilligung widerrufen (P7.8)', () => {
       overrideAccess: true,
     })
     expect(unchanged.published).toBe(true)
+  })
+})
+
+describe('Galerie-Eintrag löschen (P18.5, R-172, L-19 b, L-20)', () => {
+  const auth = () => ({ authorization: `JWT ${token}` })
+  const mediaRow = (id: number) =>
+    payload.findByID({ collection: 'media', id, overrideAccess: true, disableErrors: true })
+
+  it('Foto mit wirksamer Einwilligung: Löschen abgelehnt (Hinweis auf „Einwilligung widerrufen“); nach dem Widerruf gelöscht – Bild samt Datei weg, Nachweis mit Frist 3 Jahre ab Widerruf', async () => {
+    const { entry, media, proof } = await publishedEntry()
+    const refused = await rest('DELETE', `/tattoo-gallery/${entry.id}`, undefined, auth())
+    expect(refused.status).toBe(409)
+    expect(JSON.stringify(await refused.json())).toContain('„Einwilligung widerrufen“')
+    expect(GALLERY_DELETE_CONSENT_MESSAGE).toContain('„Einwilligung widerrufen“')
+    expect(await serve(media)).toBe(200)
+    expect(
+      await payload.findByID({ collection: 'tattoo-gallery', id: entry.id, overrideAccess: true }),
+    ).toBeTruthy()
+
+    const req = await adminReq(payload, userId)
+    req.context = { now: NOW }
+    await withdrawGalleryConsent(req, entry.id)
+    const res = await rest('DELETE', `/tattoo-gallery/${entry.id}`, undefined, auth())
+    expect(res.status).toBe(200)
+    expect(await serve(media)).toBe(404)
+    expect(await mediaRow(media.id)).toBeNull()
+    expect(await readStoredFile('media', media.filename ?? '', media.prefix)).toBeNull()
+    const kept = (await payload.findByID({
+      collection: 'private-uploads',
+      id: proof.id,
+      overrideAccess: true,
+    })) as PrivateUpload
+    expect(kept.deleteAfter?.slice(0, 10)).toBe('2029-10-20')
+    expect(await readStoredFile('private', kept.filename ?? '', kept.prefix)).not.toBeNull()
+  })
+
+  it('ein gelöschter Eintrag hält kein Bild mehr öffentlich: Bild eines anderen (offline) Eintrags wird gesperrt', async () => {
+    const media = await customerPhoto('Eigene Zeichnung: Schwalbe', 'none')
+    const create = async (published: boolean) => {
+      const doc = (await payload.create({
+        collection: 'tattoo-gallery',
+        data: { image: media.id, kind: 'fresh', showsCustomer: false, published } as never,
+        overrideAccess: true,
+        context: { now: NOW },
+      })) as TattooGallery
+      galleryIds.push(doc.id)
+      return doc
+    }
+    const online = await create(true)
+    const offline = await create(false)
+    expect((await mediaRow(media.id))?.restricted).toBe(false)
+    expect(await serve(media)).toBe(200)
+
+    const res = await rest('DELETE', `/tattoo-gallery/${online.id}`, undefined, auth())
+    expect(res.status).toBe(200)
+    // Bild bleibt (der andere Eintrag nutzt es), ist aber gesperrt
+    expect((await mediaRow(media.id))?.restricted).toBe(true)
+    expect(await serve(media)).toBe(404)
+    expect(
+      await payload.findByID({
+        collection: 'tattoo-gallery',
+        id: offline.id,
+        overrideAccess: true,
+      }),
+    ).toBeTruthy()
+  })
+
+  it('L-19 b Nachweis ohne Widerruf (Häkchen später entfernt): Frist 3 Jahre ab dem Löschen; ungenutztes Bild gelöscht', async () => {
+    const media = await customerPhoto('Fine-Line am Knöchel')
+    const proof = await evidence()
+    const entry = (await payload.create({
+      collection: 'tattoo-gallery',
+      data: {
+        image: media.id,
+        kind: 'fresh',
+        showsCustomer: true,
+        consentGiven: false,
+        consentEvidence: proof.id,
+        published: false,
+      } as never,
+      overrideAccess: true,
+      context: { now: NOW },
+    })) as TattooGallery
+    galleryIds.push(entry.id)
+    expect(
+      (
+        (await payload.findByID({
+          collection: 'private-uploads',
+          id: proof.id,
+          overrideAccess: true,
+        })) as PrivateUpload
+      ).deleteAfter,
+    ).toBeFalsy()
+    await payload.delete({
+      collection: 'tattoo-gallery',
+      id: entry.id,
+      overrideAccess: true,
+      context: { now: NOW },
+    })
+    const kept = (await payload.findByID({
+      collection: 'private-uploads',
+      id: proof.id,
+      overrideAccess: true,
+    })) as PrivateUpload
+    expect(kept.deleteAfter?.slice(0, 10)).toBe('2029-10-20')
+    expect(await mediaRow(media.id)).toBeNull()
   })
 })

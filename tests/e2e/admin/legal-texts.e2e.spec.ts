@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import { sql } from '@payloadcms/db-postgres'
 
 import { dbOf } from '../../int/helpers/commerce'
@@ -12,21 +14,42 @@ import {
 // P6.4 Rechtstexte in der Verwaltung (KONZEPT §7.13) bei 390×844: Vorschau zeigt Token-Fehler ohne zu speichern, neue
 // AGB-Fassung veröffentlichen (Rückfrage „Ab {Datum} gilt dieser Text für neue Bestellungen.“), danach unveränderlich;
 // Anzahl Bestellungen je Fassung stimmt mit den Fixture-Bestellungen (analog Seed, `legalTextVersions` = aktive
-// Fassung). Die neue Fassung behält die Platzhalter-Gliederung (Arbeitsfassung, nur Deutsch), damit die öffentlichen
-// Rechtsseiten-Tests (Band, R-015) weiter gelten.
+// Fassung). Die neue Fassung ist die Arbeitsfassung aus dem Grund-Seed (DE und EN), damit die öffentlichen
+// Rechtsseiten-Tests (Band, ausformulierter Text, R-015, R-140) danach weiter gelten.
 
-const AGB_OUTLINE = [
-  'Geltungsbereich',
-  'Vertragsschluss',
-  'Preise und Zahlung',
-  'Vorkasse',
-  'Lieferung und Abholung',
-  'Eigentumsvorbehalt',
-  'Mängelhaftung',
-  'Vertragstext und Vertragssprache',
-]
-  .map((h) => `<h2>${h}</h2>\n<p>Text folgt von der Kanzlei.</p>`)
-  .join('\n')
+interface SeedSection {
+  heading: string
+  paragraphs: string[]
+}
+interface SeedLegalText {
+  type: string
+  intro?: string
+  introEn?: string
+  sections: SeedSection[]
+  sectionsEn: SeedSection[]
+}
+
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const inline = (t: string) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+
+/** Die AGB-Arbeitsfassung aus dem Grund-Seed als HTML (DE/EN) – die neue Fassung lässt die öffentlichen Seiten so,
+ *  wie die Rechtsseiten-Tests sie erwarten (ausformuliert, mit EN-Übersetzung; P18.5). */
+function seedAgbHtml(locale: 'de' | 'en'): string {
+  const base = JSON.parse(readFileSync('content/seed/data/base.json', 'utf8')) as {
+    legalTexts: SeedLegalText[]
+  }
+  const agb = base.legalTexts.find((t) => t.type === 'agb')!
+  const intro = locale === 'de' ? agb.intro : agb.introEn
+  const sections = locale === 'de' ? agb.sections : agb.sectionsEn
+  return [
+    ...(intro ? [`<p>${inline(intro)}</p>`] : []),
+    ...sections.map((s) =>
+      [`<h2>${esc(s.heading)}</h2>`, ...s.paragraphs.map((p) => `<p>${inline(p)}</p>`)].join('\n'),
+    ),
+  ].join('\n')
+}
+const AGB_DE = seedAgbHtml('de')
+const AGB_EN = seedAgbHtml('en')
 
 async function agbOrderCounts(): Promise<Map<number, number>> {
   const res = await dbOf(await testPayload()).execute(sql`
@@ -90,7 +113,7 @@ test('@a11y P6.4 neue AGB-Version bei 390×844: Vorschau mit Token-Fehler speich
     })
     await card.getByTestId('legal-new-version').click()
     const editor = card.getByTestId('legal-editor')
-    await editor.getByTestId('legal-text-de').fill(`${AGB_OUTLINE}\n<p>Anbieterin: {{firma}}</p>`)
+    await editor.getByTestId('legal-text-de').fill(`${AGB_DE}\n<p>Anbieterin: {{firma}}</p>`)
     await editor.getByTestId('legal-preview').click()
     await expect(editor.getByTestId('legal-preview-errors')).toContainText('{{firma}}')
     await expect(editor.getByTestId('legal-publish')).toBeDisabled()
@@ -106,7 +129,8 @@ test('@a11y P6.4 neue AGB-Version bei 390×844: Vorschau mit Token-Fehler speich
     await expectNoHorizontalScroll(page)
 
     // Korrigiert: Vorschau ohne Fehler, Veröffentlichen mit Rückfrage.
-    await editor.getByTestId('legal-text-de').fill(AGB_OUTLINE)
+    await editor.getByTestId('legal-text-de').fill(AGB_DE)
+    await editor.getByTestId('legal-text-en').fill(AGB_EN)
     await editor.getByTestId('legal-preview').click()
     await expect(editor.getByTestId('legal-preview-ok')).toBeVisible()
     await expect(editor.getByTestId('legal-preview-de').locator('h2').first()).toHaveText(

@@ -367,6 +367,13 @@
   padding: var(--space-4);
 }
 
+/* Muster-Widerrufsformular unter der Belehrung (P18.5): eigener Abschnitt, durch eine Linie abgesetzt. */
+.dialogForm {
+  margin-block-start: var(--space-5);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--ink-3);
+}
+
 /* Bestellbereich: KO-11 „Bestellen (ruhig)“ */
 .orderArea {
   display: grid;
