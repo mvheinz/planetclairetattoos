@@ -360,6 +360,11 @@ und Zahlung) sind etwas Besonderes:
 
 Schreibe in Rechtstexten nie selbst um, was die Kanzlei geliefert hat.
 
+**Neue Stücke – passen die Texte noch?** Nach jedem Schwung neuer Stücke (oder wenn eine Stückart ausverkauft ist) schau
+kurz auf die Startseite und die Kategorien im Shop: Nennen die Texte noch, was es wirklich gibt (V-21)? Ändern kannst du
+sie hier – Kategorie-Texte unter **Shop → Kategorien**, die Texte der Startseite unter **Inhalte → Seiten →
+Startseite**, am iPad wie am Computer gleich. Oder du schreibst Claude kurz, was nicht mehr passt.
+
 **Lieber mit Listen?** Bestand und alle Texte der Seite kannst du auch als Excel-Liste bearbeiten – vom iPad, mit der
 kostenlosen App Numbers. Wie das geht, steht in `docs/owner/IPAD.md` (Listen holen, ändern, zurückschicken). Ändert sich
 dasselbe Feld an zwei Stellen, wird nichts überschrieben, sondern nachgefragt.

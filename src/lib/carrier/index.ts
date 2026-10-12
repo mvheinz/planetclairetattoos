@@ -4,6 +4,7 @@ import type { Payload, PayloadRequest } from 'payload'
 
 import type { ShippingClass } from '@/lib/enums'
 import { getEnv } from '@/lib/env'
+import { carrierForClass } from '@/lib/shop/carrier'
 
 import { createManualCarrierAdapter } from './manual'
 import type { CarrierAdapter, CarrierCode, TrackingUrlTemplate } from './types'
@@ -65,7 +66,7 @@ export async function getCarrierAdapterFromSettings(
 
 /** Vorbelegung der Versanddienst-Auswahl (P5.14): Versandklasse `brief` → Deutsche Post, sonst DHL. */
 export function defaultCarrierFor(shippingClass: ShippingClass | null | undefined): CarrierCode {
-  return shippingClass === 'brief' ? 'deutsche_post' : 'dhl'
+  return carrierForClass(shippingClass)
 }
 
 /** Nur in Tests benutzen. */

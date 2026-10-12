@@ -115,6 +115,67 @@ export function clearLegacyPlaceholders(
   return out
 }
 
+/**
+ * Frühere Grund-Seed-Texte der Kategorien (`intro`, je Sprache), die ein neuer Grund-Seed ersetzen darf (V-21, P20.2):
+ * Steht in der Datenbank noch wortgleich einer dieser Texte, hat ihn niemand geändert – er gilt als leer und bekommt den
+ * aktuellen Text aus `content/seed/data/base.json` (an den echten Bestand angepasst). Eigene Texte bleiben immer stehen.
+ * Ändert sich ein Kategorie-Text in `base.json` wieder, kommt der bisherige hier dazu.
+ */
+export const SUPERSEDED_CATEGORY_INTROS: Readonly<
+  Record<string, Readonly<Record<'de' | 'en', readonly string[]>>>
+> = {
+  keramik: {
+    de: [
+      'Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückgucken. Jede Keramik ist ein Deko-Stück: schön für Schlüssel, Ringe und Kleinkram, nicht für Essen.',
+      'Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückschauen. Jede Keramik ist ein Deko-Stück: für Schlüssel, Ringe und Kleinkram, nicht für Essen.',
+    ],
+    en: [
+      'Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: great for keys, rings and odds and ends, not for food.',
+      'Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: for keys, rings and small things, not for food.',
+    ],
+  },
+  textil: {
+    de: [
+      'Second-Hand-Teile, die ich bemale. Größe, Zustand und Material stehen bei jedem Stück – bitte kurz nachmessen, jedes gibt es nur einmal.',
+      'Stoffe mit einer Vorgeschichte, die ich weitermale. Größe, Zustand und Material stehen bei jedem Stück – bitte miss kurz nach, jedes gibt es nur einmal.',
+    ],
+    en: [
+      'Second-hand pieces that I paint. Size, condition and fabric are listed for each one – please measure, every piece exists only once.',
+      'Cloth with a past, which I paint onward. Size, condition and fabric are given for every piece – please measure, each exists only once.',
+    ],
+  },
+  cap: {
+    de: [
+      'Gebrauchte Caps mit neuen Bewohnern. Ob verstellbar oder feste Größe, steht bei jeder Cap dabei.',
+    ],
+    en: [
+      'Pre-loved caps with new residents. Whether adjustable or a fixed size is listed on each cap.',
+      'Pre-loved caps with new residents. Whether adjustable or a fixed size is stated on each cap.',
+    ],
+  },
+  schmuck: {
+    de: [
+      'Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – du hast bestimmt schon eine Lieblingskette.',
+      'Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – deine Lieblingskette wartet bestimmt schon.',
+    ],
+    en: [
+      "Tiny ceramic pendants with a stainless steel loop. Chain not included – you've probably got a favourite one already.",
+      'Tiny ceramic pendants with a stainless steel loop. The chain is not included – your favourite one is surely waiting already.',
+    ],
+  },
+}
+
+/** `true`, wenn `value` ein früherer, unveränderter Grund-Seed-Text der Kategorie ist (wird ersetzt wie ein leeres Feld). */
+export function isSupersededCategoryIntro(
+  key: string,
+  locale: 'de' | 'en',
+  value: unknown,
+): boolean {
+  return (
+    typeof value === 'string' && (SUPERSEDED_CATEGORY_INTROS[key]?.[locale] ?? []).includes(value)
+  )
+}
+
 /** Tief zusammenführen (b gewinnt), Arrays werden ersetzt. */
 export function deepMerge(a: Obj, b: Obj): Obj {
   const out: Obj = { ...a }

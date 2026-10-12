@@ -208,16 +208,16 @@
   },
   "seo": {
     "descriptions": {
-      "default": "Planet Claire, ein kleiner Planet in Berlin: Fine-Line-Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta – jedes Stück nur einmal.",
-      "home": "Ein kleiner Planet in Berlin: Fine-Line-Tattoos, handgemachte Unikat-Keramik und Zeichnungen von Jutta. Wandere durch den Shop oder schreib mir.",
+      "default": "Planet Claire, ein kleiner Planet in Berlin: Fine-Line-Tattoos und handbemalte Unikate von Jutta – Keramik, Schmuck, Textil und Caps, jedes nur einmal.",
+      "home": "Ein kleiner Planet in Berlin: Fine-Line-Tattoos und handbemalte Unikate von Jutta – Keramik, Schmuck, Textil und Caps. Wandere durch den Shop oder schreib mir.",
       "contact": "Ein Brief an Planet Claire in Berlin: Fragen zu Unikaten, Bestellungen, Tattoo-Terminen oder Auftragsarbeiten – am besten per Mail.",
       "legal": "Rechtliche Informationen von Planet Claire, Berlin: Impressum, Datenschutz, AGB, Widerrufsbelehrung sowie Versand und Zahlung für den Unikat-Shop.",
       "withdrawal": "Hier kannst du einen Vertrag mit Planet Claire widerrufen: Bestellung angeben, Erklärung absenden und sofort eine Eingangsbestätigung per E-Mail erhalten.",
       "conformity": "Konformitätserklärungen von Planet Claire, Berlin, zu handgemachter Keramik mit Lebensmittelkontakt – aktuelle Erklärungen zum Ansehen und Herunterladen.",
-      "shop": "Stücke aus meinen Händen, Berlin: bemalte Keramik, Textil, Caps, Zeichnungen und Schmuck – jedes gibt es nur ein einziges Mal.",
+      "shop": "Stücke aus meinen Händen, Berlin: bemalte Keramik, Keramikschmuck, Second-Hand-Textil und Caps – jedes gibt es nur ein einziges Mal.",
       "category": "Handgemachte Unikate von Planet Claire aus Berlin in dieser Kategorie – jedes Stück ein Einzelstück, Lieferung innerhalb Deutschlands.",
-      "archive": "Archiv von Planet Claire, Berlin: Keramik, Textil und Zeichnungen, die weitergezogen sind und ein Zuhause gefunden haben.",
-      "about": "Jutta und Coco von Planet Claire in Berlin: Fine-Line-Tattoos, bemalte Keramik, Shirts und Zeichnungen – ein kleiner Planet mit zittriger Linie."
+      "archive": "Archiv von Planet Claire, Berlin: Keramik, Schmuck, Textil und andere Unikate, die weitergezogen sind und ein Zuhause gefunden haben.",
+      "about": "Jutta und Coco von Planet Claire in Berlin: Fine-Line-Tattoos, bemalte Keramik, Schmuck, Shirts und Caps – ein kleiner Planet mit zittriger Linie."
     },
     "og": {
       "tagline": "Tattoos & Unikate aus Berlin",
@@ -311,7 +311,7 @@
   "shop": {
     "list": {
       "empty": "Gerade sind alle Stücke weitergezogen. Bald ziehen neue ein.",
-      "intro": "Dinge, die aus meinen Händen kommen: Keramik, Textil, Zeichnungen, Schmuck. Jedes Stück gibt es nur ein einziges Mal.",
+      "intro": "Dinge, die aus meinen Händen kommen: Keramik, Schmuck, Textil und Caps. Jedes Stück gibt es nur ein einziges Mal.",
       "emptyText": "Im Archiv wohnen die Stücke, die schon ein Zuhause gefunden haben.",
       "emptyAction": "Zum Archiv",
       "filterLabel": "Stücke filtern",
@@ -459,7 +459,7 @@
     "shipping": "Versand",
     "pickup": "Abholung",
     "delivery": "Lieferart",
-    "deliveryShipping": "Versand mit der Post",
+    "deliveryShipping": "Versand per {carrier}",
     "deliveryPickup": "Abholung in Berlin",
     "total": "Summe",
     "paymentMethod": "Zahlart",
@@ -690,7 +690,7 @@
     },
     "overview": {
       "shipping": "Versand",
-      "shippingLine": "Versand als {shippingClass}-Paket ({carrier})",
+      "shippingLine": "Versand: {shippingClass} ({carrier})",
       "pickupLine": "Abholung in {city}",
       "total": "Gesamt",
       "deliveryTime": "Lieferzeit",
@@ -1066,7 +1066,7 @@
       "forClass": {
         "brief": "Zeichnungen, Aquarelle und Schmuck",
         "paket_klein": "T-Shirts, Caps und andere kleine Stücke",
-        "keramik": "Schalen, Teller, Fliesen und andere Keramik – extra gut gepolstert"
+        "keramik": "Schalen, Figuren, Becher und andere Keramik – extra gut gepolstert"
       },
       "pickup": "Abholung in {city}",
       "forPickup": "alle Stücke, Termin nach Absprache",

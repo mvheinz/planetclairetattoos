@@ -15,7 +15,8 @@ U-85–U-89).
 | **Bestandsliste** (`planet-claire-bestand-B-….xlsx`) | Alle deine Stücke mit kleinem Foto: Name, Preis, Maße, Material … und ganz rechts die Spalte **„Verkauft“**. |
 | **Texte-Liste** (`planet-claire-texte-T-….xlsx`) | Alle Texte der Seite auf Deutsch und Englisch, nach Bereichen (Startseite, Shop, Tattoo …). Rechtstexte stehen nicht darin – die kommen von der Kanzlei. |
 | **Katalog** (`planet-claire-katalog-….pdf`) | Alle Stücke zum Anschauen und Weiterschicken. |
-| **Rundgang** (`planet-claire-rundgang-….pdf`) | So sieht die Seite gerade aus – Handy und großer Bildschirm. |
+| **Rundgang** (`planet-claire-rundgang-….pdf`) | So sieht die Seite gerade aus – Handy und großer Bildschirm, auch Korb, Kasse und „Vertrag widerrufen“. |
+| **Videos** (`planet-claire-shop-handy-….mp4` …) | Wie sich Coco, die Leine und Koko bewegen – kurz, ohne Ton (Abschnitt F). |
 | **Anleitung** (`planet-claire-anleitung-ipad.pdf`) | Diese Anleitung zum Nachlesen. |
 
 ## Einmal: Numbers holen (kostenlos)
@@ -76,7 +77,9 @@ Exportieren → Excel**. Dann im Chat auf die **Büroklammer** bzw. **+** → Da
 **Anhang** hinzufügen.
 
 > Der Katalog enthält noch geschätzte Preise und Maße – schau ihn kurz durch, bevor du ihn weiterschickst. Der Rundgang
-> zeigt die Seite vor dem Start (Beispielinhalte, keine Fotos von Kund:innen).
+> zeigt die Seite vor dem Start, auch Korb und Kasse mit zwei deiner Stücke (bestellt wurde nichts), „Versand & Zahlung“,
+> „Vertrag widerrufen“ und das Archiv. Danke-Seite und Bestellstatus gibt es erst zu einer echten Bestellung – die
+> siehst du ab dem Start. Tattoo-Motive und Termine sind teils Beispiele, Fotos von Kund:innen sind ausgeblendet.
 
 ## E · GitHub-Projekt auf „privat“ stellen (einmalig, J-00)
 
@@ -97,6 +100,24 @@ diese Einstellung nicht selbst ändern).
 **Am Computer (Mac oder PC, im Browser):** Dieselben Schritte 1, 3, 4, 5 und 6 – Schritt 2 entfällt, dort ist
 **Settings** immer zu sehen.
 
+## F · Bewegungen als Video ansehen
+
+Wie sich Coco, die Leine und Koko bewegen, zeigen die PDFs nicht. Deshalb schickt dir Claude **nach jeder Änderung an
+Bewegungen** kurze Videos in den Chat: eins fürs Handy (schmal) und eins für den großen Bildschirm, je etwa 30 bis 40
+Sekunden, ohne Ton (V-66). Selbst aufnehmen musst du nichts.
+
+**Am iPad:**
+
+1. Tippe im Chat auf das Video (z. B. `planet-claire-shop-handy-….mp4`). Es spielt sofort; mit dem Doppelpfeil wird es
+   groß.
+2. Behalten: **Teilen-Symbol** → **Video sichern** (landet in **Fotos**) oder **In Dateien sichern**.
+3. Fällt dir etwas auf? Schreib es Claude einfach, z. B. „Coco wartet mir zu lange“ – gern mit der Sekunde aus dem
+   Video.
+
+**Am Computer:** Im Chat auf das Video klicken – es spielt im Browser bzw. in der App. Zum Behalten **Herunterladen**
+(Ordner **Downloads**) und mit Doppelklick öffnen (am Mac QuickTime, am PC die App „Medienwiedergabe“ bzw. „Filme &
+TV“). Rückmeldung wie oben im Chat.
+
 ## Wenn etwas nicht klappt
 
 - **Die Datei öffnet sich nicht in Numbers:** In **Dateien** lange auf die Datei drücken → **Teilen** → **Numbers**.
@@ -105,6 +126,8 @@ diese Einstellung nicht selbst ändern).
 - **Bitte den Dateinamen nicht ändern** – die Nummer darin (z. B. `B-2026-10-11-…`) zeigt Claude, welche Liste es ist.
 - **Ein Text beginnt mit „-“ oder „=“?** Dann zeigt die Tabelle einen Fehler (#NAME?). Schreib das Zeichen nicht an den
   Anfang, z. B. „kleiner Kratzer“ statt „- kleiner Kratzer“.
+- **Ein Video spielt nicht:** Endet der Name auf `.webm`, bitte Claude um die MP4-Fassung – die spielt auf dem iPad
+  und am Computer.
 - **Du bist unsicher:** Schick Claude einfach ein Bildschirmfoto (obere Taste + Lauter-Taste gleichzeitig drücken) und
   frag nach.
 

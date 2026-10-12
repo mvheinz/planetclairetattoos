@@ -20,6 +20,7 @@ import {
   fieldDefaults,
   fillEmpty,
   isEmptyValue,
+  isSupersededCategoryIntro,
   LEGACY_SETTINGS_PLACEHOLDERS,
   pickLocaleTree,
   stripMeta,
@@ -30,7 +31,8 @@ import type { BaseData } from './schemas'
 
 // Grund-Seed (SEED-SPEC §3, DATENMODELL §13.1): `settings`, `site-texts`, 6 Kategorien, 6 Rechtstext-Platzhalter,
 // die Rechtsbausteine v1 (§6.28) und das Admin-Konto. `seed = false`, create-if-missing: nur fehlende Dokumente anlegen bzw. leere Felder füllen, nie
-// vorhandene Werte überschreiben (§1.3). In Produktion erlaubt (Erstbefüllung P11), das Admin-Konto dort nie.
+// vorhandene Werte überschreiben (§1.3) – außer frühere, unveränderte Grund-Seed-Werte (Platzhalter der Stammdaten,
+// Kategorie-Texte `SUPERSEDED_CATEGORY_INTROS`). In Produktion erlaubt (Erstbefüllung P11), das Admin-Konto dort nie.
 
 export interface BaseOptions {
   report: SeedReport
@@ -132,6 +134,8 @@ async function seedCategories(payload: Payload, base: BaseData, report: SeedRepo
         for (const f of ['name', 'slug', 'intro'] as const) {
           if (isEmptyValue(doc[f])) patch[f] = cat[f][locale]
         }
+        // Frühere, unveränderte Grund-Seed-Texte ersetzen (V-21: Texte an den echten Bestand angepasst)
+        if (isSupersededCategoryIntro(cat.key, locale, doc.intro)) patch.intro = cat.intro[locale]
         if (Object.keys(patch).length > 0) {
           await req.payload.update({
             collection: 'categories',

@@ -14,6 +14,7 @@ import {
   renderLegalContent,
   type LexicalContent,
 } from '@/lib/legal/render'
+import { SUPERSEDED_CATEGORY_INTROS } from '@/lib/seed/globals'
 import { loadSeedData } from '@/lib/seed/loader'
 import { runSeed } from '@/lib/seed/run'
 import { CANONICAL_SEED_NOW } from '@/lib/seed/time'
@@ -252,6 +253,49 @@ describe('Grund-Seed (DM-P1-04, AK-SEED-02)', () => {
     await seedBase()
     expect((await business()).street).toBe('Andere Straße 1')
     await setBusiness({ street: 'Anklamer Straße 28' })
+  })
+})
+
+describe('Grund-Seed: Kategorie-Texte an den echten Bestand (P20.2, V-21)', () => {
+  it('frühere, unveränderte Kategorie-Texte werden ersetzt, eigene nie; ein zweiter Lauf ändert nichts', async () => {
+    const current = JSON.parse(
+      await readFile(path.join(process.cwd(), 'content/seed/data/base.json'), 'utf8'),
+    ) as { categories: { key: string; intro: { de: string; en: string } }[] }
+    const wanted = current.categories.find((c) => c.key === 'schmuck')!.intro
+    const find = async (key: string, locale: 'de' | 'en') =>
+      (
+        await payload.find({
+          collection: 'categories',
+          where: { key: { equals: key } },
+          locale,
+          fallbackLocale: false,
+          overrideAccess: true,
+        })
+      ).docs[0]!
+    const setIntro = async (key: string, locale: 'de' | 'en', intro: string) =>
+      payload.update({
+        collection: 'categories',
+        id: (await find(key, locale)).id,
+        locale,
+        data: { intro },
+        overrideAccess: true,
+      })
+    // Datenbank aus einem früheren Grund-Seed: alter Schmuck-Text („Öse aus Edelstahl … Kette nicht dabei“)
+    await setIntro('schmuck', 'de', SUPERSEDED_CATEGORY_INTROS.schmuck!.de.at(-1)!)
+    await setIntro('schmuck', 'en', SUPERSEDED_CATEGORY_INTROS.schmuck!.en[0]!)
+    // Von Jutta geänderter Text bleibt
+    await setIntro('textil', 'de', 'Mein eigener Text über Textil.')
+    const { report } = await seedBase()
+    expect(report.get('categories', 'updated')).toBeGreaterThanOrEqual(1)
+    expect((await find('schmuck', 'de')).intro).toBe(wanted.de)
+    expect((await find('schmuck', 'en')).intro).toBe(wanted.en)
+    expect((await find('schmuck', 'de')).intro).not.toMatch(/Edelstahl|nicht dabei/)
+    expect((await find('textil', 'de')).intro).toBe('Mein eigener Text über Textil.')
+    const before = await snapshot()
+    const again = await seedBase()
+    expect(await snapshot()).toEqual(before)
+    expect(again.report.get('categories', 'updated')).toBe(0)
+    expect((await find('schmuck', 'de')).intro).toBe(wanted.de)
   })
 })
 

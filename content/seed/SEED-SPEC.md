@@ -501,12 +501,18 @@ nicht auf Seed-Medien zeigen). `intro`:
 
 | key | DE | EN |
 |---|---|---|
-| keramik | Alles hier ist von Hand geformt und bemalt – mit Tieren, die zurückgucken. Jede Keramik ist ein Deko-Stück: schön für Schlüssel, Ringe und Kleinkram, nicht für Essen. | Everything here is shaped and painted by hand – with animals that look back at you. Every ceramic piece is decorative: great for keys, rings and odds and ends, not for food. |
-| textil | Second-Hand-Teile, die ich bemale. Größe, Zustand und Material stehen bei jedem Stück – bitte kurz nachmessen, jedes gibt es nur einmal. | Second-hand pieces that I paint. Size, condition and fabric are listed for each one – please measure, every piece exists only once. |
-| cap | Gebrauchte Caps mit neuen Bewohnern. Ob verstellbar oder feste Größe, steht bei jeder Cap dabei. | Pre-loved caps with new residents. Whether adjustable or a fixed size is listed on each cap. |
+| keramik | Alles hier ist von Hand geformt und bemalt – Schalen, Figuren, Becher und mehr, mit Tieren und Wesen, die zurückschauen. Jede Keramik ist ein Deko-Stück, nicht für Essen und Trinken. | Everything here is shaped and painted by hand – bowls, figures, cups and more, with animals and creatures that look back at you. Every ceramic piece is decorative, not for food or drink. |
+| textil | Stoffe mit einer Vorgeschichte, die ich weitermale: Shirts, Tops, Stoffbeutel und Etuis, alle Second-Hand. Maße, Zustand und Material stehen bei jedem Stück – bitte miss kurz nach, jedes gibt es nur einmal. | Cloth with a past, which I paint onward: shirts, tops, tote bags and pouches, all second-hand. Measurements, condition and fabric are given for every piece – please measure, each exists only once. |
+| cap | Gebrauchte Caps und Hüte mit neuen Bewohnern. Ob verstellbar oder feste Größe, steht bei jedem Stück dabei. | Pre-loved caps and hats with new residents. Whether adjustable or a fixed size is stated on each piece. |
 | zeichnung | Originale auf Papier: Tusche, Aquarell, Skizzenbuchseiten. Keine Drucke – was du siehst, ist genau das Blatt, das du bekommst. | Originals on paper: ink, watercolour, sketchbook pages. No prints – what you see is exactly the sheet you get. |
-| schmuck | Winzige Anhänger aus Keramik mit Öse aus Edelstahl. Die Kette ist nicht dabei – du hast bestimmt schon eine Lieblingskette. | Tiny ceramic pendants with a stainless steel loop. Chain not included – you've probably got a favourite one already. |
+| schmuck | Anhänger aus Keramik, von Hand geformt und bemalt. Ob Kette, Band oder Kordel dabei ist, steht bei jedem Stück. | Ceramic pendants, shaped and painted by hand. Whether a chain or cord comes with it is stated for every piece. |
 | sonstiges | Was nirgends reinpasst: Flohmarktfunde, die ich bemalt habe. | Things that don't fit anywhere else: flea market finds I've painted. |
+
+Stand P20.2 (V-21, U-93): Keramik, Textil, Caps und Schmuck an den echten Bestand (`content/bestand/products.json`)
+angepasst – kein „Öse aus Edelstahl“ (E-17), kein „Kette nicht dabei“. Bestehende Datenbanken bekommen die neuen Texte
+beim nächsten Grund-Seed, solange dort noch ein früherer Text unverändert steht (`SUPERSEDED_CATEGORY_INTROS` in
+`src/lib/seed/globals.ts`); eigene Texte bleiben. Der Test `tests/unit/seed/frame-texts.unit.spec.ts` prüft die
+Rahmentexte gegen den Bestand.
 
 ### 3.4 `legal-texts` (6 Platzhalter)
 
@@ -1402,10 +1408,10 @@ Texte (`subheading` bzw. `text`, ≤ 400 Zeichen):
 |---|---|---|
 | 0 | Fine-Line-Tattoos, bemalte Keramik, Caps und Shirts, Tusche auf Papier – alles von Hand, alles nur einmal. Coco passt auf. | Fine line tattoos, painted ceramics, caps and shirts, ink on paper – all by hand, each one only once. Coco keeps an eye on things. |
 | ~~1~~ | entfällt mit der Station `hallo` (U-40, P13.1) | – |
-| 2 | Schalen, Tellerchen, Fliesen – gekniffen, gedreht, bemalt. Jede Form ist ein bisschen schief, genau so soll sie sein. Alles Deko, nicht für Essen. | Bowls, little plates, tiles – pinched, shaped, painted. Every piece is a little wonky, exactly as it should be. All decorative, not for food. |
-| 3 | Second-Hand-Shirts, Kleider und Caps, von Hand bemalt. Jedes Teil gibt's genau einmal – in genau einer Größe. | Second-hand shirts, dresses and caps, painted by hand. Every piece exists exactly once – in exactly one size. |
-| 4 | Tusche, Aquarell, Skizzenbuchseiten. Hier fängt eigentlich alles an. | Ink, watercolour, sketchbook pages. This is where it all starts, really. |
-| 5 | Winzige Anhänger aus Keramik: Füchse, Planeten, Rehköpfchen. Klein genug für die Hosentasche, groß genug für gute Laune. | Tiny ceramic pendants: foxes, planets, little deer. Small enough for your pocket, big enough for a good mood. |
+| 2 | Ton erinnert sich an jede Berührung. Schalen, Figuren und Becher, von Hand geformt und bemalt – alle ein wenig schief, und genau richtig so. Dekoration, nicht für Lebensmittel. | Clay remembers every touch. Bowls, figures and cups, shaped and painted by hand – all a little crooked, and exactly right. Decorative, not for food. |
+| 3 | Stoffe, die schon ein Leben hatten und ein zweites bekommen: Shirts, Stoffbeutel und Caps, von Hand bemalt. Jedes Teil gibt es nur einmal, in genau einer Größe. | Cloth that has already had one life and is given a second: shirts, tote bags and caps, painted by hand. Each piece exists once, in exactly one size. |
+| 4 | Hier beginnt jedes Wesen: mit Tusche auf Papier, bevor es eine Haut oder eine Schale findet. | This is where every creature begins: in ink on paper, before it finds a skin or a bowl. |
+| 5 | Anhänger aus Keramik: Katzen, Fledermäuse, Pferdeköpfe, meist an Kette, Band oder Kordel. Klein genug für die Hosentasche, groß genug, um einen Tag zu verändern. | Ceramic pendants: cats, bats, horse heads, mostly on a chain or cord. Small enough for a pocket, big enough to change a day. |
 | 6 | Fine Line, naiv, mit Humor. Flash mit Festpreis oder deine eigene Idee – Anfragen per Mail, gestochen wird im Privatstudio in Berlin. | Fine line, naive, with a sense of humour. Flash with fixed prices or your own idea – ask by email, tattooed in a private studio in Berlin. |
 | 1a (früher 7) | Werkstatt unter der Woche, Flohmarkt am Wochenende, Coco immer dabei. Und falls du eine eigene Idee hast: Auftragsarbeiten gehen auch. | Workshop during the week, flea market at the weekend, Coco always along. And if you've got your own idea: commissions are possible too. |
 

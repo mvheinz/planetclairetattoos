@@ -1013,6 +1013,8 @@ Keine Repository-Secrets bis P11; auch danach **keine** Produktionsdaten oder Pr
 | `E2E_BASE_URL` | Ziel der E2E-Tests | `http://localhost:3000` | – | nein | P1 |
 | `E2E_SERVER` | `dev` (lokal) oder `start` (CI: Produktions-Build) | `dev`; CI `start` | – | nein | P1 |
 | `PW_SKIP_WEBKIT` | nur wenn die WebKit-Installation scheitert (Cloud/lokal, §4.5): Projekt `iphone-15` läuft als markierte Chromium-Emulation (§7.3); in CI nie gesetzt | leer | – | nein | P1 |
+| `VIDEO_BASE_URL` | Nur `pnpm pflege:videos` (V-66, §16.1): Adresse des laufenden Servers, von dem die Bewegungs-Videos aufgenommen werden; `--url=` hat Vorrang | leer = `http://localhost:3000` | – | nein | P20 |
+| `FFMPEG_PATH` | Nur `pnpm pflege:videos`: Pfad zu ffmpeg für die Umwandlung WebM → MP4 (H.264); ohne ffmpeg bleibt WebM | leer = `ffmpeg` aus dem `PATH` | – | nein | P20 |
 
 Von Plattformen gesetzt und nur gelesen: `NODE_ENV`, `CI`, `VERCEL_ENV`, `VERCEL_GIT_COMMIT_SHA` (App-Version im Admin
 „System“, Sentry-Release), `VERCEL_PROJECT_PRODUCTION_URL` (Vercel-Produktions-Domain für `cors`/`csrf`, §8.2). Fachliche
@@ -2728,7 +2730,7 @@ Jutta pflegt Bestand und Texte dauerhaft über Excel-Listen, die sie auf dem iPa
 | `src/lib/pflege/workbook.ts` | Lesen: Datei prüfen (nur `.xlsx`, Größe, ZIP-Inhalt), Tabellen über die Überschriften finden (erste 10 Zeilen, jedes Blatt), Fehlerzellen und verbundene Zellen erkennen, Listen-Nr. in Zellen, Kommentaren, Dateieigenschaften oder Dateiname |
 | `src/lib/bestand/excel*.ts` | Bestandsliste: Spalten (letzte: „Verkauft“), Zeile je Stück, Rückweg, `keepValid` (ungültiges Stück bleibt alt) |
 | `src/lib/texte/*.ts` | Texte-Liste: Einträge mit fester Kennung, Platzhalter-Prüfung, Rückweg per Kennung |
-| `scripts/pflege/` | `pnpm pflege:export [bestand\|texte]`, `pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand] [--liste=<Listen-Nr.>]`, `pnpm pflege:ansichten [katalog\|rundgang]` (PDFs, P18.3) |
+| `scripts/pflege/` | `pnpm pflege:export [bestand\|texte]`, `pnpm pflege:import <datei.xlsx> [--trocken] [--ohne-stand] [--liste=<Listen-Nr.>]`, `pnpm pflege:ansichten [katalog\|rundgang\|anleitung]` (PDFs, P18.3; Rundgang seit P20.2 mit Korb, Kasse, „Versand & Zahlung“, „Vertrag widerrufen“ und Archiv, ohne Fokus-Kasten und Kaufleiste, Danke-/Statusseite als Vermerk „ab dem Start sichtbar“, nie mit Demo-Bestand – V-27), `pnpm pflege:videos [shop\|start\|alle] [--url=…] [--sekunden=…] [--geraet=handy\|gross]` (Bewegungs-Videos fürs iPad gegen einen laufenden Server: Playwright `recordVideo` Handy 390 × 844 und groß 1280 × 800, volle Bewegung; ffmpeg → MP4 H.264/yuv420p/+faststart/CRF 28 ohne Ton nach `dist/videos/`, ohne ffmpeg WebM – V-66) |
 
 ### 16.2 Regeln
 

@@ -102,6 +102,33 @@ describe('buildOrderView (R08/R09)', () => {
     expect(v.steps.length).toBeGreaterThan(0)
   })
 
+  it('V-09 Versanddienst: gemeldeter Dienst, sonst nach höchster Versandklasse; Abholung und „Sonstige“ ohne Namen', async () => {
+    const view = (o: Record<string, unknown>) => buildOrderView(fakePayload(), order(o), 'de')
+    expect((await view({ shippingClass: 'brief' })).carrierName).toBe('Deutsche Post')
+    expect((await view({ shippingClass: 'keramik' })).carrierName).toBe('DHL')
+    const items = [
+      {
+        id: 'a',
+        product: 5,
+        itemNumber: 17,
+        titleDe: 'Brief',
+        priceCents: 100,
+        shippingClass: 'brief',
+      },
+    ]
+    expect((await view({ shippingClass: null, items })).carrierName).toBe('Deutsche Post')
+    expect(
+      (await view({ shippingClass: 'brief', shipment: { carrier: 'dhl', trackingNumber: null } }))
+        .carrierName,
+    ).toBe('DHL')
+    expect(
+      (await view({ shippingClass: 'keramik', shipment: { carrier: 'other' } })).carrierName,
+    ).toBeNull()
+    expect(
+      (await view({ fulfillmentMethod: 'pickup', shippingClass: 'brief' })).carrierName,
+    ).toBeNull()
+  })
+
   it('EN-Titel mit Rückfall auf Deutsch; Abholung bzw. abweichende Rechnungsadresse zeigt die Rechnungsanschrift', async () => {
     const en = await buildOrderView(fakePayload(), order({ customer: { email: null } }), 'en')
     expect(en.items.map((i) => i.title)).toEqual(['Mug', 'Cap'])

@@ -208,16 +208,16 @@
   },
   "seo": {
     "descriptions": {
-      "default": "Planet Claire, a small planet in Berlin: fine line tattoos, handmade one-off ceramics and drawings by Jutta – every piece only once.",
-      "home": "A small planet in Berlin: fine line tattoos, handmade one-off ceramics and drawings by Jutta. Wander through the shop, discover flash designs or write to me.",
+      "default": "Planet Claire, a small planet in Berlin: fine line tattoos and hand-painted one-offs by Jutta – ceramics, jewellery, textiles and caps, each only once.",
+      "home": "A small planet in Berlin: fine line tattoos and hand-painted one-offs by Jutta – ceramics, jewellery, textiles and caps. Wander through the shop or write to me.",
       "contact": "A letter to Planet Claire in Berlin: questions about one-offs, orders, tattoo appointments or commissions – best by email.",
       "legal": "Legal information from Planet Claire, Berlin: legal notice, privacy policy, terms, right of withdrawal and shipping and payment for the one-of-a-kind shop.",
       "withdrawal": "Withdraw from a contract with Planet Claire here: identify your order, send your declaration and immediately receive a confirmation of receipt by email.",
       "conformity": "Declarations of conformity from Planet Claire, Berlin, for handmade ceramics in contact with food – current declarations to view and download.",
-      "shop": "Pieces from my hands, Berlin: painted ceramics, textiles, caps, drawings and jewellery – each one exists only once, and then it is gone.",
+      "shop": "Pieces from my hands, Berlin: painted ceramics, ceramic jewellery, second-hand textiles and caps – each one exists only once, and then it is gone.",
       "category": "Handmade one-offs from Planet Claire in Berlin in this category – every piece is unique and delivered within Germany. Take your time and look around.",
-      "archive": "Archive of Planet Claire, Berlin: ceramics, textiles and drawings that have moved on and found a home – to look at and to remember.",
-      "about": "Jutta and Coco of Planet Claire in Berlin: fine line tattoos, painted ceramics, shirts and drawings – a small planet with a trembling line."
+      "archive": "Archive of Planet Claire, Berlin: ceramics, jewellery, textiles and other one-offs that have moved on and found a home – to look at and to remember.",
+      "about": "Jutta and Coco of Planet Claire in Berlin: fine line tattoos, painted ceramics, jewellery, shirts and caps – a small planet with a trembling line."
     },
     "og": {
       "tagline": "Tattoos & one-offs from Berlin",
@@ -311,7 +311,7 @@
   "shop": {
     "list": {
       "empty": "All the pieces have moved on for now. New ones will move in soon.",
-      "intro": "Things that come out of my hands: ceramics, textiles, drawings, jewellery. Every piece exists only once.",
+      "intro": "Things that come out of my hands: ceramics, jewellery, textiles and caps. Every piece exists only once.",
       "emptyText": "The archive is where the pieces live that have already found a home.",
       "emptyAction": "To the archive",
       "filterLabel": "Filter pieces",
@@ -459,7 +459,7 @@
     "shipping": "Shipping",
     "pickup": "Pickup",
     "delivery": "Delivery",
-    "deliveryShipping": "Shipping by post",
+    "deliveryShipping": "Shipping with {carrier}",
     "deliveryPickup": "Pickup in Berlin",
     "total": "Total",
     "paymentMethod": "Payment method",
@@ -690,7 +690,7 @@
     },
     "overview": {
       "shipping": "Shipping",
-      "shippingLine": "Shipped as a {shippingClass} parcel ({carrier})",
+      "shippingLine": "Shipping: {shippingClass} ({carrier})",
       "pickupLine": "Pickup in {city}",
       "total": "Total",
       "deliveryTime": "Delivery time",
@@ -1066,7 +1066,7 @@
       "forClass": {
         "brief": "Drawings, watercolours and jewellery",
         "paket_klein": "T-shirts, caps and other small pieces",
-        "keramik": "Bowls, plates, tiles and other ceramics – extra well padded"
+        "keramik": "Bowls, figures, cups and other ceramics – extra well padded"
       },
       "pickup": "Pickup in {city}",
       "forPickup": "all pieces, appointment by arrangement",
