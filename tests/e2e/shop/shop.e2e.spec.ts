@@ -13,7 +13,8 @@ import { LIST_FIXTURE_RANGE, expect, test, testPayload } from '../fixtures'
 import { NO_CACHE, freshPage, holdListData, refresh } from './fresh'
 
 // P3.5 Shop-Übersicht R02 und Kategorie-Seiten R03 (KONZEPT §3.2, §3.3; DESIGN KO-07, KO-08, KO-17; R-030/R-031).
-// P20.3: „Mehr zeigen“ verlängert die Liste (V-12), kein Schalter „nur verfügbare“ mehr, Fragen zum Shop unten (V-19).
+// P20.3: Seiten-Leiste „Seite 2 von 4“ mit Zurück/Weiter (V-12, die wachsende Liste wurde gemessen und verworfen), kein
+// Schalter „nur verfügbare“ mehr, Fragen zum Shop unten (V-19).
 // Grundlage: Mini-Beispielbestand (Grund-Seed + S01, S06 sold/Archiv, S11, S15, S20, S26, S27 reserviert).
 // Eigene Stücke im erweiterten E2E-Bereich 975–999 (`LIST_FIXTURE_RANGE`, OFFENE-PUNKTE P3.1/P3.5), nur im Projekt
 // `desktop`, nacheinander und mit exklusivem Bereichs-Lock (die Projekt-Blöcke 980–999 anderer Tests warten so lange)
@@ -69,10 +70,12 @@ function locationOf(res: APIResponse): string {
 
 const shop = localizedPath('R02', 'de')
 const keramik = localizedPath('R03', 'de', { slug: 'keramik' })
-const cardNumbers = (page: import('@playwright/test').Page) =>
+const cardNumbers = (page: import('@playwright/test').Page, selector = '[data-product-card]') =>
   page
-    .locator('[data-product-card]')
+    .locator(selector)
     .evaluateAll((els) => els.map((e) => Number(e.getAttribute('data-item-number'))))
+/** Nur das Raster (ohne die Reihe verkaufter Stücke unter der letzten Seite, U-57 c). */
+const GRID_CARDS = 'section[aria-labelledby="list-heading"] [data-product-card]'
 
 test.describe('Shop R02/R03 – lesend (alle Projekte)', () => {
   holdListData(test, 'shared')
@@ -278,7 +281,7 @@ test.describe('Shop R02/R03 – mit eigenen Stücken (nur desktop)', () => {
     }
   })
 
-  test('V-12 „Mehr zeigen“ verlängert die Liste: ?page=2 zeigt 1–48, springt zum ersten neuen Stück, „noch n“', async ({
+  test('V-12 Seiten-Leiste: 24 je Seite, „Seite 1 von 2“, Weiter (noch n) und Zurück mit Anker aufs Raster', async ({
     page,
     request,
   }) => {
@@ -291,28 +294,29 @@ test.describe('Shop R02/R03 – mit eigenen Stücken (nur desktop)', () => {
     await refresh(request, [shop, `${shop}?page=2`])
 
     await page.goto(shop)
-    const first = await cardNumbers(page)
+    const first = await cardNumbers(page, GRID_CARDS)
     expect(first).toHaveLength(24)
     const unsold = await countUnsold(payload)
-    const more = page.locator('[data-list-more]')
-    await expect(more).toHaveAttribute('href', `${shop}?page=2#page-2`)
-    await expect(more).toHaveText(`Mehr zeigen (noch ${unsold - 24})`)
-    await more.click()
-    await expect(page).toHaveURL(new RegExp(`${shop}\\?page=2#page-2$`))
-    const second = await cardNumbers(page)
-    // die Liste wächst: die ersten 24 bleiben, die neuen hängen dahinter
-    expect(second.slice(0, 24)).toEqual(first)
-    expect(second.length).toBe(Math.min(48, unsold))
-    for (const nr of PAGINATION) expect(second, `Nr. ${nr}`).toContain(nr)
-    // Sprungziel: das erste neue Stück steht im Bild
-    const target = page.locator('#page-2')
-    await expect(target.locator('[data-product-card]')).toHaveAttribute(
-      'data-item-number',
-      String(second[24]),
-    )
-    await expect(target).toBeInViewport()
-    // Die letzte Seite braucht keinen weiteren Link
-    if (second.length >= unsold) await expect(page.locator('[data-list-more]')).toHaveCount(0)
+    const total = Math.ceil(unsold / 24)
+    const pager = page.locator('[data-list-pager]')
+    await expect(pager).toHaveAttribute('aria-label', 'Seiten')
+    await expect(pager.locator('[data-list-page-of]')).toHaveText(`Seite 1 von ${total}`)
+    await expect(pager.locator('[data-list-prev]')).toHaveCount(0)
+    const next = pager.locator('[data-list-more]')
+    await expect(next).toHaveAttribute('href', `${shop}?page=2#liste`)
+    await expect(next).toHaveText(`Weiter (noch ${unsold - 24})`)
+    await next.click()
+    await expect(page).toHaveURL(new RegExp(`${shop}\\?page=2#liste$`))
+    const second = await cardNumbers(page, GRID_CARDS)
+    expect(second.length).toBe(Math.min(24, unsold - 24))
+    for (const nr of PAGINATION) expect([...first, ...second], `Nr. ${nr}`).toContain(nr)
+    expect(first.filter((n) => second.includes(n))).toEqual([])
+    // Sprungziel: das Raster steht im Bild, nicht der Seitenkopf
+    await expect(page.locator('#liste [data-product-card]').first()).toBeInViewport()
+    await expect(page.locator('[data-list-page-of]')).toHaveText(`Seite 2 von ${total}`)
+    await expect(page.locator('[data-list-prev]')).toHaveAttribute('href', `${shop}#liste`)
+    // Die letzte Seite braucht keinen „Weiter“-Link
+    if (total === 2) await expect(page.locator('[data-list-more]')).toHaveCount(0)
   })
 
   test('AK-3-04 sold mit showInArchiveAfterSale = false erscheint auf keiner Liste', async ({

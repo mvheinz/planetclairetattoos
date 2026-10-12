@@ -500,7 +500,7 @@
     {
       "type": "datenschutz",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5, Kanzlei-Prüfung offen)",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5 und P20.3, Kanzlei-Prüfung offen)",
       "intro": "Ich sammle so wenig wie möglich über dich. Hier steht genau, was trotzdem anfällt, wozu ich es brauche und wann es wieder verschwindet.",
       "introEn": "I collect as little about you as possible. Here is exactly what still accrues, what I need it for and when it disappears again.",
       "sections": [
@@ -570,7 +570,7 @@
         {
           "heading": "Anfragen zu Auftragsarbeiten",
           "paragraphs": [
-            "Das Anfrageformular für Auftragsarbeiten erhebt Name, E-Mail-Adresse, Beschreibung, Gegenstand, optional Wunschzeitraum und Budget sowie bis zu 5 Bilder. Bitte lade keine Fotos von Personen hoch und mache keine Angaben zu deiner Gesundheit. Ich nutze die Angaben nur, um deine Anfrage zu beantworten und gegebenenfalls ein Angebot zu machen (Vertragsanbahnung, Art. 6 Abs. 1 lit. b DSGVO). Bilder werden privat gespeichert und von Metadaten (zum Beispiel Aufnahmeort) befreit. Anfragen werden 6 Monate nach Eingang automatisch samt Bildern gelöscht. Eine Einwilligungs-Checkbox gibt es dort nicht; stattdessen steht der Datenschutzhinweis direkt am Formular."
+            "Das Anfrageformular für Auftragsarbeiten erhebt Name, E-Mail-Adresse, Beschreibung, Gegenstand, optional Wunschzeitraum und Budget sowie bis zu 5 Bilder. Kommst du über „Etwas Ähnliches anfragen“ bei einem verkauften Stück, speichere ich dazu dessen öffentliche Nummer, damit ich weiß, was dir gefallen hat. Bitte lade keine Fotos von Personen hoch und mache keine Angaben zu deiner Gesundheit. Ich nutze die Angaben nur, um deine Anfrage zu beantworten und gegebenenfalls ein Angebot zu machen (Vertragsanbahnung, Art. 6 Abs. 1 lit. b DSGVO). Bilder werden privat gespeichert und von Metadaten (zum Beispiel Aufnahmeort) befreit. Anfragen werden 6 Monate nach Eingang automatisch samt Bildern gelöscht. Eine Einwilligungs-Checkbox gibt es dort nicht; stattdessen steht der Datenschutzhinweis direkt am Formular."
           ]
         },
         {
@@ -705,7 +705,7 @@
         {
           "heading": "Commission requests",
           "paragraphs": [
-            "The request form for commissioned work collects name, email address, description, subject, optionally preferred period and budget, and up to 5 images. Please do not upload photos of people and do not give details about your health. I use the details only to answer your request and, if applicable, make an offer (pre-contractual steps, Art. 6 (1) (b) GDPR). Images are stored privately and stripped of metadata (for example the place a photo was taken). Requests are deleted automatically, images included, 6 months after receipt. There is no consent checkbox there; instead the privacy note sits right at the form."
+            "The request form for commissioned work collects name, email address, description, subject, optionally preferred period and budget, and up to 5 images. If you come via “Ask for something similar” on a sold piece, I also store that piece’s public number so I know what you liked. Please do not upload photos of people and do not give details about your health. I use the details only to answer your request and, if applicable, make an offer (pre-contractual steps, Art. 6 (1) (b) GDPR). Images are stored privately and stripped of metadata (for example the place a photo was taken). Requests are deleted automatically, images included, 6 months after receipt. There is no consent checkbox there; instead the privacy note sits right at the form."
           ]
         },
         {

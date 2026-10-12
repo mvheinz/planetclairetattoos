@@ -12,7 +12,7 @@ U-85–U-89).
 
 | Datei | Wofür |
 |---|---|
-| **Bestandsliste** (`planet-claire-bestand-B-….xlsx`) | Alle deine Stücke mit kleinem Foto: Name, Preis, Maße, Material … und ganz rechts die Spalte **„Verkauft“**. |
+| **Bestandsliste** (`planet-claire-bestand-B-….xlsx`) | Alle deine Stücke mit kleinem Foto: Name, Preis, Maße, Material … und ganz rechts die Spalten **„Verkauft“** und **„ins Archiv“**. |
 | **Texte-Liste** (`planet-claire-texte-T-….xlsx`) | Alle Texte der Seite auf Deutsch und Englisch, nach Bereichen (Startseite, Shop, Tattoo …). Rechtstexte stehen nicht darin – die kommen von der Kanzlei. |
 | **Katalog** (`planet-claire-katalog-….pdf`) | Alle Stücke zum Anschauen und Weiterschicken. |
 | **Rundgang** (`planet-claire-rundgang-….pdf`) | So sieht die Seite gerade aus – Handy und großer Bildschirm, auch Korb, Kasse und „Vertrag widerrufen“. |
@@ -42,9 +42,12 @@ dann im Ordner **Downloads**.
 1. Öffne die App **Dateien** (blauer Ordner) → **Auf meinem iPad** → tippe auf die Liste. Sie öffnet sich in Numbers.
 2. Unten siehst du Blätter: **Anleitung** und **Bestand** (bei den Texten: Startseite, Shop, Tattoo …).
 3. Tippe zweimal auf ein Feld, ändere den Text oder die Zahl, tippe auf **Fertig** (oder die Eingabetaste).
-4. **Verkauft:** In der letzten Spalte das Datum eintragen, gern mit Preis und Notiz, z. B. `11.10.2026 35 € Markt`.
+4. **Verkauft:** In der vorletzten Spalte das Datum eintragen, gern mit Preis und Notiz, z. B. `11.10.2026 35 € Markt`.
    Ohne Datum schreib „ja“ davor, z. B. `ja Markt`. Leer lassen (oder „noch da“) heißt: nicht verkauft.
    Bitte **keine Namen** von Käufer:innen eintragen – die Listen werden dauerhaft gespeichert.
+   **ins Archiv** (letzte Spalte, seit P20.3): Ein verkauftes Stück erscheint nur dann mit „sold“-Stempel im Archiv
+   der Webseite, wenn du hier „ja“ einträgst. Bitte nur, wenn Maße und Angaben stimmen. Leer lassen heißt: nicht im
+   Archiv. Bei einem Stück, das noch da ist, gilt „ja“ nicht (Claude meldet das).
 5. **Deine Notiz:** Alles, was du Claude sagen möchtest („Preis noch unsicher“, „Foto bitte tauschen“) – auch hier
    keine Namen oder Kontaktdaten von Kund:innen.
 6. Bitte **nicht**: Zeilen löschen, Überschriften ändern, in grauen Feldern etwas ändern. Englisch musst du nicht

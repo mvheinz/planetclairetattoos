@@ -223,41 +223,32 @@ describe('P3.7 Produktseite: 404-Variante und statische Parameter (KONZEPT §2.3
   })
 })
 
-describe('„Mehr zeigen“ verlängert die Liste (KONZEPT §3.2: 24 je Seite, V-12)', () => {
-  it('25 Stücke → 2 Seiten; Seite 2 enthält alle 25 (erstes neues = Index 24), „noch 1“; ungültige Seite → 1', async () => {
+describe('Paginierung (KONZEPT §3.2: 24 je Seite; V-12: „Seite 2 von 4“ mit „noch n“)', () => {
+  it('25 Stücke → 2 Seiten, Seite 2 mit dem ältesten; „noch 1“ auf Seite 1; ungültige Seite → 1', async () => {
     setEnv({ SEED_PREVIEW_MODE: 'false' })
     for (let i = 0; i < 25; i++) await piece(975 + i, available(1 + i))
     const p1 = await listShopProducts({ locale: 'de', page: 1 })
     expect(p1.docs).toHaveLength(SHOP_PAGE_SIZE)
-    expect(p1).toMatchObject({
-      totalDocs: 25,
-      totalPages: 2,
-      hasNextPage: true,
-      firstOfPage: 0,
-      remaining: 1,
-    })
+    expect(p1).toMatchObject({ totalDocs: 25, totalPages: 2, hasNextPage: true, remaining: 1 })
     expect(p1.docs[0]!.itemNumber).toBe(999)
     const p2 = await listShopProducts({ locale: 'de', page: 2 })
-    expect(p2.docs).toHaveLength(25)
-    expect(numbers(p2.docs).slice(0, SHOP_PAGE_SIZE)).toEqual(numbers(p1.docs))
-    expect(p2.docs[p2.firstOfPage]!.itemNumber).toBe(975)
-    expect(p2).toMatchObject({ page: 2, hasNextPage: false, firstOfPage: 24, remaining: 0 })
+    expect(numbers(p2.docs)).toEqual([975])
+    expect(p2).toMatchObject({ page: 2, hasNextPage: false, remaining: 0 })
     const p0 = await listShopProducts({ locale: 'de', page: 0 })
     expect(p0.page).toBe(1)
-    // Seite hinter dem Ende: ListPage antwortet mit 404 (page > totalPages)
     const p3 = await listShopProducts({ locale: 'de', page: 3 })
-    expect(p3.page).toBeGreaterThan(p3.totalPages)
+    expect(p3.docs).toEqual([])
   })
 
-  it('Archiv wächst genauso: Seite 2 mit allen 25, erstes neues Stück = Index 24', async () => {
+  it('Archiv genauso: 24 je Seite, „noch n“', async () => {
     setEnv({ SEED_PREVIEW_MODE: 'false' })
     for (let i = 0; i < 25; i++) await piece(975 + i, sold(1, 1 + i))
     const a1 = await listArchiveProducts({ locale: 'de', page: 1 })
     expect(a1).toMatchObject({ totalPages: 2, hasNextPage: true, remaining: 1 })
+    expect(a1.docs).toHaveLength(SHOP_PAGE_SIZE)
     const a2 = await listArchiveProducts({ locale: 'de', page: 2 })
-    expect(a2.docs).toHaveLength(25)
-    expect(a2).toMatchObject({ firstOfPage: 24, remaining: 0, hasNextPage: false })
-    expect(a2.docs[24]!.itemNumber).toBe(975)
+    expect(numbers(a2.docs)).toEqual([975])
+    expect(a2).toMatchObject({ remaining: 0, hasNextPage: false })
   })
 
   it('U-57 c: verkaufte nicht seitenweise – höchstens 4 auf der letzten Seite, Seitenzahl nur nach verfügbaren', async () => {

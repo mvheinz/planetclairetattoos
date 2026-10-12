@@ -27,8 +27,8 @@ import { breadcrumbItems } from '@/lib/seo/breadcrumbs'
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld'
 import { categoryTile, TILE_SIZE } from '@/lib/shop/categoryTiles'
 import {
+  LIST_ANCHOR,
   listSearch,
-  pageAnchor,
   SHOP_FAQ_ANCHOR,
   variantKey,
   type ListParams,
@@ -43,9 +43,10 @@ import { statusLabelAttrs } from './statusLabels'
 // Kategorie (R03) und Archiv (R05) teilen Aufbau und Verhalten – H1, Einleitung, Kategorie-Kacheln als echte Links
 // (`aria-current="page"` am aktiven; im Shop nur Kategorien mit Inhalt, V-11), Hinweis „Shop pausiert“ über dem Raster
 // (die Stücke bleiben sichtbar), Raster aus Produktkarten (jede Karte ist eine Rasterzelle der Tuschelinie: Kringel
-// zwischen den Zeilen, Coco läuft mit, U-44), „Mehr zeigen“ als Link `?page=n+1` – die Liste wird länger (V-12: Seite n
-// zeigt 1 bis n × 24, der Link springt per Anker zum ersten neuen Stück und sagt, wie viele noch kommen), Preis-Fußnote
-// einmal je Seite (R-030) und Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll bedienbar. Seiten > letzte
+// zwischen den Zeilen, Coco läuft mit, U-44), Seiten-Leiste „Zurück · Seite 2 von 4 · Weiter (noch 26)“ als echte Links
+// mit Anker auf das Raster (V-12: die „wachsende“ Liste wurde mit 74 Karten gemessen und verworfen – Pfaddaten über
+// PF-10, LCP bei Direktaufruf deutlich später; OFFENE-PUNKTE P20.3), Preis-Fußnote einmal je Seite (R-030) und
+// Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll bedienbar. Seiten > letzte
 // Seite → 404. Verkaufte Stücke (R02/R03) nur als kurze Reihe unter der letzten Seite mit Link „Archiv ansehen“
 // (U-57 c). Ganz unten im Shop (R02) die Fragen zum Shop (V-19, FAQ-Kategorie `shop`). JSON-LD `BreadcrumbList`
 // (Start → Shop → Kategorie bzw. Start → Archiv, P3.13).
@@ -144,13 +145,11 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
 
   const base = basePath(routeId, locale, category)
   const title = routeId === 'R03' && category ? category.name : tRoutes(routeId)
-  // V-12: „Mehr zeigen“ verlängert die Liste und springt zum ersten neuen Stück (ohne JavaScript per Anker).
-  const moreHref = result.hasNextPage
-    ? `${base}${listSearch({ ...list, category: archiveCategory?.slug, page: page + 1 })}#${pageAnchor(page + 1)}`
-    : null
-  // Sofort laden: auf Seite 1 die ersten Karten, auf Folgeseiten die ersten neuen (dorthin springt der Anker).
-  const eagerFrom = page > 1 ? result.firstOfPage : 0
-  const isEager = (index: number) => index >= eagerFrom && index < eagerFrom + EAGER_CARDS
+  // V-12: Seiten-Leiste mit „Seite 2 von 4“; Zurück/Weiter landen per Anker beim Raster (auch ohne JavaScript).
+  const pageHref = (n: number) =>
+    `${base}${listSearch({ ...list, category: archiveCategory?.slug, page: n })}#${LIST_ANCHOR}`
+  const nextHref = result.hasNextPage ? pageHref(page + 1) : null
+  const prevHref = page > 1 ? pageHref(page - 1) : null
   const hasCards = result.docs.length > 0
   const hasSoldRow = soldRow.length > 0
   const archiveHref = `${localizedPath('R05', locale)}${listSearch({
@@ -239,7 +238,7 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
       ) : null}
 
       {hasCards ? (
-        <section className={styles.listing} aria-labelledby="list-heading">
+        <section id={LIST_ANCHOR} className={styles.listing} aria-labelledby="list-heading">
           <h2 id="list-heading" className="u-sr-only">
             {t('shop.list.heading')}
           </h2>
@@ -255,45 +254,40 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
               }
               {...(archive ? {} : statusLabelAttrs((key) => t(`shop.card.${key}`)))}
             >
-              {result.docs.map((product, index) => {
-                // Erstes neues Stück einer Folgeseite: Sprungziel von „Mehr zeigen“ (V-12).
-                const id = page > 1 && index === result.firstOfPage ? pageAnchor(page) : undefined
-                // Karten mit faulen Fotos als statisches HTML (nicht hydriert, TBT P7); die sofort geladenen (eager,
-                // KO-07) bleiben normal gerendert, damit ihre Vorlade-Hinweise im <head> bleiben.
-                const card = (
-                  <ProductCard
-                    product={product}
-                    locale={locale}
-                    index={isEager(index) ? 0 : EAGER_CARDS}
-                  />
-                )
-                return isEager(index) ? (
-                  <li key={product.id} id={id} className={styles.cell} data-leash-anchor="tag">
-                    {card}
+              {result.docs.map((product, index) =>
+                // Karten mit faulen Fotos als statisches HTML (nicht hydriert, TBT P7); die ersten (eager, KO-07)
+                // bleiben normal gerendert, damit ihre Vorlade-Hinweise im <head> bleiben.
+                index < EAGER_CARDS ? (
+                  <li key={product.id} data-leash-anchor="tag">
+                    <ProductCard product={product} locale={locale} index={index} />
                   </li>
                 ) : (
-                  <StaticHtml
-                    as="li"
-                    key={product.id}
-                    id={id}
-                    className={styles.cell}
-                    data-leash-anchor="tag"
-                  >
-                    {card}
+                  <StaticHtml as="li" key={product.id} data-leash-anchor="tag">
+                    <ProductCard product={product} locale={locale} index={index} />
                   </StaticHtml>
-                )
-              })}
+                ),
+              )}
             </ul>
           </div>
-          {moreHref ? (
-            <div className={styles.more}>
-              <Button variant="secondary" href={moreHref} data={{ 'data-list-more': '' }}>
-                {t('shop.list.more')}{' '}
-                <span className={styles.moreCount}>
-                  {t('shop.list.moreCount', { count: result.remaining })}
-                </span>
-              </Button>
-            </div>
+          {result.totalPages > 1 ? (
+            <nav className={styles.pager} aria-label={t('shop.list.pagerLabel')} data-list-pager="">
+              {prevHref ? (
+                <Button variant="secondary" href={prevHref} data={{ 'data-list-prev': '' }}>
+                  {t('shop.list.prev')}
+                </Button>
+              ) : null}
+              <p className={styles.pageOf} data-list-page-of="">
+                {t('shop.list.pageOf', { page, total: result.totalPages })}
+              </p>
+              {nextHref ? (
+                <Button variant="secondary" href={nextHref} data={{ 'data-list-more': '' }}>
+                  {t('shop.list.next')}{' '}
+                  <span className={styles.moreCount}>
+                    {t('shop.list.moreCount', { count: result.remaining })}
+                  </span>
+                </Button>
+              ) : null}
+            </nav>
           ) : null}
         </section>
       ) : archive ? (

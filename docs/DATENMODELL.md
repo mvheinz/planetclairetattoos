@@ -1881,6 +1881,7 @@ bis zu 5 Bilder (optional).
 | `objectTypeOther` | text | R bei `sonstiges` | – | – | ≤ 80 | – |
 | `desiredTimeframe` | text | – | – | – | ≤ 120 | – |
 | `budget` | text | – | – | – | ≤ 60 | frei, z. B. „ca. 80 €“ |
+| `similarTo` | number | S | – | – | 1–99 999; nur die öffentliche Objektnummer eines öffentlich sichtbaren Stücks (Formularfeld `nach`, sonst leer), unveränderlich (P20.3, V-20, Migration `p20_inquiry_similar`) | „Anlass: so etwas wie Nr. 115 – {Titel}“ mit Link aufs Stück; nicht in M11/A05 (U-91 a) |
 | `referenceImages` | upload → `private-uploads`, hasMany | – | – | – | max. 5, `purpose = commission_reference` | – |
 | `locale` | select `de`, `en` | R | – | – | – | – |
 | `privacyNoticeVersion` | relationship → `legal-texts` | S, R | – | aktive Datenschutzerklärung | – | Nachweis Hinweis (Art. 13 DSGVO) |

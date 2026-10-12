@@ -681,7 +681,7 @@ test.describe('Vorschau-Datei (KONZEPT §12.7)', () => {
       ])
     }
     for (const variant of [
-      // V-12 (P20.3): kein Schalter „nur verfügbare“ mehr; „Mehr zeigen“ verlängert die Liste (echter Bestand > 24)
+      // V-12 (P20.3): kein Schalter „nur verfügbare“ mehr; „Weiter“ führt auf Seite 2 (echter Bestand > 24)
       ...(INVENTORY === 'bestand' ? ['/de/shop?page=2', '/en/shop?page=2'] : []),
       // Archiv-Filter nur mit verkauften Stücken (Demo-Bestand)
       ...(INVENTORY === 'demo'

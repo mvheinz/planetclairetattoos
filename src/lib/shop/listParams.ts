@@ -42,15 +42,12 @@ export interface ListParams {
   category?: string
   /** `?kind=fresh|healed` (nur R15). */
   kind?: GalleryKindParam
-  /**
-   * `?page=n` ab 2 (Seite 1 ist die Grundform ohne Parameter). Die Shop-Listen wachsen (V-12): Seite n zeigt die Stücke
-   * 1 bis n × 24, „Mehr zeigen“ springt zum ersten neuen Stück.
-   */
+  /** `?page=n` ab 2 (Seite 1 ist die Grundform ohne Parameter; 24 Stücke je Seite). */
   page?: number
 }
 
-/** Anker des ersten neuen Stücks einer Seite der Shop-Listen (`#page-2`, V-12): Ziel von „Mehr zeigen“. */
-export const pageAnchor = (page: number) => `page-${page}`
+/** Anker des Rasters der Shop-Listen (`#liste`): Ziel von „Zurück“/„Weiter“ (V-12) – man landet bei den Stücken. */
+export const LIST_ANCHOR = 'liste'
 
 /** Anker der Fragen zum Shop unten auf R02 (V-19; Link aus „Versand & Rückgabe“ der Produktseite). */
 export const SHOP_FAQ_ANCHOR = 'shop-fragen'
@@ -132,7 +129,7 @@ export function canonicalListUrl(basePath: string, params: ListParams): string {
   return params.page && params.page >= 2 ? `${basePath}?page=${params.page}` : basePath
 }
 
-/** Sichtbare Such-Parameter einer Variante (für Links „Mehr zeigen“, Chips): feste Reihenfolge wie der Schlüssel. */
+/** Sichtbare Such-Parameter einer Variante (für Zurück/Weiter, Chips): feste Reihenfolge wie der Schlüssel. */
 export function listSearch(params: ListParams): string {
   const sp = new URLSearchParams()
   if (params.available) sp.set('available', '1')

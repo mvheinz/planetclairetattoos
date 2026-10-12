@@ -287,10 +287,13 @@ verdrahtet, sondern aus `categories` gelesen.
 - Stück im Status `draft` oder `archived` → 404. Stück `sold` mit `showInArchiveAfterSale=false` → 404-Seite in der Variante
   „Dieses Stück hat schon ein Zuhause“ (HTTP 404, `noindex`, Links zu Shop und Archiv).
 
-**Listen-Parameter:** `?available=1` (R02/R03: nur nicht verkaufte Stücke; R12: nur verfügbare Flash-Motive),
+**Listen-Parameter:** `?available=1` (nur noch R12: nur verfügbare Flash-Motive; den Shop-Schalter „nur verfügbare“ gibt
+es seit P20.3 nicht mehr, V-12 – auf R02/R03 wird `?available=1` wie jeder unbekannte Parameter ignoriert),
 `?category=<slug der Seiten-Sprache>` (nur R05), `?kind=fresh|healed` (nur R15), `?page=2` (Shop-Listen: 24 Stücke je
-Seite, Knopf „Mehr zeigen“ ist ein echter Link). Parameternamen sind in beiden Sprachen gleich. Kanonische URL ohne
-`available`, `category` und `kind`, mit `page` ab Seite 2. Unbekannte Parameter werden ignoriert.
+Seite; Seiten-Leiste „Zurück · Seite 2 von 4 · Weiter (noch 26)“ aus echten Links mit Anker `#liste` auf das Raster,
+V-12). Parameternamen sind in beiden Sprachen gleich. Kanonische URL ohne `available`, `category` und `kind`, mit `page` ab Seite 2. Unbekannte Parameter
+werden ignoriert. R10 (Auftragsarbeiten) liest zwei Vorauswahl-Parameter (V-11 a, V-20): `?art=<Gegenstand>` und
+`?nach=<Nr.>` (§3.10).
 
 **Token (R08, R09):** 32 zufällige Bytes, base64url (43 Zeichen), pro Bestellung bzw. Kasse einmalig; gespeichert wird nur
 der SHA-256-Hash (DATENMODELL §6.8.2, §6.25.2); nie aus `PAYLOAD_SECRET` abgeleitet (ARCHITEKTUR §8.6). Unbekannter
@@ -436,8 +439,12 @@ Link-Liste im Fuß erreichbar.
   der Goth Dogs Berlin (P12.6 füllt ihn), darunter „on Tour“ (§3.1a; bis P16 „Planet Claire on Tour“, U-82). Instagram: nur im Fuß (U-15).
 - **Datenquelle:** `pages` mit `key = home` (Blöcke `hero` und `station`, Texte DE/EN), `settings.business`
   (Name/Geschäftsbezeichnung), Collections `products`, `categories`, `flash`.
-- **Zustände:** Kategorie ohne sichtbare Stücke → Station zeigt Zeichnung, Text „Gerade ist hier nichts – schau bald
-  wieder oder stöbere im Archiv“ und Link auf das Archiv. Kein Flash → Tattoo-Station ohne Motivreihe.
+- **Zustände:** Kategorie ohne sichtbare Stücke → Station bleibt stehen (Zeichnung, Überschrift, Text), aber ohne Link
+  „Alle {Kategorie}“ ins Leere (V-11 a, P20.3): Station **Zeichnungen** → „Gerade ist keine Zeichnung zu haben. Ich zeichne
+  dir gern eine …“ + Knopf **„Zeichnung auf Anfrage“** → R10 mit Vorauswahl „Zeichnung“ (`?art=zeichnung`); andere
+  Kategorien mit Stücken im Archiv → „Gerade ist es hier still … wandere durchs Archiv“ + „Ins Archiv“; ohne Archiv-Stücke
+  → „… frag mich nach einem eigenen Stück“ + „Auf Anfrage“ → R10 (Vorauswahl, wo die Kategorie eindeutig ist). Kein Flash
+  → Tattoo-Station ohne Motivreihe.
 - **Recht:** Preise auf Karten mit Sternchen, Fußnote gemäß §3.4 (Steuer-/Versandhinweis) einmal pro Seite.
 - **SEO/OG:** Titel „Planet Claire – Tattoos & Unikate aus Berlin“; `Organization`-JSON-LD.
 - **Tuschelinie/Coco:** „die große Reise“: Linie zeichnet sich mit dem Scrollen, Coco rennt an der Spitze, wechselt an
@@ -471,12 +478,22 @@ Link-Liste im Fuß erreichbar.
 - **Zweck:** Alle Stücke stöbern, filtern, Verfügbarkeit auf einen Blick.
 - **Blöcke:**
   1. H1 „Shop“, 1 Satz Einleitung (pflegbar).
-  2. Filter-Chips (Links): „Alle“ + je Kategorie → R03; Schalter „nur verfügbare“ (`?available=1`).
-  3. Raster: Karte je Stück = Foto (4:5), Titel, Preisschild (Preis, `Nr. 017`), Zustand. Sortierung: zuerst `available`
-     und `reserved` nach `firstPublishedAt` absteigend, danach `sold` mit `showInArchiveAfterSale=true` nach `soldAt`
-     absteigend. Mit `?available=1` entfallen `sold`.
-  4. „Mehr zeigen“ (Link `?page=n+1`), 24 Stücke je Seite.
+  2. Filter-Chips (Links, mit Kategorie-Kachel): „Alle“ + je Kategorie **mit Inhalt** → R03 (V-11, P20.3: Kategorien ohne
+     verfügbares, reserviertes oder im Archiv sichtbares Stück fehlen und tauchen mit dem ersten Stück von selbst wieder
+     auf; auf R03 bleibt die gerade offene Kategorie stehen). Der Schalter „nur verfügbare“ entfiel mit V-12.
+  3. Raster: Karte je Stück = Foto (4:5), Titel (bis 3 Zeilen), Preisschild (Preis, `Nr. 017`), Kurzangabe (höchstens zwei
+     Maße wie „ca. H 7 cm“ bzw. bei Textil/Caps die Größe, V-13 a), Zustand. Sortierung: `available` und `reserved` nach
+     `firstPublishedAt` absteigend; verkaufte (`sold` mit `showInArchiveAfterSale=true`, nach `soldAt` absteigend) nur als
+     kurze Reihe (höchstens 4) unter der letzten Seite mit „Archiv ansehen“ (U-57 c).
+  4. Seiten-Leiste (V-12, P20.3): „Zurück · Seite 2 von 4 · Weiter (noch 26)“, 24 Stücke je Seite, echte Links
+     `?page=n#liste` (der Anker springt zum Raster, ohne JavaScript gleich). *Umsetzungsnotiz:* Jutta hatte „Mehr zeigen
+     verlängert die Liste“ gewählt; gemessen mit ihren 74 Stücken lag die lange Seite über dem Pfad-Budget der Tuschelinie
+     (PF-10: 60,4 statt ≤ 60 KB, wächst mit jedem Stück) und brauchte beim Direktaufruf deutlich länger bis zum ersten
+     Bild – deshalb wie in der Analyse vorgesehen klassische Seiten mit Seitenzahl (OFFENE-PUNKTE P20.3).
   5. Hinweiszeile: Steuer-/Versandhinweis (Fußnote), „Lieferung innerhalb Deutschlands · Abholung in Berlin möglich“.
+  6. **Fragen zum Shop** (V-19, P20.3): ganz unten die FAQ der Kategorie `shop` (Überschrift „Fragen zum Shop“, Anker
+     `#shop-fragen`, aufklappbar ohne JavaScript; gepflegt wie alle Fragen). Verlinkt aus „Versand & Rückgabe“ der
+     Produktseite und von R25. Nur auf R02, nicht auf den Kategorie-Seiten.
 - **Datenquelle:** `products` (öffentlich: `available`, `reserved`, `sold` mit `showInArchiveAfterSale=true`),
   `categories`, `pages` mit `key = shop` (Einleitung), `settings.shipping` (Lieferzeit, Liefergebiet).
 - **Zustände:** leer (keine Stücke) → Coco + „Gerade ist alles weg – neue Stücke kommen auf Instagram zuerst“ + Archiv-Link.
@@ -486,13 +503,16 @@ Link-Liste im Fuß erreichbar.
 - **Recht:** Preisangaben als Endpreis mit Fußnote (§3.4). Keine Streichpreise (§13).
 - **SEO/OG:** Titel „Shop · Planet Claire“; `BreadcrumbList`.
 - **Tuschelinie:** wird zur **Schnur**, an der die Flohmarkt-Preisschilder hängen (E-77); ruhig, keine Scroll-Choreografie.
-- **AK-3-03** Mit `?available=1` erscheint kein Stück mit Status `sold`.
+- **AK-3-03** Im Raster der Shop-Liste erscheint kein Stück mit Status `sold` (verkaufte nur in der kurzen Reihe darunter).
+  *Umsetzungsnotiz P20.3 (V-12):* Der Schalter `?available=1` entfiel; das Kriterium gilt seitdem für die Liste selbst.
 - **AK-3-04** Ein Stück mit `status=sold` und `showInArchiveAfterSale=false` erscheint auf keiner Liste.
 
 ### 3.3 Shop-Kategorie (R03) [P3]
 
 Wie R02, gefiltert auf eine Kategorie. Zusätzlich H1 = Kategoriename, Einleitungstext der Kategorie (DE/EN). Aktiver
-Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kategorie} · Shop · Planet Claire`.
+Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kategorie} · Shop · Planet Claire`. Eine
+Kategorie ohne Inhalt bleibt unter ihrer Adresse erreichbar (Leerzustand KO-17), fehlt aber in Kacheln, Menü und Sitemap
+(V-11, P20.3).
 
 ### 3.4 Produktseite (R04) [P3]
 
@@ -501,14 +521,21 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
   1. **Galerie:** 1–12 Fotos, wischbar (Scroll-Snap), Zoom per Tipp (Vollbild-Dialog, schließbar mit `Esc`/X), Punkte-Anzeige.
   2. **Titel** (H1).
   3. **Kurzdaten:** `Nr. 017` · „Unikat“ · Kategorie · Maße (z. B. „Ø 14 cm, H 6 cm“).
-  4. **Preisschild:** Preis mit Sternchen; darunter Pflichtzeile Steuerhinweis und Versand:
+  4. **Preisschild:** Preis mit Sternchen; direkt darunter die Versandkosten des Stücks (V-10, P20.3): „+ 8,90 € Versand ·
+     Abholung in Berlin nach Absprache kostenlos“ (Betrag der Versandklasse aus `settings.shipping.rates`, Zone DE, über
+     `formatMoney`; der Abhol-Teil nur bei eingeschalteter Abholung, U-91 b) und „Mehrere Stücke? Versand zahlst du nur
+     einmal.“ (E-25: je Bestellung ein Versand, die größte Klasse zählt). Ohne Tarif bleibt nur der Link „zzgl.
+     Versandkosten“; bei `nur_abholung` und verkauften Stücken entfallen beide Zeilen. Darunter Pflichtzeile Steuerhinweis
+     und Versand:
      - Kleinunternehmerin (E-02): „*Endpreis. Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. zzgl. [Versand](R25)“
      - Regelbesteuerung (Schalter, §4.14): „*inkl. {19|7} % MwSt., zzgl. [Versand](R25)“
      - Lieferzeit: „Lieferzeit 2–5 Werktage“ (`settings.shipping.deliveryTimeText`, E-31, R-035) bzw. bei Versandklasse
        `nur_abholung` „Nur Abholung in Berlin nach Absprache“; in der Nähe des Knopfs der Satz zum Liefergebiet (R-036).
   5. **Pflichtangaben je Kategorie (vor dem Knopf; Wortlaut der Rechtsbausteine `product.*` laut RECHT §6):**
      - `keramik`: Badge je `foodContact`: `deko` → „Deko – nicht für Lebensmittel“ (Standard, E-15) **oder**
-       `lebensmittelecht` → „Lebensmittelecht – Konformitätserklärung ansehen“ (Link R27).
+       `lebensmittelecht` → „Lebensmittelecht – Konformitätserklärung ansehen“ (Link R27). Deko steht hier nur einmal als
+       Abzeichen; der Warnhinweis (Baustein `product.ceramicsDecorative`) steht unter „Herstellerin & Sicherheit“ (V-14,
+       P20.3; R-044 Badge + Warnhinweis bleiben).
      - `textil`, `cap`: Faserzusammensetzung (`fiberComposition`) in Prozent mit amtlichen Bezeichnungen (z. B.
        „100 % Baumwolle“), bei `labelMissing` zusätzlich „Etikett fehlt – Material nach bestem Wissen: {`fiberFreeText`}“
        (E-16, R-043); Größe (`sizeLabel`); Zustand (`condition`, ggf. `conditionNote`); Kennzeichnung „Second-Hand/Vintage“
@@ -527,8 +554,12 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
      - `reserved` durch fremde Kasse → Knopf deaktiviert, Text „Gerade reserviert – schau in 30 Minuten nochmal“ (Minuten
        aus `settings.payment.reservationMinutes`, P18.5).
      - `reserved` durch die eigene Kasse → „Du hast es gerade in der Kasse“ + Link „Zur Kasse“.
-     - `sold` → „sold“-Stempel, Text „Schon verkauft“, Links „Ähnliche Stücke“ (Kategorie) und Archiv.
+     - `sold` → „sold“-Stempel, Text „Schon verkauft“, Links „Etwas Ähnliches anfragen“ (R10 mit `?nach=<Nr.>`, V-20),
+       „Ähnliche Stücke“ (Kategorie) und Archiv.
   7. **Beschreibung** (Rich Text DE/EN, EN fehlt → DE).
+     Die Kaufklausel (U-22, R-140, Baustein `ip.purchaseClause`) steht seit P20.3 (V-14) **nach** Beschreibung und
+     Details-Tabelle, vor „Herstellerin & Sicherheit“ – weiter sichtbar, nur nicht mehr vor der Geschichte des Stücks.
+     Auf dem Handy (< 600 px) ist der Titel etwas kleiner, damit Preis und Versandzeile in den ersten Bildschirm passen.
   8. **Details-Tabelle** (DESIGN KO-09b): Maße, Gewicht (`weightGrams`, ohne Verpackung), Material, Technik, Größe,
      Zustand, Pflegehinweise (je nach Produktart; leere Zeilen entfallen). Das Gewicht steht dort, weil die freigegebene
      Konzeptseite „Maße, Gewicht, Material“ auf der Produktseite zusagt. **Gewichtsformat** (`formatWeight(grams, locale)`
@@ -541,8 +572,8 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
   10. **Versand & Rückgabe kurz:** Versandklasse und Preis (z. B. „Versand als Keramik-Paket 8,90 €“), Abholung möglich
       (außer Stück hat Versandklasse `nur_abholung`), neutraler Hinweis ohne Werbung mit Selbstverständlichkeiten (V-19):
       „Infos zu deinem Widerrufsrecht findest du in der [Widerrufsbelehrung](R24).“ plus Baustein
-      `withdrawal.returnCostsNote` (E-27, Wortlaut nur in ANFORDERUNGEN §6) mit Link [Versand & Zahlung](R25); dazu die
-      harmonisierte Mitteilung zur Gewährleistung (R-049).
+      `withdrawal.returnCostsNote` (E-27, Wortlaut nur in ANFORDERUNGEN §6) mit Link [Versand & Zahlung](R25) und Link
+      „Fragen zum Shop“ (R02 `#shop-fragen`, V-19); dazu die harmonisierte Mitteilung zur Gewährleistung (R-049).
   11. **Mehr aus {Kategorie}:** bis zu 4 andere sichtbare Stücke (nicht `sold`).
 - **Datenquelle:** `products` (+ `media`, `categories`, `conformity-declarations`), `settings.business` (Herstellerin),
   `settings.shipping` (Lieferzeit, Tarife je Versandklasse), `settings.tax` (Steuermodus).
@@ -566,7 +597,7 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
 - **Zweck:** Vergangene Stücke als Portfolio mit „sold“-Stempel (E-14).
 - **Blöcke:** H1 „Archiv“ (EN „Archive“), 1 Satz („Schon ausgezogen – aber schön anzusehen“), Kategorie-Chips
   (`?category=<slug>` [Annahme KA-26: Query statt eigener Route]), Raster aller `sold` mit `showInArchiveAfterSale=true`,
-  nach `soldAt` absteigend, 24 je Seite. Karte zeigt Preis und Stempel. Datenquelle: `products`, `categories`, `pages` mit
+  nach `soldAt` absteigend, 24 je Seite mit derselben Seiten-Leiste wie R02 (V-12). Karte zeigt Preis und Stempel. Datenquelle: `products`, `categories`, `pages` mit
   `key = archive`.
 - **Zustände:** leer → „Noch ist nichts verkauft“ + Shop-Link.
 - **Tuschelinie:** wie Shop (Schnur), Stempel ohne „Knall“-Animation beim Laden (die gibt es nur im Moment des Verkaufs, P9).
@@ -575,7 +606,8 @@ Filter-Chip mit `aria-current="page"`. Unbekannter Slug → 404. SEO-Titel `{Kat
 ### 3.6 Warenkorb (R06) [P4]
 
 Details in §4.2–4.3. Blöcke: H1 „Dein Korb“; Positionen (Foto, Titel, Nr., Preis, „Entfernen“, Status-Warnung);
-Lieferart-Wahl (Versand innerhalb Deutschlands / Abholung in Berlin); Versandkosten (automatisch); Summe; Steuerhinweis;
+Lieferart-Wahl (Versand innerhalb Deutschlands / Abholung in Berlin) mit dem Satz „Mehrere Stücke? Versand zahlst du nur
+einmal.“ statt einer Fachzeile zur Versandklasse (V-10, P20.3); Versandkosten (automatisch); Summe; Steuerhinweis;
 Lieferzeit; Hinweis Liefergebiet („Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache.“);
 **akzeptierte Zahlarten** (Karte, Apple Pay, Google Pay, PayPal, Vorkasse – § 312j Abs. 1 BGB; Baustein
 `cart.paymentAndDeliveryInfo`, R-036); harmonisierte Mitteilung zur Gewährleistung (R-049); Knopf **„Zur Kasse“**.
@@ -615,6 +647,12 @@ widerrufen“ (vorbelegt mit Bestellnummer), Kontakt. Personenbezogene Daten gek
   Kontaktalternative (Mail).
 - **Datenquelle:** `pages` mit `key = commissions` (Texte, Beispielbilder, Block `commissionForm`), Collection
   `inquiries` (schreiben nur über die Server-Action des Formulars, §10).
+- **Vorauswahl über die Adresse (P20.3):** `?art=<Gegenstand>` (z. B. „Zeichnung auf Anfrage“ von der Startseite, V-11 a)
+  wählt „Was soll es werden?“ vor. `?nach=<Nr.>` („Etwas Ähnliches anfragen“ bei einem verkauften Stück, V-20): Über dem
+  Formular steht „So etwas wie Nr. 115: {Titel}“ mit kleinem Foto, die Art des Stücks ist vorausgewählt (Kategorie bzw.
+  Name: Schale, Tasse, Fliese …), und die öffentliche Nummer geht als verstecktes Feld mit der Anfrage mit
+  (`inquiries.similarTo`). Nur öffentlich sichtbare Stücke zählen; unbekannte oder ungültige Werte werden still ignoriert.
+  Kanonische Adresse ohne Parameter. Die Bestätigung M11 nennt den Bezug nicht (U-91 a).
 - **Zustände:** Formular leer / Fehler / gesendet (Bestätigung mit Referenz `AA-2026-0007`) / zu viele Anfragen (429).
 - **Recht:** Hinweis: Auftragsarbeiten werden individuell vereinbart, Bezahlung nicht im Shop; kein Online-Vertrag.
 - **Tuschelinie:** ruhig; Linie führt als Rahmen um das Formular (DESIGN).
@@ -1797,7 +1835,9 @@ Erfolgsseite mit „Link kopieren“ (kanonische DE-URL), „Kurzlink kopieren�
 - Detail: alle Angaben, Bilder (`referenceImages`, nur über kurzlebige signierte Links bzw. authentifizierte Route, nie
   öffentliche URL), interne Notizen (`adminNotes`), Status-Knöpfe (§5.5), **„Antworten“** (öffnet `mailto:` an die
   Anfragende mit Betreff „Deine Anfrage AA-2026-0007“ – Antwort aus Juttas eigenem Postfach), **„Jetzt löschen“** (Dialog;
-  löscht Anfrage und Bilder sofort, Eintrag im `deletion-log`).
+  löscht Anfrage und Bilder sofort, Eintrag im `deletion-log`). Kam die Anfrage über „Etwas Ähnliches anfragen“
+  (`similarTo`, V-20, P20.3), steht unter „Gegenstand“ die Zeile **„Anlass: so etwas wie“** mit Nummer und Namen des
+  Stücks als Link auf das Stück in der Verwaltung.
 - Umfang je Phase: Liste und Detail entstehen in P5 (ohne Daten bis auf den Beispielbestand), das öffentliche Formular in P7.
 
 ### 7.12 Tattoo
@@ -2257,6 +2297,7 @@ Feldnamen und Grenzen laut DATENMODELL §6.17 (`inquiries`), Uploads laut ARCHIT
 | Budget | `budget` | nein | ≤ 60, Freitext (z. B. „ca. 80 €“) |
 | Bilder | `referenceImages` | nein | **0–5**; nur JPEG/PNG/WebP (Prüfung über den Inhalt); Auswahl je Datei ≤ 15 MB; Verkleinerung im Browser auf ≤ 2560 px und ≤ 4 MB; **jedes Bild einzeln** hochgeladen (`POST /api/uploads/commission`, Hosting-Grenze 4,5 MB je Anfrage; größer → 413 mit verständlichem Text) als temporärer Upload (`private-uploads`, Status `pending`, Löschung nach 24 h, falls nicht abgeschickt); Server kodiert neu, entfernt EXIF/GPS, speichert **privat**; Hinweis „Bitte keine Fotos, auf denen Personen erkennbar sind.“ |
 | Sprache | `locale` | automatisch | aus der Route |
+| Anlass-Stück | `nach` → `similarTo` | automatisch | nur über „Etwas Ähnliches anfragen“ (`?nach=<Nr.>`, V-20): öffentliche Objektnummer eines öffentlich sichtbaren Stücks, sonst leer; unveränderlich |
 | Honeypot | `website` (Vorschlag) | – | unsichtbar für Menschen (`aria-hidden`, `tabindex=-1`, `autocomplete=off`); ausgefüllt → **Schein-Erfolg**, nichts gespeichert, keine Mail |
 | Ausfüllzeit | signiertes Zeitstempel-Token | – | Absenden < 3 s nach dem Laden → Schein-Erfolg, nichts gespeichert |
 

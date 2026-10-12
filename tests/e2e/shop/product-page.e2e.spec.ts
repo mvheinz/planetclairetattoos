@@ -113,7 +113,20 @@ test.describe('Produktseite – Aufbau und Reihenfolge', () => {
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'pixel-7', 'nur auf dem Handy')
     await openProduct(page, request, ANCHORS.S01.de)
-    await expect(page.locator('[data-shipping-at-price]')).toBeInViewport()
+    // Gemessen ohne das Band „Vorschau mit Beispieldaten“ (gibt es nur in der Vorschau, nicht auf der echten Seite)
+    const banner = await page
+      .locator('[data-preview-banner]')
+      .evaluateAll((els) => els.reduce((h, e) => h + e.getBoundingClientRect().height, 0))
+    const box = (sel: string) =>
+      page.locator(sel).evaluate((e) => {
+        const r = e.getBoundingClientRect()
+        return { top: r.top + scrollY, bottom: r.bottom + scrollY }
+      })
+    const vh = page.viewportSize()!.height
+    // Preisschild ganz, von der Versandzeile mindestens die erste Zeile bis zur Grundlinie (≈ 16 px bei 14 px Schrift)
+    // im ersten Bildschirm – für den Beispiel-Titel mit zwei Zeilen
+    expect((await box('[data-price-tag="pinned"]')).bottom - banner).toBeLessThanOrEqual(vh)
+    expect((await box('[data-shipping-at-price]')).top - banner).toBeLessThanOrEqual(vh - 16)
     const size = await page
       .locator('h1')
       .evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize))

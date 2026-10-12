@@ -38,8 +38,9 @@ export const PRODUCT_ADMIN_FIELDS = [
 export type PublicProduct = Omit<Product, (typeof PRODUCT_ADMIN_FIELDS)[number]>
 
 /**
- * Eine Listen-Seite. Die Listen wachsen (V-12, U-93): Seite n enthält die Stücke 1 bis n × 24 (`docs`), „Mehr zeigen“
- * führt auf Seite n + 1 und springt zum ersten neuen Stück (`firstOfPage`).
+ * Eine Listen-Seite mit 24 Stücken. V-12 (U-93, P20.3): Die „wachsende“ Liste (Seite n = Stücke 1 bis n × 24) wurde mit
+ * 74 Karten gemessen und verworfen (Pfaddaten über dem Budget PF-10, LCP bei Direktaufruf deutlich später) – es bleibt
+ * bei klassischen Seiten mit „Seite 2 von 4“, Zurück/Weiter und der Zahl der noch folgenden Stücke (`remaining`).
  */
 export interface ProductPage {
   docs: PublicProduct[]
@@ -48,8 +49,6 @@ export interface ProductPage {
   totalDocs: number
   totalPages: number
   hasNextPage: boolean
-  /** Index in `docs` des ersten Stücks, das auf dieser Seite neu dazukommt (Seite 1: 0). */
-  firstOfPage: number
   /** So viele Stücke kommen nach dieser Seite noch („noch 26“). */
   remaining: number
 }
@@ -78,13 +77,13 @@ function pageOf(docs: PublicProduct[], page: number, totalDocs: number): Product
     totalDocs,
     totalPages,
     hasNextPage: page < totalPages,
-    firstOfPage: Math.min((page - 1) * SHOP_PAGE_SIZE, docs.length),
     remaining: Math.max(0, totalDocs - page * SHOP_PAGE_SIZE),
   }
 }
 
-/** IDs der Stücke 1 bis `page` × 24 (die wachsende Liste, V-12). */
-const upToPage = (ids: number[], page: number) => ids.slice(0, page * SHOP_PAGE_SIZE)
+/** IDs der Stücke auf Seite `page` (24 je Seite). */
+const ofPage = (ids: number[], page: number) =>
+  ids.slice((page - 1) * SHOP_PAGE_SIZE, page * SHOP_PAGE_SIZE)
 
 const withCategories = (where: Where, keys?: readonly string[]): Where =>
   keys?.length ? { and: [where, { category: { in: [...keys] } }] } : where
@@ -137,10 +136,10 @@ export interface ShopProductPage extends ProductPage {
 }
 
 /**
- * Shop-Liste R02/R03 (KONZEPT §3.2, U-57 c, V-12): `available` und `reserved` nach `firstPublishedAt` absteigend; Seite
- * n zeigt die ersten n × 24 davon (die Liste wächst), Seitenzahl nur nach diesen. Verkaufte (`sold` mit
- * `showInArchiveAfterSale`, nach `soldAt` absteigend) werden nicht angehängt: Die letzte Seite bekommt höchstens
- * `SHOP_SOLD_ROW` davon als eigene Reihe, der Rest steht im Archiv.
+ * Shop-Liste R02/R03 (KONZEPT §3.2, U-57 c): `available` und `reserved` nach `firstPublishedAt` absteigend, 24 je Seite;
+ * Seitenzahl nur nach diesen. Verkaufte (`sold` mit `showInArchiveAfterSale`, nach `soldAt` absteigend) werden nicht
+ * angehängt: Die letzte Seite bekommt höchstens `SHOP_SOLD_ROW` davon als eigene Reihe, der Rest steht im Archiv. Der
+ * Schalter „nur verfügbare“ entfiel (V-12).
  */
 export async function loadShopProducts(query: ShopListQuery): Promise<ShopProductPage> {
   const page = normalizePage(query.page)
@@ -151,7 +150,7 @@ export async function loadShopProducts(query: ShopListQuery): Promise<ShopProduc
   const totalPages = Math.max(1, Math.ceil(unsold.length / SHOP_PAGE_SIZE))
   const soldRow = page === totalPages ? sold.slice(0, SHOP_SOLD_ROW) : []
   const [docs, soldDocs] = await Promise.all([
-    byIds(upToPage(unsold, page), query.locale),
+    byIds(ofPage(unsold, page), query.locale),
     byIds(soldRow, query.locale),
   ])
   return { ...pageOf(docs, page, unsold.length), sold: soldDocs, soldTotal: sold.length }
@@ -163,17 +162,14 @@ export interface ArchiveListQuery {
   page?: number
 }
 
-/**
- * Archiv R05 (KONZEPT §3.5, AK-3-09): nur `sold` mit `showInArchiveAfterSale`, nach `soldAt` absteigend; wächst wie
- * die Shop-Liste (V-12).
- */
+/** Archiv R05 (KONZEPT §3.5, AK-3-09): nur `sold` mit `showInArchiveAfterSale`, nach `soldAt` absteigend. */
 export async function loadArchiveProducts(query: ArchiveListQuery): Promise<ProductPage> {
   const page = normalizePage(query.page)
   const ids = await sortedIds(
     withCategories(ARCHIVED_SOLD, query.categoryKey ? [query.categoryKey] : undefined),
     ['-soldAt', '-id'],
   )
-  const docs = await byIds(upToPage(ids, page), query.locale)
+  const docs = await byIds(ofPage(ids, page), query.locale)
   return pageOf(docs, page, ids.length)
 }
 
