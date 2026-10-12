@@ -85,7 +85,9 @@ const choose = (id: number, choice: 'repair' | 'replacement') =>
     id,
     data: { customerChoice: choice, customerChoiceAt: '2026-08-05T10:00:00.000Z' },
     overrideAccess: true,
-    context: { now: NOW },
+    // Die Akte entsteht über den Endpunkt mit der echten Uhr: am Tag von `NOW` nach 10:00 UTC läge ihr Eingang sonst in der
+    // Zukunft der festen Uhr („Der Eingang darf nicht in der Zukunft liegen“).
+    context: { now: new Date(Math.max(Date.parse(NOW), Date.now())).toISOString() },
   }) as Promise<Complaint>
 
 const mailRows = (complaintTemplate: string, orderId: number) =>
