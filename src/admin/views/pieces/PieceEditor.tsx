@@ -960,7 +960,19 @@ export function PieceEditor({
                   value={form.nickelEvidence ? String(form.nickelEvidence) : ''}
                   disabled={busy}
                   emptyLabel={adminText('pieceEvidencePickNone')}
-                  options={evidenceOptions.map((o) => ({ value: String(o.id), label: o.label }))}
+                  options={[
+                    ...evidenceOptions,
+                    // gerade neu hochgeladen (noch nicht in der Liste vom Laden der Seite)
+                    ...(form.nickelEvidence &&
+                    !evidenceOptions.some((o) => o.id === form.nickelEvidence)
+                      ? [
+                          {
+                            id: form.nickelEvidence,
+                            label: evidenceName ?? `#${form.nickelEvidence}`,
+                          },
+                        ]
+                      : []),
+                  ].map((o) => ({ value: String(o.id), label: o.label }))}
                   hint={adminText('pieceEvidencePickHint')}
                   onChange={(v) => {
                     set('nickelEvidence', v ? Number(v) : null)

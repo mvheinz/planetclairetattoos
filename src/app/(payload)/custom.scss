@@ -687,7 +687,7 @@ $pc-bar-height: 64px;
 
 @media (min-width: 768px) {
   .pc-pieces__filter {
-    grid-template-columns: 2fr 1fr 1fr auto auto;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
     align-items: end;
   }
 }

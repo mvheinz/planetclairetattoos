@@ -43,7 +43,7 @@ test('@a11y V-31 „zu prüfen“: Sammelzeile unter „Heute“ → Filter → 
   await expect(page.locator(`[data-hint="attention-product-${a.id}"]`)).toHaveCount(0)
   await line.getByRole('link', { name: 'Zu prüfen ansehen' }).click()
   await expect(page).toHaveURL(/\/stuecke\?pruefen=1$/)
-  await expect(page.getByTestId('pieces-review-filter')).toBeChecked()
+  await expect(page.getByTestId('pieces-review-filter')).toHaveValue('1')
   const cardA = cardOf(page, a.itemNumber)
   await expect(cardA.getByTestId('piece-attention')).toContainText('zu prüfen')
   await expect(cardOf(page, b.itemNumber)).toBeVisible()

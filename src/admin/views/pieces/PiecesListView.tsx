@@ -54,7 +54,10 @@ function CardChecks({ card }: { card: PieceCard }) {
           <StatusBadge tone={attention.manual ? 'warning' : 'error'}>
             {attention.manual ? adminText('piecesAttentionReview') : attention.label}
           </StatusBadge>
-          {attention.note ? <span className="pc-pieces__note"> {attention.note}</span> : null}
+          {/* Notiz nur bei Systemgründen – „zu prüfen“ trägt bei 74 Stücken dieselbe lange Notiz (steht im Formular). */}
+          {attention.note && !attention.manual ? (
+            <span className="pc-pieces__note"> {attention.note}</span>
+          ) : null}
         </p>
       ) : null}
       {attention?.manual ? (
@@ -156,18 +159,20 @@ export async function PiecesListView({ adminRoute, req, searchParams }: AdminVie
             ))}
           </select>
         </div>
-        <div className="pc-field pc-field--check">
-          <label className="pc-choice" htmlFor="pieces-review">
-            <input
-              id="pieces-review"
-              name="pruefen"
-              type="checkbox"
-              value="1"
-              defaultChecked={query.review}
-              data-testid="pieces-review-filter"
-            />
-            <span>{adminText('piecesReviewFilter')}</span>
+        <div className="pc-field">
+          <label htmlFor="pieces-review" className="pc-field__label">
+            {adminText('piecesReviewLabel')}
           </label>
+          {/* Auswahl statt Häkchen: kein vorbelegtes Kästchen (RECHT V-03), Filter bleibt ein GET-Formular. */}
+          <select
+            id="pieces-review"
+            name="pruefen"
+            defaultValue={query.review ? '1' : ''}
+            data-testid="pieces-review-filter"
+          >
+            <option value="">{adminText('piecesAll')}</option>
+            <option value="1">{adminText('piecesReviewFilter')}</option>
+          </select>
         </div>
         <p className="pc-admin-row">
           <button type="submit" className="pc-admin-btn pc-admin-btn--primary">

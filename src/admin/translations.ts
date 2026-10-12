@@ -342,7 +342,8 @@ export const ADMIN_CUSTOM_DE = {
   piecesAttentionReview: 'zu prüfen',
   piecesAttentionDone: 'Erledigt',
   piecesAttentionDoneMessage: 'Erledigt – die Markierung ist weg.',
-  piecesReviewFilter: 'Nur „zu prüfen“ zeigen',
+  piecesReviewLabel: 'Prüfen',
+  piecesReviewFilter: 'nur „zu prüfen“',
   // V-32: was fehlt noch, Sammelaktion
   piecesReady: 'fertig',
   piecesMissing: 'fehlt: {{list}}',

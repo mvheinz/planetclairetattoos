@@ -207,8 +207,8 @@ nie – die setzt du bei jedem Stück selbst.
 - **Am Computer (Mac oder PC):** links in der Seitenleiste „Meine Stücke“ → oben **„Alle fertigen online stellen“**
   anklicken → **„Ja, … online stellen“**.
 
-**Zu prüfen:** Stücke aus deiner Bestandsliste tragen die Markierung **„zu prüfen“** (gelb). Mit dem Häkchen
-**„Nur „zu prüfen“ zeigen“** im Filter (oder über die gelbe Zeile unter „Heute“) siehst du nur diese Stücke. Bist du mit
+**Zu prüfen:** Stücke aus deiner Bestandsliste tragen die Markierung **„zu prüfen“** (gelb). Mit der Auswahl
+**„Prüfen: nur „zu prüfen““** im Filter (oder über die gelbe Zeile unter „Heute“) siehst du nur diese Stücke. Bist du mit
 einem Stück durch, tippst (am Computer: klickst) du auf **„Erledigt“** – direkt an der Karte oder oben im Formular des
 Stücks. Beim ersten Online-Stellen verschwindet die Markierung von selbst. Rote Markierungen des Systems (zum Beispiel
 „Konformitätserklärung widerrufen“) haben keinen „Erledigt“-Knopf; sie verschwinden, wenn die Ursache behoben ist.
