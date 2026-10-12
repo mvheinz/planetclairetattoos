@@ -89,16 +89,18 @@ beforeEach(() => {
 describe('P3.15 Statuswechsel über die Admin-Endpunkte: sofort ({ expire: 0 })', () => {
   it('KONZEPT §1.6 publish, unpublish, sell-offline, return-to-stock, archive, restore erneuern product:<id>, products, category:<key>, home, sitemap sofort', async () => {
     const id = await draft()
-    const steps: [string, Record<string, unknown>][] = [
-      ['publish', {}],
-      ['unpublish', {}],
-      ['publish', {}],
-      ['sell-offline', { note: 'Atelier', showInArchive: true }],
-      ['return-to-stock', {}],
-      ['archive', {}],
-      ['restore', {}],
+    // dritter Wert: Das Stück wird öffentlich bzw. hört auf, es zu sein → Menü/Kategorie-Kacheln (`categories`, max;
+    // V-11, P20.3) – sonst nicht (z. B. Verkauf mit Archiv, Rückkehr in den Shop)
+    const steps: [string, Record<string, unknown>, boolean][] = [
+      ['publish', {}, true],
+      ['unpublish', {}, true],
+      ['publish', {}, true],
+      ['sell-offline', { note: 'Atelier', showInArchive: true }, false],
+      ['return-to-stock', {}, false],
+      ['archive', {}, true],
+      ['restore', {}, false],
     ]
-    for (const [name, body] of steps) {
+    for (const [name, body, visibility] of steps) {
       nextCache.revalidateTag.mockClear()
       await action(id, name, body)
       expect(tagsWith(NOW).sort(), name).toEqual(productTagSet(id).sort())
@@ -107,7 +109,7 @@ describe('P3.15 Statuswechsel über die Admin-Endpunkte: sofort ({ expire: 0 })'
         calls().every(([, p]) => p !== undefined),
         name,
       ).toBe(true)
-      expect(tagsWith(MAX), name).toEqual([])
+      expect(tagsWith(MAX), name).toEqual(visibility ? ['categories'] : [])
     }
     expect(nextCache.updateTag).not.toHaveBeenCalled()
   })

@@ -5,7 +5,7 @@ import React from 'react'
 import { ListPage } from '@/components/shop/ListPage'
 import { shopMetadata, toLocale } from '@/components/shop/listRoutes'
 
-// R02 Shop (KONZEPT §3.2): Grundform ohne Parameter; `?page=n` (die Liste wächst, V-12) liefert die statische Variante
+// R02 Shop (KONZEPT §3.2): Grundform ohne Parameter; `?page=n` (Seite n von m, V-12) liefert die statische Variante
 // `shop/variant/[variant]` (Proxy-Umschreibung, Spike B-05). ISR, gezielte Erneuerung über die Tags (§9.3).
 
 export const revalidate = 3600

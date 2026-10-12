@@ -311,7 +311,7 @@ export const IPHONE_CORE: readonly { spec: string; covers: string }[] = [
   {
     spec: 'tests/e2e/shop/shop.e2e.spec.ts',
     covers:
-      'Shop-Liste und Kategorie: Aufbau, Chips, „Mehr zeigen“ verlängert, Fragen zum Shop, ohne JavaScript',
+      'Shop-Liste und Kategorie: Aufbau, Chips, Seiten-Leiste „Seite 2 von 4“, Fragen zum Shop, ohne JavaScript',
   },
   {
     spec: 'tests/e2e/shop/product-page.e2e.spec.ts',

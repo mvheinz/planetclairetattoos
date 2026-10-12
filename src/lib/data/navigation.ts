@@ -12,9 +12,11 @@ import { pickShopDisplaySettings } from '@/lib/shop/displaySettings'
 // Daten für Kopf, Menü und Fuß (KONZEPT §3.0.2/§3.0.3): Kategorien mit `showInNavigation` **und Inhalt** (mindestens
 // ein öffentliches Stück, verfügbar, reserviert oder im Archiv – V-11; leere Kategorien tauchen mit dem ersten Stück von
 // selbst wieder auf), ob eine aktive Konformitätserklärung existiert (Fußlink R27) und der Instagram-Name. Öffentlich
-// gelesen (`getPublicPayload`, Seed-Filter greift), zwischengespeichert (Tags `categories`/`products`/`settings`,
-// spätestens nach 60 s neu). Ist die Datenbank nicht erreichbar, bleibt der Rahmen vollständig: ohne Kategorien und ohne
-// Konformitätslink, Instagram-Standard.
+// gelesen (`getPublicPayload`, Seed-Filter greift), zwischengespeichert (Tags `categories`/`settings`, spätestens nach
+// 60 s neu). Bewusst **ohne** Tag `products`: Den erneuert jede Reservierung sofort, und das Menü steht im Rahmen jeder
+// Seite. Wird ein Stück öffentlich oder hört es auf, es zu sein, erneuert der Produkt-Hook `categories` (≤ 60 s). Ist die
+// Datenbank nicht erreichbar, bleibt der Rahmen vollständig: ohne Kategorien und ohne Konformitätslink,
+// Instagram-Standard.
 
 const log = createLogger()
 
@@ -88,6 +90,6 @@ export async function loadNavigation(locale: Locale): Promise<SiteNavigation> {
 /** Navigationsdaten je Sprache (gecacht). */
 export const getSiteNavigation = (locale: Locale): Promise<SiteNavigation> =>
   unstable_cache(() => loadNavigation(locale), ['site-navigation', locale], {
-    tags: [TAGS.categories, TAGS.products, TAGS.settings, TAGS.page('conformity')],
+    tags: [TAGS.categories, TAGS.settings, TAGS.page('conformity')],
     revalidate: 60,
   })()

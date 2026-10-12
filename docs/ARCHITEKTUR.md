@@ -1898,7 +1898,8 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 
 | Ereignis | Tags | Aufruf | Sichtbar nach |
 |---|---|---|---|
-| Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Offline verkauft“) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` – `products` erneuert seit P20.3 auch Menü und Kategorie-Kacheln (`getSiteNavigation`, `listCategoryKeysWithContent`): Kategorien erscheinen nur mit Inhalt, die erste Veröffentlichung bringt eine leere Kategorie zurück (V-11) | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
+| Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Offline verkauft“) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` – `products` erneuert seit P20.3 auch die Kategorie-Kacheln der Shop-Listen (`listCategoryKeysWithContent`, V-11) | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
+| Stück wird öffentlich oder hört auf, es zu sein (erste Veröffentlichung, Zurückziehen, Archivieren, Verkauf ohne Archiv, Löschen; Produkt-Hook) | zusätzlich `categories` – Menü im Seitenrahmen (`getSiteNavigation`) zeigt nur Kategorien mit Inhalt (V-11, P20.3). Bewusst nicht über `products`: Das Menü steht auf jeder Seite, und `products` erneuert jede Reservierung sofort | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Stück in der Verwaltung bearbeitet | wie oben | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Seite, FAQ, Texte, Einstellungen | `page:<key>`, `faqs`, `site-texts`, `settings` | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Flash, Galerie (auch gelöscht) | `flash`, `tattoo-gallery`, `home` – dieselben Tags erneuern seit P20.5 Menü (`getTattooAvailability` im Seitenrahmen), Unter-Navigation und Sitemap: Flash/Galerie erscheinen dort nur mit Inhalt (V-28 a) | `'max'` | ≤ 60 s |

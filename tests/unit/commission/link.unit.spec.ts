@@ -52,6 +52,10 @@ describe('Anfrage-Links (V-11 a, V-20)', () => {
     expect(objectTypeForProduct('textil', 'T-Shirt „Fledermaus“')).toBe('shirt')
     expect(objectTypeForProduct('textil', 'Stoffbeutel „Vogel in Jeans“')).toBe('textil_sonstiges')
     expect(objectTypeForProduct('sonstiges', 'Irgendwas')).toBeUndefined()
+    // ohne Namen (leere Station auf der Startseite): nur die eindeutigen Kategorien
+    expect(objectTypeForProduct('textil')).toBeUndefined()
+    expect(objectTypeForProduct('keramik', '  ')).toBeUndefined()
+    expect(objectTypeForProduct('cap')).toBe('cap')
   })
 
   it('jede Vorauswahl für den echten Bestand ist ein gültiger Gegenstand', async () => {

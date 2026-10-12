@@ -86,6 +86,8 @@ export function objectTypeForProduct(
 ): InquiryObjectType | undefined {
   const direct = BY_CATEGORY[category]
   if (direct) return direct
-  const name = title ?? ''
+  // ohne Namen (z. B. leere Station „Textil“ auf der Startseite) keine Vermutung – sonst stünde „anderes Textil“ da
+  const name = title?.trim()
+  if (!name) return undefined
   return BY_TITLE.find((r) => r.category === category && r.re.test(name))?.type
 }
