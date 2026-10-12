@@ -9,8 +9,8 @@ import {
   variantParams,
 } from '@/components/shop/listRoutes'
 
-// R02 Shop – statische Listen-Variante (ARCHITEKTUR §9.1, Spike B-05). Der Proxy schreibt `/de/shop?available=1&page=2`
-// intern auf `/de/shop/variant/available-1.page-2` um; die sichtbare und kanonische URL bleibt die Query-Form.
+// R02 Shop – statische Listen-Variante (ARCHITEKTUR §9.1, Spike B-05). Der Proxy schreibt `/de/shop?page=2`
+// intern auf `/de/shop/variant/page-2` um; die sichtbare und kanonische URL bleibt die Query-Form.
 // Bekannte Kombinationen werden beim Build vorgerendert, weitere beim ersten Aufruf (ISR, `dynamicParams`).
 
 export const revalidate = 3600

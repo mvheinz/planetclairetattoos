@@ -102,10 +102,16 @@ export const bestandProductSchema = z
     ownerNote: text().max(500).optional(),
     /**
      * U-86: auf dem Markt (o. Ä.) verkauft, bevor das Stück online war – aus der Spalte „Verkauft“ der Excel-Liste.
-     * `bestand:import` legt es als verkauft an (Markt-Verkauf, nicht im Shop, nicht im Archiv, Umsatz-Wächter).
+     * `bestand:import` legt es als verkauft an (Markt-Verkauf, nicht im Shop, Umsatz-Wächter); ins Archiv nur mit
+     * Häkchen „ins Archiv“ (V-11, `archive`).
      */
     sold: z
       .strictObject({
+        /**
+         * V-11 (U-93): Spalte „ins Archiv“ angekreuzt – das verkaufte Stück erscheint mit sold-Stempel im Archiv. Ohne
+         * Häkchen (Standard, nie vorangekreuzt) bleibt es ausgeblendet: Ungeprüfte Angaben gehen so nie online.
+         */
+        archive: z.literal(true).optional(),
         date: z
           .string()
           .regex(/^\d{4}-\d{2}-\d{2}$/, 'Datum JJJJ-MM-TT')

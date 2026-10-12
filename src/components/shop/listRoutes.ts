@@ -124,15 +124,12 @@ const pageKeys = (totalPages: number, base: ListParams = {}) =>
     variantKey({ ...base, page: i + 2 }),
   )
 
-/** R02: „nur verfügbare“ und alle Folgeseiten nach aktuellem Bestand. */
+/** R02: alle Folgeseiten nach aktuellem Bestand (der Schalter „nur verfügbare“ entfiel mit V-12). */
 export async function shopVariantKeys(locale: Locale): Promise<string[]> {
-  const keys = [variantKey({ available: true })]
+  const keys: string[] = []
   try {
-    const [all, available] = await Promise.all([
-      loadShopProducts({ locale, page: 1 }),
-      loadShopProducts({ locale, availableOnly: true, page: 1 }),
-    ])
-    keys.push(...pageKeys(all.totalPages), ...pageKeys(available.totalPages, { available: true }))
+    const all = await loadShopProducts({ locale, page: 1 })
+    keys.push(...pageKeys(all.totalPages))
   } catch (err) {
     log.warn('shop.static_params_skipped', { reason: errorSummary(err) })
   }
@@ -149,9 +146,9 @@ export async function categorySlugs(locale: Locale): Promise<string[]> {
   }
 }
 
-/** R03-Varianten: „nur verfügbare“ und Folgeseiten der Kategorie. */
+/** R03-Varianten: Folgeseiten der Kategorie. */
 export async function categoryVariantKeys(locale: Locale, slug: string): Promise<string[]> {
-  const keys = [variantKey({ available: true })]
+  const keys: string[] = []
   try {
     const hit = await getCategoryBySlug(locale, slug)
     if (hit && !hit.redirect) {

@@ -12,7 +12,8 @@ import styles from './ResponsiveImage.module.css'
 // `decoding="sync"`).
 // Jedes Foto trägt den Goth-Fotorahmen (`data-photo-frame`, `ResponsiveImage.module.css`, U-13): einzige Stelle für Fotos.
 // Einzige Ausnahme (U-83, P17.3): die Miniaturen unter dem Produktfoto (`frameSize="none"`, `data-photo-frame="none"`) –
-// mit Rahmen blieb vom Foto darin kaum etwas zu sehen.
+// mit Rahmen blieb vom Foto darin kaum etwas zu sehen. Produktkarten (`frameSize="card"`, V-13 a) tragen unter 600 px
+// das schmale Band der kleinen Vorschauen (6 px), darüber den vollen Rahmen.
 
 export type MediaSizeName = 'thumb' | 'card' | 'detail' | 'zoom'
 
@@ -54,10 +55,11 @@ export interface ResponsiveImageProps {
   loading?: 'lazy' | 'eager'
   fetchPriority?: 'high' | 'auto'
   /**
-   * `thumb`: schmales Rahmenband für kleine Vorschauen (≤ 96 px); `none`: ohne Rahmen (nur Galerie-Miniaturen, U-83);
-   * sonst der volle Goth-Rahmen (U-13).
+   * `thumb`: schmales Rahmenband für kleine Vorschauen (≤ 96 px); `card`: Produktkarten – unter 600 px schmal wie
+   * `thumb`, darüber voll (V-13 a); `none`: ohne Rahmen (nur Galerie-Miniaturen, U-83); sonst der volle Goth-Rahmen
+   * (U-13).
    */
-  frameSize?: 'full' | 'thumb' | 'none'
+  frameSize?: 'full' | 'thumb' | 'card' | 'none'
   className?: string
   /** Zusätzliche Klasse am `<img>`. */
   imgClassName?: string
@@ -82,7 +84,13 @@ export function ResponsiveImage({
   const src = media ? fallbackSrc(media, srcSizes) : null
   const frameClass = [
     styles.frame,
-    frameSize === 'thumb' ? styles.thumb : frameSize === 'none' ? styles.plain : '',
+    frameSize === 'thumb'
+      ? styles.thumb
+      : frameSize === 'card'
+        ? styles.card
+        : frameSize === 'none'
+          ? styles.plain
+          : '',
     color ? '' : styles.hatch,
     className,
   ]

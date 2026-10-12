@@ -21,8 +21,9 @@ import { bestandPhotoPath, photosOf, type BestandProduct } from './schema'
 // (Meldung), nie umnummeriert. Jedes Stück hat eine eigene Transaktion.
 //
 // Aus Juttas Excel-Liste (U-85, U-86): „Deine Notiz“ steht oben in der internen Notiz; ein als verkauft eingetragenes
-// Stück wird als **Markt-Verkauf** angelegt (Status „verkauft“, Weg „offline“, nicht im Shop, nicht im Archiv, Preis
-// zählt im Umsatz-Wächter) – auch in der Vorschau-Datei nie „verfügbar“.
+// Stück wird als **Markt-Verkauf** angelegt (Status „verkauft“, Weg „offline“, nicht im Shop, Preis zählt im
+// Umsatz-Wächter) – auch in der Vorschau-Datei nie „verfügbar“. Ins Archiv kommt es nur mit Häkchen „ins Archiv“
+// (V-11, U-93; Standard: nicht im Archiv, damit ungeprüfte Angaben nie online gehen).
 
 /** Kürzel eines Fotos in `media.sourceRef`. */
 export const bestandSourceRef = (file: string): string => `bestand:${file.replace(/\.jpg$/, '')}`
@@ -188,6 +189,8 @@ const SALE_NOTE_MAX = 120
 /**
  * Felder eines als verkauft eingetragenen Stücks (U-86): Verkaufstag mittags (UTC, damit der Tag in Berlin stimmt),
  * sonst `now`; erzielter Preis aus der Liste, sonst der Listenpreis (zählt im Umsatz-Wächter – lieber zu früh warnen).
+ * Im Archiv nur mit Häkchen „ins Archiv“ (V-11, `sold.archive`); sonst ausgeblendet. Die Aktion „Im Archiv zeigen“ in
+ * der Verwaltung (E-14) ändert das jederzeit.
  */
 export function soldData(p: BestandProduct, now: Date): Record<string, unknown> | null {
   if (!p.sold) return null
@@ -202,7 +205,7 @@ export function soldData(p: BestandProduct, now: Date): Record<string, unknown> 
     soldAt: p.sold.date ? `${p.sold.date}T12:00:00.000Z` : now.toISOString(),
     offlineSaleNote: note,
     offlineSalePriceCents: p.sold.priceCents ?? p.priceCents,
-    showInArchiveAfterSale: false,
+    showInArchiveAfterSale: p.sold.archive === true,
   }
 }
 

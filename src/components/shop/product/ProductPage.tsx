@@ -34,6 +34,7 @@ import {
 } from '@/lib/data/shopSettings'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale } from '@/lib/enums'
+import { commissionHref } from '@/lib/commission/link'
 import { getSnippet } from '@/lib/legal/snippets'
 import type { FiberRow } from '@/lib/products/fibers'
 import { localizedPath } from '@/lib/routes/paths'
@@ -49,7 +50,7 @@ import {
   formatItemNumber,
   productPath,
 } from '@/lib/shop/format'
-import { safetyWarningTexts } from '@/lib/shop/productInfo'
+import { safetyWarningTexts, shippingPriceText } from '@/lib/shop/productInfo'
 
 import { ProductGallery } from './ProductGallery'
 import {
@@ -63,9 +64,12 @@ import styles from './ProductPage.module.css'
 
 // Produktseite R04, Blöcke 2–11 (KONZEPT §3.4) in verbindlicher DOM-Reihenfolge – Pflichtangaben stehen vor dem
 // Kaufknopf und nie hinter einem Klick (AK-3-05, AK-3-07): H1 → Kurzdaten (`Nr. 017` · „Unikat“ · Kategorie · Maße) →
-// Preisschild `pinned` mit Steuer-/Versandhinweis und Lieferzeit (R-030, R-031, R-035) → Pflichtangaben je Kategorie
-// (R-043 bis R-046, Bausteine `product.*`) → Abweichungs-Kasten (R-048 Nr. 1) → Kaufbereich je Zustand samt Satz zum
-// Liefergebiet (R-036). Fehlt ein EN-Text, steht der DE-Text mit `lang="de"`. Tuschelinie `product` (DESIGN §9.7,
+// Preisschild `pinned`, direkt darunter die Versandkosten des Stücks („+ 8,90 € Versand · Abholung in Berlin nach
+// Absprache kostenlos“, „Mehrere Stücke? Versand zahlst du nur einmal.“, V-10) mit Steuer-/Versandhinweis und Lieferzeit
+// (R-030, R-031, R-035) → Pflichtangaben je Kategorie (R-043 bis R-046, Bausteine `product.*`; Deko-Keramik als ein
+// Abzeichen, der Warnhinweis steht unter „Herstellerin & Sicherheit“, V-14) → Abweichungs-Kasten (R-048 Nr. 1) →
+// Kaufbereich je Zustand samt Satz zum Liefergebiet (R-036). Die Kaufklausel (U-22) folgt nach Beschreibung und Details
+// (V-14). Fehlt ein EN-Text, steht der DE-Text mit `lang="de"`. Tuschelinie `product` (DESIGN §9.7,
 // U-44): wie im Shop in der Rinne links, Coco läuft an der Leine mit, Kringel an Titel, Preis und den Abschnitten; der
 // Coco-Hüpfer MI-01 (Modul `add-to-cart`) springt mit der Leinen-Coco. „In den Korb“ ist ein Formular
 // mit der Server-Action `addToCart` (P3.11): ohne JavaScript 303 zurück mit `#in-cart` bzw. Meldung (CSS `:target`), mit
@@ -179,6 +183,12 @@ export async function ProductPage({
           en: getSnippet('product.noSpecialWarnings', 'en').text,
         },
   )
+  // V-10: Versandkosten dieser Versandklasse direkt am Preis (DE-Tarif aus den Einstellungen, E-25); ohne Tarif nur der
+  // Link „zzgl. Versandkosten“ (R-030). „Nur Abholung“ sagt die Lieferzeile, verkaufte Stücke brauchen beides nicht.
+  const shipsByParcel = state !== 'sold' && product.shippingClass !== 'nur_abholung'
+  const shippingPrice = shipsByParcel
+    ? shippingPriceText(info.shippingRates, product.shippingClass, locale)
+    : null
   const similarHref = category
     ? localizedPath('R03', locale, { slug: category.slug })
     : localizedPath('R02', locale)
@@ -212,10 +222,10 @@ export async function ProductPage({
       </p>
       <ul className={styles.soldLinks}>
         <li>
-          {/* U-57 b: verkauft → Auftragsarbeiten (R10) */}
+          {/* U-57 b: verkauft → Auftragsarbeiten (R10); V-20: mit Bezug auf dieses Stück (`?nach=115`) */}
           <Button
             variant="secondary"
-            href={localizedPath('R10', locale)}
+            href={commissionHref(locale, { similarTo: product.itemNumber })}
             data={{ 'data-ask-similar': '' }}
           >
             {t('askSimilar')}
@@ -287,6 +297,22 @@ export async function ProductPage({
             stampSlot
           />
         </div>
+        {shippingPrice ? (
+          <p className={styles.shipAt} data-shipping-at-price={product.shippingClass}>
+            {t('shippingAtPrice', { price: shippingPrice })}
+            {settings.pickupEnabled ? (
+              <span data-shipping-at-price-pickup="">
+                {' · '}
+                {t('shippingAtPricePickup', { city: pickupCity })}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+        {shipsByParcel ? (
+          <p className={styles.shipOnce} data-shipping-once="">
+            {t('shippingOnce')}
+          </p>
+        ) : null}
         <PriceFootnote
           locale={locale}
           settings={taxSettingsFor(settings.taxMode)}
@@ -316,12 +342,9 @@ export async function ProductPage({
               </Note>
             </>
           ) : (
-            <>
-              <Badge locale={locale} kind="decorative" />
-              <Note name="ceramicsDecorative">
-                {getSnippet('product.ceramicsDecorative', locale).text}
-              </Note>
-            </>
+            // V-14: ein Abzeichen statt Abzeichen und gleichlautendem Satz direkt darunter; der Warnhinweis (Baustein
+            // `product.ceramicsDecorative`, R-044) steht unter „Herstellerin & Sicherheit“.
+            <Badge locale={locale} kind="decorative" />
           )
         ) : null}
 
@@ -534,9 +557,6 @@ export async function ProductPage({
 
       {/* Ab hier reines Server-Markup ohne Formulare: statisches HTML, nicht hydriert (`StaticHtml`, TBT P7). */}
 
-      {/* Kaufklausel: nur das Unikat, keine Rechte am Motiv (U-22 b, Baustein `ip.purchaseClause`) */}
-      <IpNotice locale={locale} kind="purchase" />
-
       {/* 7. Beschreibung und „Jutta sagt“ */}
       <StaticHtml {...coil('description', 0, 'spiral')}>
         <ProductDescription product={product} locale={locale} langOf={de} />
@@ -546,6 +566,10 @@ export async function ProductPage({
       <StaticHtml>
         <ProductDetails product={product} locale={locale} langOf={de} />
       </StaticHtml>
+
+      {/* Kaufklausel: nur das Unikat, keine Rechte am Motiv (U-22 b, Baustein `ip.purchaseClause`) – sichtbar nach
+          Beschreibung und Details (V-14: erst das Stück, dann das Kleingedruckte) */}
+      <IpNotice locale={locale} kind="purchase" />
 
       {/* 9. Herstellerin & Sicherheit (GPSR) */}
       <StaticHtml {...coil('safety', 1)}>

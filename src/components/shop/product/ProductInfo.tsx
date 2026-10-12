@@ -9,6 +9,7 @@ import type { Locale } from '@/lib/enums'
 import { getSnippet } from '@/lib/legal/snippets'
 import { localizedPath } from '@/lib/routes/paths'
 import { formatItemNumber } from '@/lib/shop/format'
+import { SHOP_FAQ_ANCHOR } from '@/lib/shop/listParams'
 import {
   paragraphs,
   productDetailRows,
@@ -21,7 +22,8 @@ import styles from './ProductPage.module.css'
 // Produktseite R04, Blöcke 7–11 (KONZEPT §3.4), alle ohne Interaktion sichtbar (kein `<details>`, keine Tabs):
 // 7 Beschreibung (+ „Jutta sagt“), 8 Details-Tabelle (DESIGN KO-09b), 9 „Herstellerin & Sicherheit“ (GPSR, R-040 – die
 // Privatadresse steht öffentlich nur hier, V-31), 10 „Versand & Rückgabe kurz“ (R-031; Widerrufshinweis ohne Werbung mit
-// Selbstverständlichkeiten, V-19; Rücksendekosten per Baustein `withdrawal.returnCostsNote`, E-27), 11 „Mehr aus …“.
+// Selbstverständlichkeiten, V-19; Rücksendekosten per Baustein `withdrawal.returnCostsNote`, E-27; Link zu den Fragen zum
+// Shop unten auf R02, V-19 der Analyse 12.10.), 11 „Mehr aus …“.
 
 type LangOf = (field: ProductTextField) => 'de' | undefined
 
@@ -246,6 +248,11 @@ export async function ProductShipping({
           {getSnippet('withdrawal.returnCostsNote', locale).text}{' '}
           <a href={r25} data-shipping-link="">
             {t('costsLink')}
+          </a>
+        </p>
+        <p>
+          <a href={`${localizedPath('R02', locale)}#${SHOP_FAQ_ANCHOR}`} data-shop-faq-link="">
+            {t('faqLink')}
           </a>
         </p>
       </div>

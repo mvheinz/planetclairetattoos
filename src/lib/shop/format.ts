@@ -49,6 +49,44 @@ export function formatDimensions(d: DimensionsInput | null | undefined, locale: 
   return parts.join(', ')
 }
 
+/** Hinweis auf geschätzte Maße in der Maß-Notiz („– geschätzt“, „ca.“, „estimated“, „approx.“). */
+const ESTIMATED_RE = /geschätzt|geschaetzt|estimated|\bca\.|approx|ungefähr|etwa\b/i
+
+const ABOUT: Record<Locale, string> = { de: 'ca.', en: 'approx.' }
+
+/** Höchstens so viele Maße stehen auf einer Produktkarte (V-13 a). */
+export const CARD_FACTS_MAX = 2
+
+export interface CardFactsInput {
+  category: string
+  dimensions?: DimensionsInput | null
+  /** Größe bei Textil/Caps (`sizeLabel` in der Sprache der Seite). */
+  sizeLabel?: string | null
+}
+
+/**
+ * Kurzangabe unter dem Namen einer Produktkarte (V-13 a, U-93): Textil und Caps zeigen die Größe; sonst höchstens zwei
+ * Maße in der Reihenfolge Ø, H, B, T („Ø 8,5 cm, H 5 cm“). Steht in der Maß-Notiz, dass die Maße geschätzt sind, kommt
+ * „ca.“ davor („ca. H 7 cm“). Die Notiz selbst steht nur auf der Produktseite; ohne Zahlen → `''`.
+ */
+export function formatCardFacts(input: CardFactsInput, locale: Locale): string {
+  const textile = input.category === 'textil' || input.category === 'cap'
+  const size = input.sizeLabel?.trim()
+  if (textile && size) return size
+  const d = input.dimensions
+  if (!d) return ''
+  const parts: string[] = []
+  if (d.diameterCm) parts.push(`Ø ${formatNumber(d.diameterCm, locale)}${NBSP}cm`)
+  for (const key of ['heightCm', 'widthCm', 'depthCm'] as const) {
+    const v = d[key]
+    if (v) parts.push(`${DIM_ABBR[key][locale]} ${formatNumber(v, locale)}${NBSP}cm`)
+  }
+  if (parts.length === 0) return ''
+  const note = [pickLocale(d.note, locale), pickLocale(d.note, 'de')].filter(Boolean).join(' ')
+  const facts = parts.slice(0, CARD_FACTS_MAX).join(', ')
+  return ESTIMATED_RE.test(note) ? `${ABOUT[locale]} ${facts}` : facts
+}
+
 /**
  * Faserzusammensetzung (R-043): je Komponente absteigend nach Anteil, amtliche deutsche Bezeichnung; auf `/en`
  * zusätzlich die englische in Klammern. Regeln aus `src/lib/products/fibers.ts`.

@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 
 import { JsonLd } from '@/components/seo/JsonLd'
+import { FaqList } from '@/components/content/FaqList'
 import { PageBlocks } from '@/components/content/PageBlocks'
-import { Icon } from '@/components/icons/Icon'
 import { StaticHtml } from '@/components/StaticHtml'
 import { Button } from '@/components/ui/Button'
 import { Callout } from '@/components/ui/Callout'
@@ -14,17 +14,25 @@ import { getPublicPage } from '@/lib/data/pages'
 import {
   listArchiveCategoryKeys,
   listArchiveProducts,
+  listCategoryKeysWithContent,
   listShopProducts,
   type ProductPage,
   type PublicProduct,
 } from '@/lib/data/products'
 import { getShopDisplaySettings, taxSettingsFor } from '@/lib/data/shopSettings'
+import { listFaqs } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/enums'
 import { localizedPath } from '@/lib/routes/paths'
 import { breadcrumbItems } from '@/lib/seo/breadcrumbs'
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld'
 import { categoryTile, TILE_SIZE } from '@/lib/shop/categoryTiles'
-import { listSearch, variantKey, type ListParams } from '@/lib/shop/listParams'
+import {
+  listSearch,
+  pageAnchor,
+  SHOP_FAQ_ANCHOR,
+  variantKey,
+  type ListParams,
+} from '@/lib/shop/listParams'
 
 import styles from './ListPage.module.css'
 import { PriceFootnote } from './PriceFootnote'
@@ -32,13 +40,15 @@ import { EAGER_CARDS, ProductCard } from './ProductCard'
 import { statusLabelAttrs } from './statusLabels'
 
 // Listen-Seiten des Shops (KONZEPT §3.2, §3.3, §3.5; DESIGN KO-07, KO-08, KO-17, §9.7 `shopString`): Shop (R02),
-// Kategorie (R03) und Archiv (R05) teilen Aufbau und Verhalten – H1, Einleitung, Filter-Chips als echte Links
-// (`aria-current="page"` am aktiven), Hinweis „Shop pausiert“ über dem Raster (die Stücke bleiben sichtbar), Raster aus
-// Produktkarten (jede Karte ist eine Rasterzelle der Tuschelinie: Kringel zwischen den Zeilen, Coco läuft mit, U-44), „Mehr zeigen“ als Link
-// `?page=n+1`, Preis-Fußnote einmal je Seite (R-030) und Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll
-// bedienbar. Seiten > letzte Seite → 404. Verkaufte Stücke (R02/R03) nur als kurze Reihe unter der letzten Seite mit
-// Link „Archiv ansehen“ (U-57 c). JSON-LD `BreadcrumbList` (Start → Shop → Kategorie bzw. Start → Archiv,
-// P3.13).
+// Kategorie (R03) und Archiv (R05) teilen Aufbau und Verhalten – H1, Einleitung, Kategorie-Kacheln als echte Links
+// (`aria-current="page"` am aktiven; im Shop nur Kategorien mit Inhalt, V-11), Hinweis „Shop pausiert“ über dem Raster
+// (die Stücke bleiben sichtbar), Raster aus Produktkarten (jede Karte ist eine Rasterzelle der Tuschelinie: Kringel
+// zwischen den Zeilen, Coco läuft mit, U-44), „Mehr zeigen“ als Link `?page=n+1` – die Liste wird länger (V-12: Seite n
+// zeigt 1 bis n × 24, der Link springt per Anker zum ersten neuen Stück und sagt, wie viele noch kommen), Preis-Fußnote
+// einmal je Seite (R-030) und Lieferzeile. Leerzustände nach KO-17. Ohne JavaScript voll bedienbar. Seiten > letzte
+// Seite → 404. Verkaufte Stücke (R02/R03) nur als kurze Reihe unter der letzten Seite mit Link „Archiv ansehen“
+// (U-57 c). Ganz unten im Shop (R02) die Fragen zum Shop (V-19, FAQ-Kategorie `shop`). JSON-LD `BreadcrumbList`
+// (Start → Shop → Kategorie bzw. Start → Archiv, P3.13).
 
 export type ListRoute = 'R02' | 'R03' | 'R05'
 
@@ -66,12 +76,14 @@ function basePath(routeId: ListRoute, locale: Locale, category?: PublicCategory 
 export async function ListPage({ routeId, locale, list, category }: ListPageProps) {
   const archive = routeId === 'R05'
   const page = list.page ?? 1
-  const [t, tRoutes, settings, content] = await Promise.all([
+  const [t, tRoutes, settings, content, shopFaqs] = await Promise.all([
     getTranslations({ locale }),
     getTranslations({ locale, namespace: 'common.routes' }),
     getShopDisplaySettings(locale),
     routeId === 'R03' ? Promise.resolve(null) : getPublicPage(archive ? 'archive' : 'shop', locale),
+    routeId === 'R02' ? listFaqs('shop', locale) : Promise.resolve([]),
   ])
+  const shopFaqCount = shopFaqs.length
 
   let result: ProductPage
   let chips: Chip[]
@@ -99,41 +111,46 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
       })),
     ]
   } else {
-    const [res, navCategories] = await Promise.all([
+    const [res, navCategories, withContent] = await Promise.all([
       listShopProducts({
         locale,
         categoryKeys: category ? [category.key] : undefined,
-        availableOnly: list.available === true,
         page,
       }),
       listNavCategories(locale),
+      listCategoryKeysWithContent(),
     ])
     result = res
     soldRow = res.sold
-    const keep = listSearch({ available: list.available })
     chips = [
       {
         key: 'all',
         label: t('shop.list.all'),
-        href: `${localizedPath('R02', locale)}${keep}`,
+        href: localizedPath('R02', locale),
         current: routeId === 'R02',
       },
-      ...navCategories.map((c) => ({
-        key: c.key,
-        label: c.name,
-        href: `${localizedPath('R03', locale, { slug: c.slug })}${keep}`,
-        current: category?.key === c.key,
-      })),
+      // V-11: nur Kategorien mit Inhalt; die gerade offene (auch leer) bleibt stehen, damit man sieht, wo man ist.
+      ...navCategories
+        .filter((c) => withContent.includes(c.key) || category?.key === c.key)
+        .map((c) => ({
+          key: c.key,
+          label: c.name,
+          href: localizedPath('R03', locale, { slug: c.slug }),
+          current: category?.key === c.key,
+        })),
     ]
   }
   if (page > result.totalPages) notFound()
 
   const base = basePath(routeId, locale, category)
   const title = routeId === 'R03' && category ? category.name : tRoutes(routeId)
-  const availableHref = `${base}${listSearch({ available: list.available ? undefined : true })}`
+  // V-12: „Mehr zeigen“ verlängert die Liste und springt zum ersten neuen Stück (ohne JavaScript per Anker).
   const moreHref = result.hasNextPage
-    ? `${base}${listSearch({ ...list, category: archiveCategory?.slug, page: page + 1 })}`
+    ? `${base}${listSearch({ ...list, category: archiveCategory?.slug, page: page + 1 })}#${pageAnchor(page + 1)}`
     : null
+  // Sofort laden: auf Seite 1 die ersten Karten, auf Folgeseiten die ersten neuen (dorthin springt der Anker).
+  const eagerFrom = page > 1 ? result.firstOfPage : 0
+  const isEager = (index: number) => index >= eagerFrom && index < eagerFrom + EAGER_CARDS
   const hasCards = result.docs.length > 0
   const hasSoldRow = soldRow.length > 0
   const archiveHref = `${localizedPath('R05', locale)}${listSearch({
@@ -211,26 +228,6 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
             )
           })}
         </ul>
-        {!archive ? (
-          <ul className={styles.options}>
-            <li>
-              <a
-                className={`${styles.chip} ${styles.toggle}`}
-                href={availableHref}
-                data-chip="available"
-                data-active={list.available ? '' : undefined}
-              >
-                <span className={styles.box} aria-hidden="true">
-                  {list.available ? <Icon name="check" size={16} /> : null}
-                </span>
-                {t('shop.list.availableOnly')}
-                {list.available ? (
-                  <span className="u-sr-only"> {t('shop.list.filterOn')}</span>
-                ) : null}
-              </a>
-            </li>
-          </ul>
-        ) : null}
       </nav>
 
       {!archive && !settings.isOpen ? (
@@ -258,25 +255,43 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
               }
               {...(archive ? {} : statusLabelAttrs((key) => t(`shop.card.${key}`)))}
             >
-              {result.docs.map((product, index) =>
-                // Karten mit faulen Fotos als statisches HTML (nicht hydriert, TBT P7); die ersten (eager, KO-07)
-                // bleiben normal gerendert, damit ihre Vorlade-Hinweise im <head> bleiben.
-                index < EAGER_CARDS ? (
-                  <li key={product.id} data-leash-anchor="tag">
-                    <ProductCard product={product} locale={locale} index={index} />
+              {result.docs.map((product, index) => {
+                // Erstes neues Stück einer Folgeseite: Sprungziel von „Mehr zeigen“ (V-12).
+                const id = page > 1 && index === result.firstOfPage ? pageAnchor(page) : undefined
+                // Karten mit faulen Fotos als statisches HTML (nicht hydriert, TBT P7); die sofort geladenen (eager,
+                // KO-07) bleiben normal gerendert, damit ihre Vorlade-Hinweise im <head> bleiben.
+                const card = (
+                  <ProductCard
+                    product={product}
+                    locale={locale}
+                    index={isEager(index) ? 0 : EAGER_CARDS}
+                  />
+                )
+                return isEager(index) ? (
+                  <li key={product.id} id={id} className={styles.cell} data-leash-anchor="tag">
+                    {card}
                   </li>
                 ) : (
-                  <StaticHtml as="li" key={product.id} data-leash-anchor="tag">
-                    <ProductCard product={product} locale={locale} index={index} />
+                  <StaticHtml
+                    as="li"
+                    key={product.id}
+                    id={id}
+                    className={styles.cell}
+                    data-leash-anchor="tag"
+                  >
+                    {card}
                   </StaticHtml>
-                ),
-              )}
+                )
+              })}
             </ul>
           </div>
           {moreHref ? (
             <div className={styles.more}>
-              <Button variant="secondary" href={moreHref}>
-                {t('shop.list.more')}
+              <Button variant="secondary" href={moreHref} data={{ 'data-list-more': '' }}>
+                {t('shop.list.more')}{' '}
+                <span className={styles.moreCount}>
+                  {t('shop.list.moreCount', { count: result.remaining })}
+                </span>
               </Button>
             </div>
           ) : null}
@@ -344,6 +359,20 @@ export async function ListPage({ routeId, locale, list, category }: ListPageProp
             </p>
           ) : null}
         </footer>
+      ) : null}
+
+      {/* V-19: Fragen zum Shop ganz unten (eigener Platz, nicht die Seitenblöcke im Kopf); gepflegt wie alle Fragen
+          unter Texte → Fragen, Kategorie „Shop“. Ohne veröffentlichte Frage entfällt der Abschnitt. */}
+      {routeId === 'R02' && shopFaqCount > 0 ? (
+        <StaticHtml as="div" className={styles.faq}>
+          <FaqList
+            id={SHOP_FAQ_ANCHOR}
+            category="shop"
+            heading={t('shop.list.faqHeading')}
+            locale={locale}
+            data={{ 'data-shop-faq': '' }}
+          />
+        </StaticHtml>
       ) : null}
     </div>
   )

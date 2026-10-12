@@ -40,7 +40,7 @@ afterAll(async () => {
 }, SEED_TIMEOUT)
 
 describe('Seiten (SEED-SPEC §13)', () => {
-  it('Mengen: alle 13 PAGE_KEYS veröffentlicht, 12 FAQ in allen benutzten Kategorien', async () => {
+  it('Mengen: alle 13 PAGE_KEYS veröffentlicht, 19 FAQ in allen benutzten Kategorien', async () => {
     const pages = await findAll(payload, 'pages', { seed: { equals: true } })
     expect(pages).toHaveLength(expectedCount('pages'))
     expect(pages.map((p) => p.key).sort()).toEqual([...PAGE_KEYS].sort())

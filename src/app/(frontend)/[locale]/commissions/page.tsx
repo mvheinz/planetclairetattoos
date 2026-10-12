@@ -11,12 +11,15 @@ import { ResponsiveImage } from '@/components/media/ResponsiveImage'
 import { BookingNotice } from '@/components/tattoo/BookingNotice'
 import tattoo from '@/components/tattoo/Tattoo.module.css'
 import { Callout } from '@/components/ui/Callout'
+import { objectTypeForProduct, parseCommissionParams } from '@/lib/commission/link'
 import { getContactInfo } from '@/lib/data/contact'
 import { loadPublicPage } from '@/lib/data/pages'
+import { getPublicProductByItemNumber } from '@/lib/data/products'
 import { blocksOfType, getTattooSettings, listFaqs } from '@/lib/data/tattoo'
 import type { FaqCategory } from '@/lib/enums'
 import type { Locale } from '@/lib/routes/registry'
 import { routeMetadata } from '@/lib/seo/metadata'
+import { formatItemNumber } from '@/lib/shop/format'
 import { activeBooking } from '@/lib/tattoo/booking'
 import { isMediaPubliclyVisible } from '@/lib/tattoo/visibility'
 import { systemClock } from '@/lib/time'
@@ -32,7 +35,10 @@ export const generateMetadata = routeMetadata('R10')
 // (`key = commissions`) ungecacht; fehlt sie (vor dem Seed P8.7), rendern H1, Hinweis, Formular und Kontaktalternative
 // mit Leerzustand statt 500 (DM-PAGE-01). Kein Kauf-Knopf, kein Preisschild (E-11). Ist der Schalter „Anfragen offen“
 // aus (V-64, `settings.tattoo.inquiriesOpen`), steht über dem Formular der Hinweis „Gerade ausgebucht“; das Formular
-// bleibt erreichbar (konservativ, OFFENE-PUNKTE P20.5).
+// bleibt erreichbar (konservativ, OFFENE-PUNKTE P20.5). Vorauswahl über die Adresse (V-11 a, V-20; `src/lib/commission/
+// link.ts`): `?art=zeichnung` wählt den Gegenstand vor; `?nach=115` (nur öffentliche Stücke) zeigt „So etwas wie Nr. 115 …“
+// mit Bild, wählt die Art des Stücks vor und schickt die Nummer mit der Anfrage mit. Ungültiges wird ignoriert; die
+// kanonische Adresse bleibt ohne Parameter (`routeMetadata`).
 
 const FALLBACK_STEPS = ['1', '2', '3', '4'] as const
 
@@ -41,17 +47,36 @@ const visibleImages = (images: (number | Media)[] | null | undefined): Media[] =
     (m): m is Media => typeof m === 'object' && m !== null && isMediaPubliclyVisible(m),
   )
 
-export default async function CommissionsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function CommissionsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
   await connection()
   const locale = ((await params).locale === 'en' ? 'en' : 'de') as Locale
   setRequestLocale(locale)
-  const [t, tRoutes, page, contact, tattooSettings] = await Promise.all([
+  const prefill = parseCommissionParams(await searchParams)
+  const [t, tRoutes, page, contact, tattooSettings, similar, similarDe] = await Promise.all([
     getTranslations({ locale, namespace: 'commission' }),
     getTranslations({ locale, namespace: 'common.routes' }),
     loadPublicPage('commissions', locale),
     getContactInfo(),
     getTattooSettings(locale),
+    prefill.similarTo
+      ? getPublicProductByItemNumber(prefill.similarTo, locale).catch(() => null)
+      : null,
+    // Art des Stücks aus dem deutschen Namen („Schälchen …“ → Schale), auch auf /en
+    prefill.similarTo && locale !== 'de'
+      ? getPublicProductByItemNumber(prefill.similarTo, 'de').catch(() => null)
+      : null,
   ])
+  // V-20: nur ein öffentliches Stück zählt; sonst bleibt alles wie ohne Parameter
+  const objectType = similar
+    ? objectTypeForProduct(similar.category, (similarDe ?? similar).title)
+    : prefill.objectType
+  const similarPhoto = similar?.images?.find((m): m is Media => typeof m === 'object' && m !== null)
   const booking = activeBooking(tattooSettings.booking, systemClock.now())
   const stepsBlock = blocksOfType(page, 'processSteps')[0]
   const gallery = blocksOfType(page, 'imageGallery')[0]
@@ -160,7 +185,32 @@ export default async function CommissionsPage({ params }: { params: Promise<{ lo
           intro={formBlock?.intro || t('formIntro')}
           successText={formBlock?.successText ?? null}
           contactEmail={contact.email}
-        />
+          objectType={objectType}
+          similarTo={similar ? similar.itemNumber : null}
+        >
+          {similar ? (
+            <figure className={styles.similar} data-commission-similar={similar.itemNumber}>
+              <span className={styles.similarPhoto}>
+                <ResponsiveImage
+                  media={similarPhoto}
+                  aspectRatio="4 / 5"
+                  sizes="72px"
+                  srcSizes={['thumb']}
+                  frameSize="thumb"
+                />
+              </span>
+              <figcaption>
+                <strong>
+                  {t('similarHeading', {
+                    number: formatItemNumber(similar.itemNumber, locale),
+                    title: similar.title ?? '',
+                  })}
+                </strong>{' '}
+                {t('similarText')}
+              </figcaption>
+            </figure>
+          ) : null}
+        </CommissionFormBlock>
 
         {faqBlock || faqs.length > 0 ? (
           <FaqList

@@ -18,6 +18,14 @@
   overflow-wrap: anywhere;
 }
 
+/* V-14: auf dem Handy etwas kleinerer Titel – Preis und Versandzeile rücken in den ersten Bildschirm. */
+@media (max-width: 599.98px) {
+  .title {
+    font-size: 1.875rem;
+    line-height: 1.15;
+  }
+}
+
 /* Anker der Titel-Unterstreichung (Tuschelinie `product`): Start links unter der H1, Ende nach höchstens 22rem. */
 .facts {
   display: flex;
@@ -55,6 +63,17 @@
   gap: var(--space-4);
   /* Platz für den Faden über dem Schild (`pinned` hängt an der Titel-Unterstreichung). */
   padding-top: var(--space-2);
+}
+
+/* V-10: Versandkosten direkt unter dem Preis, darunter „Versand zahlst du nur einmal“. */
+.shipAt {
+  margin: 0;
+  font-weight: 500;
+}
+
+.shipOnce {
+  margin: 0;
+  color: var(--ink-2);
 }
 
 /* Reservierte Coco-Box neben dem Preisschild (48 × 40, Hüpfer MI-01 in P9) – feste Größe, kein CLS. */

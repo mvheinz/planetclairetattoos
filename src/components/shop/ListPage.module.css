@@ -111,54 +111,6 @@
   border-radius: 14px;
 }
 
-.options {
-  display: flex;
-  margin: var(--space-3) 0 0;
-  padding: 0 var(--page-pad) 0 0;
-  list-style: none;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-sizing: border-box;
-  min-height: 40px;
-  margin: 2px 0;
-  padding: 0 14px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--r-btn);
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.chip[aria-current='page'],
-.toggle[data-active] {
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.chip:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-.box {
-  display: inline-grid;
-  place-items: center;
-  box-sizing: border-box;
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid currentColor;
-  border-radius: 4px 3px 5px 3px;
-}
-
 .closed {
   margin-top: var(--space-5);
   max-width: 60ch;
@@ -187,6 +139,23 @@
   display: flex;
   justify-content: center;
   margin-top: var(--space-7);
+}
+
+/* V-12: „noch 26“ im Knopf „Mehr zeigen“ – etwas leiser als der Knopftext. */
+.moreCount {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* Sprungziel „Mehr zeigen“ (`#page-n`): etwas Luft über dem ersten neuen Stück. */
+.cell {
+  scroll-margin-top: var(--space-6);
+}
+
+/* V-19: Fragen zum Shop ganz unten. */
+.faq {
+  max-width: 60ch;
+  margin-top: var(--space-8);
 }
 
 /* U-57 c: kurze Reihe verkaufter Stücke, danach „Archiv ansehen“. */
@@ -225,10 +194,6 @@
 
   .card {
     --tile: 128px;
-  }
-
-  .options {
-    padding-inline: 0;
   }
 
   .grid {

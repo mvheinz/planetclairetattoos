@@ -734,6 +734,7 @@ export const ADMIN_CUSTOM_DE = {
   inquiryBack: 'Zur Liste der Anfragen',
   inquiryData: 'Angaben',
   inquiryObject: 'Gegenstand',
+  inquirySimilar: 'Anlass: so etwas wie',
   inquiryIdea: 'Idee',
   inquiryTimeframe: 'Wunschzeitraum',
   inquiryBudget: 'Budget',

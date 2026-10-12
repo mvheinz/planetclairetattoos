@@ -12,7 +12,8 @@ import type { SitemapData } from '@/lib/seo/sitemap'
 import { hiddenTattooRoutes } from '@/lib/tattoo/pages'
 
 // Daten der Sitemap (KONZEPT §2.5, P3.13): öffentliche Stücke (`available`, `reserved`, `sold` mit
-// `showInArchiveAfterSale`) und alle Kategorien mit ihren Slugs beider Sprachen und `updatedAt`. Gelesen über
+// `showInArchiveAfterSale`) und die Kategorien mit Inhalt (mindestens eines dieser Stücke, V-11 – leere Kategorien
+// bleiben erreichbar, stehen aber nicht in der Sitemap) mit ihren Slugs beider Sprachen und `updatedAt`. Gelesen über
 // `getPublicPayload()` – der Zugriff der Collection blendet Entwürfe, Archiviertes, ausgeblendete Verkäufe und (in
 // Produktion bzw. ohne SEED_PREVIEW_MODE) Seed-Stücke aus; die Bedingungen stehen hier zusätzlich (Abwehr in der
 // Tiefe). Gecacht mit Tag `sitemap` (ARCHITEKTUR §9.3). Leere Tattoo-Unterseiten (Flash ohne veröffentlichtes Motiv,
@@ -40,7 +41,7 @@ export async function loadSitemapData(): Promise<SitemapData> {
       depth: 0,
       pagination: false,
       sort: 'itemNumber',
-      select: { itemNumber: true, slug: true, updatedAt: true },
+      select: { itemNumber: true, slug: true, updatedAt: true, category: true },
     }),
     payload.find({
       collection: 'categories',
@@ -48,20 +49,23 @@ export async function loadSitemapData(): Promise<SitemapData> {
       depth: 0,
       pagination: false,
       sort: 'sortOrder',
-      select: { slug: true, updatedAt: true },
+      select: { key: true, slug: true, updatedAt: true },
     }),
     loadTattooAvailability('de'),
   ])
+  const withContent = new Set(products.docs.map((d) => d.category))
   return {
     products: products.docs.map((d) => ({
       itemNumber: d.itemNumber,
       slug: d.slug as LocalizedValue,
       updatedAt: d.updatedAt,
     })),
-    categories: categories.docs.map((d) => ({
-      slug: d.slug as LocalizedValue,
-      updatedAt: d.updatedAt,
-    })),
+    categories: categories.docs
+      .filter((d) => withContent.has(d.key))
+      .map((d) => ({
+        slug: d.slug as LocalizedValue,
+        updatedAt: d.updatedAt,
+      })),
     hiddenRoutes: hiddenTattooRoutes(tattoo),
   }
 }

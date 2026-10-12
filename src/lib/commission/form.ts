@@ -46,13 +46,19 @@ export const emptyCommissionValues = (): CommissionFormValues => ({
   budget: '',
 })
 
-/** Startzustand beim Rendern von R10 (neues Formular-Token, Zeitfalle beginnt jetzt). */
-export function initialCommissionState(now: Date): CommissionFormState {
+/**
+ * Startzustand beim Rendern von R10 (neues Formular-Token, Zeitfalle beginnt jetzt). `objectType` wählt „Was soll es
+ * werden?“ vor (Link „Zeichnung auf Anfrage“ bzw. „Etwas Ähnliches anfragen“, V-11 a/V-20) – nur ein Vorschlag.
+ */
+export function initialCommissionState(
+  now: Date,
+  prefill: { objectType?: string } = {},
+): CommissionFormState {
   return {
     step: 'form',
     rev: 0,
     token: createCommissionFormToken(now),
-    values: emptyCommissionValues(),
+    values: { ...emptyCommissionValues(), objectType: prefill.objectType ?? '' },
   }
 }
 

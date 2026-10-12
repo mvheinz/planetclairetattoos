@@ -26,6 +26,8 @@ export interface CommissionViewFlow {
   privacyNotice: string
   privacyHref: string
   contactEmail: string | null
+  /** Öffentliche Nummer des Anlass-Stücks („Etwas Ähnliches anfragen“, V-20); geht als verstecktes Feld mit. */
+  similarTo?: number | null
 }
 
 type FormState = Extract<CommissionFormState, { step: 'form' }>

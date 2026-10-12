@@ -19,7 +19,7 @@ const GUIDE = [
   '2. Ändere einfach die Zellen, die nicht stimmen: Name, Preis, Maße, Gewicht, Material, Größe, Fasern … Einen Text bitte nicht mit „-“ oder „=“ beginnen (sonst zeigt die Tabelle einen Fehler).',
   '3. Graue Spalten (Nr., Foto, „Bitte prüfen“) sind nur zum Lesen – dort bitte nichts ändern.',
   '4. „Deine Notiz“: alles, was du mir sagen möchtest (z. B. „Preis noch unsicher“). Bitte keine Namen oder Kontaktdaten von Käufer:innen – die Liste wird dauerhaft gespeichert.',
-  '5. „Verkauft“: Hast du ein Stück verkauft, trag das Datum ein (z. B. 11.10.2026) – gern mit Preis und kurzer Notiz, z. B. „11.10.2026 35 € Markt“. Ohne Datum: „ja“ davor, z. B. „ja Markt“. Leer oder „noch da“ = nicht verkauft. Bitte keine Namen von Käufer:innen.',
+  '5. „Verkauft“: Hast du ein Stück verkauft, trag das Datum ein (z. B. 11.10.2026) – gern mit Preis und kurzer Notiz, z. B. „11.10.2026 35 € Markt“. Ohne Datum: „ja“ davor, z. B. „ja Markt“. Leer oder „noch da“ = nicht verkauft. Bitte keine Namen von Käufer:innen. Soll ein verkauftes Stück mit sold-Stempel im Archiv der Webseite stehen, schreib in „ins Archiv“ ein „ja“ – sonst bleibt es dort weg.',
   '6. Englische Texte musst du nicht anfassen: Änderst du nur das Deutsche, passe ich das Englische an.',
   '7. Zeilen bitte nicht löschen. Neue Stücke bitte nicht hier eintragen, sondern mit Fotos im Chat schicken.',
   '8. Fertig? Datei als Excel sichern und zurückschicken (Anleitung fürs iPad liegt bei).',

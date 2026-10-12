@@ -11,7 +11,7 @@ import {
   variantParams,
 } from '@/components/shop/listRoutes'
 
-// R03 Kategorie – statische Listen-Variante (`?available=1`, `?page=n`; ARCHITEKTUR §9.1, Spike B-05).
+// R03 Kategorie – statische Listen-Variante (`?page=n`; ARCHITEKTUR §9.1, Spike B-05).
 
 export const revalidate = 3600
 export const dynamicParams = true

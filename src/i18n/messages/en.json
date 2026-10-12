@@ -130,6 +130,10 @@
     "stationAll": "All {category}",
     "stationEmpty": "It is quiet here for now. Come back later – or wander through the archive.",
     "stationArchive": "Into the archive",
+    "stationEmptyDrawing": "There’s no drawing to be had right now. I’m happy to draw one for you – tell me what you’d like.",
+    "stationDrawingRequest": "Drawing on request",
+    "stationEmptyRequest": "It is quiet here for now. Come back later – or ask me for a piece of your own.",
+    "stationRequest": "On request",
     "stationProducts": "Pieces: {station}",
     "emptyTitle": "The planet is turning over.",
     "emptyText": "In a moment everything will be back in its place. Until then you can reach me by email.",
@@ -316,15 +320,15 @@
       "emptyAction": "To the archive",
       "filterLabel": "Filter pieces",
       "all": "All",
-      "availableOnly": "available only",
-      "filterOn": "(on)",
       "heading": "Pieces",
       "more": "Show more",
+      "moreCount": "({count} more)",
       "delivery": "Delivery within Germany · Pickup in {city} possible",
       "deliveryNoPickup": "Delivery within Germany",
       "closedFallback": "The shop is asleep for now – ordering isn’t possible at the moment.",
       "soldHeading": "Already found a home",
-      "archiveLink": "View the archive"
+      "archiveLink": "View the archive",
+      "faqHeading": "Questions about the shop"
     },
     "warranty": {
       "title": "Legal guarantee",
@@ -380,6 +384,9 @@
       "archive": "Archive",
       "deliveryArea": "Delivery within Germany only, pickup in {city} by arrangement",
       "deliveryAreaNoPickup": "Delivery within Germany only",
+      "shippingAtPrice": "+ {price} shipping",
+      "shippingAtPricePickup": "free pickup in {city} by arrangement",
+      "shippingOnce": "Several pieces? You only pay shipping once.",
       "fibers": "Material",
       "labelMissing": "Label missing – material to the best of my knowledge: {text}",
       "size": "Size",
@@ -417,7 +424,8 @@
         "pickupOnly": "Pickup only in {city} by arrangement",
         "pickup": "Pickup in {city} possible",
         "withdrawal": "You can find information about your right of withdrawal in the <link>withdrawal policy</link>.",
-        "costsLink": "Shipping & payment"
+        "costsLink": "Shipping & payment",
+        "faqLink": "Questions about the shop"
       },
       "more": "More from {category}",
       "buyBar": "Buy",
@@ -595,7 +603,7 @@
     "deliveryShipping": "Shipping within Germany ({carrier})",
     "deliveryPickup": "Pickup in {city}",
     "deliveryApply": "Apply delivery option",
-    "shippingClassLine": "Shipping class: {shippingClass} – the largest class in your basket applies",
+    "shippingOnce": "Several pieces? You only pay shipping once.",
     "summaryHeading": "Summary",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
@@ -1088,7 +1096,8 @@
     "damageHeading": "Transport damage",
     "damage": "If a piece arrives damaged, please get in touch as soon as you can with a few photos of the parcel and the piece – then I can sort it out with the carrier. Your statutory rights remain unaffected.",
     "returnHeading": "Returns after withdrawal",
-    "withdrawalLink": "Everything about your right of withdrawal is in the <link>withdrawal policy</link>."
+    "withdrawalLink": "Everything about your right of withdrawal is in the <link>withdrawal policy</link>.",
+    "faqLink": "You’ll find more answers in the <link>questions about the shop</link>."
   },
   "privacyExport": {
     "title": "Information about your data",
@@ -1371,6 +1380,8 @@
     "notice": "Commissions are agreed individually: we sort out the offer and details by email, payment doesn't go through this shop, and no online contract is concluded on this page.",
     "formHeading": "Your idea",
     "formIntro": "Tell me what you have in mind. Please no photos of people and no health information.",
+    "similarHeading": "Something like {number}: {title}",
+    "similarText": "Every piece exists only once – I’m happy to make you a new one along those lines. Tell me in the form what you like about it.",
     "formPlaceholder": "The form is coming soon. Until then, feel free to send me an email.",
     "faqHeading": "Questions about commissions",
     "contactHeading": "Prefer a quiet email?",

@@ -1726,6 +1726,10 @@ export interface Inquiry {
   objectTypeOther?: string | null;
   desiredTimeframe?: string | null;
   budget?: string | null;
+  /**
+   * Die Anfrage kam über „Etwas Ähnliches anfragen“ bei diesem verkauften Stück (öffentliche Nummer).
+   */
+  similarTo?: number | null;
   referenceImages?: (number | PrivateUpload)[] | null;
   locale: 'de' | 'en';
   privacyNoticeVersion: number | LegalText;
@@ -3834,6 +3838,7 @@ export interface InquiriesSelect<T extends boolean = true> {
   objectTypeOther?: T;
   desiredTimeframe?: T;
   budget?: T;
+  similarTo?: T;
   referenceImages?: T;
   locale?: T;
   privacyNoticeVersion?: T;

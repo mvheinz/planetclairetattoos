@@ -2,7 +2,7 @@
 // Framework- und Payload-Importe und ohne Pfad-Aliasse: Der Proxy (`src/proxy.ts`) nutzt es ohne Datenbank (§9.5).
 //
 // Der Proxy übersetzt bekannte Query-Parameter in ein internes Pfad-Segment `…/variant/<schlüssel>` (Schlüssel
-// alphabetisch, Werte validiert, z. B. `available-1.page-2`); sichtbare und kanonische URL bleibt die Query-Form.
+// alphabetisch, Werte validiert, z. B. `category-keramik.page-2`); sichtbare und kanonische URL bleibt die Query-Form.
 // Unbekannte Parameter werden verworfen, ungültige Werte wie fehlend behandelt.
 
 import {
@@ -17,12 +17,13 @@ import {
 export { LIST_ROUTE_IDS, LIST_VARIANT_SEGMENT, type ListRouteId }
 
 /**
- * Parameter je Liste (KONZEPT §2.3, §9.2): `available` R02/R03/R12, `category` nur R05, `kind` nur R15 (Galerie
- * `fresh`/`healed`), `page` bei den Shop-Listen (Flash und Galerie zeigen alles auf einer Seite).
+ * Parameter je Liste (KONZEPT §2.3, §9.2): `available` nur noch R12 (Flash; der Shop-Schalter „nur verfügbare“ entfiel mit
+ * V-12 – `?available=1` auf R02/R03 wird wie jeder unbekannte Parameter ignoriert), `category` nur R05, `kind` nur R15
+ * (Galerie `fresh`/`healed`), `page` bei den Shop-Listen (Flash und Galerie zeigen alles auf einer Seite).
  */
 export const LIST_PARAMS: Readonly<Record<ListRouteId, readonly ListParamName[]>> = {
-  R02: ['available', 'page'],
-  R03: ['available', 'page'],
+  R02: ['page'],
+  R03: ['page'],
   R05: ['category', 'page'],
   R12: ['available'],
   R15: ['kind'],
@@ -35,15 +36,24 @@ export const GALLERY_KINDS = ['fresh', 'healed'] as const
 export type GalleryKindParam = (typeof GALLERY_KINDS)[number]
 
 export interface ListParams {
-  /** `?available=1`: nur nicht verkaufte Stücke. */
+  /** `?available=1`: nur verfügbare Flash-Motive (R12). */
   available?: true
   /** `?category=<slug der Seiten-Sprache>` (nur R05). */
   category?: string
   /** `?kind=fresh|healed` (nur R15). */
   kind?: GalleryKindParam
-  /** `?page=n` ab 2 (Seite 1 ist die Grundform ohne Parameter). */
+  /**
+   * `?page=n` ab 2 (Seite 1 ist die Grundform ohne Parameter). Die Shop-Listen wachsen (V-12): Seite n zeigt die Stücke
+   * 1 bis n × 24, „Mehr zeigen“ springt zum ersten neuen Stück.
+   */
   page?: number
 }
+
+/** Anker des ersten neuen Stücks einer Seite der Shop-Listen (`#page-2`, V-12): Ziel von „Mehr zeigen“. */
+export const pageAnchor = (page: number) => `page-${page}`
+
+/** Anker der Fragen zum Shop unten auf R02 (V-19; Link aus „Versand & Rückgabe“ der Produktseite). */
+export const SHOP_FAQ_ANCHOR = 'shop-fragen'
 
 /** Höchste zulässige Seitenzahl (Schutz vor beliebig vielen Varianten). */
 export const MAX_LIST_PAGE = 999

@@ -7,8 +7,10 @@ import { ProductCard } from '@/components/shop/ProductCard'
 import { TattooTeaser, type TattooTeaserData } from '@/components/tattoo/TattooTeaser'
 import { Button } from '@/components/ui/Button'
 import type { LoopKind } from '@/leash/types'
+import { commissionHref, objectTypeForProduct } from '@/lib/commission/link'
 import type { HomeStation as HomeStationData } from '@/lib/data/home'
 import type { PublicProduct } from '@/lib/data/products'
+import type { ProductCategory } from '@/lib/enums'
 import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 
@@ -22,7 +24,9 @@ export const stationAnchor = (stationId: string) => `station-${stationId}`
 // Station der Startseite (DESIGN KO-21, §11.4): Stationsmarke (Planet/Stern, MI-12) + Kicker „Station 01“ (Plex Mono)
 // · H2 (Spectral) · Text · Stationszeichnung · Link „Alle …“. Kategorie-Stationen (P3.12) zeigen darunter bis zu 4 Karten
 // (KO-07 ohne Schnur, Schild `pinned` am Kartenfuß, Fotos `lazy`) und danach „Alle {Kategorie}“ → R03; ohne sichtbare
-// Stücke den Leerzustand „Gerade ist hier nichts …“ mit Link aufs Archiv (KONZEPT §3.1). Anker der Tuschelinie
+// Stücke den Leerzustand ohne „Alle …“ (keine leeren Seiten, V-11 a): Zeichnungen → „Zeichnung auf Anfrage“ (Formular
+// R10 mit Vorauswahl „Zeichnung“), sonst „Ins Archiv“, wenn dort Stücke der Kategorie wohnen, und andernfalls „Auf
+// Anfrage“ (KONZEPT §3.1). Anker der Tuschelinie
 // (`data-leash-station`) mit Coco-Pose aus `cocoPose` und der Schlaufe laut Choreografie §11.4: am Kicker bzw. – für
 // `lasso` (Keramik, Schmuck, ab 1200 px) und `contour` (Textil, Tattoo) – an der Stationszeichnung.
 
@@ -47,6 +51,7 @@ export async function HomeStation({
   locale,
   products = null,
   tattoo = null,
+  archiveCategories = [],
 }: {
   station: HomeStationData
   locale: Locale
@@ -54,6 +59,8 @@ export async function HomeStation({
   tattoo?: TattooTeaserData | null
   /** Karten der Kategorie-Station (`listStationProducts`); `null` bei Stationen ohne Stücke (Tattoo). */
   products?: PublicProduct[] | null
+  /** Kategorien mit Stücken im Archiv (`listArchiveCategoryKeys`) – Ziel des Leerzustands (V-11). */
+  archiveCategories?: readonly ProductCategory[]
 }) {
   const t = await getTranslations({ locale, namespace: 'home' })
   const loop = loopFor(station.stationId, station.number)
@@ -72,20 +79,22 @@ export async function HomeStation({
   const art = <StationArt stationId={station.stationId} />
   const pose = station.pose ?? undefined
   const shelf = station.categories !== null && products !== null
-  const allLink = station.link ? (
-    <p className={shelf ? styles.all : styles.more} data-station-all={shelf ? '' : undefined}>
-      <Button
-        variant="secondary"
-        href={station.link.href}
-        icon={station.link.external ? ICON_EXTERNAL : undefined}
-      >
-        {station.link.label ??
-          (shelf && station.categoryName
-            ? t('stationAll', { category: station.categoryName })
-            : t('stationMore'))}
-      </Button>
-    </p>
-  ) : null
+  const emptyShelf = shelf && products.length === 0
+  const allLink =
+    station.link && !emptyShelf ? (
+      <p className={shelf ? styles.all : styles.more} data-station-all={shelf ? '' : undefined}>
+        <Button
+          variant="secondary"
+          href={station.link.href}
+          icon={station.link.external ? ICON_EXTERNAL : undefined}
+        >
+          {station.link.label ??
+            (shelf && station.categoryName
+              ? t('stationAll', { category: station.categoryName })
+              : t('stationMore'))}
+        </Button>
+      </p>
+    ) : null
 
   return (
     <section
@@ -137,16 +146,54 @@ export async function HomeStation({
               ))}
             </ul>
           ) : (
-            <p className={styles.empty} data-station-empty="">
-              <span>{t('stationEmpty')}</span>
-              <Button variant="secondary" href={localizedPath('R05', locale)}>
-                {t('stationArchive')}
-              </Button>
-            </p>
+            <StationEmpty
+              categories={station.categories ?? []}
+              archiveCategories={archiveCategories}
+              locale={locale}
+            />
           )}
           {allLink}
         </div>
       ) : null}
     </section>
+  )
+}
+
+/**
+ * Leerzustand einer Kategorie-Station (V-11 a): nie ein Weg ins Leere. Zeichnungen → „Zeichnung auf Anfrage“ (R10 mit
+ * Vorauswahl), Kategorien mit Archiv-Stücken → „Ins Archiv“, sonst → „Auf Anfrage“ (R10, Vorauswahl wo eindeutig).
+ */
+async function StationEmpty({
+  categories,
+  archiveCategories,
+  locale,
+}: {
+  categories: readonly ProductCategory[]
+  archiveCategories: readonly ProductCategory[]
+  locale: Locale
+}) {
+  const t = await getTranslations({ locale, namespace: 'home' })
+  const first = categories[0]
+  const kind = categories.includes('zeichnung')
+    ? 'drawing'
+    : categories.some((c) => archiveCategories.includes(c))
+      ? 'archive'
+      : 'request'
+  const href =
+    kind === 'archive'
+      ? localizedPath('R05', locale)
+      : commissionHref(locale, { objectType: first ? objectTypeForProduct(first) : undefined })
+  const text = {
+    drawing: [t('stationEmptyDrawing'), t('stationDrawingRequest')],
+    archive: [t('stationEmpty'), t('stationArchive')],
+    request: [t('stationEmptyRequest'), t('stationRequest')],
+  }[kind]
+  return (
+    <p className={styles.empty} data-station-empty={kind}>
+      <span>{text[0]}</span>
+      <Button variant="secondary" href={href} data={{ 'data-station-empty-action': kind }}>
+        {text[1]}
+      </Button>
+    </p>
   )
 }

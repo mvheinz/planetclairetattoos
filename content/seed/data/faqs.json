@@ -154,5 +154,96 @@
       "de": "Ja. Eine Cap, auf der dein Hund wohnt, ein Teller zur Hochzeit, eine Zeichnung – schreib mir über das Formular bei den Auftragsarbeiten. Ich antworte mit einem Angebot per Mail; bezahlt wird nicht über den Shop. Fremde Figuren aus Comics, Filmen oder von Marken male ich nicht.",
       "en": "Yes. A cap where your dog lives, a plate for a wedding, a drawing – write to me through the form on the commissions page. I answer with an offer by email; payment does not go through the shop. I do not paint characters from comics, films or brands."
     }
+  },
+  {
+    "key": "FAQ13",
+    "category": "shop",
+    "sortOrder": 20,
+    "question": {
+      "de": "Gibt es das nochmal?",
+      "en": "Can I get it again?"
+    },
+    "answer": {
+      "de": "Nein – jedes Stück mache ich nur ein einziges Mal, nachbestellen lässt sich nichts. Gefällt dir etwas, das schon verkauft ist, tipp auf seiner Seite auf „Etwas Ähnliches anfragen“: Dann mache ich dir gern ein neues Stück in der Art. Genau gleich wird es nie – das gehört dazu.",
+      "en": "No – I make each piece only once, so nothing can be reordered. If you like something that has already sold, tap “Ask for something similar” on its page: I’m happy to make you a new piece along those lines. It will never be exactly the same – that’s part of it."
+    }
+  },
+  {
+    "key": "FAQ14",
+    "category": "shop",
+    "sortOrder": 30,
+    "question": {
+      "de": "Sind die Shirts neu?",
+      "en": "Are the shirts new?"
+    },
+    "answer": {
+      "de": "Nein. Alle Textilien und Caps sind Second-Hand: Ich finde sie gebraucht und bemale sie von Hand. Bei jedem Stück steht, in welchem Zustand es ist – und wenn es eine Macke hat, steht auch die dabei.",
+      "en": "No. All textiles and caps are second-hand: I find them used and paint them by hand. Each piece says what condition it is in – and if it has a flaw, that is listed too."
+    }
+  },
+  {
+    "key": "FAQ15",
+    "category": "shop",
+    "sortOrder": 40,
+    "question": {
+      "de": "Wie verpackst du Keramik?",
+      "en": "How do you pack ceramics?"
+    },
+    "answer": {
+      "de": "Gut gepolstert und fest in einem stabilen Karton, damit unterwegs nichts klappert – so, wie ich es selbst gern bekommen würde.",
+      "en": "Well padded and snug in a sturdy box, so nothing rattles on the way – the way I’d like to receive it myself."
+    }
+  },
+  {
+    "key": "FAQ16",
+    "category": "shop",
+    "sortOrder": 50,
+    "question": {
+      "de": "Was, wenn etwas kaputt ankommt?",
+      "en": "What if something arrives broken?"
+    },
+    "answer": {
+      "de": "Dann melde dich bitte möglichst schnell bei mir, am besten mit ein paar Fotos von Paket und Stück – ich kümmere mich darum. Deine gesetzlichen Rechte bleiben davon unberührt.",
+      "en": "Then please get in touch as soon as you can, ideally with a few photos of the parcel and the piece – I’ll take care of it. Your statutory rights remain unaffected."
+    }
+  },
+  {
+    "key": "FAQ17",
+    "category": "shop",
+    "sortOrder": 60,
+    "question": {
+      "de": "Kann ich abholen?",
+      "en": "Can I pick up my piece?"
+    },
+    "answer": {
+      "de": "Wenn Abholung gerade möglich ist, ja: Dann wählst du in der Kasse „Abholung in Berlin“ – kostenlos, den Termin machen wir per Mail aus. Ob es gerade geht, siehst du bei jedem Stück direkt unter dem Preis.",
+      "en": "Yes, whenever pickup is available: choose “Pickup in Berlin” at checkout – it’s free, and we arrange the time by email. Whether it’s possible right now is shown right under the price of each piece."
+    }
+  },
+  {
+    "key": "FAQ18",
+    "category": "shop",
+    "sortOrder": 70,
+    "question": {
+      "de": "Kann ich etwas zurückgeben?",
+      "en": "Can I return something?"
+    },
+    "answer": {
+      "de": "Als Verbraucherin oder Verbraucher hast du bei Käufen im Shop ein gesetzliches Widerrufsrecht. Wie es geht, wie lange es gilt und wer die Rücksendung bezahlt, steht in der Widerrufsbelehrung. Erklären kannst du den Widerruf zum Beispiel über „Vertrag widerrufen“ unten auf jeder Seite.",
+      "en": "As a consumer you have a statutory right of withdrawal for purchases in the shop. How it works, how long it lasts and who pays for the return is explained on the Right of withdrawal page. You can declare your withdrawal, for example, via “Withdraw from contract here” at the bottom of every page."
+    }
+  },
+  {
+    "key": "FAQ19",
+    "category": "shop",
+    "sortOrder": 80,
+    "question": {
+      "de": "Versendest du ins Ausland?",
+      "en": "Do you ship abroad?"
+    },
+    "answer": {
+      "de": "Im Moment nicht – ich verschicke nur innerhalb Deutschlands. Bist du in Berlin, kannst du dein Stück abholen, wenn Abholung gerade möglich ist.",
+      "en": "Not at the moment – I only ship within Germany. If you’re in Berlin, you can collect your piece whenever pickup is available."
+    }
   }
 ]

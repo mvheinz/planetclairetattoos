@@ -53,7 +53,7 @@ describe('Seed-Datendateien (zod, SEED-SPEC §2.1)', () => {
       'RK1:photo-1',
       'RK2:photo-1',
     ])
-    // §13/§14 (P8.7): alle PAGE_KEYS, 12 FAQ
+    // §13/§14 (P8.7): alle PAGE_KEYS, 19 FAQ (7 Shop-Fragen aus P20.3, V-19)
     expect([...data.pages.map((p) => p.key)].sort()).toEqual([...PAGE_KEYS].sort())
     expect(data.faqs).toHaveLength(expectedCount('faqs'))
     // Alle abgeleiteten seedKeys erfüllen das Format (§1.2).
