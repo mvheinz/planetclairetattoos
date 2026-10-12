@@ -97,7 +97,7 @@ export async function renderAdminMonthlyClose(
       ['Saldo', money(d.invoiceTotalCents - d.creditNoteTotalCents, 'de')],
     ]),
     block.p(
-      'Monats-CSV und Rechnungs-ZIP liegen in der Verwaltung unter „Export“ und können an die Steuerberatung gehen.',
+      'Monats-CSV und Rechnungs-ZIP (mit der Tabelle „Einnahmen außerhalb des Shops“) liegen in der Verwaltung unter „Export“ und können an die Steuerberatung gehen.',
     ),
   ]
   // V-38: direkt zum Formular „Monat abschließen“ (vier Beträge, ein Knopf)

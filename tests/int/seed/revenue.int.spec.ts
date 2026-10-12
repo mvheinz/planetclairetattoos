@@ -6,6 +6,7 @@ import { resetEnvCache, seedPreviewModeActive } from '@/lib/env'
 import { buildDatevExport } from '@/lib/export/datev'
 import { buildInvoiceZip } from '@/lib/export/invoiceZip'
 import { buildMonthlyCsv } from '@/lib/export/monthlyCsv'
+import { buildOfflineCsv } from '@/lib/export/offlineCsv'
 import { buildPackagingReport } from '@/lib/export/packagingReport'
 import { getRevenueStatus } from '@/lib/revenue/check'
 import { expectedCount } from '@/lib/seed/expected'
@@ -131,7 +132,10 @@ describe('Umsätze (SEED-SPEC §15)', () => {
         expect(csv.bytes.toString('utf8')).not.toMatch(/BSP-|PC-2026-900/)
         const zip = await buildInvoiceZip(payload, month)
         const files = Object.keys(unzipSync(new Uint8Array(zip.bytes)))
-        expect(files, month).toEqual([csv.filename])
+        // V-65: zweite Tabelle „Einnahmen außerhalb des Shops“ – ohne Beispieldaten nur die Kopfzeile
+        const offline = await buildOfflineCsv(payload, month)
+        expect(files, month).toEqual([csv.filename, offline.filename])
+        expect(offline.rows, month).toEqual([])
         const datev = await buildDatevExport(payload, month)
         expect(datev.bookings, month).toHaveLength(0)
         expect(datev.bytes.toString('latin1')).not.toMatch(/BSP-|PC-2026-900/)

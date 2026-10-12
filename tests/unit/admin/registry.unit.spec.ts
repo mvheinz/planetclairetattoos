@@ -6,6 +6,9 @@ import { adminViewsConfig } from '@/admin/views/config'
 import {
   ADMIN_BOTTOM_BAR,
   ADMIN_DETAIL_VIEWS,
+  ADMIN_MENU,
+  isActiveMenuItem,
+  ORDER_TABS,
   ADMIN_VIEWS,
   ALL_ADMIN_VIEWS,
   adminViewPath,
@@ -79,6 +82,43 @@ describe('Ansichten-Registry (P5.1)', () => {
       title: 'Termine',
       allData: '/collections/tour-dates',
     })
+  })
+
+  it('Menü „Mehr“ kürzer (V-37): die fünf Bestell-Listen als ein Punkt „Bestellungen“', () => {
+    expect(ADMIN_MENU.map((m) => m.title)).toEqual([
+      'Heute',
+      'Neues Stück',
+      'Meine Stücke',
+      'Bestellungen',
+      'Anfragen',
+      'Tattoo',
+      'Termine',
+      'Texte',
+      'Einstellungen',
+      'Export und Datenschutz',
+    ])
+    expect(ORDER_TABS).toEqual(['packen', 'vorkasse', 'versendet', 'abholung', 'widerrufe'])
+    const orders = ADMIN_MENU.find((m) => m.key === 'bestellungen')!
+    expect(orders.path).toBe('/packen')
+    for (const p of [
+      '/packen',
+      '/vorkasse',
+      '/versendet',
+      '/abholung',
+      '/widerrufe',
+      '/widerrufe/3',
+      '/bestellungen/17',
+    ])
+      expect(isActiveMenuItem(orders, p), p).toBe(true)
+    expect(isActiveMenuItem(orders, '/heute')).toBe(false)
+    const heute = ADMIN_MENU.find((m) => m.key === 'heute')!
+    expect(isActiveMenuItem(heute, '/')).toBe(true)
+    // jede Hauptansicht bleibt über das Menü erreichbar (direkt oder als Reiter)
+    for (const v of ADMIN_VIEWS)
+      expect(
+        ADMIN_MENU.some((m) => m.views.includes(v.key)),
+        v.key,
+      ).toBe(true)
   })
 
   it('Leiste unten: Heute · Neues Stück · Packen (· Mehr)', () => {

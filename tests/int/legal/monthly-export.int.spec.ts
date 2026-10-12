@@ -183,7 +183,7 @@ describe('Monatsexport (R-124, KONZEPT §7.15)', () => {
     }
   })
 
-  it('R-124 ZIP enthält genau die Belege des Monats ({Nummer}.pdf) plus die CSV; byte-identisch beim zweiten Export', async () => {
+  it('R-124 ZIP enthält genau die Belege des Monats ({Nummer}.pdf) plus die CSV und „Einnahmen außerhalb des Shops“ (V-65); byte-identisch beim zweiten Export', async () => {
     const zip = await buildInvoiceZip(payload, '2026-10')
     expect(zip.filename).toBe('planetclaire-belege-2026-10.zip')
     const files = unzipSync(new Uint8Array(zip.bytes))
@@ -192,6 +192,7 @@ describe('Monatsexport (R-124, KONZEPT §7.15)', () => {
       'GS-2026-00002.pdf',
       'RE-2026-00002.pdf',
       'RE-2026-00003.pdf',
+      'planetclaire-2026-10-einnahmen-ausserhalb-des-shops.csv',
       'planetclaire-2026-10.csv',
     ])
     for (const [name, bytes] of Object.entries(files)) {
