@@ -2,6 +2,12 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-12 – P20.1
+
+- Die kleine Coco an der Leine macht zwischen ihren Warte-Aktionen (Hecheln, Ohr zucken, Kratzen, Gähnen, Verbeugung, Wedeln, Hinlegen) jetzt je 1 Sekunde kürzere Pausen: 2,2 · 1,3 · 1,5 · 2 · 1 · 2,3 · 7 s statt 3,2 · 2,3 · 2,5 · 3 · 1 · 3,3 · 8 s. Die Aktionen selbst sind gleich geblieben, mindestens 1 Sekunde Standbild bleibt.
+- Du hast zwei kurze Videos bekommen (Handy und großer Bildschirm), damit du die Bewegung direkt am iPad ansehen kannst (V-66).
+- Tests: Unit (Pausen = bisher − 1 s, Aktionsdauern unverändert), E2E `coco` und `leash` (desktop, pixel-7) grün; der Reise-Test ruft die Zielseite vorher einmal ab, weil der Entwicklungs-Server sie beim ersten Aufruf erst übersetzt; Kunst-QA zu Coco läuft in der Abschluss-Prüfung P20.11.
+
 ## 2026-10-11 – P18.5 Datenschutz- und AGB-Prüfung – für Jutta
 
 Hallo Jutta,

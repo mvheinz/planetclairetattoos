@@ -211,6 +211,10 @@ test.describe('Weiche Navigation mit View Transitions (ADR 0003)', () => {
    * Dokumentwechsel. Gibt eine Funktion zurück, die den Link anklickt und beide Aufzeichnungen liefert.
    */
   async function hardTransition(page: Page, path: string) {
+    // Ziel vorher einmal abrufen: Der Dev-Server übersetzt eine Seite beim ersten Aufruf erst (mehrere Sekunden). So
+    // lange hält Coco den Lauf nicht (GIVE_UP_MS), danach sitzt sie und beginnt nach der ersten Pause (U-92: 2,2 s) eine
+    // Warte-Aktion – der Test prüft den Aufbruch, nicht die Übersetzungszeit.
+    expect((await page.request.get(path)).ok()).toBe(true)
     const rec: Partial<CocoVt> = {}
     await page.exposeFunction('__cocoSwap', (pose: string | null) => (rec.pose = pose))
     await page.exposeFunction('__cocoReveal', (anims: CocoVt['anims']) => (rec.anims = anims))
