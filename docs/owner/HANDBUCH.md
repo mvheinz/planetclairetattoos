@@ -140,6 +140,10 @@ heißt „Bitte erst nachmessen“. Miss das Stück nach, trag die echten Werte 
 „ca.“ bei gemessenen Werten ist in Ordnung – handgemachte Stücke sind nie auf den Millimeter gleich. Maße stehen später
 in der Bestellung und gelten als zugesagt, deshalb diese Sperre. Bei sehr kleinen Stücken (unter 4 cm) schreibt der
 Shop von selbst einen Vergleich dazu, zum Beispiel „Etwa so groß wie eine 1-Euro-Münze“.
+Bei 44 Stücken deiner Bestandsliste sind die Zahlen nur geschätzt; dort steht im Hinweis „Maße geschätzt“. Trägst du
+in der Bestandsliste (am iPad in Numbers oder Excel, am Computer in Excel) eine nachgemessene Zahl ein, verschwindet der
+Vermerk beim Zurückspielen von selbst. Stimmen die geschätzten Zahlen schon, lösch den Vermerk einfach – in der Liste
+oder in der Verwaltung beim Stück.
 
 **Foto an der Hand** (Schmuck): Unter „Foto zum Größenvergleich“ hilft bei Schmuck ein Foto an deiner Hand oder am Ohr.
 Fehlt es, steht in „Was fehlt noch?“ ein **Tipp** – das ist freiwillig und sperrt nichts.

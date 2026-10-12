@@ -176,7 +176,8 @@ describe('Bestandsliste als Excel (P18.1)', () => {
     expect(byKey(next, chain.key).metalPartsMaterial).toEqual({ de: 'Edelstahl' })
     expect(report.problems).toEqual([])
     expect(report.conflicts).toEqual([])
-    expect(report.changes.length).toBe(9)
+    // 9 geänderte Zellen + der Vermerk „Maße geschätzt“ der Schale, der mit der neuen Breite wegfällt (V-15)
+    expect(report.changes.length).toBe(10)
     expect(report.englishTodo).toEqual([
       `Nr. ${bowl.itemNumber}: Name (Deutsch geändert)`,
       `Nr. ${chain.itemNumber}: Metallteile (Deutsch geändert, Englisch fehlt)`,
@@ -572,5 +573,46 @@ describe('Fasern als Text', () => {
   it('jede Zeile hat für jede Spalte einen Wert (auch leer)', () => {
     for (const p of products)
       expect(Object.keys(rowOf(p)).sort()).toEqual(BESTAND_COLUMNS.map((c) => c.key).sort())
+  })
+})
+
+describe('Maße geschätzt (V-15, P20.6)', () => {
+  const estimated = products.find((p) => p.dimensions.note?.de === 'Maße geschätzt')!
+
+  it('geschätzte Zahlen tragen den Vermerk – das Stück bleibt Entwurf, bis nachgemessen ist', () => {
+    expect(estimated).toBeDefined()
+    expect(estimated.dimensions.note).toEqual({
+      de: 'Maße geschätzt',
+      en: 'Measurements estimated',
+    })
+  })
+
+  it('eine neue Zahl in der Liste heißt „nachgemessen“: der Vermerk fällt weg', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, estimated.itemNumber).getCell(col('breite')).value = 7.5
+    })
+    const { products: next, report } = apply(rows)
+    const p = byKey(next, estimated.key)
+    expect(p.dimensions.widthCm).toBe(7.5)
+    expect(p.dimensions.note).toBeUndefined()
+    expect(report.changes).toContain(
+      `Nr. ${estimated.itemNumber}: Maße – Hinweis „Maße geschätzt“ → „–“`,
+    )
+    expect(() => bestandSchema.parse(next)).not.toThrow()
+  })
+
+  it('eigener Hinweis im selben Zug gilt; ohne neue Zahl bleibt der Vermerk', async () => {
+    const own = await roundTrip((ws) => {
+      const r = rowFor(ws, estimated.itemNumber)
+      r.getCell(col('breite')).value = 7.5
+      r.getCell(col('masseHinweis')).value = 'Höhe mit Öse'
+    })
+    expect(byKey(apply(own.rows).products, estimated.key).dimensions.note?.de).toBe('Höhe mit Öse')
+    const untouched = await roundTrip((ws) => {
+      rowFor(ws, estimated.itemNumber).getCell(col('preis')).value = 44
+    })
+    expect(byKey(apply(untouched.rows).products, estimated.key).dimensions.note?.de).toBe(
+      'Maße geschätzt',
+    )
   })
 })

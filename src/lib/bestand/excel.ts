@@ -18,6 +18,7 @@ import {
   type SheetRow,
 } from '@/lib/pflege/cells'
 import { decide, emptyReport, NO_BASE, type Decision, type PflegeReport } from '@/lib/pflege/merge'
+import { isEstimatedDimensionsNote } from '@/lib/products/measure'
 import type { ConsumedCells, SnapshotRows } from '@/lib/pflege/snapshot'
 
 import type { BestandProduct } from './schema'
@@ -648,12 +649,23 @@ function applyRow(
       report.problems.push(
         `${nr}: mindestens ein Maß ist Pflicht – alle Maße leer gelassen, alte Werte bleiben.`,
       )
-    else
+    else {
       for (const [[key, field], v] of dimUpdates) {
         change(header(key), str(p.dimensions[field] ?? ''), v === null ? '' : String(v))
         if (v === null) delete p.dimensions[field]
         else p.dimensions[field] = v
       }
+      // V-15: Eine neue Zahl heißt „nachgemessen“ – der Vermerk „Maße geschätzt“ fällt weg, wenn Jutta den Hinweis
+      // nicht selbst geändert hat (dann gilt ihr Text; bei einer Rückfrage bleibt alles, wie es ist).
+      if (
+        !changed('masseHinweis') &&
+        decisions.get('masseHinweis') !== 'conflict' &&
+        isEstimatedDimensionsNote(p.dimensions.note?.de)
+      ) {
+        change('Maße – Hinweis', p.dimensions.note?.de ?? '', '')
+        delete p.dimensions.note
+      }
+    }
   }
   if (changed('masseHinweis')) {
     const v = str(row.masseHinweis)

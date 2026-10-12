@@ -53,6 +53,21 @@ export const ESTIMATE_MARKERS: readonly EstimateMarker[] = [
   marker('en-guess', 'guessed', `(?<!${L})guess(?:ed|es|timated?)?(?!${L})`),
 ]
 
+/**
+ * Vermerk für Stücke, deren Zahlen nur geschätzt sind (Bestandsliste, V-15): sperrt die Veröffentlichung über
+ * `findEstimateMarker` und fällt beim Zurückspielen der Liste von selbst weg, sobald Jutta ein Maß ändert
+ * (`applyRows` in `src/lib/bestand/excel.ts`).
+ */
+export const ESTIMATED_DIMENSIONS_NOTE = {
+  de: 'Maße geschätzt',
+  en: 'Measurements estimated',
+} as const
+
+/** Ob der Hinweis genau der Vermerk „Maße geschätzt“ ist (nicht ein eigener Text mit Schätz-Wort). */
+export function isEstimatedDimensionsNote(text: string | null | undefined): boolean {
+  return (text ?? '').trim().normalize('NFC') === ESTIMATED_DIMENSIONS_NOTE.de
+}
+
 /** Erster Schätz-Vermerk im Text (`null` = keiner). */
 export function findEstimateMarker(text: string | null | undefined): EstimateMarker | null {
   if (!text || !text.trim()) return null

@@ -2,6 +2,26 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-12 – P20.6 (Teil 1) Verwaltung: prüfen, fertig machen, Markt
+
+- **Erst messen, dann online:** Steht bei den Maßen oder der Größe noch „geschätzt“ (oder „estimated“), lässt sich ein Stück nicht online stellen („Bitte erst nachmessen“). Bei 44 Stücken deiner Liste steht jetzt „Maße geschätzt“, weil die Zahlen nur geschätzt sind – trägst du in der Liste eine nachgemessene Zahl ein, verschwindet der Vermerk von selbst. Sehr kleine Stücke (unter 4 cm) bekommen im Shop einen Vergleich, z. B. „Etwa so groß wie eine 1-Euro-Münze“.
+- **Eine gelbe Zeile statt 74 roter:** Unter „Heute“ steht „74 Stücke warten auf deine Prüfung“ mit Link auf genau diese Stücke; am Stück, auf der Karte und in der Bestellung gibt es „Erledigt“. Beim ersten Online-Stellen verschwindet die Markierung von selbst. Echte Notfälle bleiben rot.
+- **Was fehlt noch:** Jede Entwurf-Karte zeigt „fertig“ oder z. B. „fehlt: Faserangabe, Nickel-Nachweis“. Neu: „Alle fertigen online stellen“ (nennt vorher die Zahl, setzt nie Häkchen für dich) und „Speichern und nächstes Stück“. Den Nickel-Nachweis lädst du einmal hoch und wählst ihn danach nur noch aus.
+- **Markt-Knopf unter „Heute“:** Nummer eintippen, „verkauft“ antippen – das Stück ist sofort aus dem Shop. Den Preis trägst du gleich oder später nach. Neue Aufgabe A53: Frag deine Steuerberatung, ob das schon eine „Kasse“ ist.
+- **Weniger Knöpfe:** „Verkauft (Markt/privat)“ statt „Offline verkauft“; „Aus dem Shop nehmen“ fragt „Kommt es wieder?“ (Ja = wieder Entwurf, Nein = weglegen). Bei Flash heißt es „Pausieren“. Im Handbuch stehen beide Wege (iPad und Computer).
+- Tests: Unit, Integration und Browser (Computer und Handy) für Nachmessen, Größenvergleich, „zu prüfen“/„Erledigt“, „was fehlt noch“, gesammeltes Online-Stellen, Markt-Knopf, „Kommt es wieder?“; Gegenprüfung durch einen zweiten Durchgang (u. a. Widerruf-Hinweis lässt sich nicht versehentlich wegtippen).
+
+## 2026-10-12 – P20.3 (Teil 1) Shop: Versand am Preis, keine leeren Seiten, Karten
+
+- Versandkosten stehen direkt unter dem Preis („+ 8,90 € Versand“, mit Abholung „Abholung in Berlin nach Absprache kostenlos“) und darunter „Mehrere Stücke? Versand zahlst du nur einmal.“ – auch im Korb.
+- Keine leeren Seiten: Kategorien ohne Stücke verschwinden aus Kacheln, Menü und Sitemap und kommen mit dem ersten Stück von selbst wieder. Die leere Station „Zeichnungen“ führt zu „Zeichnung auf Anfrage“.
+- Neue Spalte „ins Archiv“ in deiner Bestandsliste: Nur mit „ja“ erscheint ein verkauftes Marktstück im Archiv.
+- Shop-Liste: Ich habe die „wachsende“ Liste mit deinen 74 Stücken ausprobiert – auf dem Handy war sie zu schwer (die Tuschelinie wird zu lang, das erste Bild kommt später). Deshalb bleiben es Seiten mit „Seite 2 von 4 · Weiter (noch 26)“. Der Schalter „nur verfügbare“ ist weg.
+- Ruhigere Karten: Namen bis drei Zeilen, höchstens zwei Maße bzw. die Größe; am Handy ein schmalerer Rahmen, die Fotos werden größer.
+- Stück-Seite am Handy: kleinerer Titel, Preis und Versand kommen früher; der Satz zu den Motivrechten steht nach Beschreibung und Details; „Deko“ nur noch einmal als Abzeichen.
+- Ganz unten im Shop „Fragen zum Shop“ (7 Fragen, änderbar in der Verwaltung, Kanzlei prüft mit). „Etwas Ähnliches anfragen“ bei verkauften Stücken öffnet das Formular mit „So etwas wie Nr. 115 …“ und Bild; in der Verwaltung siehst du, um welches Stück es ging.
+- Tests: Unit, Integration (inkl. Datenbank-Umstellung), Browser-Tests Shop, Stück-Seite, Korb, Startseite, Auftragsarbeiten am Computer und Handy; Gegenprüfung (Menü wird nicht bei jeder Reservierung neu erzeugt).
+
 ## 2026-10-12 – P20.5
 
 - Beispiel-Tattoos sind markiert: In Vorschau-Datei und Rundgang tragen die erfundenen Flash-Motive und Galerie-Fotos einen kleinen Stempel „Beispiel“ (EN „Example“), auch in der Großansicht.
