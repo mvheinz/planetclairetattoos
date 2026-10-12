@@ -41,7 +41,10 @@ test.describe('V-60 Nummernfeld „Nr. aus dem Post“', () => {
     await expect(form).toHaveAttribute('action', '/nr')
     await expect(form).toHaveAttribute('method', 'get')
     // Sprache reist mit dem Knopf (kein verstecktes Feld)
-    await expect(form.locator('button[type="submit"][name="locale"]')).toHaveAttribute('value', 'en')
+    await expect(form.locator('button[type="submit"][name="locale"]')).toHaveAttribute(
+      'value',
+      'en',
+    )
     await expect(form.locator('input[type="hidden"]')).toHaveCount(0)
     // Feld im Kopf unter der Einleitung, vor dem Raster
     const head = (await page.locator('header').filter({ has: form }).boundingBox())!
