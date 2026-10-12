@@ -7,6 +7,7 @@ import { createManualCarrierAdapter } from '@/lib/carrier/manual'
 import type { Locale, OrderStatus, TaxMode } from '@/lib/enums'
 import { legalAttachmentInfo } from '@/lib/legal/attachments'
 import { createLogger, errorSummary } from '@/lib/monitoring/logger'
+import { orderCarrierName } from '@/lib/shop/carrier'
 import { matchesHash, unsealToken } from '@/lib/security/tokens'
 import type { Order, Setting } from '@/payload-types'
 
@@ -62,6 +63,8 @@ export interface OrderView {
   /** Status für die Kund:in (`disputed` → `statusBeforeDispute`). */
   shownStatus: OrderStatus
   fulfillmentMethod: 'shipping' | 'pickup'
+  /** Versanddienst für „Versand per …“ (V-09): gemeldeter Dienst, sonst nach Versandklasse; `null` = ohne Namen. */
+  carrierName: string | null
   paymentMethod: 'card' | 'paypal' | 'prepayment'
   /** Wallet bzw. PayPal laut Anbieter (`card`, `apple_pay`, `google_pay`, `paypal`). */
   paymentMethodType: string | null
@@ -187,6 +190,13 @@ export async function buildOrderView(
     status: order.status,
     shownStatus: customerStatus(order.status, order.statusBeforeDispute),
     fulfillmentMethod: order.fulfillmentMethod,
+    carrierName: shipping
+      ? orderCarrierName({
+          shipmentCarrier: order.shipment?.carrier ?? null,
+          shippingClass: order.shippingClass ?? null,
+          itemClasses: all.map((i) => i.shippingClass),
+        })
+      : null,
     paymentMethod: order.paymentMethod,
     paymentMethodType: order.stripe?.paymentMethodType ?? null,
     taxMode: order.taxModeAtOrder,

@@ -867,7 +867,8 @@ Abschnitt 5 „Übersicht“ steht **unmittelbar** über dem Knopf und aktualisi
    Kategorie, Maße, Material bzw. bei Textil/Caps „Second-Hand, von Hand bemalt“ (immer gebraucht, R-043; P18.5),
    Faserzusammensetzung, Größe und Zustand, bei Keramik „Deko – nicht für Lebensmittel“ bzw. „lebensmittelecht“, bei
    Schmuck Material der Metallteile, Abweichungstext), Preis.
-2. Versand: Klasse und Preis (z. B. „Versand als Keramik-Paket (DHL) 8,90 €“) oder „Abholung in Berlin 0,00 €“.
+2. Versand: Klasse, Versanddienst und Preis (z. B. „Versand: Keramik-Paket (DHL) 8,90 €“, EN „Shipping: Ceramics parcel
+   (DHL)“; kein Wort doppelt, V-09/U-93) oder „Abholung in Berlin 0,00 €“.
 3. **Gesamtpreis** (hervorgehoben) mit Steuerhinweis (Kleinunternehmerin: „Gemäß § 19 UStG wird keine Umsatzsteuer
    berechnet.“; Regelbesteuerung: enthaltene MwSt. je Satz).
 4. Lieferzeit („2–5 Werktage“, bei Vorkasse mit Zusatz „ab Zahlungseingang“ und der Zahlungsfrist, bzw. „Abholung nach
@@ -1106,7 +1107,7 @@ Signatur ungültig → HTTP 400. Verarbeitungsfehler → HTTP 500 (Stripe wieder
 | Zustand | Bedingung | Anzeige |
 |---|---|---|
 | wartet | Kasse `confirming`, noch keine Bestellung | „Coco wartet auf die Bestätigung …“; Abfrage alle 2 s bis 60 s (`GET /api/checkout/[token]/state`, §2.7); danach „Das dauert länger als sonst. Du bekommst eine Mail, sobald alles bestätigt ist.“ |
-| bezahlt | Bestellung `paid` | „Danke!“, Bestellnummer, Positionen, Summe, Lieferart, nächste Schritte („Ich packe dein Paket in den nächsten Tagen“ bzw. „Ich melde mich zur Abholung“), Hinweis auf Mail, Link Bestellstatus, Link „Vertrag widerrufen“; fehlt ein Teil der Stücke (S4 teilweise), zusätzlich der Block „Leider schon weg: Nr. … – erstattet: … €“ wie in M01 (§6.3 Punkt 11) |
+| bezahlt | Bestellung `paid` | „Danke!“, Bestellnummer, Positionen, Summe, Lieferart (mit dem echten Versanddienst: „Versand per DHL“ bzw. „Versand per Deutsche Post“ – gemeldeter Dienst, sonst nach Versandklasse §7.6; V-09), nächste Schritte („Ich packe dein Paket in den nächsten Tagen“ bzw. „Ich melde mich zur Abholung“), Hinweis auf Mail, Link Bestellstatus, Link „Vertrag widerrufen“; fehlt ein Teil der Stücke (S4 teilweise), zusätzlich der Block „Leider schon weg: Nr. … – erstattet: … €“ wie in M01 (§6.3 Punkt 11) |
 | Vorkasse | Bestellung `awaiting_prepayment` | wie bezahlt, plus Bankdaten, Frist, EPC-QR-Code |
 | leider schon weg | Bestellung `refunded` durch O19 (bezahlt, aber alle Stücke weg, S4) | H1 „Leider schon weg“ (EN „Sorry, already gone“) statt „Danke!“, Text wie M10 (§6.3): Entschuldigung, „Jemand war ein paar Sekunden schneller“, der volle Betrag wird über dasselbe Zahlungsmittel erstattet, sichtbar meist nach 5–10 Werktagen; Bestellnummer, Hinweis auf die Mail, Link zum Shop; keine Rechnung, kein Rabattcode |
 | nicht bezahlt | Kasse `open`/`failed` nach Rückkehr | „Die Zahlung hat nicht geklappt“; „Zurück zur Kasse“ (falls Reservierung aktiv) sonst „Zum Korb“ |

@@ -8,6 +8,7 @@ import { PriceNote } from '@/components/shop/PriceNote'
 import { taxSettingsFor } from '@/lib/data/shopSettings'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import type { Locale, ProductCategory, ShippingClass } from '@/lib/enums'
+import { classCarrierName, shippingClassName } from '@/lib/shop/carrier'
 import { formatItemNumber } from '@/lib/shop/format'
 import type { ShopDisplaySettings } from '@/lib/shop/displaySettings'
 import type { Checkout, Media } from '@/payload-types'
@@ -97,8 +98,9 @@ export async function CheckoutSummaryTotals({
   const city = display.pickupCity ?? 'Berlin'
   const pickup = checkout.fulfillmentMethod === 'pickup'
   const shippingClass = checkout.shippingClass as ShippingClass | null | undefined
-  const carrier = shippingClass === 'brief' ? 'Deutsche Post' : 'DHL'
-  const className = shippingClass ? label(ENUM_LABELS.SHIPPING_CLASSES[shippingClass], locale) : ''
+  // „Versand: Keramik-Paket (DHL)“ – Klassenname ohne angehängtes „-Paket“ (V-09, sonst „Keramik-Paket-Paket“)
+  const carrier = classCarrierName(shippingClass)
+  const className = shippingClass ? shippingClassName(shippingClass, locale) : ''
   return (
     <div className={styles.totals} data-overview-totals="">
       <dl className={styles.sumList}>

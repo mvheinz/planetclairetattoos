@@ -92,7 +92,11 @@ export async function OrderSummary({
         </dd>
         <dt>{t('delivery')}</dt>
         <dd data-order-delivery={view.fulfillmentMethod}>
-          {view.fulfillmentMethod === 'pickup' ? t('deliveryPickup') : t('deliveryShipping')}
+          {view.fulfillmentMethod === 'pickup'
+            ? t('deliveryPickup')
+            : view.carrierName
+              ? t('deliveryShipping', { carrier: view.carrierName })
+              : t('shipping')}
         </dd>
         <dt>{t('paymentMethod')}</dt>
         <dd data-order-payment={methodKey}>{t(`method.${methodKey}`)}</dd>
