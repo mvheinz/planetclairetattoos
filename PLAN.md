@@ -5694,8 +5694,9 @@ gemeinsamer Kern in `src/lib/pflege/` (Listen-Nr., gemerkter Stand, Dreiwege-Abg
 
 ## P20 – Feinschliff und Vorschläge aus der Analyse (12.10.2026)
 
-Verbindlich: `docs/UEBERARBEITUNG.md` ab U-92. Vor P19. Die Vorschläge aus Juttas Analyse-Auftrag (12.10.2026) kommen erst
-hierher, wenn Jutta sie ausgewählt hat (je Vorschlag eine Aufgabe P20.n mit U-Nummer).
+Verbindlich: `docs/UEBERARBEITUNG.md` ab U-92. Vor P19. Die Vorschläge aus Juttas Analyse-Auftrag (12.10.2026,
+`docs/ANALYSE-2026-10-12.md`, Auswahl über die Ideenliste) kommen erst hierher, wenn Jutta sie ausgewählt hat (je Vorschlag eine
+Aufgabe P20.n mit U-Nummer).
 
 - [ ] **P20.1 Kürzere Wartepausen der kleinen Coco** (U-92) – Pausen zwischen den Warte-Aktionen je 1 s kürzer (`IDLE_PLAN` in `src/leash/cocoExtra.ts`: heute 3,2 · 2,3 · 2,5 · 3 · 1 · 3,3 · 8 s → 2,2 · 1,3 · 1,5 · 2 · 1 · 2,3 · 7 s; mindestens 1 s Standbild), Aktionen unverändert.
   - Akzeptanz: Unit (Abstände = bisherige − 1 s, nie < 1 s; Aktionsdauern unverändert), E2E Warte-Aktionen (`leash`/`coco`) grün, reduzierte Bewegung unverändert, Kunst-QA-Kriterien zu Coco (CO-xx) grün.
