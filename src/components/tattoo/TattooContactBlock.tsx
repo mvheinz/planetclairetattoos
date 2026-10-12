@@ -5,15 +5,18 @@ import { ICON_MAIL } from '@/components/icons/icons.generated'
 import { Button } from '@/components/ui/Button'
 import type { TattooSettings } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/routes/registry'
+import type { ActiveBooking } from '@/lib/tattoo/booking'
 import { tattooMailto, type TattooMailTopic } from '@/lib/tattoo/mailto'
 
+import { bookingTexts } from './BookingNotice'
 import styles from './Tattoo.module.css'
 
 // Kontakt-Block des Tattoo-Bereichs (DESIGN KO-20, KONZEPT §9.4, E-51): Knöpfe „Mail schreiben“ (`mailto:` mit Betreff
 // und Text-Vorlage des Anlasses) (U-15: Anfrageweg im Tattoo-Bereich nur E-Mail, keine Direktnachricht),
 // darunter die E-Mail-Adresse als markierbarer Text mit „Adresse kopieren“ (Modul `copy-button`, Rückmeldung „Kopiert“
 // per `aria-live` 2 s; Rückfall: Adresse wird markiert, „Jetzt kopieren“). Ort nur als „Privatstudio in
-// Berlin-{Bezirk}“ (E-50). Kein Formular, keine Buchung, keine Zahlung.
+// Berlin-{Bezirk}“ (E-50). Kein Formular, keine Buchung, keine Zahlung. Bei „ausgebucht“ (V-64) steht statt des
+// Mail-Knopfs der Hinweis; die Adresse bleibt als Kontaktweg stehen.
 
 export async function TattooContactBlock({
   locale,
@@ -21,6 +24,7 @@ export async function TattooContactBlock({
   topic = { kind: 'general' },
   id = 'tattoo-contact',
   heading,
+  booking = null,
 }: {
   locale: Locale
   settings: TattooSettings
@@ -28,19 +32,29 @@ export async function TattooContactBlock({
   /** Präfix eindeutiger IDs (mehrere Blöcke je Seite). */
   id?: string
   heading?: string | null
+  /** Wirksamer Hinweis „ausgebucht“ (V-64) oder `null`. */
+  booking?: ActiveBooking | null
 }) {
-  const [t, tContact] = await Promise.all([
+  const [t, tContact, tBooking] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.contact' }),
     getTranslations({ locale, namespace: 'contact' }),
+    getTranslations({ locale, namespace: 'tattoo.booking' }),
   ])
-  const mailto = tattooMailto(settings.email, topic, locale)
+  const mailto = booking ? null : tattooMailto(settings.email, topic, locale)
+  const booked = booking ? bookingTexts(tBooking, booking, locale) : null
   const headingId = `${id}-heading`
   return (
     <section className={styles.contact} aria-labelledby={headingId} data-tattoo-contact="">
       <h2 id={headingId} className={styles.contactHeading}>
         {heading || t('heading')}
       </h2>
-      <p className={styles.muted}>{t('intro')}</p>
+      {booked ? (
+        <p className={styles.booked} data-tattoo-booked="">
+          <strong>{booked.title}.</strong> {booked.text}
+        </p>
+      ) : (
+        <p className={styles.muted}>{t('intro')}</p>
+      )}
       <div className={styles.contactButtons}>
         {mailto ? (
           <Button

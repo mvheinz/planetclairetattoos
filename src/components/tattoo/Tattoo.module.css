@@ -25,6 +25,11 @@
   margin-top: var(--space-3);
 }
 
+/* V-64: Hinweis „Gerade ausgebucht“ unter der Einleitung */
+.headNotice {
+  margin-top: var(--space-4);
+}
+
 .body {
   margin-top: var(--space-6);
 }
@@ -483,6 +488,43 @@
   color: var(--ink);
   font-size: 13px;
   font-weight: 600;
+}
+
+/* V-28 a: Stempel „Beispiel“ auf Beispiel-Motiven und -Fotos (nur Vorschau-Modus): klein in der unteren Ecke, deckt das
+   Motiv nicht zu; Kontrast Tinte auf Papier, gestrichelter Rand in `--stencil` wie das Etikett „intern“. */
+.exampleStamp {
+  position: absolute;
+  bottom: var(--space-2);
+  left: var(--space-2);
+  padding: 1px var(--space-2);
+  border: 1.5px dashed var(--stencil);
+  border-radius: var(--r-badge);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  rotate: -4deg;
+  pointer-events: none;
+}
+
+/* Startseiten-Teaser: kleine Bilder (96 px) – das Wort steht unter dem Titel statt auf dem Bild. */
+.exampleTag {
+  justify-self: start;
+  padding: 0 var(--space-1);
+  border: 1px dashed var(--stencil);
+  border-radius: var(--r-badge);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  text-transform: uppercase;
+}
+
+/* V-64: „Gerade ausgebucht“ statt Mail-Knopf im Kontakt-Block bzw. auf der Flash-Karte. */
+.booked {
+  margin: 0;
+  color: var(--ink-2);
 }
 
 .lightboxCaption {

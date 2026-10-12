@@ -5,8 +5,11 @@ import { Station } from '@/components/leash/Station'
 import { IpNotice } from '@/components/legal/IpNotice'
 import type { TattooSettings } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/routes/registry'
+import { activeBooking } from '@/lib/tattoo/booking'
 import type { TattooMailTopic } from '@/lib/tattoo/mailto'
+import { systemClock } from '@/lib/time'
 
+import { BookingNotice } from './BookingNotice'
 import styles from './Tattoo.module.css'
 import { TattooContactBlock } from './TattooContactBlock'
 import { TattooSubNav, type TattooRouteId } from './TattooSubNav'
@@ -15,6 +18,8 @@ import { TattooSubNav, type TattooRouteId } from './TattooSubNav'
 // an der Seiten-H1 über den Stations-Anker), Einleitung, Unter-Navigation, Inhalt und am Ende der Kontakt-Block. Die
 // Tuschelinie läuft mit Coco in der Rinne bis zum Seitenende (U-44); Abschnitte setzen ihre Kringel selbst
 // (`data-leash-station` an der Abschnitts-Überschrift). Keine Kauf-, Formular- oder Zahlungselemente (E-51, AK-9-01).
+// Ist der Schalter „Anfragen offen“ aus (V-64), steht der Hinweis „Gerade ausgebucht“ unter der Einleitung und im
+// Kontakt-Block statt des Mail-Knopfs; er endet von selbst nach dem eingetragenen Monat (Berliner Zeit, beim Rendern).
 
 /** Seiten mit Flash-Motiven bzw. Preis-/Ablauf-Angaben: R12 Flash, R14 Preise, R16 Ablauf. */
 const FLASH_NOTICE_ROUTES: ReadonlySet<string> = new Set(['R12', 'R14', 'R16'])
@@ -39,6 +44,7 @@ export async function TattooShell({
   children: React.ReactNode
 }) {
   const tRoutes = await getTranslations({ locale, namespace: 'common.routes' })
+  const booking = activeBooking(settings.booking, systemClock.now())
   return (
     <div
       className={['u-container', styles.page, className].filter(Boolean).join(' ')}
@@ -57,6 +63,9 @@ export async function TattooShell({
           </Station>
         </h1>
         {lead ? <div className={styles.lead}>{lead}</div> : null}
+        {booking ? (
+          <BookingNotice locale={locale} booking={booking} className={styles.headNotice} />
+        ) : null}
       </header>
       <TattooSubNav locale={locale} current={routeId} />
       <div className={styles.body}>{children}</div>
@@ -67,6 +76,7 @@ export async function TattooShell({
         settings={settings}
         topic={contactTopic}
         heading={contactHeading}
+        booking={booking}
       />
     </div>
   )

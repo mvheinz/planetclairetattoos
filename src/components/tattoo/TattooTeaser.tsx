@@ -10,7 +10,7 @@ import styles from './Tattoo.module.css'
 
 // Tattoo-Station der Startseite (KONZEPT §3.1 Nr. 7): bis zu 3 verfügbare Flash-Motive als kleine Bilder mit Link auf
 // `R12#f-012` (ohne Preis – die Preise mit Fußnote stehen auf R12). Ohne freie Motive entfällt die Liste (P12.7: keine
-// Angebote mehr).
+// Angebote mehr). Beispiel-Motive (`seed`, nur im Vorschau-Modus) zeigen das Wort „Beispiel“ unter dem Titel (V-28 a).
 
 export interface TattooTeaserData {
   flash: PublicFlash[]
@@ -18,7 +18,10 @@ export interface TattooTeaserData {
 }
 
 export async function TattooTeaser({ data, locale }: { data: TattooTeaserData; locale: Locale }) {
-  const t = await getTranslations({ locale, namespace: 'tattoo.overview' })
+  const [t, tExample] = await Promise.all([
+    getTranslations({ locale, namespace: 'tattoo.overview' }),
+    getTranslations({ locale, namespace: 'tattoo.example' }),
+  ])
   if (data.flash.length === 0) return null
   const r12 = localizedPath('R12', locale)
   return (
@@ -44,6 +47,11 @@ export async function TattooTeaser({ data, locale }: { data: TattooTeaserData; l
                   {f.display}
                 </span>
                 <span>{f.title}</span>
+                {f.example ? (
+                  <span className={styles.exampleTag} data-example-stamp="">
+                    {tExample('label')}
+                  </span>
+                ) : null}
               </a>
             </li>
           ))}

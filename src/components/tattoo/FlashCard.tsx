@@ -10,8 +10,11 @@ import { localizedPath } from '@/lib/routes/paths'
 import type { Locale } from '@/lib/routes/registry'
 import { tattooMailto } from '@/lib/tattoo/mailto'
 import { absoluteUrl } from '@/lib/seo/metadata'
+import { activeBooking } from '@/lib/tattoo/booking'
 import { formatTattooPrice } from '@/lib/tattoo/price'
+import { systemClock } from '@/lib/time'
 
+import { ExampleStamp } from './ExampleStamp'
 import styles from './Tattoo.module.css'
 import { TakenStamp } from './TakenStamp'
 import { TATTOO_PRICE_FOOTNOTE_ID } from './TattooPriceFootnote'
@@ -21,7 +24,9 @@ import { TATTOO_PRICE_FOOTNOTE_ID } from './TattooPriceFootnote'
 // („120 €*“, kein Preisschild, R-034), Badge „einmalig“/„wiederholbar“. Verfügbar: „Per Mail anfragen“ (Betreff
 // „Flash-Anfrage F-012 – {Titel}“), „Per DM anfragen“ und der kopierbare Baustein „F-012 – {Titel}“; vergeben: Stempel
 // „vergeben“ in `--stencil`, Text „Schon vergeben – …“, keine Anfrage-Knöpfe. Anker `#f-012`. Hover/Fokus:
-// `--shadow-stencil` ohne Übergang (MI-14). Ohne JavaScript vollständig lesbar.
+// `--shadow-stencil` ohne Übergang (MI-14). Ohne JavaScript vollständig lesbar. Beispiel-Motive (`seed`, nur im
+// Vorschau-Modus) tragen den Stempel „Beispiel“ (V-28 a); bei „ausgebucht“ (V-64) weicht der Mail-Knopf dem Satz
+// „Gerade ausgebucht“.
 
 export async function FlashCard({
   flash,
@@ -42,17 +47,23 @@ export async function FlashCard({
   /** U-56: Link auf ein sichtbares Galerie-Foto dieses Motivs („Schon gestochen – Foto ansehen“). */
   photoHref?: string | null
 }) {
-  const t = await getTranslations({ locale, namespace: 'tattoo.flash' })
+  const [t, tExample, tBooking] = await Promise.all([
+    getTranslations({ locale, namespace: 'tattoo.flash' }),
+    getTranslations({ locale, namespace: 'tattoo.example' }),
+    getTranslations({ locale, namespace: 'tattoo.booking' }),
+  ])
   const Heading = headingLevel
   const available = flash.status === 'available'
+  const booked = available && activeBooking(settings.booking, systemClock.now()) !== null
   const titleId = `${flash.anchor}${compact ? '-teaser' : ''}-title`
-  const mailto = available
-    ? tattooMailto(
-        settings.email,
-        { kind: 'flash', number: flash.number, title: flash.title },
-        locale,
-      )
-    : null
+  const mailto =
+    available && !booked
+      ? tattooMailto(
+          settings.email,
+          { kind: 'flash', number: flash.number, title: flash.title },
+          locale,
+        )
+      : null
   const size = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
     maximumFractionDigits: 1,
   }).format(flash.sizeCm)
@@ -64,6 +75,7 @@ export async function FlashCard({
       aria-labelledby={titleId}
       data-flash-card={flash.display}
       data-flash-status={flash.status}
+      data-flash-example={flash.example ? '' : undefined}
       data-leash-anchor="tag"
     >
       <div className={styles.flashDrawing}>
@@ -80,9 +92,11 @@ export async function FlashCard({
           className={styles.flashImage}
         />
         {!available ? <TakenStamp number={flash.number} label={t('taken')} /> : null}
+        {flash.example ? <ExampleStamp label={tExample('label')} /> : null}
       </div>
       <div className={styles.flashBody}>
         <p className={styles.flashMeta}>
+          {flash.example ? <span className="u-sr-only">{tExample('flashA11y')} </span> : null}
           <span className={styles.flashNumber} data-flash-number="" data-stamp="">
             {flash.display}
           </span>
@@ -129,7 +143,12 @@ export async function FlashCard({
             </a>
           </p>
         ) : null}
-        {available && !compact ? (
+        {booked && !compact ? (
+          <p className={styles.booked} data-flash-booked="">
+            {tBooking('title')}
+          </p>
+        ) : null}
+        {available && !booked && !compact ? (
           <div className={styles.flashActions}>
             {mailto ? (
               <Button

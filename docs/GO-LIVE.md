@@ -297,13 +297,15 @@ Unter `<projekt>.vercel.app`, Shop **geschlossen** (`settings.shop.isOpen = fals
 `pnpm admin:create` in ihrem Terminal das einzige Konto an (E-03; E-Mail und Passwort werden abgefragt, nie als Argument) und
 trägt in der Verwaltung ein: Stammdaten (Name, Anschrift nach der Antwort zu K-39, E-Mail, Telefon, Steuernummer, W-IdNr. bzw.
 USt-IdNr.), Bezirk, Abhol-Vorlage, Kontoinhaberin/IBAN/BIC, LUCID-Nummer und Systembeteiligung, Standard-Verpackungen,
-Steuer-Bestätigung und Vorjahresumsatz, Rechtstexte der Kanzlei für alle sechs Typen (`origin = lawyer`) und die Bausteine
+Steuer-Bestätigung und Vorjahresumsatz, Bestätigung der Tattoo-Preise (Tattoo → Texte → „Preise stimmen – bestätigen“,
+am iPad über „Mehr“ → „Tattoo“, am Computer über die Seitenleiste; P20.5, V-28 a), Rechtstexte der Kanzlei für alle
+sechs Typen (`origin = lawyer`) und die Bausteine
 „Kanzlei: ja“, harmonisierte Mitteilung als amtliche Grafik (R-049), Nickel-Nachweise, Glasur-Erklärungen oder alles „Deko“,
 technische Unterlagen, Einwilligungen für Galerie-Fotos, erste echte Stücke, Seitentexte und FAQ gegenlesen. Außerdem legt
 sie die Verwaltung als Web-App aufs Handy (PWA).
 
 **Prüfkriterium:** Rechtsseiten ohne Platzhalter-Banner; Impressum ohne Steuernummer; Startklar-Punkte zu Stammdaten,
-Rechtstexten, IBAN, LUCID und Steuer grün; die Web-App öffnet „Heute“, die Anmeldung klappt.
+Rechtstexten, IBAN, LUCID, Steuer und Tattoo-Preisen (R210-16) grün; die Web-App öffnet „Heute“, die Anmeldung klappt.
 
 ### P11.11 Auftragsverarbeitung und Statistik-Entscheidung (A35, A36)
 
@@ -339,7 +341,7 @@ In der Verwaltung „Beispieldaten entfernen“ mit „Seitentexte und FAQ behal
 prüfen. Startklar-Ansicht vollständig grün (`pnpm check:golive` mit `APP_ENV=production` endet mit Code 0); danach
 `pnpm db:mark-production --yes` in Juttas Terminal und Markierung per SQL prüfen (Abschnitt 3).
 
-**Prüfkriterium:** 0 Dokumente mit `seed = true` (Mengenvorschau `seed:remove` zeigt 0); alle 15 Startklar-Punkte grün;
+**Prüfkriterium:** 0 Dokumente mit `seed = true` (Mengenvorschau `seed:remove` zeigt 0); alle 16 Startklar-Punkte grün;
 Datenbank-Kommentar `planetclaire:production` gesetzt.
 
 ### P11.14 DNS-Umstellung bei IONOS (A37)

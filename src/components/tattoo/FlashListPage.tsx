@@ -24,7 +24,8 @@ import { TattooShell } from './TattooShell'
 // den Nachrichten), Filter „alle“/„verfügbar“ als Links (`?available=1`, statische Variante wie im Shop, Spike B-05),
 // Raster 2 Spalten mobil, 3 ab 768 px, Abstände ≥ 32 px; verfügbare nach `sortOrder`, dann vergebene (sofern der
 // Block `showClaimed` nicht abschaltet). Preis-Fußnote einmal je Seite (R-034). Leerzustände nach KONZEPT §9.2 bzw.
-// KO-17. Ohne JavaScript vollständig lesbar.
+// KO-17. Ohne JavaScript vollständig lesbar. Ohne veröffentlichte Motive bleibt die Adresse erreichbar (Leerzustand),
+// Menü, Übersicht und Sitemap führen dann aber nicht hierher (V-28 a); Beispiel-Motive tragen den Stempel „Beispiel“.
 
 export async function FlashListPage({ locale, list }: { locale: Locale; list: ListParams }) {
   const [t, settings, page, all, gallery] = await Promise.all([

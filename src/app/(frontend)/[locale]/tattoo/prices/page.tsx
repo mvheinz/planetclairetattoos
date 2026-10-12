@@ -7,13 +7,18 @@ import styles from '@/components/tattoo/Tattoo.module.css'
 import { TattooPriceFootnote } from '@/components/tattoo/TattooPriceFootnote'
 import { TattooShell } from '@/components/tattoo/TattooShell'
 import { tattooLocale, tattooMetadata } from '@/components/tattoo/tattooRoute'
-import { blocksOfType, getTattooPage, getTattooSettings } from '@/lib/data/tattoo'
+import {
+  blocksOfType,
+  getTattooAvailability,
+  getTattooPage,
+  getTattooSettings,
+} from '@/lib/data/tattoo'
 import { localizedPath } from '@/lib/routes/paths'
 import { formatTattooPrice } from '@/lib/tattoo/price'
 
 // R14 Preise (KONZEPT §9.2, §9.6, R-034): Mindestpreis aus `settings.tattoo.minPriceCents` („Mindestpreis 80 €*“),
 // Preisrahmen eigener Ideen aus `customPriceFromCents`/`customPriceToCents` und `priceNote`, Flash-Hinweis mit Link auf
-// R12, Anzahlung „vereinbaren wir persönlich, außerhalb der Website“ – ohne Verfall- oder Nicht-Erstattungs-Klauseln
+// R12 (nur mit veröffentlichten Motiven, V-28 a), Anzahlung „vereinbaren wir persönlich, außerhalb der Website“ – ohne Verfall- oder Nicht-Erstattungs-Klauseln
 // (V-24) –, Text des Blocks `priceInfo` der Seite `tattoo`, Fußnote `price.tattooNote` (Gesamtpreise, Kleinunternehmer)
 // und der Kontakt-Block mit Betreff „Tattoo-Anfrage – eigene Idee“. Keine Online-Anzahlung (E-53).
 
@@ -23,10 +28,11 @@ export const generateMetadata = tattooMetadata('R14')
 export default async function PricesPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = tattooLocale((await params).locale)
   setRequestLocale(locale)
-  const [t, settings, page] = await Promise.all([
+  const [t, settings, page, availability] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.prices' }),
     getTattooSettings(locale),
     getTattooPage(locale),
+    getTattooAvailability(locale),
   ])
   // Betrag ohne Sternchen; die Vorlage setzt es einmal hinter den Preis bzw. Preisrahmen („150–400 €*“).
   const money = (cents: number) => formatTattooPrice(cents, locale)
@@ -64,10 +70,14 @@ export default async function PricesPage({ params }: { params: Promise<{ locale:
             </span>
           ) : null}
         </dd>
-        <dt>{t('flashHeading')}</dt>
-        <dd>
-          {t('flashText')} <a href={localizedPath('R12', locale)}>{t('flashLink')}</a>
-        </dd>
+        {availability.flash ? (
+          <>
+            <dt>{t('flashHeading')}</dt>
+            <dd data-price-flash="">
+              {t('flashText')} <a href={localizedPath('R12', locale)}>{t('flashLink')}</a>
+            </dd>
+          </>
+        ) : null}
         <dt>{t('depositHeading')}</dt>
         <dd data-price-deposit="">{t('depositText')}</dd>
       </dl>

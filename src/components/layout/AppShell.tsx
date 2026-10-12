@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
 import { getSiteNavigation } from '@/lib/data/navigation'
+import { getTattooAvailability } from '@/lib/data/tattoo'
 import { LeashLayer } from '@/components/leash/LeashLayer'
 import { PageTransition } from '@/components/leash/PageTransition'
 import type { Locale } from '@/lib/routes/registry'
@@ -23,9 +24,10 @@ export async function AppShell({
   locale: Locale
   children: React.ReactNode
 }) {
-  const [t, nav] = await Promise.all([
+  const [t, nav, tattooPages] = await Promise.all([
     getTranslations({ locale, namespace: 'a11y' }),
     getSiteNavigation(locale),
+    getTattooAvailability(locale),
   ])
   return (
     <>
@@ -41,7 +43,7 @@ export async function AppShell({
         </main>
       </div>
       <SiteFooter locale={locale} nav={nav} />
-      <MenuOverlay locale={locale} nav={nav} />
+      <MenuOverlay locale={locale} nav={nav} tattooPages={tattooPages} />
     </>
   )
 }

@@ -8,15 +8,18 @@ import { ContactLinks } from '@/components/content/ContactLinks'
 import { FaqList } from '@/components/content/FaqList'
 import { RichTextContent } from '@/components/content/RichTextContent'
 import { ResponsiveImage } from '@/components/media/ResponsiveImage'
+import { BookingNotice } from '@/components/tattoo/BookingNotice'
 import tattoo from '@/components/tattoo/Tattoo.module.css'
 import { Callout } from '@/components/ui/Callout'
 import { getContactInfo } from '@/lib/data/contact'
 import { loadPublicPage } from '@/lib/data/pages'
-import { blocksOfType, listFaqs } from '@/lib/data/tattoo'
+import { blocksOfType, getTattooSettings, listFaqs } from '@/lib/data/tattoo'
 import type { FaqCategory } from '@/lib/enums'
 import type { Locale } from '@/lib/routes/registry'
 import { routeMetadata } from '@/lib/seo/metadata'
+import { activeBooking } from '@/lib/tattoo/booking'
 import { isMediaPubliclyVisible } from '@/lib/tattoo/visibility'
+import { systemClock } from '@/lib/time'
 import type { Media } from '@/payload-types'
 
 export const generateMetadata = routeMetadata('R10')
@@ -27,7 +30,9 @@ export const generateMetadata = routeMetadata('R10')
 // Formular-Überschrift), FAQ (`faqList` `commissions`) und Kontaktalternative (Mail, DM). Dynamisch gerendert (CSP-Kontext
 // `dynamic` mit Nonce, ARCHITEKTUR §8.1) – das Formular-Token entsteht je Aufruf. Die Seite liest `pages`
 // (`key = commissions`) ungecacht; fehlt sie (vor dem Seed P8.7), rendern H1, Hinweis, Formular und Kontaktalternative
-// mit Leerzustand statt 500 (DM-PAGE-01). Kein Kauf-Knopf, kein Preisschild (E-11).
+// mit Leerzustand statt 500 (DM-PAGE-01). Kein Kauf-Knopf, kein Preisschild (E-11). Ist der Schalter „Anfragen offen“
+// aus (V-64, `settings.tattoo.inquiriesOpen`), steht über dem Formular der Hinweis „Gerade ausgebucht“; das Formular
+// bleibt erreichbar (konservativ, OFFENE-PUNKTE P20.5).
 
 const FALLBACK_STEPS = ['1', '2', '3', '4'] as const
 
@@ -40,12 +45,14 @@ export default async function CommissionsPage({ params }: { params: Promise<{ lo
   await connection()
   const locale = ((await params).locale === 'en' ? 'en' : 'de') as Locale
   setRequestLocale(locale)
-  const [t, tRoutes, page, contact] = await Promise.all([
+  const [t, tRoutes, page, contact, tattooSettings] = await Promise.all([
     getTranslations({ locale, namespace: 'commission' }),
     getTranslations({ locale, namespace: 'common.routes' }),
     loadPublicPage('commissions', locale),
     getContactInfo(),
+    getTattooSettings(locale),
   ])
+  const booking = activeBooking(tattooSettings.booking, systemClock.now())
   const stepsBlock = blocksOfType(page, 'processSteps')[0]
   const gallery = blocksOfType(page, 'imageGallery')[0]
   const formBlock = blocksOfType(page, 'commissionForm')[0]
@@ -144,6 +151,8 @@ export default async function CommissionsPage({ params }: { params: Promise<{ lo
             <p key={c.id ?? i}>{c.text}</p>
           ))}
         </Callout>
+
+        {booking ? <BookingNotice locale={locale} booking={booking} context="commission" /> : null}
 
         <CommissionFormBlock
           locale={locale}

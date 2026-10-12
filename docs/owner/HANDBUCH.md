@@ -338,6 +338,42 @@ Eine Anfrage ist noch kein Vertrag, und der Preis steht nirgends fest. Du sagst 
 
 Preise, Ablauf, Pflegehinweise und häufige Fragen bearbeitest du unter „Texte“ (nächstes Kapitel).
 
+**Flash und Galerie erscheinen von selbst** (seit P20.5): Solange kein Flash-Motiv online ist, zeigt die Seite keinen
+Menüpunkt „Flash“, keinen Link darauf und keinen Flash-Hinweis bei den Preisen. Mit deinem ersten echten Motiv ist alles
+nach spätestens einer Minute da. Für die Galerie gilt dasselbe mit dem ersten Foto. Du musst nichts ein- oder ausschalten.
+Die erfundenen Beispiel-Motive und -Fotos tragen in der Vorschau-Datei und im Rundgang den Stempel **„Beispiel“**: Ihre
+Preise sind ausgedacht und gehen nie online.
+
+**Anfragen offen / ausgebucht** (seit P20.5): Bist du ausgebucht oder im Urlaub, sagst du das hier, statt Mails
+absagen zu müssen.
+
+- **Am iPad (oder Handy):** Verwaltung öffnen → unten „Mehr“ → „Tattoo“ (hältst du das iPad quer, steht „Tattoo“ links
+  in der Seitenleiste) → oben den Reiter „Texte“ antippen. Ganz oben steht „Anfragen offen / ausgebucht“.
+- **Am Computer (Mac oder PC):** Verwaltung im Browser öffnen → links in der Seitenleiste „Tattoo“ → Reiter „Texte“
+  anklicken. Ganz oben steht „Anfragen offen / ausgebucht“.
+
+Dann:
+
+1. Das Häkchen bei **„Anfragen offen“** wegnehmen.
+2. Bei **„Ausgebucht bis einschließlich“** den letzten vollen Monat eintragen, als Zahl wie `2027-02` für Februar 2027.
+   Ab dem Monat danach verschwindet der Hinweis von selbst, du musst nicht daran denken. Lässt du das Feld leer, bleibt
+   der Hinweis, bis du das Häkchen wieder setzt.
+3. Wenn du magst, einen **kurzen Hinweis** schreiben, zum Beispiel „Gerade ausgebucht – neue Anfragen ab März“. Mit
+   „Übersetzen“ kommt das Englische dazu, prüf es kurz. Lässt du es leer, steht dort „Neue Anfragen nehme ich ab März
+   2027 wieder an.“ (Deutsch und Englisch).
+4. „Speichern“. Darüber steht danach, was die Seite gerade zeigt.
+
+Auf der Seite erscheint ein ruhiger Kasten „Gerade ausgebucht“ auf allen Tattoo-Seiten und bei den Auftragsarbeiten.
+Der Knopf „Mail schreiben“ für Tattoo-Anfragen ist dann weg, deine Mail-Adresse bleibt aber sichtbar. Das Formular für
+Auftragsarbeiten bleibt offen, darüber steht, dass du dich meldest, sobald wieder Platz ist. Wieder öffnen: Häkchen bei
+„Anfragen offen“ setzen und „Speichern“.
+
+**Tattoo-Preise bestätigen** (seit P20.5): Unter „Texte“ → „Preise“ stehen dein Mindestpreis (80 €) und der Rahmen für
+eigene Ideen (150–400 €). Stimmen sie, tippst du am iPad auf (am Computer klickst du auf) **„Preise stimmen –
+bestätigen“** und bestätigst die Rückfrage. Darunter steht dann „Bestätigt am …“. Erst danach wird der Punkt
+„Tattoo-Preise sind von dir bestätigt“ der [Startklar-Prüfung](#17-startklar-prüfung) grün. Änderst du später einen
+Betrag, bestätigst du ihn einfach neu.
+
 ## 11. Texte bearbeiten
 
 ![Die Ansicht „Texte“](img/handbuch/texte.webp)
@@ -506,7 +542,8 @@ aber sie darf die Frist nicht verzögern.
 Die Startklar-Prüfung ist eine Liste mit grünen und roten Punkten (Einstellungen → System). Sie sagt dir, **ob der Shop
 öffnen darf**. Rot ist am Anfang normal. Beispiele für rote Punkte: Rechtstexte der Kanzlei fehlen noch, Impressum
 ist unvollständig, Beispiel-IBAN statt echter IBAN, Verträge mit Dienstleistern fehlen, Beispieldaten sind noch da.
-Jeder rote Punkt hat einen Satz, was zu tun ist.
+Jeder rote Punkt hat einen Satz, was zu tun ist. Zum Beispiel bleibt „Tattoo-Preise sind von dir bestätigt“ rot, bis
+du unter Tattoo → Texte auf „Preise stimmen – bestätigen“ tippst bzw. klickst ([Kapitel 10](#10-tattoo-flash-und-galerie)).
 
 - Der Schalter **„Shop öffnen“** (Einstellungen) bleibt im echten Betrieb gesperrt, bis alles grün ist. Versuchst du
   es trotzdem, zeigt dir die Verwaltung die offenen Punkte.

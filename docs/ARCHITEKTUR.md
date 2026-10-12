@@ -1897,7 +1897,7 @@ damit grün sind. Der Wechsel betrifft nur `cached.ts` und Segment-Konfiguration
 | Stück reserviert / freigegeben / verkauft (Webhook, Job, Kasse, „Offline verkauft“) | `product:<id>`, `products`, `category:<key>`, `home`, `sitemap` | `revalidateTag(tag, { expire: 0 })` (Route-Handler/Job); in Server-Actions `updateTag(tag)` | ≤ 5 s (T-21) |
 | Stück in der Verwaltung bearbeitet | wie oben | `revalidateTag(tag, 'max')` | ≤ 60 s |
 | Seite, FAQ, Texte, Einstellungen | `page:<key>`, `faqs`, `site-texts`, `settings` | `revalidateTag(tag, 'max')` | ≤ 60 s |
-| Flash, Galerie | `flash`, `tattoo-gallery`, `home` | `'max'` | ≤ 60 s |
+| Flash, Galerie (auch gelöscht) | `flash`, `tattoo-gallery`, `home` – dieselben Tags erneuern seit P20.5 Menü (`getTattooAvailability` im Seitenrahmen), Unter-Navigation und Sitemap: Flash/Galerie erscheinen dort nur mit Inhalt (V-28 a) | `'max'` | ≤ 60 s |
 | Termine „on Tour“ (P12.8) | `tour-dates`, `home` | `'max'` (Rückfall `revalidate = 3600`; „vorbei“ aus dem Datum beim Rendern) | ≤ 60 s |
 | Rechtstext aktiviert | `legal:<type>` | `{ expire: 0 }` | ≤ 5 s |
 | Bild geändert | `media:<id>` | `'max'` | ≤ 60 s |

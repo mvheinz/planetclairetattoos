@@ -7,7 +7,9 @@ import { DEFAULT_INSTAGRAM_HANDLE } from '@/lib/data/navigation'
 import { TAX_MODES, type FaqCategory, type Locale, type TaxMode } from '@/lib/enums'
 import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 import { getPublicPayload, getPublicSettings } from '@/lib/payload/public'
+import { pickBooking, type BookingSettings } from '@/lib/tattoo/booking'
 import { formatFlashNumber } from '@/lib/tattoo/flash'
+import type { TattooAvailability } from '@/lib/tattoo/pages'
 import {
   isMediaPubliclyVisible,
   isPubliclyVisible,
@@ -77,6 +79,8 @@ export interface TattooSettings {
   customPriceToCents: number | null
   priceNote: string | null
   taxMode: TaxMode
+  /** Schalter „Anfragen offen / ausgebucht bis …“ (V-64); ob er gerade wirkt, sagt `activeBooking(…, now)`. */
+  booking: BookingSettings
 }
 
 const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/
@@ -115,6 +119,7 @@ export function pickTattooSettings(settings: Obj): TattooSettings {
     taxMode: (TAX_MODES as readonly string[]).includes(String(tax.currentMode))
       ? (tax.currentMode as TaxMode)
       : 'kleinunternehmer',
+    booking: pickBooking(tattoo),
   }
 }
 
@@ -148,6 +153,8 @@ export interface PublicFlash {
   priceCents: number
   repeatable: boolean
   status: Flash['status']
+  /** Beispiel-Motiv aus den Beispieldaten (`seed`, nur im Vorschau-Modus sichtbar): Stempel „Beispiel“ (V-28 a). */
+  example: boolean
 }
 
 export const flashAnchor = (number: number) => formatFlashNumber(number).toLowerCase()
@@ -166,6 +173,7 @@ function toPublicFlash(doc: Flash): PublicFlash | null {
     priceCents: doc.priceCents,
     repeatable: doc.repeatable === true,
     status: doc.status,
+    example: doc.seed === true,
   }
 }
 
@@ -223,6 +231,8 @@ export interface PublicGalleryEntry {
   anchor: string
   /** Nummer des veröffentlichten Flash-Motivs (Feld `flash`), sonst `null` (U-56: „nach Flash F-012“). */
   flashNumber: number | null
+  /** Beispiel-Eintrag aus den Beispieldaten (`seed`, nur im Vorschau-Modus sichtbar): Stempel „Beispiel“ (V-28 a). */
+  example: boolean
 }
 
 export const galleryAnchor = (id: number) => `g-${id}`
@@ -274,6 +284,7 @@ export function toPublicGallery(
       featured: doc.featured === true,
       anchor: galleryAnchor(doc.id),
       flashNumber: flashNumberOf(doc.flash),
+      example: doc.seed === true,
     })
   }
   return out
@@ -308,6 +319,27 @@ export async function loadGallery(locale: Locale): Promise<PublicGalleryEntry[]>
 export const listGallery = cached(loadGallery, {
   key: 'tattoo-gallery',
   tags: [TAGS.tattooGallery],
+})
+
+// --- Welche Unterseiten haben Inhalt (V-28 a, V-11) -------------------------------------------------------------------
+
+export type { TattooAvailability }
+
+/**
+ * Flash (R12) und Galerie (R15) erscheinen in Menü, Unter-Navigation, Übersicht und Sitemap nur mit Inhalt: mindestens
+ * ein veröffentlichtes Motiv bzw. ein öffentlich sichtbares Foto. Beispieldaten zählen nur im Vorschau-Modus (der
+ * Seed-Filter der Zugriffsregeln greift) – dort tragen sie den Stempel „Beispiel“. Die Adressen bleiben erreichbar und
+ * zeigen ihren Leerzustand.
+ */
+export async function loadTattooAvailability(locale: Locale): Promise<TattooAvailability> {
+  const [flash, gallery] = await Promise.all([loadFlash(locale), loadGallery(locale)])
+  return { flash: flash.length > 0, gallery: gallery.length > 0 }
+}
+
+/** Gecacht mit den Tags `flash` und `tattoo-gallery`: das erste Motiv bzw. das letzte entfernte erneuert Menü & Co. */
+export const getTattooAvailability = cached(loadTattooAvailability, {
+  key: 'tattoo-availability',
+  tags: [TAGS.flash, TAGS.tattooGallery],
 })
 
 /** Teaser (R11): bevorzugt `healed`, dann hervorgehobene, sonst nach Reihenfolge. */

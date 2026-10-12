@@ -20,7 +20,9 @@ import { TattooShell } from './TattooShell'
 // R15 Galerie (KONZEPT §9.2, §9.7, DESIGN KO-20): Filter „alle“/„fresh“/„healed“ als Links (`?kind=`, statische
 // Variante wie im Shop), Raster ohne Preise, Foto antippen → Vollbild mit Bildunterschrift (ohne JS: Link auf die
 // große Datei). Nur Einträge, die `isPubliclyVisible` besteht – Kund:innen-Fotos nur mit Einwilligung, Seed-Ausnahme nur
-// im Vorschau-Modus mit Etikett „intern – Einwilligung fehlt“ (R-172, R-182). Leerzustand „Hier kommen bald Fotos“.
+// im Vorschau-Modus mit Etikett „intern – Einwilligung fehlt“ (R-172, R-182). Leerzustand „Hier kommen bald Fotos“ –
+// mit Link zu Flash nur, wenn es veröffentlichte Motive gibt (V-28 a), sonst zum Ablauf. Die Seite bleibt auch leer
+// erreichbar (V-11); Menü und Übersicht verlinken sie erst mit Fotos.
 
 const FILTERS = [
   { key: 'all', kind: undefined },
@@ -84,8 +86,12 @@ export async function GalleryListPage({ locale, list }: { locale: Locale; list: 
         <EmptyState
           pose="sitzen"
           title={t('emptyTitle')}
-          text={t('emptyText')}
-          action={{ href: localizedPath('R12', locale), label: t('emptyAction') }}
+          text={flash.length > 0 ? t('emptyText') : t('emptyTextNoFlash')}
+          action={
+            flash.length > 0
+              ? { href: localizedPath('R12', locale), label: t('emptyAction') }
+              : { href: localizedPath('R16', locale), label: t('emptyActionNoFlash') }
+          }
         />
       )}
     </TattooShell>

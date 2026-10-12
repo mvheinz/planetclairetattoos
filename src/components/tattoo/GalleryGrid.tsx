@@ -7,13 +7,14 @@ import galleryStyles from '@/components/shop/product/ProductGallery.module.css'
 import type { PublicGalleryEntry } from '@/lib/data/tattoo'
 import type { Locale } from '@/lib/routes/registry'
 
+import { ExampleStamp } from './ExampleStamp'
 import styles from './Tattoo.module.css'
 
 // Galerie „Fresh & healed“ (KONZEPT §9.2 R15, §9.7, DESIGN KO-20): Raster wie im Shop, ohne Preise und ohne Schnur.
 // Nur Einträge, die `isPubliclyVisible` besteht (der Loader filtert). Jedes Foto ist ein Link auf die größte vorhandene
 // Datei (ohne JavaScript); das Modul `lightbox` öffnet es im Vollbild mit Bildunterschrift. Angabe „3,5 Jahre
 // verheilt“ aus `healedLabel` bzw. `healedDurationMonths`; Seed-Ausnahme im Vorschau-Modus mit Etikett „intern –
-// Einwilligung fehlt“ (R-182).
+// Einwilligung fehlt“ (R-182). Einträge aus den Beispieldaten tragen zusätzlich den Stempel „Beispiel“ (V-28 a).
 
 type Translate = (key: string, values?: Record<string, string | number>) => string
 
@@ -64,7 +65,10 @@ export async function GalleryGrid({
   /** U-56: Flash-Nummer → Link auf die Karte in R12 (nur veröffentlichte Motive); „nach Flash F-012“. */
   flashLinks?: ReadonlyMap<number, { href: string; display: string }>
 }) {
-  const t = await getTranslations({ locale, namespace: 'tattoo.gallery' })
+  const [t, tExample] = await Promise.all([
+    getTranslations({ locale, namespace: 'tattoo.gallery' }),
+    getTranslations({ locale, namespace: 'tattoo.example' }),
+  ])
   return (
     <section
       className={loop ? `${styles.gallery} u-leash-room` : styles.gallery}
@@ -80,6 +84,14 @@ export async function GalleryGrid({
           const caption = [entry.caption, entry.placement, status].filter(Boolean).join(' · ')
           const flash =
             !loop && entry.flashNumber !== null ? flashLinks?.get(entry.flashNumber) : undefined
+          const name = entry.image.alt ?? caption
+          // Im Vollbild ist der Stempel nicht zu sehen – dort steht „Beispiel“ in der Bildunterschrift.
+          const zoomCaption = entry.example
+            ? [caption, tExample('label')].filter(Boolean).join(' · ')
+            : caption
+          const label = entry.example
+            ? `${name} (${tExample('galleryA11y')}) – ${t('open')}`
+            : `${name} – ${t('open')}`
           return (
             <li key={entry.id} data-leash-anchor={loop ? undefined : 'tag'}>
               <figure
@@ -88,6 +100,7 @@ export async function GalleryGrid({
                 data-gallery-entry={entry.id}
                 data-gallery-kind={entry.kind}
                 data-gallery-internal={entry.internal ? '' : undefined}
+                data-gallery-example={entry.example ? '' : undefined}
               >
                 <a
                   className={styles.galleryLink}
@@ -95,8 +108,8 @@ export async function GalleryGrid({
                   data-zoom-src={zoom?.url}
                   data-zoom-w={zoom?.width}
                   data-zoom-h={zoom?.height}
-                  data-zoom-caption={caption}
-                  aria-label={`${entry.image.alt ?? caption} – ${t('open')}`}
+                  data-zoom-caption={zoomCaption}
+                  aria-label={label}
                 >
                   <ResponsiveImage
                     media={entry.image}
@@ -110,6 +123,7 @@ export async function GalleryGrid({
                       {t('internal')}
                     </span>
                   ) : null}
+                  {entry.example ? <ExampleStamp label={tExample('label')} /> : null}
                 </a>
                 <figcaption className={loop ? 'u-sr-only' : styles.galleryCaption}>
                   {entry.caption ? <span>{entry.caption}</span> : null}

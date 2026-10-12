@@ -128,6 +128,11 @@ test('Filter „healed“/„fresh“, Vollbild mit Bildunterschrift, R11 nur si
   const dialog = page.locator('dialog[data-lightbox]')
   await expect(dialog).toBeVisible()
   await expect(dialog.locator('[data-lightbox-caption]')).toContainText(CAPTION.g4)
+  // P20.5 (V-28 a): G4 ist ein echter Datensatz – kein „Beispiel“ (weder Stempel noch Bildunterschrift)
+  await expect(dialog.locator('[data-lightbox-caption]')).not.toContainText('Beispiel')
+  await expect(
+    page.locator('figure').filter({ hasText: CAPTION.g4 }).locator('[data-example-stamp]'),
+  ).toHaveCount(0)
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
 

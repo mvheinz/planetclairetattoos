@@ -181,7 +181,6 @@ const SEED_IDENTICAL_VALUES = new Set([
   'L',
   'S',
   'EU 38',
-  'Godzilla and the bunnies',
 ])
 const isPlace = (v: string) => /^Berlin-[\p{L} ]+$/u.test(v)
 
