@@ -37,9 +37,10 @@ import { intArray } from './reservation'
 // Leseregel wie die Shop-Seiten, inkl. Seed-Filter) und `available`, noch nicht im Korb, Korb < 20 Stücke. Erst bei
 // Erfolg entsteht bzw. ändert sich das Cookie `pc_cart` (die Server-Action setzt es). Ein ungültiges oder manipuliertes
 // Cookie gilt als leerer Korb und wird neu geschrieben; `p` stammt immer aus der Datenbank. Die Lieferart bleibt, wie sie
-// ist (Standard `shipping`); ein Stück mit Versandklasse `nur_abholung` erzwingt `pickup`. Ist Abholung aus
-// (`settings.shipping.pickupEnabled`, P18.5), wird ein `nur_abholung`-Stück abgelehnt (`pickup_disabled`) und eine
-// gemerkte Abholung fällt auf `shipping` zurück.
+// ist (Standard `shipping`; seit V-16 merkt sie sich nur die Kasse). Ein Stück mit Versandklasse `nur_abholung` erzwingt
+// `pickup` in Korb-Bewertung und Kasse, ohne die gemerkte Lieferart zu ändern – nimmt man es wieder heraus, gilt wieder
+// die zuletzt in der Kasse gewählte. Ist Abholung aus (`settings.shipping.pickupEnabled`, P18.5), wird ein
+// `nur_abholung`-Stück abgelehnt (`pickup_disabled`) und eine gemerkte Abholung fällt auf `shipping` zurück.
 
 export interface AddToCartRequest {
   productId: number
@@ -183,7 +184,8 @@ export async function addToCart(
   const next: CartCookie = {
     v: 1,
     items: [...cart.items, { id: doc.id, p: doc.priceCents }],
-    delivery: pickupOnly ? 'pickup' : shop.pickupEnabled ? cart.delivery : 'shipping',
+    // V-16: `nur_abholung` erzwingt Abholung erst in `evaluateCart`/`startCheckout` – das Cookie merkt nur die Wahl der Kasse
+    delivery: shop.pickupEnabled ? cart.delivery : 'shipping',
   }
   return {
     response: { ok: true, added: true, count: next.items.length, state: 'available' },

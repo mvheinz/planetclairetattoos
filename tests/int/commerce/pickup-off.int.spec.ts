@@ -86,7 +86,11 @@ describe('„In den Korb“ bei ausgeschalteter Abholung', () => {
       h.payload,
     )
     expect(added.response).toMatchObject({ ok: true, added: true })
-    expect(decodeCartCookie(added.cookie!)?.delivery).toBe('pickup')
+    // V-16: das Cookie merkt nur die Wahl der Kasse – Abholung erzwingt die Bewertung
+    expect(decodeCartCookie(added.cookie!)?.delivery).toBe('shipping')
+    const ev = await evaluateCart(decodeCartCookie(added.cookie!)!, h.now(), { payload: h.payload })
+    expect(ev.delivery).toBe('pickup')
+    expect(ev.pickupOnly).toHaveLength(1)
   })
 })
 

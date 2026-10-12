@@ -159,15 +159,16 @@ describe('Hinzufügen – Erfolg und Cookie-Inhalt', () => {
     ])
   })
 
-  it('Lieferart: Standard shipping, nur_abholung erzwingt pickup, pickup bleibt pickup', async () => {
+  it('Lieferart: Standard shipping, nur_abholung ändert die gemerkte Lieferart nicht (V-16), pickup bleibt pickup', async () => {
     const pickupOnly = await piece(986, { shippingClass: 'nur_abholung' }, 'sonstiges')
     const normal = await piece(987)
+    // Abholung erzwingen Korb-Bewertung und Kasse; das Cookie merkt nur die Wahl der Kasse
     const first = await addToCart(request(pickupOnly), payload)
-    expect(decodeCartCookie(first.cookie!)!.delivery).toBe('pickup')
+    expect(decodeCartCookie(first.cookie!)!.delivery).toBe('shipping')
     const second = await addToCart(request(normal, { cookie: first.cookie }), payload)
-    expect(decodeCartCookie(second.cookie!)!.delivery).toBe('pickup')
-    const alone = await addToCart(request(normal), payload)
-    expect(decodeCartCookie(alone.cookie!)!.delivery).toBe('shipping')
+    expect(decodeCartCookie(second.cookie!)!.delivery).toBe('shipping')
+    const kept = await addToCart(request(normal, { cookie: cookieOf([], 'pickup') }), payload)
+    expect(decodeCartCookie(kept.cookie!)!.delivery).toBe('pickup')
   })
 })
 

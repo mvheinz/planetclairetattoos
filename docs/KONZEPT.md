@@ -792,7 +792,7 @@ Liste mit Stripe- und Admin-Cookies: ARCHITEKTUR §8.7):
 | Eigenschaft | `pc_cart` (Warenkorb) | `pc_checkout` (Kasse) |
 |---|---|---|
 | Entsteht | erstes „In den Korb“ (Nutzeraktion) | „Zur Kasse“ (POST) |
-| Inhalt | base64url-JSON `{"v":1,"items":[{"id":<productId>,"p":<Preis in Cent beim Hinzufügen>},…],"delivery":"shipping"\|"pickup"}`, ≤ 20 Stücke – nur Stück-IDs, Preis beim Hinzufügen (nur für den Hinweis „Preis wurde aktualisiert“) und die zuletzt in der Kasse gewählte Lieferart (V-16: der Korb setzt sie nicht mehr; „In den Korb“ setzt bei einem Stück „nur Abholung“ `pickup`), keine Kennung, keine personenbezogenen Daten | zufälliger Kassen-Token (§2.3) |
+| Inhalt | base64url-JSON `{"v":1,"items":[{"id":<productId>,"p":<Preis in Cent beim Hinzufügen>},…],"delivery":"shipping"\|"pickup"}`, ≤ 20 Stücke – nur Stück-IDs, Preis beim Hinzufügen (nur für den Hinweis „Preis wurde aktualisiert“) und die zuletzt in der Kasse gewählte Lieferart (V-16: der Korb setzt sie nicht mehr; ein Stück „nur Abholung“ erzwingt Abholung in Korb und Kasse, ohne den Wert zu ändern), keine Kennung, keine personenbezogenen Daten | zufälliger Kassen-Token (§2.3) |
 | Attribute | `Path=/`, `SameSite=Lax`, `Secure` (außer `localhost`), **nicht** `HttpOnly` (die Korb-Anzahl im Kopf wird clientseitig gelesen), `Max-Age=604800` (7 Tage) | `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`, `Max-Age=3600` (1 h) |
 | Löschen | wenn der Korb leer wird, nach abgeschlossener Bestellung (beim Aufruf der Danke-Seite) | nach abgeschlossener Bestellung (Danke-Seite); sonst Ablauf nach 1 h |
 
