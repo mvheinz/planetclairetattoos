@@ -34,7 +34,7 @@ export interface TourIcsItem {
 export interface TourIcsTexts {
   /** „Stand 12“ (ohne Standnummer `null`). */
   stand: string | null
-  /** „Alle Termine: https://…/de#on-tour“. */
+  /** „Alle Termine: {Adresse des Schaukastens}“. */
   more: string
   /** „abgesagt“. */
   cancelled: string

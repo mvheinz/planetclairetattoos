@@ -14,7 +14,7 @@ import styles from './NumberLookup.module.css'
 
 // Nummernfeld „Nr. aus dem Post“ (V-60, U-93, P20.3; KONZEPT §3.2, §3.0.2, §3.17): Wer auf Instagram „Nr. 115“ sieht, tippt
 // die Nummer ein und landet beim Stück. Ein schlichtes GET-Formular auf `/nr?nummer=115&locale=de` (R31, ohne JavaScript
-// bedienbar, kein Cookie): Das versteckte Feld `locale` hält die Sprache der Seite, auf der das Feld steht – sie geht vor
+// bedienbar, kein Cookie): Der Knopf trägt `name="locale"` mit der Sprache der Seite, auf der das Feld steht – sie geht vor
 // `Accept-Language` (`src/app/(api)/nr/resolve.ts`). Unbekannte Nummer → die freundliche 404 mit demselben Feld. Steht im
 // Shop-Kopf (R02/R03), im Menü (KO-03) und auf der 404 (`variant="notFound"` mit deren eigenen Texten). Ohne `pattern`:
 // „Nr. 115“ oder „#115“ versteht der Server auch (`parseShortLinkNumber`). Rein, ohne Hooks (auch in `StaticHtml`).
@@ -67,8 +67,15 @@ export function NumberLookup({
           className={`${formStyles.control} ${styles.input}`}
         />
       </div>
-      <input type="hidden" name={SHORT_LINK_LOCALE_PARAM} value={locale} />
-      <Button type="submit" variant="secondary" className={styles.submit}>
+      {/* Die Sprache reist mit dem Knopf (`name`/`value`): Auch Enter im Feld sendet über diesen Standard-Knopf – so gibt es
+          kein verstecktes Feld, an dem die Tab-Reihenfolge des Menüs hängen bliebe. */}
+      <Button
+        type="submit"
+        variant="secondary"
+        name={SHORT_LINK_LOCALE_PARAM}
+        value={locale}
+        className={styles.submit}
+      >
         {submit ?? t('submit')}
       </Button>
     </form>

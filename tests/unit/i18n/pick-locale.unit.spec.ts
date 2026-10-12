@@ -76,7 +76,7 @@ describe('decidePublicRoute (ARCHITEKTUR §2.3)', () => {
     })
   })
 
-  it('V-60 Kurzadresse /on-tour → 307 auf den Schaukasten der erkannten Sprache (#on-tour), mit Präfix 308', () => {
+  it('AK-2-08 V-60 Kurzadresse /on-tour → 307 auf den Schaukasten der erkannten Sprache (#on-tour), mit Präfix 308', () => {
     expect(decidePublicRoute('/on-tour', '', 'en-US,en;q=0.9')).toEqual({
       kind: 'redirect',
       status: 307,

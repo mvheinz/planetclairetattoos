@@ -6,8 +6,7 @@ import type { BehaviorContext, Unmount } from './types'
 // ein Link auf `#fussnavigation`; `mount` macht aus jedem Auslöser (`[aria-controls="<id>"]`) einen Knopf, der das
 // Menü modal öffnet: Fokus auf den ersten Link, Tab bleibt im Dialog, `Esc`/„Schließen“ schließen mit Fokus zurück auf
 // den Auslöser, `<html data-menu-open>` sperrt das Scrollen ohne Verschiebung (`overflow: hidden`,
-// `scrollbar-gutter: stable`). Ein Linkklick (wie das Absenden des Nummernfelds, V-60) schließt sofort (ohne Animation)
-// und navigiert. Bei reduzierter
+// `scrollbar-gutter: stable`). Ein Linkklick schließt sofort (ohne Animation) und navigiert. Bei reduzierter
 // Bewegung keine Animationen (Endzustand sofort). Kein Netz, kein Speicher (auch nicht im Modus `app`).
 
 const OPEN_MS = 420
@@ -17,9 +16,8 @@ const COCO_MS = 300
 const COCO_DELAY = 200
 const STAGGER_FALLBACK = 40
 const EASE_FALLBACK = 'ease-out'
-// Ohne versteckte Felder: das Nummernfeld (V-60) trägt `<input type="hidden" name="locale">` – Tab bliebe sonst daran hängen.
 const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 export const MENU_OPEN_ATTR = 'data-menu-open'
 
@@ -262,8 +260,6 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
     // Linkklick: sofort schließen (ohne Animation), Navigation läuft weiter.
     if (target?.closest('a[href]')) finishClose(false)
   }
-  // V-60: Nummernfeld „Nr. aus dem Post“ – Absenden schließt wie ein Linkklick (zurück per Browser: Menü zu).
-  const onDialogSubmit = () => finishClose(false)
 
   for (const t of triggers) {
     t.setAttribute('role', 'button')
@@ -275,7 +271,6 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
   dialog.addEventListener('cancel', onCancel)
   dialog.addEventListener('close', onClose)
   dialog.addEventListener('click', onDialogClick)
-  dialog.addEventListener('submit', onDialogSubmit)
 
   return () => {
     for (const t of triggers) {
@@ -288,7 +283,6 @@ export function mount(root: Element, _ctx: BehaviorContext = { mode: 'app' }): U
     dialog.removeEventListener('cancel', onCancel)
     dialog.removeEventListener('close', onClose)
     dialog.removeEventListener('click', onDialogClick)
-    dialog.removeEventListener('submit', onDialogSubmit)
     clearTimeout(timer)
     if (isOpen() || html.hasAttribute(MENU_OPEN_ATTR)) finishClose(false)
     cancelAll()

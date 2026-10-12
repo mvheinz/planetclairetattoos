@@ -40,7 +40,9 @@ test.describe('V-60 Nummernfeld „Nr. aus dem Post“', () => {
     await expect(form).toBeVisible()
     await expect(form).toHaveAttribute('action', '/nr')
     await expect(form).toHaveAttribute('method', 'get')
-    await expect(form.locator('input[type="hidden"][name="locale"]')).toHaveValue('en')
+    // Sprache reist mit dem Knopf (kein verstecktes Feld)
+    await expect(form.locator('button[type="submit"][name="locale"]')).toHaveAttribute('value', 'en')
+    await expect(form.locator('input[type="hidden"]')).toHaveCount(0)
     // Feld im Kopf unter der Einleitung, vor dem Raster
     const head = (await page.locator('header').filter({ has: form }).boundingBox())!
     const grid = (await page.locator('#liste').boundingBox())!
@@ -73,7 +75,7 @@ test.describe('V-60 Nummernfeld „Nr. aus dem Post“', () => {
     const dialog = page.locator('dialog#menu')
     await expect(dialog).toBeVisible()
     const form = dialog.locator('form[data-nr-lookup="menu"]')
-    await expect(form.locator('input[name="locale"]')).toHaveValue('en')
+    await expect(form.locator('button[name="locale"]')).toHaveAttribute('value', 'en')
     const input = form.getByLabel('No. from the post')
     await input.focus()
     await page.keyboard.press('Tab')
