@@ -1215,7 +1215,9 @@ Lücken in der Nummerierung sind Reserve.
 
 #### R-126 · Kein Umsatzsteuerausweis im Kleinunternehmer-Modus
 - **Anforderung:** Im KU-Modus erscheinen nirgends Umsatzsteuersätze oder -beträge: Seiten, Mails, Rechnungen, Stripe
-  (keine Tax Rates, `automatic_tax` aus), JSON-LD (kein `valueAddedTaxIncluded: true`).
+  (keine Tax Rates, `automatic_tax` aus), JSON-LD (kein `valueAddedTaxIncluded: true`). *Umsetzungsnotiz P20.3 (V-61 b):*
+  Versand (`OfferShippingDetails`, Preis der Versandklasse) und Rückgabe (`MerchantReturnPolicy`: 14 Tage,
+  Rücksendekosten trägt die Kundin wie in der Widerrufsbelehrung, E-27) im JSON-LD tragen ebenfalls keine Steuerangabe.
 - **Rechtsgrundlage:** § 14c UStG; § 19 UStG; § 5 UWG.
 - **Abnahme:** `unit` – V-02-Scan der gerenderten Mails/PDF-Texte; `e2e` – V-02-Scan der gerenderten Seiten.
 - **Phase:** P3–P5 · **Owner:** nein
