@@ -192,10 +192,7 @@ export function validateForPublish(
     add('safetyWarnings', 'Warn- und Sicherheitshinweise (Deutsch) fehlen.')
   }
   if (product.ownDesignConfirmed !== true) {
-    add(
-      'ownDesignConfirmed',
-      'Bestätigung „Motiv und Schriftzug sind von mir“ fehlt (R-047).',
-    )
+    add('ownDesignConfirmed', 'Bestätigung „Motiv und Schriftzug sind von mir“ fehlt (R-047).')
   }
 
   // Bilder (R-042, R-191)

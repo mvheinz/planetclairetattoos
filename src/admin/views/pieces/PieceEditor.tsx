@@ -621,8 +621,7 @@ export function PieceEditor({
         {form.juttaSaysSuggestion.de.trim() ? (
           <div className="pc-piece__suggestion" data-testid="piece-juttasays-suggestion">
             <p className="pc-piece__hint">
-              <strong>{adminText('pieceJuttaSaysSuggestion')}</strong>{' '}
-              {form.juttaSaysSuggestion.de}
+              <strong>{adminText('pieceJuttaSaysSuggestion')}</strong> {form.juttaSaysSuggestion.de}
             </p>
             {form.de.juttaSays.trim() === form.juttaSaysSuggestion.de.trim() ? (
               <p className="pc-piece__hint">{adminText('pieceJuttaSaysSuggestionTaken')}</p>

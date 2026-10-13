@@ -268,7 +268,10 @@ const id = (r: Obj) => (typeof r.id === 'string' ? { id: r.id } : {})
  */
 function withCareDefaults(rows: TemplateRow[]): TemplateRow[] {
   const missing = CARE_CATEGORIES.filter((c) => !rows.some((r) => r.category === c))
-  return [...rows, ...missing.map((category) => ({ category, text: { ...CARE_TEMPLATE_TEXTS[category] } }))]
+  return [
+    ...rows,
+    ...missing.map((category) => ({ category, text: { ...CARE_TEMPLATE_TEXTS[category] } })),
+  ]
 }
 
 /** Startwerte aller Bereiche aus dem Global in beiden Sprachen (`fallbackLocale: false`). */
