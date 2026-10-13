@@ -69,3 +69,47 @@ bekommen `alt=""`.
 | `src/globals/SiteTexts.ts` | Standardwerte der Texte, die Jutta in der Verwaltung ändern kann |
 | `content/seed/data/*.json` | Beispielbestand (Seiten, Stationen, Kategorien, FAQ, Termine, Stücke) |
 | `docs/recht/` | Rechtstexte (von diesem Leitfaden ausgenommen) |
+
+## 8. Begriffe DE/EN (V-25, U-93)
+
+Das Englische ist **britisches Englisch** und benutzt für dieselbe Sache immer dasselbe Wort – damit die englische Seite klingt,
+als hätte sie eine einzige Person geschrieben. Ein Unit-Test (`tests/unit/i18n/english-terms.unit.spec.ts`) prüft die
+Oberflächentexte (`en.json`), die Seiten, FAQ, Bausteine und den echten Bestand (`content/bestand/products.json`) auf die
+verbotenen Varianten der rechten Spalte und dass keine zwei Stücke denselben englischen Namen tragen.
+
+| Deutsch | Englisch | nicht |
+|---|---|---|
+| Korb, Warenkorb | basket | cart, shopping cart |
+| In den Korb | Add to basket | Add to cart |
+| Kasse | checkout | – |
+| Abholung (Nomen) | pickup | pick-up, Pick-up; „collection“ nur in den Rechtstexten (siehe unten) |
+| skeptisch | sceptical | skeptical |
+| Leine | lead | leash |
+| Farbe | colour | color |
+| Lieblings- | favourite | favorite |
+| Unikat | one-off (im Fließtext auch „unique piece“) | – |
+
+**Stückarten im Namen** (Namensformel „Gegenstand „Tier, Zustand““ bleibt; „Keramik-“/„Ceramic“ fällt weg, wo die Kategorie es
+schon sagt):
+
+| Deutsch | Englisch |
+|---|---|
+| Tasse | mug |
+| Becher | cup |
+| Zweihenkelbecher | two-handled cup |
+| Henkelschälchen | two-handled dish |
+| Pokal | goblet |
+| Kelch | chalice |
+| Schale / Schälchen (mit Wand) | bowl / small bowl |
+| Schale / Schälchen (flach) | dish / small dish |
+| Figur, Figurenset, Set | figurine, figurine set, set |
+| Büste · Gesicht · Herz · Kachel · Plakette · Wandtasche · Fingerhut | bust · face · heart · tile · plaque · wall pocket · thimble |
+| Kette · Anhänger, Kettenanhänger | necklace · pendant |
+| Cap · Fischerhut · Stoffbeutel · Etui · T-Shirt · Tanktop | cap · bucket hat · tote bag · pouch · T-shirt · tank top |
+
+Wiederholt sich ein deutsches Wort sichtbar in mehreren Namen (z. B. „skeptisch“ viermal), schlägt Claude in „Bitte prüfen“ ein
+anderes Wort vor – die deutschen Namen ändert nur Jutta (U-76, U-77).
+
+**Rechtstexte:** Die englischen Fassungen der Rechtstexte (Datenschutz, AGB, Versand & Zahlung …) sind nur Lesehilfe; dort steht
+noch „collection“ für die Abholung, und die Datenschutzerklärung nennt den Knopf „Add to cart“. Beides liegt als Hinweis in der
+Kanzlei-Mappe (`docs/recht/KANZLEI-BRIEFING.md`, Anlage „Englische Begriffe“) und wird bei der Kanzlei-Prüfung angeglichen.

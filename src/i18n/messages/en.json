@@ -20,7 +20,7 @@
       "R16": "Process",
       "R17": "Aftercare",
       "R18": "FAQ",
-      "R19": "About me & Coco",
+      "R19": "Jutta & Coco",
       "R20": "Contact",
       "R21": "Legal notice",
       "R22": "Privacy",
@@ -53,6 +53,7 @@
     "legalHeading": "Legal",
     "withdraw": "Withdraw from contract here",
     "instagram": "Instagram",
+    "ipMore": "More in the legal notice",
     "language": "Language",
     "languageSwitch": "Deutsch",
     "motionOn": "on",
@@ -66,7 +67,7 @@
       "payment": "Pay by card, Apple Pay, Google Pay, PayPal or bank transfer in advance",
       "paymentNoPrepayment": "Pay by card, Apple Pay, Google Pay or PayPal",
       "shipping": "Shipping within Germany",
-      "pickup": "Pick-up in {city} by arrangement"
+      "pickup": "Pickup in {city} by arrangement"
     }
   },
   "legal": {
@@ -638,7 +639,7 @@
     "shippingUnknown": "not calculated yet",
     "info": {
       "delivery": "We only deliver within Germany.",
-      "pickup": "Collection in {city} by arrangement.",
+      "pickup": "Pickup in {city} by arrangement.",
       "payment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.",
       "paymentNoPrepayment": "Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal."
     },
@@ -1249,7 +1250,7 @@
       "galleryAll": "To the gallery",
       "pagesHeading": "Paths to a tattoo",
       "pageHints": {
-        "R12": "Finished designs with a fixed price, waiting for skin.",
+        "R12": "Finished designs, waiting for skin.",
         "R14": "What it costs: minimum price, range for your own ideas, deposit.",
         "R15": "Freshly done and healed – what stays.",
         "R16": "Five steps from the first email to aftercare.",
@@ -1258,7 +1259,7 @@
       }
     },
     "flash": {
-      "intro": "Drawings that wait for skin. Some I tattoo only once, others are allowed to return. Each has a fixed price; you can ask by email.",
+      "intro": "Drawings that wait for skin. Some I tattoo only once, others are allowed to return. You can ask about them by email.",
       "filterLabel": "Filter flash designs",
       "all": "All",
       "available": "available",

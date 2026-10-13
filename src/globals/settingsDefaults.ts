@@ -1,4 +1,5 @@
 import type { Locale, PackagingMaterial, ProductCategory, ShippingClass } from '@/lib/enums'
+import type { CareCategory } from '@/lib/products/categoryRules'
 import { LEGAL_TEXT_TYPES } from '@/lib/enums'
 
 // Standardwerte des Globals `settings` (DATENMODELL §7.1, Texte laut SEED-SPEC §3.1/§3.2). Der Grund-Seed (P1.29)
@@ -100,7 +101,8 @@ export const SAFETY_TEMPLATE_TEXTS: Record<ProductCategory, L10n> = {
   },
 }
 
-export const CARE_TEMPLATE_TEXTS: Record<'textil' | 'cap', L10n> = {
+/** Feste Pflegezeile je Stückart (SEED-SPEC §3.2; Keramik und Schmuck seit V-23, U-93). */
+export const CARE_TEMPLATE_TEXTS: Record<CareCategory, L10n> = {
   textil: {
     de: 'Links gewendet bei 30 °C waschen, nicht in den Trockner, Motiv nicht bügeln.',
     en: 'Wash inside out at 30 °C, do not tumble dry, do not iron over the design.',
@@ -108,6 +110,15 @@ export const CARE_TEMPLATE_TEXTS: Record<'textil' | 'cap', L10n> = {
   cap: {
     de: 'Nicht in die Waschmaschine. Flecken mit einem feuchten Tuch vorsichtig abtupfen, an der Luft trocknen.',
     en: 'Do not machine wash. Gently dab stains with a damp cloth and let it air dry.',
+  },
+  keramik: {
+    // „Deko – nicht für Lebensmittel“ steht schon als eigene Angabe am Stück (foodContact) – hier nicht wiederholen (V-24)
+    de: 'Feucht abwischen und trocknen lassen, nicht in die Spülmaschine.',
+    en: 'Wipe with a damp cloth and let it dry; not dishwasher safe.',
+  },
+  schmuck: {
+    de: 'Mit einem weichen, trockenen Tuch abwischen. Vor Wasser, Parfum und Creme schützen und einzeln aufbewahren.',
+    en: 'Wipe with a soft, dry cloth. Keep away from water, perfume and lotion, and store it on its own.',
   },
 }
 

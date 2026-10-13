@@ -361,6 +361,16 @@ $pc-bar-height: 64px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
+  // V-22 a: Claudes Vorschlag für „Ein Wort von mir“ unter dem Feld, mit Knopf „Vorschlag übernehmen“
+  &__suggestion {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    border: 1px dashed var(--theme-elevation-300);
+    border-radius: 6px;
+  }
   &__fiber {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

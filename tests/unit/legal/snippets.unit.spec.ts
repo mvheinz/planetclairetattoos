@@ -110,10 +110,10 @@ describe('LEGAL_SNIPPET_SEED (ANFORDERUNGEN §6)', () => {
     expect(LEGAL_SNIPPET_REQUIRES_LAWYER).not.toContain('product.glassFrame')
     expect(LEGAL_SNIPPET_REQUIRES_LAWYER).not.toContain('email.pickup.ready')
     expect(LEGAL_SNIPPET_REQUIRES_LAWYER).toContain('price.kleinunternehmerNote')
-    // P12.11: die vier IP-Bausteine (ip.*) sind Juttas eigene Klauseln, keine Kanzlei-Pflichttexte
+    // V-44 a (U-93): die vier IP-Bausteine (ip.*) prüft die Kanzlei mit („Kanzlei: ja“)
     for (const k of LEGAL_SNIPPET_KEYS.filter((x) => x.startsWith('ip.')))
-      expect(LEGAL_SNIPPET_REQUIRES_LAWYER).not.toContain(k)
-    expect(LEGAL_SNIPPET_REQUIRES_LAWYER).toHaveLength(LEGAL_SNIPPET_KEYS.length - 3 - 4)
+      expect(LEGAL_SNIPPET_REQUIRES_LAWYER).toContain(k)
+    expect(LEGAL_SNIPPET_REQUIRES_LAWYER).toHaveLength(LEGAL_SNIPPET_KEYS.length - 3)
   })
 })
 

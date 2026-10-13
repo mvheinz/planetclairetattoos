@@ -128,7 +128,8 @@ export const baseSchema = z.strictObject({
       z.strictObject({
         type: z.enum(LEGAL_TEXT_TYPES),
         validFrom: isoDate,
-        sourceNote: text(),
+        /** Wie `legal-texts.sourceNote` (höchstens 200 Zeichen). */
+        sourceNote: text().max(200),
         /** Knapper Einstieg vor der ersten Überschrift (U-22, Ton der Marke); DE und EN. */
         intro: text().optional(),
         introEn: text().optional(),

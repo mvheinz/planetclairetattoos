@@ -1,6 +1,6 @@
 // Navigationslisten (KONZEPT §3.0.2/§3.0.3, DESIGN KO-03/KO-04) als Routen-IDs der Registry.
 
-/** Hauptliste des Menüs: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Über mich & Coco · Kontakt. */
+/** Hauptliste des Menüs: Start · Shop · Archiv · Auftragsarbeiten · Tattoo · Jutta & Coco · Kontakt. */
 export const MENU_MAIN = ['R01', 'R02', 'R05', 'R10', 'R11', 'R19', 'R20'] as const
 
 /** Tattoo-Unterseiten (unter „Tattoo“ im Menü). */

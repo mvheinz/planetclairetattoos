@@ -18,6 +18,7 @@ import {
   type SheetRow,
 } from '@/lib/pflege/cells'
 import { decide, emptyReport, NO_BASE, type Decision, type PflegeReport } from '@/lib/pflege/merge'
+import { hasCareTemplate } from '@/lib/products/categoryRules'
 import { isEstimatedDimensionsNote } from '@/lib/products/measure'
 import type { ConsumedCells, SnapshotRows } from '@/lib/pflege/snapshot'
 
@@ -109,6 +110,37 @@ export const BESTAND_COLUMNS: readonly ExcelColumn[] = [
   },
   { key: 'beschreibungDe', header: 'Beschreibung (Deutsch)', width: 60, wrap: true },
   { key: 'beschreibungEn', header: 'Beschreibung (Englisch)', width: 60, wrap: true },
+  // V-22 a (U-93): eigener Satz, Claudes Vorschlag (nur zum Lesen) und das Übernehmen per „ja“
+  {
+    key: 'wortVonMir',
+    header: 'Ein Wort von mir',
+    width: 44,
+    wrap: true,
+    hint: 'Ein, zwei Sätze von dir in Ich-Form (höchstens 280 Zeichen) – stehen auf der Produktseite. Leer = kein Satz.',
+  },
+  {
+    key: 'vorschlag',
+    header: 'Vorschlag: Ein Wort von mir',
+    width: 44,
+    wrap: true,
+    readOnly: true,
+    hint: 'Vorschlag von Claude – erscheint nie von selbst. Übernehmen: rechts daneben „ja“.',
+  },
+  {
+    key: 'vorschlagUebernehmen',
+    header: 'Vorschlag übernehmen',
+    width: 12,
+    list: [YES, NO],
+    hint: '„ja“ = der Vorschlag (Deutsch und Englisch) wird dein „Ein Wort von mir“. Leer oder „nein“ = nichts passiert. Schreibst du selbst etwas in „Ein Wort von mir“, gilt dein Text.',
+  },
+  // V-23: Pflege je Stück – leer = die feste Pflegezeile der Stückart aus den Einstellungen
+  {
+    key: 'pflege',
+    header: 'Pflege',
+    width: 34,
+    wrap: true,
+    hint: 'Nur Keramik, Schmuck, Textil und Caps. Leer = die feste Pflegezeile der Stückart (z. B. Keramik: feucht abwischen, nicht in die Spülmaschine).',
+  },
   { key: 'pruefen', header: 'Bitte prüfen', width: 60, wrap: true, readOnly: true },
   { key: 'notiz', header: 'Deine Notiz', width: 30, wrap: true },
   {
@@ -323,6 +355,11 @@ export function rowOf(p: BestandProduct): Record<string, CellValue> {
     abweichung: p.deviationDescription?.de ?? '',
     beschreibungDe: p.description.de,
     beschreibungEn: p.description.en,
+    wortVonMir: p.juttaSays?.de ?? '',
+    vorschlag: p.juttaSaysSuggestion?.de ?? '',
+    // Eine Aktion, kein Zustand: nie vorangekreuzt
+    vorschlagUebernehmen: '',
+    pflege: hasCareTemplate(p.category) ? (p.careInstructions?.de ?? '') : '',
     pruefen: p.review.map((r) => `• ${r}`).join('\n'),
     notiz: p.ownerNote ?? '',
     verkauft: soldText(p.sold),
@@ -331,7 +368,7 @@ export function rowOf(p: BestandProduct): Record<string, CellValue> {
   }
 }
 
-/** „ins Archiv“ lesen: „ja“/„x“/Häkchen = angekreuzt; leer/„nein“ = nicht; anderes → `null` (Fehler). */
+/** „ins Archiv“/„Vorschlag übernehmen“ lesen: „ja“/„x“/Häkchen = angekreuzt; leer/„nein“ = nicht; anderes → `null` (Fehler). */
 function archiveTick(v: CellValue): boolean | null {
   if (v === true) return true
   if (v === false || v === null || v === undefined) return false
@@ -376,7 +413,8 @@ export function canonical(key: string, v: CellValue, clock: number | SoldClock):
     }
     case 'secondHand':
       return v === true ? YES : v === false ? NO : fold(str(v))
-    case 'insArchiv': {
+    case 'insArchiv':
+    case 'vorschlagUebernehmen': {
       const tick = archiveTick(v)
       return tick === null ? `?${str(v)}` : tick ? YES : ''
     }
@@ -765,6 +803,57 @@ function applyRow(
         p.deviationDescription = { de: v, en: p.deviationDescription?.en ?? v }
         p.deviationDecision = 'described'
         report.englishTodo.push(`${nr}: Macke / Abweichung (Deutsch geändert)`)
+      }
+    }
+  }
+  // V-22 a: „Ein Wort von mir“ – eigener Text gilt vor „Vorschlag übernehmen“
+  const ownWord = changed('wortVonMir')
+  if (ownWord) {
+    const v = str(row.wortVonMir)
+    if (v.length > 280) bad('Ein Wort von mir', row.wortVonMir, 'bitte höchstens 280 Zeichen')
+    else if (legal('wortVonMir', p.juttaSays?.de ?? '', v)) {
+      change('Ein Wort von mir', p.juttaSays?.de ?? '', v)
+      if (!v) delete p.juttaSays
+      else {
+        // Das Englische schreibt Claude neu – der alte englische Satz passt nicht mehr (U-00)
+        p.juttaSays = { de: v }
+        report.englishTodo.push(`${nr}: Ein Wort von mir (Deutsch geändert)`)
+      }
+    }
+  }
+  if (changed('vorschlagUebernehmen')) {
+    const tick = archiveTick(row.vorschlagUebernehmen)
+    const s = p.juttaSaysSuggestion
+    if (tick === null)
+      bad('Vorschlag übernehmen', row.vorschlagUebernehmen, '„ja“ oder leer lassen')
+    else if (tick && !s)
+      bad(
+        'Vorschlag übernehmen',
+        row.vorschlagUebernehmen,
+        'für dieses Stück gibt es keinen Vorschlag',
+      )
+    else if (tick && ownWord && str(row.wortVonMir))
+      report.problems.push(
+        `${nr}: „Vorschlag übernehmen“ und eigener Text in „Ein Wort von mir“ – dein eigener Text gilt.`,
+      )
+    else if (tick && s && (p.juttaSays?.de !== s.de || p.juttaSays?.en !== s.en)) {
+      change('Ein Wort von mir', p.juttaSays?.de ?? '', s.de)
+      p.juttaSays = { de: s.de, en: s.en }
+    }
+  }
+  if (
+    !onlyFor('pflege', hasCareTemplate(p.category), 'Keramik, Schmuck, Textil und Caps') &&
+    changed('pflege')
+  ) {
+    const v = str(row.pflege)
+    if (v.length > 500) bad('Pflege', row.pflege, 'bitte höchstens 500 Zeichen')
+    else if (legal('pflege', p.careInstructions?.de ?? '', v)) {
+      change('Pflege', p.careInstructions?.de ?? '', v)
+      // Leer = feste Pflegezeile der Stückart (nie mit einer leeren Zeile überschreiben)
+      if (!v) delete p.careInstructions
+      else {
+        p.careInstructions = { de: v, en: p.careInstructions?.en ?? v }
+        report.englishTodo.push(`${nr}: Pflege (Deutsch geändert)`)
       }
     }
   }

@@ -25,13 +25,14 @@ import {
   type ProductStatus,
 } from '@/lib/enums'
 import { PRICE_CENTS_RANGE, parseEuroInput } from '@/lib/money'
-import { isTextile } from '@/lib/products/categoryRules'
+import { hasCareTemplate, isTextile } from '@/lib/products/categoryRules'
 import { instagramPostText } from '@/lib/products/instagram'
 import { padItemNumber } from '@/lib/products/itemNumber'
 import type { Readiness } from '@/lib/products/readiness'
 import { productPath } from '@/lib/shop/format'
 
 import {
+  adoptJuttaSaysSuggestion,
   applyCategory,
   fieldAnchor,
   formFromDoc,
@@ -291,7 +292,11 @@ export function PieceEditor({
     setSavedScale(scalePhoto)
 
     // Server-Vorbelegungen (Kategorie-Vorlagen, Versandklasse) übernehmen, eigene EN-Eingaben behalten.
-    setForm((f) => ({ ...formFromDoc(doc, null), en: f.en }))
+    setForm((f) => ({
+      ...formFromDoc(doc, null),
+      en: f.en,
+      juttaSaysSuggestion: f.juttaSaysSuggestion,
+    }))
     setStatus((doc.status as ProductStatus) ?? 'draft')
     setFirstPublishedAt((doc.firstPublishedAt as string | null) ?? null)
     if (!id) {
@@ -651,6 +656,29 @@ export function PieceEditor({
           disabled={busy}
           onChange={(v) => setDe('juttaSays', v)}
         />
+        {form.juttaSaysSuggestion.de.trim() ? (
+          <div className="pc-piece__suggestion" data-testid="piece-juttasays-suggestion">
+            <p className="pc-piece__hint">
+              <strong>{adminText('pieceJuttaSaysSuggestion')}</strong> {form.juttaSaysSuggestion.de}
+            </p>
+            {form.de.juttaSays.trim() === form.juttaSaysSuggestion.de.trim() ? (
+              <p className="pc-piece__hint">{adminText('pieceJuttaSaysSuggestionTaken')}</p>
+            ) : (
+              <button
+                type="button"
+                className="pc-admin-btn pc-admin-btn--secondary"
+                disabled={busy}
+                data-testid="piece-juttasays-adopt"
+                onClick={() => {
+                  if (form.juttaSaysSuggestion.en.trim()) setEnDirty(true)
+                  setForm((f) => adoptJuttaSaysSuggestion(f))
+                }}
+              >
+                {adminText('pieceJuttaSaysAdopt')}
+              </button>
+            )}
+          </div>
+        ) : null}
         <TextField
           id="pf-priceCents"
           label={adminText('pieceField_priceCents')}
@@ -936,16 +964,6 @@ export function PieceEditor({
                 onChange={(v) => setDe('fiberFreeText', v)}
               />
             ) : null}
-            <TextField
-              id="pf-careInstructions"
-              label={adminText('pieceField_careInstructions')}
-              multiline
-              rows={3}
-              value={form.de.careInstructions}
-              max={500}
-              disabled={busy}
-              onChange={(v) => setDe('careInstructions', v)}
-            />
             <Check
               id="pf-blankBrandVisible"
               label={adminText('pieceField_blankBrandVisible')}
@@ -1041,6 +1059,20 @@ export function PieceEditor({
           </>
         ) : null}
 
+        {hasCareTemplate(category) ? (
+          <TextField
+            id="pf-careInstructions"
+            label={adminText('pieceField_careInstructions')}
+            hint={adminText('pieceCareHint')}
+            multiline
+            rows={3}
+            value={form.de.careInstructions}
+            max={500}
+            disabled={busy}
+            onChange={(v) => setDe('careInstructions', v)}
+          />
+        ) : null}
+
         {category === 'zeichnung' ? (
           <>
             <Check
@@ -1109,6 +1141,7 @@ export function PieceEditor({
         <Check
           id="pf-ownDesignConfirmed"
           label={adminText('pieceField_ownDesignConfirmed')}
+          hint={adminText('pieceOwnDesignHint')}
           required
           checked={form.ownDesignConfirmed}
           disabled={busy}

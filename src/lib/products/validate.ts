@@ -115,7 +115,7 @@ const hasDimension = (d: ProductForValidation['dimensions']) =>
 const LINT_FIELDS = [
   ['title', 'Titel'],
   ['description', 'Beschreibung'],
-  ['juttaSays', '„Jutta sagt“'],
+  ['juttaSays', '„Ein Wort von mir“'],
   ['materials', 'Material'],
   ['conditionNote', 'Zustand – Anmerkung'],
   ['deviationDescription', 'Abweichung – Beschreibung'],
@@ -192,10 +192,7 @@ export function validateForPublish(
     add('safetyWarnings', 'Warn- und Sicherheitshinweise (Deutsch) fehlen.')
   }
   if (product.ownDesignConfirmed !== true) {
-    add(
-      'ownDesignConfirmed',
-      'Bestätigung „nur eigene Figuren, keine fremden Marken“ fehlt (R-047).',
-    )
+    add('ownDesignConfirmed', 'Bestätigung „Motiv und Schriftzug sind von mir“ fehlt (R-047).')
   }
 
   // Bilder (R-042, R-191)

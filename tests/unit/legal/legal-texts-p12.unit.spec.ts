@@ -341,7 +341,7 @@ describe('R-140 Schutz des geistigen Eigentums (U-22, P12.11)', () => {
     'ip.tattooFlashNotice',
   ] as const
 
-  it('R-140 vier Bausteine (a)(b)(c)(d) DE+EN als Arbeitsfassung (draft), ohne Platzhalter, nicht „Kanzlei: ja“', () => {
+  it('R-140 vier Bausteine (a)(b)(c)(d) DE+EN als Arbeitsfassung (draft), ohne Platzhalter, „Kanzlei: ja“ (V-44 a)', () => {
     for (const k of IP_KEYS) {
       expect(LEGAL_SNIPPET_KEYS).toContain(k)
       const s = LEGAL_SNIPPET_SEED[k]
@@ -350,19 +350,43 @@ describe('R-140 Schutz des geistigen Eigentums (U-22, P12.11)', () => {
       expect(s.en.length, k).toBeGreaterThan(60)
       expect(snippetTokens(s.de), k).toEqual([])
       expect(snippetTokens(s.en), k).toEqual([])
-      expect(LEGAL_SNIPPET_REQUIRES_LAWYER, k).not.toContain(k)
+      expect(LEGAL_SNIPPET_REQUIRES_LAWYER, k).toContain(k)
     }
+    // V-44 a: Fuß-Zeile kurz, nennt selbst „kein KI-Training“; der volle § 44b-Satz bleibt im eigenen Baustein
     expect(LEGAL_SNIPPET_SEED['ip.copyrightNotice'].de).toMatch(/urheberrechtlich geschützt/)
-    expect(LEGAL_SNIPPET_SEED['ip.copyrightNotice'].de).toMatch(/Quellenangabe/)
+    expect(LEGAL_SNIPPET_SEED['ip.copyrightNotice'].de).toMatch(/kein KI-Training/)
+    expect(LEGAL_SNIPPET_SEED['ip.copyrightNotice'].en).toMatch(/no AI training/)
+    expect(LEGAL_SNIPPET_SEED['ip.copyrightNotice'].de.length).toBeLessThan(160)
     expect(LEGAL_SNIPPET_SEED['ip.aiMiningReservation'].de).toMatch(/§ 44b/)
     expect(LEGAL_SNIPPET_SEED['ip.aiMiningReservation'].en).toMatch(/44b/)
     const purchase = LEGAL_SNIPPET_SEED['ip.purchaseClause']
-    for (const w of ['Nachdruck', 'Merchandise', 'Digitalisierung', 'Reproduktion', 'Serie'])
+    // V-44 a: stimmig mit den AGB – zeigen, fotografieren, privat teilen erwünscht; keine Digitalisierungs-Sperre
+    for (const w of [
+      'Unikat',
+      'fotografieren',
+      'privat teilen',
+      'Nachdruck',
+      'Merchandise',
+      'gewerbliche',
+      'KI-Training',
+    ])
       expect(purchase.de, w).toContain(w)
-    for (const w of ['reprints', 'merchandise', 'digitisation', 'reproduction', 'series'])
+    for (const w of [
+      'one-off',
+      'photographing',
+      'sharing it privately',
+      'reprints',
+      'merchandise',
+      'commercial',
+      'AI training',
+    ])
       expect(purchase.en, w).toContain(w)
+    expect(purchase.de).not.toMatch(/Digitalisierung/)
     expect(LEGAL_SNIPPET_SEED['ip.tattooFlashNotice'].de).toMatch(/schriftlichen Genehmigung/)
     expect(LEGAL_SNIPPET_SEED['ip.tattooFlashNotice'].en).toMatch(/written permission/)
+    expect(LEGAL_SNIPPET_SEED['ip.tattooFlashNotice'].de).toMatch(/frag mich vorher gern per Mail/)
+    expect(LEGAL_SNIPPET_SEED['ip.tattooFlashNotice'].de).not.toMatch(/Verstöße/)
+    expect(LEGAL_SNIPPET_SEED['ip.tattooFlashNotice'].en).not.toMatch(/infringements/)
   })
 
   it('R-140 AGB und Impressum tragen dieselben Klauseln als eigene Abschnitte (Kaufklausel, KI/TDM, Flash-Nachstechen) in DE und EN', () => {

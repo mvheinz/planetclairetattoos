@@ -28,8 +28,9 @@ import { TattooShell } from './TattooShell'
 // Menü, Übersicht und Sitemap führen dann aber nicht hierher (V-28 a); Beispiel-Motive tragen den Stempel „Beispiel“.
 
 export async function FlashListPage({ locale, list }: { locale: Locale; list: ListParams }) {
-  const [t, settings, page, all, gallery] = await Promise.all([
+  const [t, tRoutes, settings, page, all, gallery] = await Promise.all([
     getTranslations({ locale, namespace: 'tattoo.flash' }),
+    getTranslations({ locale, namespace: 'common.routes' }),
     getTattooSettings(locale),
     getTattooPage(locale),
     listFlash(locale),
@@ -52,7 +53,10 @@ export async function FlashListPage({ locale, list }: { locale: Locale; list: Li
       settings={settings}
       lead={
         <>
-          {block?.heading ? <p className={styles.muted}>{block.heading}</p> : null}
+          {/* V-24: die Block-Überschrift nur, wenn sie nicht ohnehin die Seiten-Überschrift ist („Flash“) */}
+          {block?.heading && block.heading.trim() !== tRoutes('R12') ? (
+            <p className={styles.muted}>{block.heading}</p>
+          ) : null}
           <p>{t('intro')}</p>
         </>
       }

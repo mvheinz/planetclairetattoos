@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { ADMIN_CUSTOM_DE } from '@/admin/translations'
 import { ENUM_LABELS } from '@/lib/enumLabels'
 import { PRODUCT_CATEGORIES, TEXTILE_FIBERS, type ProductCategory } from '@/lib/enums'
 import { lintProductText } from '@/lib/legal/forbidden'
@@ -318,6 +319,18 @@ describe('R-047 Nur eigene Motive, keine fremden Marken', () => {
     expect(fields({ ...complete(category), ownDesignConfirmed: null })).toContain(
       'ownDesignConfirmed',
     )
+  })
+
+  it('R-047 V-43: Häkchen nennt Schriftzug und fremde Textzeilen; die Meldung nennt das Häkchen', () => {
+    expect(ADMIN_CUSTOM_DE.pieceField_ownDesignConfirmed).toBe(
+      'Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte, Film- oder Buchzitate',
+    )
+    expect(ADMIN_CUSTOM_DE.pieceOwnDesignHint).toMatch(/Figuren, Marken oder Logos/)
+    const issue = validateForPublish(
+      { ...complete('keramik'), ownDesignConfirmed: false },
+      ctx(),
+    ).find((i) => i.field === 'ownDesignConfirmed')
+    expect(issue?.message).toContain('„Motiv und Schriftzug sind von mir“')
   })
 
   it('R-047 DM-PROD-09 fremde Figuren/Marken (V-16) in Titel oder Beschreibung, DE und EN', () => {

@@ -61,7 +61,7 @@ test.describe('Neues Stück (P5.6)', () => {
     await fill('Durchmesser', '14')
     await fill('Gewicht', '420')
     await check(
-      'Das Motiv zeigt nur eigene Figuren – keine geschützten fremden Figuren, Marken, Logos oder Schriftzüge Dritter',
+      'Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte, Film- oder Buchzitate',
     )
     // Vorbelegt aus der Kategorie (keine Eingabe): Versandklasse, Deko, Warnhinweise
     await expect(page.getByLabel('Versandklasse')).toHaveValue('keramik')

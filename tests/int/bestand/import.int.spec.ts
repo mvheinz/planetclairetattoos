@@ -1,8 +1,10 @@
 import type { Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
+import { CARE_TEMPLATE_TEXTS } from '@/globals/settingsDefaults'
 import { ATTENTION_NOTE, bestandSourceRef, importBestand } from '@/lib/bestand/import'
 import { loadBestand, photosOf, type BestandProduct } from '@/lib/bestand/schema'
+import { hasCareTemplate, type CareCategory } from '@/lib/products/categoryRules'
 
 import { getTestPayload } from '../helpers/payload'
 import { deleteProducts } from '../helpers/products'
@@ -90,6 +92,19 @@ describe('bestand:import (P16.2)', () => {
         expect(en.description).toBe(p.description.en)
         expect(en.safetyWarnings?.trim()).toBeTruthy()
         expect(en.i18n?.enStatus).toBe('machine')
+        // V-22 a: Vorschlag nur intern, „Ein Wort von mir“ bleibt leer, bis Jutta übernimmt (E-62)
+        expect(doc.juttaSays ?? null).toBeNull()
+        expect(doc.juttaSaysSuggestion).toBe(p.juttaSaysSuggestion!.de)
+        expect(en.juttaSaysSuggestion).toBe(p.juttaSaysSuggestion!.en)
+        // V-23: Pflege – eigener Text des Stücks, sonst die feste Pflegezeile der Stückart (DE und EN)
+        if (hasCareTemplate(p.category)) {
+          expect(doc.careInstructions).toBe(
+            p.careInstructions?.de ?? CARE_TEMPLATE_TEXTS[p.category as CareCategory].de,
+          )
+          expect(en.careInstructions).toBe(
+            p.careInstructions?.en ?? CARE_TEMPLATE_TEXTS[p.category as CareCategory].en,
+          )
+        }
 
         const firstId = doc.images![0] as number
         const media = await payload.findByID({

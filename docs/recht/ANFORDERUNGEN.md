@@ -94,7 +94,7 @@ In der Widerrufsbelehrung steht immer die kanonische URL `https://planetclaireta
 **Öffentliche Seitentypen** (Fixture `PUBLIC_PAGE_TYPES` für alle e2e-Rechtstests): Startseite, Shop-Übersicht,
 Produktseite (je Kategorie ein Stück), Archiv „sold“, Warenkorb (leer und gefüllt), Kasse, Danke-Seite,
 Bestellstatus, Widerrufsfunktion (Schritt 1, 2, Bestätigung), alle Rechtsseiten, Kontakt, Auftragsarbeiten,
-Tattoo-Seiten (alle), Über mich & Coco, Konformitätserklärungen (mit und ohne Einträge), 404, Fehlerseite.
+Tattoo-Seiten (alle), Jutta & Coco, Konformitätserklärungen (mit und ohne Einträge), 404, Fehlerseite.
 
 ## 3. Übersicht aller Anforderungen (maschinenlesbar)
 
@@ -634,15 +634,20 @@ Lücken in der Nummerierung sind Reserve.
 - **Phase:** P1, P3 · **Owner:** nein
 
 #### R-047 · Nur eigene Motive, keine fremden Marken
-- **Anforderung:** E-18. Pflicht-Häkchen `ownDesignConfirmed` („Das Motiv zeigt nur eigene Figuren – keine
-  geschützten fremden Figuren, Marken, Logos oder Schriftzüge Dritter“). Für Textil und Cap zusätzlich
+- **Anforderung:** E-18. Pflicht-Häkchen `ownDesignConfirmed` („Motiv und Schriftzug sind von mir – keine Liedzeilen,
+  Gedichte, Film- oder Buchzitate“, darunter der Hinweis „Auch keine fremden Figuren, Marken oder Logos.“; seit P20.4,
+  V-43 – vorher „Das Motiv zeigt nur eigene Figuren …“). Fremde Textzeilen sind der häufigste Abmahngrund bei
+  Schriftzügen; der Shoptext gibt Schriftzüge nie wieder (U-77), jedes Stück mit Schriftzug trägt denselben Prüfpunkt in
+  „Bitte prüfen“. Kanzleifrage K-43 (kurze fremde Textzeilen). Für Textil und Cap zusätzlich
   `blankBrandVisible` (sichtbares Hersteller-Logo auf dem gebrauchten Rohling): Ist es `true`, bleibt die
   Veröffentlichung gesperrt, bis die Einstellung `settings.legal.allowVisibleBlankBrands` (Standard `false`, nur nach
   Kanzlei-Antwort K-13 umstellbar) `true` ist. Titel und Beschreibung von Verkaufsware dürfen keine fremden Marken- oder
   Figurennamen enthalten (Lint-Liste V-16). Im Tattoo-Portfolio gilt diese Regel nicht (dort keine Verkaufsware).
-- **Rechtsgrundlage:** §§ 14, 24 MarkenG; §§ 15 ff., 97 UrhG; § 5 UWG; E-18. Kanzlei: K-13.
+- **Rechtsgrundlage:** §§ 14, 24 MarkenG; §§ 15 ff., 51, 97 UrhG; § 5 UWG; E-18. Kanzlei: K-13, K-43.
 - **Abnahme:** `int` – ohne Häkchen bzw. mit `blankBrandVisible` abgelehnt; `unit` – Lint erkennt „Godzilla“,
-  „Nike“, „Disney“ in Produkttexten.
+  „Nike“, „Disney“ in Produkttexten; Häkchen-Text und Meldung nennen „Motiv und Schriftzug sind von mir“
+  (`tests/unit/products/validate.unit.spec.ts`), Prüfpunkt bei allen Stücken mit Schriftzug
+  (`tests/unit/bestand/data.unit.spec.ts`).
 - **Phase:** P1 · **Owner:** nein
 
 #### R-048 · Abweichende Beschaffenheit ausdrücklich und gesondert vereinbaren
@@ -1419,24 +1424,31 @@ Lücken in der Nummerierung sind Reserve.
 #### R-140 · Schutz des geistigen Eigentums: Urheberrechtsvermerk, Kaufklausel, Flash-Genehmigung
 - **Anforderung:** (a) Urheberrechtsvermerk und Nutzungsbedingungen für alle Bilder und Texte (Vervielfältigung,
   Weitergabe, Download, gewerbliche Nutzung nur mit Erlaubnis in Textform; Zitate nur mit Quellenangabe, soweit gesetzlich
-  erlaubt) im Footer jeder Seite (Baustein `ip.copyrightNotice`), im Impressum und in den AGB; (b) **Kaufklausel**: Käufer:in
-  erwirbt nur das Unikat (Eigentum), keine Nutzungsrechte am Motiv (kein Nachdruck, Merchandise, Digitalisierung,
-  Reproduktion, Weiterverkauf als Reproduktion, kein Nachstechen); Unikate werden nicht in Serie gebracht – auf jeder
-  Produktseite (Baustein `ip.purchaseClause`) und in den AGB (Abschnitt „Urheberrecht und Kaufklausel“); (c) Tattoo-Motive und
-  Flash: Nachstechen oder Weiterverwendung nur mit schriftlicher Genehmigung, Verstöße werden verfolgt – bei den
-  Flash-Motiven, auf den Seiten Preise und Ablauf (Baustein `ip.tattooFlashNotice`) und in den AGB (Abschnitt „Tattoo-Motive und
-  Flash“). Die vier Bausteine `ip.*` sind in der Verwaltung pflegbar (Texte → Rechtliche Bausteine, `origin = draft`, nicht
-  „Kanzlei: ja“, Durchsicht empfohlen). Keine Verbotsmuster (V-08: kein Ausschluss des Widerrufsrechts; die Kaufklausel
-  betrifft nur Nutzungsrechte am Motiv, nie das Widerrufsrecht).
+  erlaubt) ausführlich im Impressum und in den AGB; im Footer jeder Seite **eine kurze Zeile** (Baustein
+  `ip.copyrightNotice`: „… Nutzung nur mit meiner Erlaubnis, kein KI-Training.“) mit Link „Mehr dazu im Impressum“ (V-44 a,
+  U-93); (b) **Kaufklausel**: Käufer:in erwirbt nur das Unikat (Eigentum), keine Nutzungsrechte am Motiv (kein Nachdruck,
+  keine Vervielfältigung, kein Merchandise, keine gewerbliche Nutzung, kein KI-Training, kein Weiterverkauf als
+  Reproduktion, kein Nachstechen); **zeigen, fotografieren und privat teilen ist ausdrücklich erwünscht** (gern mit
+  Juttas Namen) – Produktseite (Baustein `ip.purchaseClause`) und AGB (Abschnitt „Urheberrecht und Kaufklausel“) sagen
+  dasselbe (V-44 a); Unikate werden nicht in Serie gebracht; (c) Tattoo-Motive und Flash: Nachstechen oder
+  Weiterverwendung nur mit schriftlicher Genehmigung, „frag mich vorher gern per Mail“ (statt „Verstöße verfolge ich“,
+  V-44 a) – nur noch bei den Flash-Motiven (Baustein `ip.tattooFlashNotice`) und in den AGB (Abschnitt „Tattoo-Motive und
+  Flash“). Die vier Bausteine `ip.*` sind in der Verwaltung pflegbar (Texte → Rechtliche Bausteine) und seit V-44 a
+  „Kanzlei: ja“ (§ 6; Go-live erst mit `origin = lawyer`). Keine Verbotsmuster (V-08: kein Ausschluss des
+  Widerrufsrechts; die Kaufklausel betrifft nur Nutzungsrechte am Motiv, nie das Widerrufsrecht).
 - **Rechtsgrundlage:** §§ 15 ff., 97 UrhG; § 17 UrhG (Erschöpfung nur am Werkstück); § 44a ff./§ 51 UrhG (Schranken
   bleiben unberührt); Transparenzgebot § 307 BGB.
 - **Umsetzung:** Bausteine `ip.copyrightNotice`, `ip.aiMiningReservation`, `ip.purchaseClause`, `ip.tattooFlashNotice`
-  (§ 6), Komponente `IpNotice` (Footer, `ProductPage`, `TattooShell` für R12/R14/R16), Abschnitte in AGB und Impressum.
-- **Abnahme:** `unit` – Bausteine DE/EN vorhanden, Klauseln in AGB/Impressum; `e2e` – Footer, Produktseite, Flash/Preise/Ablauf.
+  (§ 6), Komponente `IpNotice` (Footer mit Link zum Impressum, `ProductPage`, `TattooShell` nur für R12), Abschnitte in AGB
+  und Impressum.
+- **Abnahme:** `unit` – Bausteine DE/EN vorhanden, Klauseln in AGB/Impressum, Kaufklausel ohne Digitalisierungs-Sperre;
+  `e2e` – Footer (eine Zeile mit „kein KI-Training“ und Link), Produktseite, nur Flash mit Nachstech-Hinweis.
 - **Phase:** P12 · **Owner:** nein (Kanzlei-Durchsicht P11 empfohlen)
 
 #### R-141 · KI-/Text-und-Data-Mining-Vorbehalt (§ 44b Abs. 3 UrhG) technisch und im Text
-- **Anforderung:** Der Nutzungsvorbehalt steht im Text (Impressum, AGB, Footer; Baustein `ip.aiMiningReservation`) **und**
+- **Anforderung:** Der Nutzungsvorbehalt steht im Text – voller Satz nach § 44b Abs. 3 UrhG im Impressum und in den AGB
+  (Baustein `ip.aiMiningReservation` als Arbeitsfassung), im Footer jeder Seite kurz „kein KI-Training“ mit Link zum
+  Impressum (V-44 a) – **und**
   maschinenlesbar: `robots.txt` (Produktion: eigene Gruppe `Disallow: /` für bekannte KI-Crawler – GPTBot, ClaudeBot,
   CCBot, Google-Extended, PerplexityBot, Bytespider, anthropic-ai u. a., Liste `AI_CRAWLERS` in `src/lib/seo/robots.ts`),
   `/ai.txt`, `<meta name="robots" content="index, follow, noai, noimageai">` auf indexierbaren Seiten, `<meta
@@ -1919,10 +1931,10 @@ Feste UI-Texte (nicht editierbar, keine Bausteine): „Zahlungspflichtig bestell
 | `translation.disclaimer` | EN-Rechtsseiten (R-015) | ja | „This English version is provided for convenience only. Only the German version is legally binding.“ |
 | `privacyRequest.accessResponse` | R-150 | ja | – (Kanzlei, optional) |
 | `privacyRequest.erasureResponse` | R-151 | ja | – (Kanzlei, optional) |
-| `ip.copyrightNotice` | Footer jeder Seite (R-140) | nein | „Alle Bilder, Zeichnungen, Fotos und Texte auf dieser Website sind urheberrechtlich geschützt. Vervielfältigung, Weitergabe, Download und gewerbliche Nutzung nur mit meiner Erlaubnis in Textform; Zitate nur mit Quellenangabe, soweit das Gesetz sie erlaubt.“ |
-| `ip.aiMiningReservation` | Footer (R-141) | nein | „Nutzungsvorbehalt nach § 44b Abs. 3 UrhG: Ich untersage die Nutzung meiner Bilder und Texte für das Training von KI-Systemen sowie für Text- und Data-Mining.“ |
-| `ip.purchaseClause` | Produktseite (Kaufklausel, R-140) | nein | „Mit dem Kauf erwirbst du dieses eine Unikat, nicht die Rechte am Motiv: kein Nachdruck, keine Vervielfältigung, kein Merchandise, keine Digitalisierung und kein Weiterverkauf als Reproduktion. Das Urheberrecht bleibt bei mir; meine Unikate werden nicht in Serie gebracht.“ |
-| `ip.tattooFlashNotice` | Flash, Preise, Ablauf (R-140) | nein | „Dieses Motiv ist von mir gezeichnet und urheberrechtlich geschützt. Nachstechen oder jede andere Weiterverwendung, auch durch andere Tätowierer:innen, nur mit meiner schriftlichen Genehmigung. Verstöße verfolge ich.“ |
+| `ip.copyrightNotice` | Footer jeder Seite, eine Zeile mit Link zum Impressum (R-140, V-44 a) | ja | „© Planet Claire: Bilder und Texte dieser Seite sind von mir und urheberrechtlich geschützt – Nutzung nur mit meiner Erlaubnis, kein KI-Training.“ |
+| `ip.aiMiningReservation` | voller Vorbehalt, Vorlage für Impressum/AGB (R-141; nicht mehr im Footer, V-44 a) | ja | „Nutzungsvorbehalt nach § 44b Abs. 3 UrhG: Ich untersage die Nutzung meiner Bilder und Texte für das Training von KI-Systemen sowie für Text- und Data-Mining.“ |
+| `ip.purchaseClause` | Produktseite (Kaufklausel, R-140) | ja | „Mit dem Kauf gehört dir dieses Unikat. Zeigen, fotografieren und privat teilen ist erwünscht – gern mit meinem Namen. Die Rechte am Motiv bleiben bei mir: kein Nachdruck, keine Vervielfältigung, kein Merchandise, keine gewerbliche Nutzung und kein KI-Training.“ |
+| `ip.tattooFlashNotice` | nur Flash-Motive (R-140, V-44 a) | ja | „Diese Motive sind von mir gezeichnet und urheberrechtlich geschützt. Nachstechen oder anders verwenden, auch durch andere Tätowierer:innen, nur mit meiner schriftlichen Genehmigung – frag mich vorher gern per Mail.“ |
 
 Englische Fassungen der Bausteine werden aus der Kanzlei-Lieferung übernommen; bis dahin übersetzt Claude die
 Arbeitsfassung sinngemäß (`origin: 'draft'`).
@@ -1995,3 +2007,4 @@ Ergänzungen [ergänzt] vom 26.09.2026 (über `docs/research/` hinaus):
 | 26.09.2026 | 1.2 | Namen laut DATENMODELL (`legal-texts`/`legal-snippets` mit `origin`, `settings.business`/`tax`/`shipping`/`payment`, Produktfelder, `inquiries`, `tattoo-gallery`, Status `awaiting_prepayment`/`cancelled` + `cancelReason`, Mail-Schlüssel `EMAIL_TEMPLATES`); Kasse statt Bestellstatus vor der Zahlung (R-065); kanonische Token-Liste mit Zuordnung (R-012, neuer Baustein `withdrawal.returnCostsNote`); Statusseite ohne Rechnung mit Schutzgrund (R-067); Gastbestellung ohne Telefonfeld (R-061); vorläufige Regeln: Teilwiderruf mit Versand-Differenz (R-072, K-09), Packfoto als Rückfrage und Brief ohne Sendungsnummer (R-100, R-082, neue Kanzleifrage K-40), CSP-Rückfall (R-131, neue Kanzleifrage K-41); Browser-Fehler-Endpunkt standardmäßig aus (R-133); Reklamationsakte `complaints` (R-110, R-150, R-154); Umsatz-Wächter U0–U5 + U3a (R-125); Wartungsmodus (R-090); Anfrageformular 20–3000 Zeichen und Upload-Grenzen (R-160); Flash-Knöpfe (R-170); Angebote ohne gespeicherten Status (R-171); Kurz-URLs (§2, R-010); R-023 in P6 |
 | 26.09.2026 | 1.3 | Platzhalter-Wortlaut und Band (R-002); Empfänger-Tabelle als Komponente, Token-Liste geschlossen (R-012, R-155); Status-Token zusätzlich versiegelt für spätere Mails (R-067); Widerrufs-Übergänge exakt laut DATENMODELL §6.11 (R-093, R-094); Mail-Zuordnung M12–M16 (R-084, R-152); Exporte nie mit Beispieldaten (R-124, R-180, R-201); `pc_cart` mit Preis beim Hinzufügen (R-130); CSP-Rückfall auch im Kontext `admin`, Kern je Kontext (R-131); `tattoo-gallery` ohne Versionen (R-154, R-172) |
 | 12.10.2026 | 1.4 | P20.3 (U-93): R-061 Rechnungsadresse aus EU/EWR mit VO (EU) 2018/302 Art. 4 Abs. 1 lit. a, Lieferung weiter nur DE (V-17); R-036 Zahlarten nur einmal, Lieferart nur in der Kasse (V-16); R-130 d `delivery` aus der Kasse; Geschenk mit Gruß (V-18 b) ohne neue R-ID – Datenschutzerklärung, VVT V3, LOESCHKONZEPT L-05 Stufe E, Kanzleifrage K-42 |
+| 12.10.2026 | 1.5 | P20.4 (U-93): R-047 Häkchen „Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte, Film- oder Buchzitate“ mit Kanzleifrage K-43 (V-43); R-140/R-141 und §6 `ip.*` freundlicher und kürzer, Kaufklausel wie AGB, Fuß eine Zeile mit Link, Flash-Hinweis nur noch bei Flash, „Kanzlei: ja“ (V-44 a) |

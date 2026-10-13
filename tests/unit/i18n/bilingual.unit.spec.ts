@@ -21,6 +21,8 @@ const IDENTICAL_BY_NATURE = new Set([
   'common.routes.R12',
   'common.routes.R17',
   'common.routes.R18',
+  // V-26 b: die Seite heißt in beiden Sprachen „Jutta & Coco“ (zwei Namen)
+  'common.routes.R19',
   'header.shop',
   'header.tattoo',
   'footer.instagram',

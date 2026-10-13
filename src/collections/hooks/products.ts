@@ -23,7 +23,7 @@ import {
   applyCategoryDefaults,
   clearForeignFields,
   DEFAULT_SHIPPING_CLASS,
-  isTextile,
+  hasCareTemplate,
   type CategoryTemplates,
 } from '@/lib/products/categoryRules'
 import { exampleDataPresent, nextFreeItemNumber } from '@/endpoints/products/nextItemNumber'
@@ -108,9 +108,7 @@ async function loadTemplates(req: PayloadRequest, locale: Locale): Promise<Templ
       const c = care.find((t) => t.category === category)?.text
       return {
         safety: s || SAFETY_TEMPLATE_TEXTS[category][locale],
-        care: isTextile(category)
-          ? c || CARE_TEMPLATE_TEXTS[category as 'textil' | 'cap'][locale]
-          : undefined,
+        care: hasCareTemplate(category) ? c || CARE_TEMPLATE_TEXTS[category][locale] : undefined,
       }
     },
   }
@@ -584,7 +582,7 @@ async function syncOtherLocales(
         safety = next.safety ?? undefined
         patch.safetyWarnings = safety
       }
-      if (isTextile(category) && !at('careInstructions')?.trim() && next.care) {
+      if (hasCareTemplate(category) && !at('careInstructions')?.trim() && next.care) {
         patch.careInstructions = next.care
       }
     }

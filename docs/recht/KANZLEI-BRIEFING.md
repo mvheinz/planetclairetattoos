@@ -59,6 +59,14 @@ Impressum und AGB (Urheberrecht, Kaufklausel, Vorbehalt nach § 44b Abs. 3 UrhG,
 schriftlicher Genehmigung). Sie dürfen als Ausgangspunkt dienen, ersetzen aber keine Prüfung; bitte insbesondere die
 Kaufklausel (Eigentum am Unikat, keine Nutzungsrechte am Motiv), den KI-/TDM-Vorbehalt und die Haftungsklausel durchsehen.
 
+**Nachtrag (P20.4, 12.10.2026):** Auf Wunsch der Mandantin sind die vier `ip.*`-Bausteine freundlicher und kürzer und mit den
+AGB abgestimmt (V-44): Kaufklausel „Mit dem Kauf gehört dir dieses Unikat. Zeigen, fotografieren und privat teilen ist
+erwünscht – gern mit meinem Namen. Die Rechte am Motiv bleiben bei mir: kein Nachdruck, keine Vervielfältigung, kein
+Merchandise, keine gewerbliche Nutzung und kein KI-Training.“; im Fuß jeder Seite nur noch eine Zeile („… Nutzung nur mit
+meiner Erlaubnis, kein KI-Training.“) mit Link zum Impressum, wo der volle Vorbehalt nach § 44b Abs. 3 UrhG steht; bei
+den Flash-Motiven „… nur mit meiner schriftlichen Genehmigung – frag mich vorher gern per Mail.“ statt „Verstöße verfolge
+ich.“ Die Bausteine sind jetzt als „Kanzlei: ja“ markiert (Anlage A §6) – bitte mitprüfen.
+
 ### 1.2 Formate
 
 - Je Text **zwei Dateien**: reiner Text (`.txt`, UTF-8) und HTML-Fragment (`.html`).
@@ -550,6 +558,13 @@ Widerrufsbelehrung mit Formular als PDF in dieser Fassung.
 ### 16.2 Englische Fassungen
 Englische Seiten zeigen die Übersetzung mit Hinweissatz; fehlt sie, erscheint der deutsche Text.
 
+**Englische Begriffe (P20.4, V-25):** Die Oberfläche benutzt britisches Englisch mit festen Wörtern (Liste in
+`docs/design/TEXTE.md` §8): „basket“ (nicht „cart“), Knopf „Add to basket“, „pickup“ für die Abholung. Die englischen
+Arbeitsfassungen der Rechtstexte wurden dafür nur in AGB und „Versand & Zahlung“ angepasst („basket“). Bitte bei der
+Durchsicht angleichen: Die englische Datenschutzerklärung nennt den Warenkorb noch „shopping cart“ und den Knopf „Add to
+cart“ (Cookie `pc_cart` bleibt als technischer Name), und die englischen Rechtstexte sprechen bei der Abholung von
+„collection“, die Oberfläche von „pickup“.
+
 ### 16.3 Platzhalter
 Bitte verwenden Sie für änderbare Angaben diese Platzhalter; das System setzt die aktuellen Werte ein:
 
@@ -628,7 +643,12 @@ Zu jeder Frage steht in Klammern die **vorläufige Umsetzung**, die bis zu Ihrer
   werden? *(Veröffentlichung solcher Stücke gesperrt, keine Markennamen in Texten)*
 - **K-14** Genügt „Dekorationsobjekt – nicht für Lebensmittel geeignet“ bei Schalen und Tellern, wenn die Kennzeichnung
   auch am Boden angebracht ist? Wie sind die Konformitätserklärungen bei lebensmittelgeeigneter Keramik online
-  bereitzustellen?
+  bereitzustellen? Gilt das auch für **Tasse, Becher und Pokal als Deko**: Die Stücke heißen so, sind aber als
+  Dekorationsobjekt gekennzeichnet; die Beschreibung nennt einen Deko-Zweck (Pinsel, Stifte, Trockenblumen, Ringe), die
+  Pflegezeile lautet „Feucht abwischen und trocknen lassen, nicht in die Spülmaschine“ (kein „von Hand spülen“ mehr).
+  Reicht das, oder sollte ein Stück, das wie ein Trinkgefäß aussieht, anders heißen (z. B. „Pinselbecher“ statt „Tasse“)?
+  *(Kennzeichnung „Deko – nicht für Lebensmittel“ am Stück, Deko-Zweck in der Beschreibung; Umbenennung schlägt Claude
+  der Mandantin in „Bitte prüfen“ vor, V-23)*
 - **K-15** Schmuck: Wortlaut des Kleinteile-Warnhinweises; ist die Aussage „nickelfrei (Lieferantennachweis liegt vor)“
   zulässig; weitere Pflichtangaben (Blei, Cadmium)?
 - **K-16** GPSR: Gelten die Pflichten für Original-Zeichnungen/Aquarelle, bemalte Fliesen und bemalte
@@ -728,6 +748,14 @@ Zu jeder Frage steht in Klammern die **vorläufige Umsetzung**, die bis zu Ihrer
   ein Satz auf dem Packzettel)? (c) Ist es in Ordnung, dass der Gruß in keiner Mail an die Bestellerin wiederholt wird
   und auf dem Packzettel (der im Paket liegt) nur „Geschenk: handgeschriebene Karte beilegen“ steht? *(Formulierungen
   wie beschrieben; Gruß nur in der Verwaltung; Löschung nach 30 Tagen; keine Gutscheine)*
+- **K-43** Kurze fremde Textzeilen auf Unikaten (vor dem Start): Viele Stücke tragen einen handgeschriebenen Schriftzug;
+  der Shop gibt den Wortlaut bewusst nicht wieder. Vor dem Veröffentlichen bestätigt die Mandantin je Stück per
+  Pflicht-Häkchen „Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte, Film- oder Buchzitate“ (R-047).
+  Bitte prüfen Sie: (a) Sind auch sehr kurze Zeilen aus Liedern, Gedichten, Filmen oder Büchern (wenige Wörter) auf
+  einem verkauften Einzelstück urheberrechtlich relevant (Schutzfähigkeit kurzer Textteile, § 51a UrhG Pastiche,
+  Zitatrecht § 51 UrhG)? (b) Genügt das Häkchen als Sorgfaltsnachweis, oder empfehlen Sie mehr (z. B. eine kurze
+  Notiz zur Herkunft des Textes)? (c) Gilt für Titel- oder Namenszeilen etwas anderes (Werktitel, Marken)? *(Häkchen
+  Pflicht vor dem Online-Stellen; Wortlaut nie im Shoptext; im Zweifel Stück nicht online stellen)*
 
 **I. Sonstiges**
 - **K-34** Beispielbestand und Vorschau: Bestehen Bedenken gegen die interne Nutzung der zwei Tattoo-Fotos von
@@ -775,6 +803,7 @@ Briefing und die dort genannten Arbeitsfassungen; Abweichungen zwischen Briefing
 | 02.10.2026 | 1.4 | An die Umsetzung angeglichen (P6.22): Widerrufsablauf mit Schritten, Feldern, Eingangsbestätigung und englischer Beschriftung (§8); Cookie-/Speicherliste mit den technischen Namen `payload-token` und `pc-motion` (§11.3); Verarbeitungen = Verzeichnis `VVT.md` inkl. V20 Verwaltung, Versand ohne Schnittstelle (§11.4); Speicherdauern mit Verweis auf Anlage C (§11.6); Formulare: Kasse mit Bestellknopf, Widerruf mit Auswahl, Anfrage ohne Einwilligungs-Checkbox mit höchstens 5 Bildern (§12); Empfänger-Tabelle als Komponente, Platzhalterliste unverändert geschlossen (§16.3); Anlage E (Bildschirmfotos) und F (VVT) (§18) |
 | 11.10.2026 | 1.5 | Datenschutz- und AGB-Prüfung (P18.5): Instagram kein Anfrageweg (§3.4); Reservierungsdauer als Platzhalter `{{reservationMinutes}}`, Erinnerung „vor Fristende“ (§5.1, §5.2, §16.3); Status-Link 180 Tage nach Abschluss (§5.3); Widerrufsbestätigung bei unbezahlter Vorkasse mit Hinweis auf Rückzahlung schon überwiesenen Geldes (§8); Teil-Widerruf nur im Freitext wird zugeordnet statt als ganzer Vertrag gebucht, Rest-Lieferung nach Teil-Widerruf (§8, K-11); Mail M11 ohne Freitexte, M10 ohne Shop-Link |
 | 12.10.2026 | 1.6 | P20.3 (U-93): §4 Rechnungsadresse aus EU/EWR mit Geoblocking-Verordnung (V-17, mit K-07) und Geschenk-Hinweis mit Gruß für eine handgeschriebene Karte (V-18 b); §11.4 V3, §11.6 Gruß 30 Tage; neue Frage K-42 |
+| 12.10.2026 | 1.7 | P20.4 (U-93): Schutztexte `ip.*` freundlicher, Kaufklausel wie AGB, Fuß nur eine Zeile, Flash ohne „Verstöße verfolge ich“, jetzt „Kanzlei: ja“ (§1.1, V-44 a); K-14 um Tasse/Becher/Pokal als Deko ergänzt (V-23); neue Frage K-43 kurze fremde Textzeilen, Häkchen „Motiv und Schriftzug sind von mir“ (V-43); §16.2 englische Begriffe (V-25) |
 
 Für Rückfragen steht Ihnen die Mandantin gern zur Verfügung. Vielen Dank für Ihre Unterstützung.
 

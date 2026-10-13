@@ -76,7 +76,7 @@ const TEXTS: Record<LegalSnippetKey, LegalSnippetSeedText> = {
   ),
   'cart.paymentAndDeliveryInfo': draft(
     'Wir liefern nur innerhalb Deutschlands. Abholung in Berlin nach Absprache. Zahlarten: Kredit-/Debitkarte, Apple Pay, Google Pay, PayPal, Vorkasse per Überweisung.',
-    'We only deliver within Germany. Collection in Berlin by arrangement. Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.',
+    'We only deliver within Germany. Pickup in Berlin by arrangement. Payment methods: credit/debit card, Apple Pay, Google Pay, PayPal, payment in advance by bank transfer.',
   ),
   'checkout.legalNotice': draft(
     'Es gelten unsere AGB. Informationen zu deinem Widerrufsrecht findest du in der Widerrufsbelehrung, Hinweise zum Datenschutz in der Datenschutzerklärung.',
@@ -174,22 +174,24 @@ const TEXTS: Record<LegalSnippetKey, LegalSnippetSeedText> = {
   ),
   'privacyRequest.accessResponse': placeholder(),
   'privacyRequest.erasureResponse': placeholder(),
-  // Schutz des geistigen Eigentums (U-22, P12.11) – sichtbar im Footer, auf der Produktseite, bei Flash/Preisen/Ablauf
+  // Schutz des geistigen Eigentums (U-22, P12.11) – sichtbar im Footer, auf der Produktseite, bei den Flash-Motiven.
+  // V-44 a (U-93): freundlicher und kürzer, stimmig mit den AGB; der volle Text (§ 44b UrhG) steht im Impressum und in
+  // den AGB, der Fuß zeigt nur eine Zeile mit Link. Kanzlei prüft (ANFORDERUNGEN §6: „Kanzlei: ja“).
   'ip.copyrightNotice': draft(
-    'Alle Bilder, Zeichnungen, Fotos und Texte auf dieser Website sind urheberrechtlich geschützt. Vervielfältigung, Weitergabe, Download und gewerbliche Nutzung nur mit meiner Erlaubnis in Textform; Zitate nur mit Quellenangabe, soweit das Gesetz sie erlaubt.',
-    'All images, drawings, photographs and texts on this website are protected by copyright. Copying, passing on, downloading and commercial use only with my permission in text form; quotations only with a credit to the source, where the law allows them.',
+    '© Planet Claire: Bilder und Texte dieser Seite sind von mir und urheberrechtlich geschützt – Nutzung nur mit meiner Erlaubnis, kein KI-Training.',
+    '© Planet Claire: the images and texts on this site are mine and protected by copyright – use only with my permission, no AI training.',
   ),
   'ip.aiMiningReservation': draft(
     'Nutzungsvorbehalt nach § 44b Abs. 3 UrhG: Ich untersage die Nutzung meiner Bilder und Texte für das Training von KI-Systemen sowie für Text- und Data-Mining.',
     'Reservation of use under Section 44b (3) UrhG: I prohibit the use of my images and texts for training AI systems and for text and data mining.',
   ),
   'ip.purchaseClause': draft(
-    'Mit dem Kauf erwirbst du dieses eine Unikat, nicht die Rechte am Motiv: kein Nachdruck, keine Vervielfältigung, kein Merchandise, keine Digitalisierung und kein Weiterverkauf als Reproduktion. Das Urheberrecht bleibt bei mir; meine Unikate werden nicht in Serie gebracht.',
-    'By buying, you acquire this one unique piece, not the rights to the motif: no reprints, no reproduction, no merchandise, no digitisation and no resale as a reproduction. The copyright stays with me; my unique pieces are never made into series.',
+    'Mit dem Kauf gehört dir dieses Unikat. Zeigen, fotografieren und privat teilen ist erwünscht – gern mit meinem Namen. Die Rechte am Motiv bleiben bei mir: kein Nachdruck, keine Vervielfältigung, kein Merchandise, keine gewerbliche Nutzung und kein KI-Training.',
+    'With your purchase, this one-off is yours. Showing, photographing and sharing it privately is very welcome – ideally with my name. The rights to the motif stay with me: no reprints, no reproduction, no merchandise, no commercial use and no AI training.',
   ),
   'ip.tattooFlashNotice': draft(
-    'Dieses Motiv ist von mir gezeichnet und urheberrechtlich geschützt. Nachstechen oder jede andere Weiterverwendung, auch durch andere Tätowierer:innen, nur mit meiner schriftlichen Genehmigung. Verstöße verfolge ich.',
-    'This design was drawn by me and is protected by copyright. Re-tattooing or any other further use, including by other tattoo artists, only with my written permission. I pursue infringements.',
+    'Diese Motive sind von mir gezeichnet und urheberrechtlich geschützt. Nachstechen oder anders verwenden, auch durch andere Tätowierer:innen, nur mit meiner schriftlichen Genehmigung – frag mich vorher gern per Mail.',
+    'These designs were drawn by me and are protected by copyright. Re-tattooing or other use, including by other tattoo artists, only with my written permission – feel free to ask me by email first.',
   ),
 }
 

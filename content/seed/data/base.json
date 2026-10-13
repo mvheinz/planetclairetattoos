@@ -197,6 +197,20 @@
           "de": "Nicht in die Waschmaschine. Flecken mit einem feuchten Tuch vorsichtig abtupfen, an der Luft trocknen.",
           "en": "Do not machine wash. Gently dab stains with a damp cloth and let it air dry."
         }
+      },
+      {
+        "category": "keramik",
+        "text": {
+          "de": "Feucht abwischen und trocknen lassen, nicht in die Spülmaschine.",
+          "en": "Wipe with a damp cloth and let it dry; not dishwasher safe."
+        }
+      },
+      {
+        "category": "schmuck",
+        "text": {
+          "de": "Mit einem weichen, trockenen Tuch abwischen. Vor Wasser, Parfum und Creme schützen und einzeln aufbewahren.",
+          "en": "Wipe with a soft, dry cloth. Keep away from water, perfume and lotion, and store it on its own."
+        }
       }
     ],
     "packingChecklists": [
@@ -779,7 +793,7 @@
     {
       "type": "agb",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5, Kanzlei-Prüfung offen)",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5 und P20.4 – Kaufklausel und Flash freundlicher, Englisch „basket“ –, Kanzlei-Prüfung offen)",
       "intro": "Ein Stück, ein Mensch, ein Vertrag. Die Spielregeln dazu stehen hier.",
       "introEn": "One piece, one person, one contract. The ground rules are written down here.",
       "sections": [
@@ -857,8 +871,8 @@
           "heading": "Urheberrecht und Kaufklausel",
           "paragraphs": [
             "Alle Motive, Zeichnungen, Aquarelle, Muster, Figuren, Fotos und Texte dieser Website sind urheberrechtlich geschützt. Die Rechte daran liegen bei mir (© Planet Claire, alle Rechte vorbehalten). Du darfst sie ohne meine vorherige Erlaubnis in Textform nicht vervielfältigen, herunterladen, weitergeben, öffentlich zugänglich machen, bearbeiten oder gewerblich nutzen. Gesetzliche Schranken, zum Beispiel das Zitatrecht, bleiben unberührt; nenne dann bitte die Quelle.",
-            "**Kaufklausel:** Mit dem Kauf erwirbst du das Eigentum an dem einen Stück, das du kaufst, und das Recht, es zu besitzen, zu zeigen, zu verschenken und weiterzuverkaufen. Du erwirbst keine Nutzungsrechte am Motiv oder an der Zeichnung selbst. Nicht erlaubt sind ohne meine schriftliche Erlaubnis insbesondere Nachdruck, Vervielfältigung, Fotografie oder Digitalisierung zur Verwertung, Merchandise, Weiterverkauf als Reproduktion, Übertragung des Motivs auf andere Gegenstände, auf Haut (Nachstechen) oder in digitale Werke sowie die Verwendung als Vorlage für eigene Werke. Meine Unikate werden nicht in Serie gebracht; daran ändert der Verkauf eines Stücks nichts. Das Urheberrecht verbleibt bei mir.",
-            "Ein privates Foto deines gekauften Stücks, zum Beispiel für ein persönliches Profil, ist in Ordnung, solange es nicht gewerblich genutzt wird und du mich als Urheberin nennst."
+            "**Kaufklausel:** Mit dem Kauf erwirbst du das Eigentum an dem einen Stück, das du kaufst, und das Recht, es zu besitzen, zu zeigen, zu verschenken und weiterzuverkaufen. Du erwirbst keine Nutzungsrechte am Motiv oder an der Zeichnung selbst. Nicht erlaubt sind ohne meine schriftliche Erlaubnis insbesondere Nachdruck, Vervielfältigung, Digitalisierung zur gewerblichen Verwertung, Merchandise, Weiterverkauf als Reproduktion, Übertragung des Motivs auf andere Gegenstände, auf Haut (Nachstechen) oder in digitale Werke, die Verwendung als Vorlage für eigene Werke sowie die Verwendung für das Training von KI-Systemen. Meine Unikate werden nicht in Serie gebracht; daran ändert der Verkauf eines Stücks nichts. Das Urheberrecht verbleibt bei mir.",
+            "Dein Stück zu zeigen, zu fotografieren und privat zu teilen, zum Beispiel in einem persönlichen Profil, ist ausdrücklich erwünscht – am liebsten mit meinem Namen. Nur gewerblich nutzen darfst du solche Fotos nicht."
           ]
         },
         {
@@ -870,7 +884,7 @@
         {
           "heading": "Tattoo-Motive und Flash",
           "paragraphs": [
-            "Meine Tattoo-Motive und Flash-Entwürfe, auch solche, die ich auf der Website oder auf Instagram zeige, sind urheberrechtlich geschützt. Ein Motiv darf nur von mir oder mit meiner ausdrücklichen schriftlichen Genehmigung gestochen oder anderweitig verwendet werden, auch nicht in abgewandelter Form und auch nicht von anderen Tätowierer:innen. Wer ein Motiv ohne Genehmigung nachsticht oder verwendet, muss damit rechnen, dass ich dagegen vorgehe. Für ein bestimmtes Motiv fragst du bitte vorher per E-Mail an {{email}}."
+            "Meine Tattoo-Motive und Flash-Entwürfe, auch solche, die ich auf der Website oder auf Instagram zeige, sind urheberrechtlich geschützt. Ein Motiv darf nur von mir oder mit meiner ausdrücklichen schriftlichen Genehmigung gestochen oder anderweitig verwendet werden, auch nicht in abgewandelter Form und auch nicht von anderen Tätowierer:innen. Für ein bestimmtes Motiv frag mich vorher gern per E-Mail an {{email}}."
           ]
         },
         {
@@ -911,7 +925,7 @@
         {
           "heading": "Conclusion of contract",
           "paragraphs": [
-            "You put pieces into the cart, go to the checkout and enter your details. Before submitting you see an overview of all details and can correct input errors using the “Change” links. By clicking “Order with obligation to pay” you make a binding offer to buy the pieces in your cart.",
+            "You put pieces into the basket, go to the checkout and enter your details. Before submitting you see an overview of all details and can correct input errors using the “Change” links. By clicking “Order with obligation to pay” you make a binding offer to buy the pieces in your cart.",
             "When you pay by card, Apple Pay, Google Pay or PayPal, I accept your offer by sending you the order confirmation by email after payment has been confirmed. If payment fails, no contract is concluded.",
             "With payment in advance I accept your offer with the order confirmation, which you receive immediately by email. Your piece stays reserved for you until the end of the payment period. If payment is not made in time, the order is cancelled automatically as described in the section “Payment and payment in advance”.",
             "When the payment process starts, I reserve the piece for you for {{reservationMinutes}} minutes. If the time runs out, it is released again. Since each piece exists only once, it may have been sold in the meantime. If the piece is no longer available, no contract is concluded and I refund any payments already made without delay."
@@ -967,8 +981,8 @@
           "heading": "Copyright and purchase clause",
           "paragraphs": [
             "All motifs, drawings, watercolours, patterns, characters, photographs and texts on this website are protected by copyright. The rights to them lie with me (© Planet Claire, all rights reserved). Without my prior permission in text form you may not copy, download, pass on, make publicly available, edit or use them commercially. Statutory limitations, for example the right to quote, remain unaffected; please then name the source.",
-            "**Purchase clause:** By purchasing you acquire ownership of the one piece you buy, and the right to own it, show it, give it away and resell it. You do not acquire any rights of use in the motif or in the drawing itself. Without my written permission the following in particular are not permitted: reprints, reproduction, photography or digitisation for exploitation, merchandise, resale as a reproduction, transferring the motif to other objects, to skin (re-tattooing) or into digital works, and use as a template for your own works. My unique pieces are not made into series; selling one piece does not change that. The copyright remains with me.",
-            "A private photo of the piece you bought, for example for a personal profile, is fine as long as it is not used commercially and you name me as the author."
+            "**Purchase clause:** By purchasing you acquire ownership of the one piece you buy, and the right to own it, show it, give it away and resell it. You do not acquire any rights of use in the motif or in the drawing itself. Without my written permission the following in particular are not permitted: reprints, reproduction, digitisation for commercial exploitation, merchandise, resale as a reproduction, transferring the motif to other objects, to skin (re-tattooing) or into digital works, use as a template for your own works, and use for training AI systems. My unique pieces are not made into series; selling one piece does not change that. The copyright remains with me.",
+            "Showing, photographing and sharing your piece privately, for example on a personal profile, is very welcome – ideally with my name. You just may not use such photos commercially."
           ]
         },
         {
@@ -980,7 +994,7 @@
         {
           "heading": "Tattoo designs and flash",
           "paragraphs": [
-            "My tattoo designs and flash sheets, including those I show on the website or on Instagram, are protected by copyright. A design may be tattooed or otherwise used only by me or with my express written permission, not in altered form either, and not by other tattoo artists. Anyone who re-tattoos or uses a design without permission must expect me to take action. For a specific design, please ask beforehand by email at {{email}}."
+            "My tattoo designs and flash sheets, including those I show on the website or on Instagram, are protected by copyright. A design may be tattooed or otherwise used only by me or with my express written permission, not in altered form either, and not by other tattoo artists. For a specific design, feel free to ask me beforehand by email at {{email}}."
           ]
         },
         {
@@ -1110,7 +1124,7 @@
     {
       "type": "versand-zahlung",
       "validFrom": "2026-01-01T00:00:00+01:00",
-      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5, Kanzlei-Prüfung offen)",
+      "sourceNote": "Platzhalter-Fassung (ausformuliert in P12.11, überarbeitet in P18.5 und P20.4 – Englisch: „basket“ statt „cart“ –, Kanzlei-Prüfung offen)",
       "intro": "Wie ein Stück zu dir kommt und wie du dafür bezahlst – kurz und ohne Umwege.",
       "introEn": "How a piece reaches you and how you pay for it – short and without detours.",
       "sections": [
@@ -1167,7 +1181,7 @@
         {
           "heading": "Shipping costs",
           "paragraphs": [
-            "Shipping costs depend on the size of the piece and are fixed before you submit your order. If there are several pieces in the cart, the highest shipping class applies; you pay shipping only once.",
+            "Shipping costs depend on the size of the piece and are fixed before you submit your order. If there are several pieces in the basket, the highest shipping class applies; you pay shipping only once.",
             "{{shippingTable}}",
             "Shipping costs are added to the prices of the pieces. I charge no further surcharges."
           ]

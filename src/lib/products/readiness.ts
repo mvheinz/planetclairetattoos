@@ -10,7 +10,7 @@ export const READINESS_LABELS: Readonly<Record<string, string>> = {
   itemNumber: 'Nummer',
   title: 'Titel',
   description: 'Beschreibung',
-  juttaSays: '„Jutta sagt“',
+  juttaSays: '„Ein Wort von mir“',
   priceCents: 'Preis',
   materials: 'Material',
   weightGrams: 'Gewicht',

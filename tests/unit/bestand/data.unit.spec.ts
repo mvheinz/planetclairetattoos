@@ -19,6 +19,10 @@ import { FORBIDDEN_CONTENT_PATTERNS } from '../../helpers/forbiddenPatterns'
 // Fotos ohne Metadaten (EXIF/GPS), keine Schriftzug-Zitate und keine Bezüge zu fremden Werken.
 
 const root = process.cwd()
+
+/** V-43: derselbe Prüfpunkt bei allen Stücken mit Schriftzug. */
+const LETTERING_CHECK =
+  'Schriftzug: Den Haken nur setzen, wenn auch der Text von dir ist – keine fremden Textzeilen. Der Wortlaut steht bewusst nicht im Shoptext.'
 const photoDir = path.join(root, BESTAND_DIR, BESTAND_PHOTO_DIR)
 
 /** Texte, die öffentlich erscheinen (Shop, Alt-Texte), je Stück. */
@@ -27,6 +31,9 @@ function publicTexts(p: BestandProduct): string[] {
   return [
     ...l(p.title),
     ...l(p.description),
+    // V-22 a: der Vorschlag kann nach Juttas Okay öffentlich werden – dieselben Regeln
+    ...(p.juttaSays ? [p.juttaSays.de, ...(p.juttaSays.en ? [p.juttaSays.en] : [])] : []),
+    ...l(p.juttaSaysSuggestion),
     ...l(p.materials),
     ...l(p.dimensions.note),
     ...l(p.sizeLabel),
@@ -61,14 +68,21 @@ const REVIEW_QUOTES = new Set([
   'Geprüft: keine Abweichung',
   'Glasur bleifrei',
   'Glasur innen',
+  'Ein Wort von mir',
+  'Keramik',
   'Kette nicht dabei',
   'gut',
   'keine Abweichung',
   'lebensmittelecht',
+  'misstrauisch',
+  'Motiv und Schriftzug sind von mir',
+  'nicht überzeugt',
   'nicht für Lebensmittel',
   'nur Deko',
-  'nur eigene Figuren',
+  'Pinselbecher',
   'sehr gut',
+  'skeptisch',
+  'Tasse',
   'von Hand reinigen',
   'von Hand spülen',
 ])
@@ -153,14 +167,53 @@ describe('Echter Bestand (content/bestand, P16.1)', async () => {
       expect(re.exec(raw)?.[0], id).toBeUndefined()
   })
 
-  it('Keramik ist „Deko“, Schmuck mit Kleinteile-Hinweis; jede Kategorie mit Prüfpunkt „nur eigene Figuren“', () => {
+  it('Keramik ist „Deko“, Schmuck mit Kleinteile-Hinweis; jedes Stück mit Prüfpunkt zum Häkchen (V-43)', () => {
     for (const p of products) {
       if (p.category === 'keramik') expect(p.foodContact, p.key).toBe('deko')
       if (p.category === 'schmuck') expect(p.smallPartsWarning, p.key).toBe(true)
       expect(
-        p.review.some((r) => r.includes('„nur eigene Figuren“')),
+        p.review.some((r) => r.includes('„Motiv und Schriftzug sind von mir“')),
         p.key,
       ).toBe(true)
     }
+  })
+
+  it('V-43: jedes Stück mit Schriftzug hat denselben Prüfpunkt, keine alten Varianten', () => {
+    const lettering = products.filter((p) => /schrift/i.test(p.description.de))
+    expect(lettering).toHaveLength(54)
+    for (const p of lettering)
+      expect(
+        p.review.filter((r) => r.startsWith('Schriftzug: ')),
+        p.key,
+      ).toEqual([LETTERING_CHECK])
+    for (const p of products.filter((x) => !lettering.includes(x)))
+      expect(p.review, p.key).not.toContain(LETTERING_CHECK)
+  })
+
+  it('V-22 a: zu jedem Stück ein Vorschlag „Ein Wort von mir“ (DE/EN, ≤ 280 Zeichen, Ich-Form) – nichts veröffentlicht', () => {
+    for (const p of products) {
+      expect(p.juttaSays, p.key).toBeUndefined()
+      const s = p.juttaSaysSuggestion
+      expect(s, p.key).toBeDefined()
+      expect(s!.de.length, p.key).toBeLessThanOrEqual(280)
+      expect(s!.en.length, p.key).toBeLessThanOrEqual(280)
+      // Ich-Form: Jutta spricht selbst
+      expect(s!.de, p.key).toMatch(
+        /(?<!\p{L})(ich|mich|mir|mein|meine|meinem|meinen|meiner)(?!\p{L})/iu,
+      )
+      expect(s!.en, p.key).toMatch(/(?<!\p{L})(I|me|my|My|I’\p{L}+)(?!\p{L})/u)
+      // keine „neu“-Aussage bei Second-Hand (Textil/Cap)
+      if (p.isSecondHand)
+        expect(`${s!.de} ${s!.en}`, p.key).not.toMatch(/\b(neu|neuwertig|new|brand-new)\b/i)
+    }
+    expect(new Set(products.map((p) => p.juttaSaysSuggestion!.de)).size).toBe(products.length)
+  })
+
+  it('V-23: Keramik und Schmuck ohne Pflegesätze in der Beschreibung (die feste Pflegezeile gilt)', () => {
+    const CARE =
+      /von Hand (spülen|reinigen)|wash(ed)? by hand|clean by hand|Keramik ist zerbrechlich|ceramic is (fragile|breakable)|trocken aufbewahren|kept dry/i
+    for (const p of products.filter((x) => x.category === 'keramik' || x.category === 'schmuck'))
+      for (const t of [p.description.de, p.description.en])
+        expect(CARE.exec(t)?.[0], `${p.key}: ${t}`).toBeUndefined()
   })
 })

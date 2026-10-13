@@ -74,9 +74,15 @@ test.describe('Archiv R05 – lesend (alle Projekte)', () => {
     await page.goto(archive)
     await expect(page).toHaveTitle('Archiv · Planet Claire')
     await expect(page.locator('h1')).toHaveText('Archiv')
-    await expect(page.locator('header p').first()).toHaveText(
+    // V-24: die Einleitung steht genau einmal (Text der Seite `archive` oder der feste Satz)
+    await expect(page.locator('header p').first()).toContainText(
       'Hier wohnen die Stücke, die weitergezogen sind.',
     )
+    expect(
+      (await page.locator('[data-list-page] header').innerText()).split(
+        'Hier wohnen die Stücke, die weitergezogen sind.',
+      ).length - 1,
+    ).toBe(1)
     await expect(page.locator('[data-chip="all"]')).toHaveAttribute('aria-current', 'page')
     // Chips nur für Kategorien mit Archiv-Stücken (als ?category=<DE-Slug>): im Beispielbestand kein verkaufter Schmuck
     await expect(page.locator('[data-chip="keramik"]')).toHaveAttribute(
@@ -98,9 +104,15 @@ test.describe('Archiv R05 – lesend (alle Projekte)', () => {
     await page.goto(archiveEn)
     await expect(page).toHaveTitle('Archive · Planet Claire')
     await expect(page.locator('h1')).toHaveText('Archive')
-    await expect(page.locator('header p').first()).toHaveText(
+    // V-24: die Einleitung steht genau einmal (Text der Seite `archive` oder der feste Satz)
+    await expect(page.locator('header p').first()).toContainText(
       'Here live the pieces that have moved on.',
     )
+    expect(
+      (await page.locator('[data-list-page] header').innerText()).split(
+        'Here live the pieces that have moved on.',
+      ).length - 1,
+    ).toBe(1)
     await expect(page.locator('[data-chip="keramik"]')).toHaveAttribute(
       'href',
       `${archiveEn}?category=ceramics`,

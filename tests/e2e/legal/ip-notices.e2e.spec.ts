@@ -10,7 +10,7 @@ test.describe('R-140 Urheberrechtsvermerk, Kaufklausel, Flash-Genehmigung', () =
     ['de', '/de'],
     ['en', '/en'],
   ] as const) {
-    test(`R-140 ${locale}: Footer zeigt Urheberrechtsvermerk und KI-/TDM-Vorbehalt (aus den Bausteinen)`, async ({
+    test(`R-140 ${locale}: Footer zeigt eine Zeile Urheberrecht mit „kein KI-Training“ und Link zum Impressum (V-44 a)`, async ({
       page,
     }) => {
       await page.goto(path)
@@ -19,8 +19,17 @@ test.describe('R-140 Urheberrechtsvermerk, Kaufklausel, Flash-Genehmigung', () =
       await expect(notice).toContainText(
         locale === 'de' ? 'urheberrechtlich geschützt' : 'protected by copyright',
       )
-      await expect(notice).toContainText('44b')
+      await expect(notice).toContainText(locale === 'de' ? 'kein KI-Training' : 'no AI training')
+      // der volle Satz nach § 44b UrhG steht im Impressum, nicht im Fuß
+      await expect(notice).not.toContainText('44b')
+      await expect(notice.locator('[data-ip-notice-more]')).toHaveAttribute(
+        'href',
+        locale === 'de' ? '/de/impressum' : '/en/legal-notice',
+      )
       await expect(notice).toHaveAttribute('lang', locale)
+      // V-24: „Kontakt“ nur einmal im Fuß (Pflichtlink-Block)
+      const contact = locale === 'de' ? '/de/kontakt' : '/en/contact'
+      await expect(page.locator(`[data-site-footer] a[href="${contact}"]`)).toHaveCount(1)
     })
   }
 
@@ -33,21 +42,17 @@ test.describe('R-140 Urheberrechtsvermerk, Kaufklausel, Flash-Genehmigung', () =
     await openProduct(page, request, await pathOf(itemNumber, 'de'))
     await expect(page.locator('[data-ip-notice="purchase"]')).toContainText('Nachdruck')
     await expect(page.locator('[data-ip-notice="purchase"]')).toContainText('Unikat')
+    // V-44 a: stimmig mit den AGB – zeigen, fotografieren und privat teilen ist erwünscht
+    await expect(page.locator('[data-ip-notice="purchase"]')).toContainText('privat teilen')
+    await expect(page.locator('[data-ip-notice="purchase"]')).not.toContainText('Digitalisierung')
     await openProduct(page, request, await pathOf(itemNumber, 'en'))
     await expect(page.locator('[data-ip-notice="purchase"]')).toContainText('reprints')
     await openProduct(page, request, ANCHORS.S11.en)
     await expect(page.locator('[data-ip-notice="purchase"]')).toHaveCount(1)
   })
 
-  for (const path of [
-    '/de/tattoo/flash',
-    '/de/tattoo/preise',
-    '/de/tattoo/ablauf',
-    '/en/tattoo/flash',
-    '/en/tattoo/prices',
-    '/en/tattoo/process',
-  ]) {
-    test(`R-140 ${path}: Hinweis „Nachstechen nur mit schriftlicher Genehmigung“`, async ({
+  for (const path of ['/de/tattoo/flash', '/en/tattoo/flash']) {
+    test(`R-140 ${path}: Hinweis „Nachstechen nur mit schriftlicher Genehmigung“, freundlich (V-44 a)`, async ({
       page,
     }) => {
       await page.goto(path)
@@ -56,14 +61,23 @@ test.describe('R-140 Urheberrechtsvermerk, Kaufklausel, Flash-Genehmigung', () =
       await expect(notice).toContainText(
         path.startsWith('/de') ? 'schriftlichen Genehmigung' : 'written permission',
       )
+      await expect(notice).toContainText(path.startsWith('/de') ? 'per Mail' : 'by email')
+      await expect(notice).not.toContainText(/Verstöße|infringements/)
     })
   }
 
-  test('R-140 andere Tattoo-Seiten (Aftercare) tragen den Flash-Hinweis nicht', async ({
+  test('R-140 andere Tattoo-Seiten (Preise, Ablauf, Aftercare) tragen den Flash-Hinweis nicht (V-44 a)', async ({
     page,
   }) => {
-    await page.goto('/de/tattoo/aftercare')
-    await expect(page.locator('[data-ip-notice="flash"]')).toHaveCount(0)
+    for (const path of [
+      '/de/tattoo/preise',
+      '/de/tattoo/ablauf',
+      '/de/tattoo/aftercare',
+      '/en/tattoo/prices',
+    ]) {
+      await page.goto(path)
+      await expect(page.locator('[data-ip-notice="flash"]'), path).toHaveCount(0)
+    }
   })
 
   test('R-140 AGB DE/EN enthalten Kaufklausel, KI-Vorbehalt und Flash-Abschnitt', async ({

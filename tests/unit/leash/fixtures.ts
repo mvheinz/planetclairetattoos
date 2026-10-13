@@ -51,7 +51,7 @@ export function journeyInput(viewport: { w: number; h: number } = { w: 390, h: 8
   }
 }
 
-/** R19 Über mich & Coco (P8.18): Preset `about`, drei Stationen Jutta → Coco → Werkstatt (Schlaufen right/left/right). */
+/** R19 Jutta & Coco (P8.18): Preset `about`, drei Stationen Jutta → Coco → Werkstatt (Schlaufen right/left/right). */
 export function aboutInput(viewport: { w: number; h: number } = { w: 390, h: 844 }): BuildInput {
   const desktop = viewport.w >= 768
   const gutter = desktop ? 64 : 44

@@ -64,7 +64,7 @@ async function expectFooterLinks(page: Page, locale: Locale, label: string) {
         expect(hit.height, `${where} ${href} Höhe`).toBeGreaterThanOrEqual(44)
       }
       await expect(footer.locator('[data-withdraw-link]')).toHaveText(WITHDRAW[locale])
-      // Kontakt steht zusätzlich im Pflichtlink-Block.
+      // Kontakt steht im Pflichtlink-Block (V-24: nur dort, nicht noch einmal in der Fußnavigation).
       await expect(
         footer.locator(`[data-legal-link="R20"][href="${localizedPath('R20', locale)}"]`),
       ).toBeVisible()
@@ -185,15 +185,16 @@ test.describe('Fußbereich – weitere Prüfungen @smoke', () => {
     const links = await nav
       .locator('a')
       .evaluateAll((els) => els.map((e) => [e.textContent?.trim(), e.getAttribute('href')]))
-    expect(links.slice(0, 7)).toEqual([
+    // V-24: „Kontakt“ steht nur im Pflichtlink-Block, nicht noch einmal in der Fußnavigation
+    expect(links.slice(0, 6)).toEqual([
       ['Start', '/de'],
       ['Shop', '/de/shop'],
       ['Archiv', '/de/archiv'],
       ['Auftragsarbeiten', '/de/auftragsarbeiten'],
       ['Tattoo', '/de/tattoo'],
-      ['Über mich & Coco', '/de/ueber-mich'],
-      ['Kontakt', '/de/kontakt'],
+      ['Jutta & Coco', '/de/ueber-mich'],
     ])
+    expect(links.map(([, href]) => href)).not.toContain('/de/kontakt')
     const insta = nav.getByRole('link', { name: /Instagram/ })
     await expect(insta).toHaveAttribute('href', /^https:\/\/www\.instagram\.com\/[a-z0-9._]+\/$/)
     // R-139: Instagram nur als einfacher Link mit rel="noopener noreferrer"

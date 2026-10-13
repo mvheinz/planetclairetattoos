@@ -158,7 +158,7 @@ export const RUNDGANG_ROUTES: readonly RundgangRoute[] = [
   { route: '/de/tattoo', title: 'Tattoo' },
   { route: '/de/tattoo/flash', title: 'Tattoo – Flash' },
   { route: '/de/auftragsarbeiten', title: 'Auftragsarbeiten' },
-  { route: '/de/ueber-mich', title: 'Über mich & Coco' },
+  { route: '/de/ueber-mich', title: 'Jutta & Coco' },
   { route: '/de/kontakt', title: 'Kontakt' },
 ]
 

@@ -9,7 +9,7 @@ const PAGES: { de: string; en: string; textDe: string; textEn: string }[] = [
     de: '/de',
     en: '/en',
     textDe: 'Ein kleiner Planet, auf dem alles nur einmal vorkommt',
-    textEn: 'A small planet where everything happens only once',
+    textEn: 'A small planet where everything exists only once',
   },
   { de: '/de/kontakt', en: '/en/contact', textDe: 'Schreib mir', textEn: 'Write to me' },
   {

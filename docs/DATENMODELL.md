@@ -871,7 +871,8 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 | `slug` | text | S | ✓ | `<Nr. 3-stellig>-<slugify(title)>` | `^\d{3,}-[a-z0-9-]+$`, UNIQUE je Locale | readOnly; Frontend löst über die führende Nummer auf und leitet auf den aktuellen Slug um (308) |
 | `category` | select `ProductCategory` | R | – | – | änderbar nur bei `status = draft` | – |
 | `description` | textarea | V (de) | ✓ | – | 20–4000 Zeichen, Absätze per Leerzeile | „Übersetzen“-Knopf |
-| `juttaSays` | textarea | – | ✓ | – | ≤ 280 | optionale „Jutta sagt“-Notiz |
+| `juttaSays` | textarea | – | ✓ | – | ≤ 280 | optionaler Satz „Ein Wort von mir“ (Verwaltung und Bestandsliste; Anzeige auf der Produktseite) |
+| `juttaSaysSuggestion` | textarea | – | ✓ | – | ≤ 280 | **intern** (Lesen/Schreiben nur Verwaltung, nie öffentlich, E-62): Claudes Vorschlag für „Ein Wort von mir“ in Ich-Form, DE/EN; übernommen nur per Knopf „Vorschlag übernehmen“ im Stück-Formular oder Spalte „Vorschlag übernehmen“ = ja in der Bestandsliste (P20.4, V-22 a, Migration `p20_care_templates_word_suggestion`) |
 | `priceCents` | number | R | – | – | Ganzzahl 100–1 000 000; gesperrt bei `reserved`/`sold` | Eingabe in Euro |
 | `vatCategory` | select `VatCategory` | R | – | `standard` | `reduced_art` nur bei `category = zeichnung` | nur bei Regelbesteuerung relevant (E-02) |
 | `vatReducedReason` | text | V (bei `reduced_art`) | – | „Originalzeichnung, vollständig von Hand (Anlage 2 Nr. 53 UStG)“ | ≥ 10 | – |
@@ -895,7 +896,7 @@ und `title`. Formular in Tabs „Basis“, „Pflichtangaben“, „Bilder“, �
 | ↳ `percent` | number | R | – | – | Ganzzahl 1–100 | – |
 | `labelMissing` | checkbox | – | – | `false` | – | „Etikett fehlt“ (E-16); zeigt Baustein `product.textileLabelMissing` |
 | `fiberFreeText` | text | V (bei `labelMissing`) | ✓ | – | 3–200 | „Material nach bestem Wissen“, ergänzt die Faserangabe und wird mit Hinweis „Etikett fehlt“ angezeigt |
-| `careInstructions` | textarea | – | ✓ | Vorlage `settings.careTemplates[category]` (textil/cap) | ≤ 500 | Text statt GINETEX-Symbolen |
+| `careInstructions` | textarea | – | ✓ | Vorlage `settings.careTemplates[category]` (textil, cap, keramik, schmuck – V-23) | ≤ 500 | Text statt GINETEX-Symbolen; nur bei Textil, Cap, Keramik und Schmuck (`CARE_CATEGORIES`); Pflege steht nicht mehr in der Beschreibung |
 | `blankBrandVisible` | checkbox | R (textil, cap) | – | `false` | `true` sperrt die Veröffentlichung, solange `settings.legal.allowVisibleBlankBrands = false` (R-047) | „Auf dem Rohling ist ein fremdes Hersteller-Logo sichtbar“ |
 | `foodContact` | select `FoodContact` | V (keramik) | – | `deko` (keramik) | `lebensmittelecht` nur mit gültigen Erklärungen (E-15); geprüft bei **jedem** Speichern (§6.6.6) | – |
 | `conformityDeclarations` | relationship → `conformity-declarations`, hasMany | V (bei `lebensmittelecht`) | – | – | ≥ 1; jede `status = active` und `validFrom ≤ heute` | „alle verwendeten Glasuren“ |
@@ -1943,7 +1944,7 @@ Freitext, keine Bilder; R-160). `afterChange` (update): jeder Statuswechsel schr
 
 ### 6.19 `pages` – Seiten
 
-**Zweck:** redaktionelle Seiten aus Blöcken (Startseite mit Stationen, Über mich & Coco, Tattoo, Aftercare,
+**Zweck:** redaktionelle Seiten aus Blöcken (Startseite mit Stationen, Jutta & Coco, Tattoo, Aftercare,
 Auftragsarbeiten, Kontakt …). Texte als Entwürfe von Claude in Juttas Ton (E-62). Routen legt der Code fest; die Seite
 wird über `key` gefunden. Es gibt **keine** eigenen Globals für einzelne Seiten (kein `homePage`, `aboutPage`,
 `commissionsPage`, `businessProfile`, `tattooPrices`): Stammdaten kommen aus `settings.business`, Tattoo-Preise aus
@@ -2487,7 +2488,7 @@ bei Steuermodus) und `revalidateTag('settings')`.
 | `costs.warningThresholdCents` | number | – | – | 3 000 | E-05 (Kostenwarnung ab 30 €) |
 | `costs.monthlyEntries` | array {`month` `YYYY-MM`, `amountCents`, `note`} | – | – | `[]` | Warnung unter „Heute“ ab Erreichen der Schwelle: letzter Monatswert ≥ `costs.warningThresholdCents` (30,00 € warnt, 29,99 € nicht; E-05) |
 | `safetyTemplates` | array {`category` ProductCategory, `text` textarea ✓} | ✓ | – | je Kategorie ein Text (DE/EN, P1-Grund-Seed) | genau 1 je Kategorie |
-| `careTemplates` | array {`category` (textil, cap), `text` ✓} | ✓ | – | „Links gewendet bei 30 °C waschen, nicht in den Trockner, Motiv nicht bügeln.“ | – |
+| `careTemplates` | array {`category` (textil, cap, keramik, schmuck), `text` ✓} | ✓ | – | „Links gewendet bei 30 °C waschen, nicht in den Trockner, Motiv nicht bügeln.“ (Keramik/Schmuck seit P20.4, V-23, Migration `p20_care_templates_word_suggestion`; fehlt eine gespeicherte Zeile, gilt der Startwert aus `CARE_TEMPLATE_TEXTS`) | – |
 | `packingChecklists` | array {`shippingClass`, `items` array {`text`}} | – | – | Keramik/Textil/Brief laut Konzept „Verpackungs-Checkliste“ | Admin, nur DE |
 | `seed.exampleDataPresent` | checkbox | – | – | – | S |
 | `seed.importedAt` / `seed.removedAt` | date | – | – | – | S |
@@ -3028,7 +3029,7 @@ löschen; jede Aktion → `deletion-log` mit `trigger = privacy_request`.
 | Art | Inhalt | `seed` | Skript | Phase |
 |---|---|---|---|---|
 | **Grund-Seed** (bleibt) | Admin-Konto (aus `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD`, nur wenn noch keins existiert, nie in Produktion), 6 `categories`, `settings`-Defaults (§7.1), `site-texts` DE/EN, 6 `legal-texts` als aktive Platzhalter (`origin = placeholder`, damit `isPlaceholder = true`; Gliederung mit den Überschriften laut KANZLEI-BRIEFING §1, unter jeder Überschrift nur der Satz „Text folgt von der Kanzlei.“; Band „PLATZHALTER – nicht rechtsverbindlich“, R-002; nur Tokens aus §6.12; `validFrom = 2026-01-01`); ab P6 zusätzlich alle `LEGAL_SNIPPET_KEYS` als aktive `legal-snippets` Version 1 (§6.28) | `false` | `pnpm seed:base` (idempotent: nur fehlende Dokumente anlegen bzw. leere Felder füllen, nie Juttas Werte überschreiben) | P1 (Bausteine P6) |
-| **Beispielbestand** (entfernbar, E-63) | `pages` für alle `PAGE_KEYS` (Startseite mit Stationen, Über mich & Coco, Tattoo, Aftercare …), FAQ, Stücke, Kassen, Reservierungen, Bestellungen, Rechnungen, Widerrufe, Anfragen, ab P8 Reklamationen und Datenschutz-Anfragen, Flash, Angebote, Galerie, Umsätze, Medien, private Dateien, ab P8 Protokolle – **keine** Konformitätserklärungen | `true` | `pnpm seed:example` (idempotent über `seedKey`, SEED-SPEC §1.3) | P1 Mini-Satz, vollständig P8 (siehe unten) |
+| **Beispielbestand** (entfernbar, E-63) | `pages` für alle `PAGE_KEYS` (Startseite mit Stationen, Jutta & Coco, Tattoo, Aftercare …), FAQ, Stücke, Kassen, Reservierungen, Bestellungen, Rechnungen, Widerrufe, Anfragen, ab P8 Reklamationen und Datenschutz-Anfragen, Flash, Angebote, Galerie, Umsätze, Medien, private Dateien, ab P8 Protokolle – **keine** Konformitätserklärungen | `true` | `pnpm seed:example` (idempotent über `seedKey`, SEED-SPEC §1.3) | P1 Mini-Satz, vollständig P8 (siehe unten) |
 
 **Mini-Satz in P1** (W-21, SEED-SPEC §1.8, Plan P1.30): Seiten `home` und `contact`, die dafür nötigen Medien und eine
 kleine Auswahl Stücke, die jeden `ProductStatus` und jede Kategorie außer `sonstiges` (deren einziges Stück hängt an einer

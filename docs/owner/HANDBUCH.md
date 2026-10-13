@@ -135,8 +135,18 @@ Tippe auf **Neues Stück**. Der Ablauf:
 4. **Kategorie** wählen. Sie bestimmt, welche Pflichtangaben kommen (siehe unten).
 5. **Titel, Beschreibung, Preis, Maße, Gewicht, Material, Warnhinweise** ausfüllen. Den Preis tippst du als „45“ oder
    „45,50“. Das Gewicht ist das Gewicht des Stücks ohne Verpackung.
-6. **Eigene Figur:** Du bestätigst per Häkchen, dass das Motiv nur deine eigenen Figuren zeigt, keine geschützten
-   fremden Figuren, Marken oder Logos. Das Häkchen ist nie vorausgewählt.
+   - **„Ein Wort von mir“** (freiwillig, seit P20.4): ein, zwei Sätze von dir für die Produktseite. Steht darunter ein
+     **„Vorschlag von Claude“**, kannst du ihn mit **„Vorschlag übernehmen“** ins Feld holen (am iPad antippen, am
+     Computer anklicken) – Englisch kommt mit. Ändere ihn gern noch; sichtbar wird er erst, wenn du speicherst. Ohne
+     dein Okay erscheint nie ein Vorschlag im Shop. In der Bestandsliste geht das genauso (Spalte „Vorschlag
+     übernehmen“ = ja, siehe [IPAD.md](IPAD.md) Abschnitt B).
+   - **Pflegehinweise** (Keramik, Schmuck, Textil, Caps): Die feste Pflegezeile der Stückart steht schon drin (Texte
+     unter Einstellungen → Vorlagen). Nur ändern, wenn ein Stück etwas anderes braucht. Pflege gehört hierhin, nicht in
+     die Beschreibung.
+6. **Motiv und Schriftzug:** Du bestätigst per Häkchen **„Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte,
+   Film- oder Buchzitate“**; darunter steht zur Erinnerung „Auch keine fremden Figuren, Marken oder Logos.“ Fremde
+   Textzeilen sind der häufigste Grund für Abmahnungen – im Zweifel das Stück lieber nicht online stellen. Das Häkchen
+   ist nie vorausgewählt.
 7. **Übersetzen → EN:** Ein Tipp auf den Knopf schlägt die englischen Texte vor. Du kannst jeden Vorschlag ändern. Ohne
    englische Texte zeigt der Shop auf Englisch die deutschen.
 8. Speichern als **Entwurf**, mit **Vorschau** ansehen oder **Online stellen**.
@@ -241,7 +251,7 @@ ist freiwillig.
 
 **Alle fertigen online stellen:** Der Knopf oben neben „Neues Stück“ zählt erst, wie viele Entwürfe fertig sind
 („12 von 74 Entwürfen sind fertig“), und fragt nach. Nach „Ja“ gehen genau diese Stücke online; danach siehst du, wie
-viele es geklappt hat und welche nicht (mit Grund). Häkchen wie „nur eigene Figuren“ oder „nickelfrei“ setzt dieser Knopf
+viele es geklappt hat und welche nicht (mit Grund). Häkchen wie „Motiv und Schriftzug sind von mir“ oder „nickelfrei“ setzt dieser Knopf
 nie – die setzt du bei jedem Stück selbst.
 
 - **Am iPad (oder Handy):** unten „Mehr“ → „Meine Stücke“ (quer gehalten steht es links) → oben **„Alle fertigen online
@@ -271,7 +281,7 @@ Flohmarkt-Summe ein.
 **Als neues Stück kopieren:** Unten im Formular eines Stücks findest du diesen Knopf. Er legt einen neuen Entwurf an mit
 denselben Texten (Deutsch und Englisch), Maßen, Material, Preis, Versand und Sicherheitsangaben. Fotos und Nummer
 übernimmt er nicht: Die Kopie bekommt die nächste freie Nummer, und du fügst neue Fotos hinzu. Auch Besonderheiten wie
-ein Glasurfleck und das Häkchen „nur eigene Figuren“ musst du für die Kopie neu angeben. Speichere vorher, was du am
+ein Glasurfleck und das Häkchen „Motiv und Schriftzug sind von mir“ musst du für die Kopie neu angeben. Speichere vorher, was du am
 Original geändert hast. Praktisch für eine Serie ähnlicher Stücke.
 
 Ein Stück, das gerade im Warenkorb einer Kundin liegt, ist „reserviert“ und für andere gesperrt. Die Reservierung läuft
@@ -520,7 +530,7 @@ Betrag, bestätigst du ihn einfach neu.
 
 ![Die Ansicht „Texte“](img/handbuch/texte.webp)
 
-Hier änderst du, was auf der Website steht: Startseite, „Über mich & Coco“, Auftragsarbeiten, Kontakt, Tattoo,
+Hier änderst du, was auf der Website steht: Startseite, „Jutta & Coco“, Auftragsarbeiten, Kontakt, Tattoo,
 Pflegehinweise, häufige Fragen und die Texte zu Bestellung und Widerruf. Jeder Text hat eine deutsche und eine englische
 Fassung, mit einem Übersetzen-Knopf wie beim Stück.
 

@@ -48,6 +48,7 @@ import {
 import { shopOpenBlockedMessage, startklarFromReport } from '@/lib/settings/readiness'
 import { isKnownServiceId } from '@/lib/legal/services'
 import { BOOKED_MONTH_RE, BOOKED_NOTE_MAX, monthHasPassed } from '@/lib/tattoo/booking'
+import { CARE_CATEGORIES } from '@/lib/products/categoryRules'
 import { formatBerlin } from '@/lib/time'
 
 import {
@@ -939,7 +940,7 @@ const templatesFields: Field[] = [
     type: 'array',
     label: 'Pflegehinweise',
     defaultValue: ({ locale }) =>
-      (['textil', 'cap'] as const).map((category) => ({
+      CARE_CATEGORIES.map((category) => ({
         category,
         text: localized(CARE_TEMPLATE_TEXTS[category])(locale),
       })),
@@ -949,9 +950,12 @@ const templatesFields: Field[] = [
         type: 'select',
         label: 'Kategorie',
         required: true,
-        options: enumOptions(['textil', 'cap'] as const, {
+        // V-23 (U-93): Keramik und Schmuck haben eine feste Pflegezeile wie Textil und Cap
+        options: enumOptions(CARE_CATEGORIES, {
           textil: ENUM_LABELS.PRODUCT_CATEGORIES.textil,
           cap: ENUM_LABELS.PRODUCT_CATEGORIES.cap,
+          keramik: ENUM_LABELS.PRODUCT_CATEGORIES.keramik,
+          schmuck: ENUM_LABELS.PRODUCT_CATEGORIES.schmuck,
         }),
       },
       { name: 'text', type: 'textarea', label: 'Text', localized: true, required: true },

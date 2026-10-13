@@ -50,10 +50,11 @@ export default async function TattooOverviewPage({
   const style = blocksOfType(page, 'richText')
   const available = flash.filter((f) => f.status === 'available').slice(0, 3)
   const photos = galleryTeaser(gallery, 3)
+  // V-24: Flash und Galerie haben oben schon ihren eigenen Abschnitt mit Knopf – in „Wege zum Tattoo“ nicht noch einmal
   const subpages = visibleTattooPages(SUBPAGES, {
     flash: flash.length > 0,
     gallery: gallery.length > 0,
-  })
+  }).filter((id) => !(id === 'R12' && available.length > 0) && !(id === 'R15' && photos.length > 0))
 
   return (
     <TattooShell locale={locale} routeId="R11" settings={settings} lead={<p>{t('lead')}</p>}>

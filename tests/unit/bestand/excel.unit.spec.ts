@@ -616,3 +616,90 @@ describe('Maße geschätzt (V-15, P20.6)', () => {
     )
   })
 })
+
+describe('„Ein Wort von mir“ und „Pflege“ (V-22 a, V-23, P20.4)', () => {
+  const bowl = products.find((p) => p.category === 'keramik' && !p.careInstructions)!
+  const shirt = products.find((p) => p.category === 'textil' && p.careInstructions)!
+  const chain = products.find((p) => p.category === 'schmuck')!
+
+  it('Spalten: eigener Satz, Vorschlag (nur lesen), „Vorschlag übernehmen“ (nie vorangekreuzt), Pflege', () => {
+    const keys = BESTAND_COLUMNS.map((c) => c.key)
+    expect(keys).toEqual(
+      expect.arrayContaining(['wortVonMir', 'vorschlag', 'vorschlagUebernehmen', 'pflege']),
+    )
+    expect(BESTAND_COLUMNS.find((c) => c.key === 'vorschlag')?.readOnly).toBe(true)
+    expect(BESTAND_COLUMNS.find((c) => c.key === 'vorschlagUebernehmen')?.list).toEqual([
+      'ja',
+      'nein',
+    ])
+    for (const p of products) {
+      const row = rowOf(p)
+      expect(row.vorschlagUebernehmen, p.key).toBe('')
+      expect(row.wortVonMir, p.key).toBe('')
+      expect(row.vorschlag, p.key).toBe(p.juttaSaysSuggestion?.de)
+    }
+    // leer = feste Pflegezeile der Stückart; eigener Text wird gezeigt
+    expect(rowOf(bowl).pflege).toBe('')
+    expect(rowOf(shirt).pflege).toBe(shirt.careInstructions!.de)
+  })
+
+  it('„ja“ übernimmt den Vorschlag DE und EN; zweimal zurückgespielt ändert nichts; „nein“ ändert nichts', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, bowl.itemNumber).getCell(col('vorschlagUebernehmen')).value = 'ja'
+      rowFor(ws, chain.itemNumber).getCell(col('vorschlagUebernehmen')).value = 'nein'
+    })
+    const { products: next, report } = apply(rows)
+    expect(byKey(next, bowl.key).juttaSays).toEqual(bowl.juttaSaysSuggestion)
+    expect(byKey(next, chain.key).juttaSays).toBeUndefined()
+    expect(report.changes).toEqual([
+      `Nr. ${bowl.itemNumber}: Ein Wort von mir „–“ → „${bowl.juttaSaysSuggestion!.de}“`,
+    ])
+    expect(report.englishTodo).toEqual([])
+    expect(report.problems).toEqual([])
+    expect(bestandSchema.safeParse(next).success).toBe(true)
+    const again = apply(rows, BASE, next, recorded(rows, next))
+    expect(again.report).toEqual(emptyReport())
+    expect(again.products).toEqual(next)
+  })
+
+  it('eigener Satz gilt (auch vor „ja“), Englisch wird nachgezogen; Unsinn und zu lang werden gemeldet', async () => {
+    const own = 'Die mag ich besonders gern.'
+    const { rows } = await roundTrip((ws) => {
+      const b = rowFor(ws, bowl.itemNumber)
+      b.getCell(col('wortVonMir')).value = own
+      b.getCell(col('vorschlagUebernehmen')).value = 'ja'
+      rowFor(ws, chain.itemNumber).getCell(col('vorschlagUebernehmen')).value = 'vielleicht'
+      rowFor(ws, shirt.itemNumber).getCell(col('wortVonMir')).value = 'x'.repeat(281)
+    })
+    const { products: next, report } = apply(rows)
+    expect(byKey(next, bowl.key).juttaSays).toEqual({ de: own })
+    expect(byKey(next, shirt.key).juttaSays).toBeUndefined()
+    expect(report.englishTodo).toEqual([
+      `Nr. ${bowl.itemNumber}: Ein Wort von mir (Deutsch geändert)`,
+    ])
+    expect(report.problems).toEqual([
+      `Nr. ${shirt.itemNumber}: Ein Wort von mir „${'x'.repeat(281)}“ – bitte höchstens 280 Zeichen; nicht übernommen.`,
+      `Nr. ${bowl.itemNumber}: „Vorschlag übernehmen“ und eigener Text in „Ein Wort von mir“ – dein eigener Text gilt.`,
+      `Nr. ${chain.itemNumber}: Vorschlag übernehmen „vielleicht“ – „ja“ oder leer lassen; nicht übernommen.`,
+    ])
+    expect(bestandSchema.safeParse(next).success).toBe(true)
+  })
+
+  it('„Pflege“: eigener Text bei Keramik/Schmuck, leere Zelle lässt die feste Pflegezeile gelten (überschreibt nie)', async () => {
+    const { rows } = await roundTrip((ws) => {
+      rowFor(ws, bowl.itemNumber).getCell(col('pflege')).value = 'Nur trocken abstauben.'
+      rowFor(ws, shirt.itemNumber).getCell(col('pflege')).value = ''
+    })
+    const { products: next, report } = apply(rows)
+    expect(byKey(next, bowl.key).careInstructions).toEqual({
+      de: 'Nur trocken abstauben.',
+      en: 'Nur trocken abstauben.',
+    })
+    // geleert: kein eigener Text mehr – beim Anlegen gilt die feste Zeile aus den Einstellungen
+    expect(byKey(next, shirt.key).careInstructions).toBeUndefined()
+    expect(report.englishTodo).toEqual([`Nr. ${bowl.itemNumber}: Pflege (Deutsch geändert)`])
+    expect(bestandSchema.safeParse(next).success).toBe(true)
+    // unverändert leer: nichts passiert
+    expect(byKey(next, chain.key).careInstructions).toBeUndefined()
+  })
+})
