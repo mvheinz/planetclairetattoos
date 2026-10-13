@@ -8,9 +8,10 @@ import { readStoredFile } from '@/lib/storage/read'
 
 import { buildMonthlyCsv } from './monthlyCsv'
 import { monthRange } from './documents'
+import { buildOfflineCsv } from './offlineCsv'
 
 // Rechnungs-ZIP je Monat (KONZEPT §7.15, R-124, PLAN P5.24): alle RE/GS-PDFs des Monats als `{Nummer}.pdf` plus die
-// Monats-CSV. Beispielbelege nie. Fester Zeitstempel (Monatsbeginn) und feste Reihenfolge → byte-identische Archive.
+// Monats-CSV und die Tabelle „Einnahmen außerhalb des Shops“ (V-65). Beispielbelege nie. Fester Zeitstempel (Monatsbeginn) und feste Reihenfolge → byte-identische Archive.
 // Fehlt noch ein PDF (Beleg `pending_pdf`), wird kein unvollständiges Archiv erzeugt.
 
 export const invoiceZipFilename = (month: string) => `planetclaire-belege-${month}.zip`
@@ -27,7 +28,7 @@ export class ExportNotReadyError extends Error {
 export interface InvoiceZipResult {
   filename: string
   bytes: Buffer
-  /** Dateinamen im Archiv (Belege nach Nummer, dann die CSV). */
+  /** Dateinamen im Archiv (Belege nach Nummer, dann die CSV, dann „Einnahmen außerhalb des Shops“). */
   entries: string[]
 }
 
@@ -66,6 +67,8 @@ export async function buildInvoiceZip(
   }
   if (missing.length > 0) throw new ExportNotReadyError(missing)
   files[csv.filename] = [new Uint8Array(csv.bytes), { mtime, level: 6 }]
+  const offline = await buildOfflineCsv(payload, month)
+  files[offline.filename] = [new Uint8Array(offline.bytes), { mtime, level: 6 }]
   const zipped = zipSync(files, { mtime })
   return {
     filename: invoiceZipFilename(month),

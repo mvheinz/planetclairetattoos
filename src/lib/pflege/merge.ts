@@ -42,6 +42,11 @@ export interface PflegeReport {
   ownerNotes: string[]
   /** Hinweise (z. B. Liste ohne Listen-Nr.). */
   notes: string[]
+  /**
+   * Zeilen, die es nicht mehr gibt (V-36: Texte, die nicht mehr auf der Seite stehen) und die Jutta geändert hat –
+   * kein Fehler, nur zur Info. Unveränderte entfallene Zeilen zählt ein Hinweis.
+   */
+  dropped: string[]
 }
 
 export const emptyReport = (): PflegeReport => ({
@@ -52,6 +57,7 @@ export const emptyReport = (): PflegeReport => ({
   newEntries: [],
   ownerNotes: [],
   notes: [],
+  dropped: [],
 })
 
 /** Abschnitte des Berichts in Juttas Worten (Markdown). */
@@ -66,6 +72,7 @@ export function reportMarkdown(title: string, meta: string, r: PflegeReport): st
     section('Übernommen', r.changes),
     section('Bitte entscheiden', r.conflicts, false),
     section('Nicht übernommen', r.problems),
+    section('Entfällt (steht nicht mehr auf der Seite)', r.dropped, false),
     section('Neu eingetragen (noch nicht übernommen)', r.newEntries, false),
     section('Deine Notizen', r.ownerNotes, false),
     section('Englisch zu ergänzen', r.englishTodo),

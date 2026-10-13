@@ -2015,6 +2015,11 @@ Sonstigem für den Umsatz-Wächter (Kleinunternehmergrenzen 25 000 € / 100 000
 | `seed` | checkbox | S | – | `false` | – | – |
 
 **Access:** alle `isAdmin`. **Indizes:** UNIQUE (`month`, `source`).
+**Erfassung (V-38, P20.6):** Jutta trägt die vier Quellen eines Monats im Formular „Monat abschließen“ auf einmal ein
+(`src/lib/revenue/monthClose.ts`, `POST /api/globals/settings/month-close`): leeres Feld = Eintrag mit 0, alle vier in
+einer Transaktion, bestehende echte Einträge werden geändert (Notiz bleibt), gleiche Werte ändern nichts. Markt-Verkäufe
+von Stücken mit Preis (`products.offlineSalePriceCents`, U-60) zählt der Wächter seit P14.11 selbst; das Formular zeigt
+sie nur an. Export als Tabelle „Einnahmen außerhalb des Shops“ (V-65, KONZEPT §7.15).
 **Hooks:**
 - `beforeChange` (Anlage oder Änderung eines echten Eintrags, `seed = false`, ohne `context.seed`): existiert ein
   Seed-Eintrag (`seed = true`) mit gleichem (`month`, `source`), wird er **in derselben Transaktion** (`req`) gelöscht,

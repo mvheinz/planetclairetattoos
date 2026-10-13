@@ -57,69 +57,93 @@ const LEGAL_WARNING_LABEL: Record<LegalReviewWarning, AdminCustomKey> = {
   overdue: 'todayLegalWarnOverdue',
 }
 
-/** Kachel „Rechtstexte“ (PLAN P6.20, R-014): je Typ Version, gültig ab, Herkunft, Alter; Warnungen gelb. */
+/**
+ * Kachel „Rechtstexte“ (PLAN P6.20, R-014; seit V-37 eingeklappt): eine Zeile „Rechtstexte: alles aktuell“; aufgeklappt
+ * je Typ Version, gültig ab, Herkunft, Alter. Ist etwas fällig (fehlt, nicht von der Kanzlei, Prüfung überfällig), steht
+ * die Zahl in der Zeile und die Tabelle ist schon offen. Nicht entfernt – R-014 bleibt sichtbar.
+ */
 function LegalTextsTile({ rows, href }: { rows: TodaySummary['legalTexts']; href: string }) {
+  const due = rows.filter((r) => r.warnings.length > 0).length
   return (
     <section
       className="pc-order__section"
       aria-labelledby="today-legal-title"
       data-testid="today-legal"
+      data-due={due}
     >
-      <h2 id="today-legal-title">
-        <a href={href} className="pc-admin-link">
-          {adminText('todayLegalTitle')}
-        </a>
+      <h2 id="today-legal-title" className="pc-visually-hidden">
+        {adminText('todayLegalTitle')}
       </h2>
-      <div
-        className="pc-revenue__scroll"
-        tabIndex={0}
-        role="region"
-        aria-labelledby="today-legal-title"
-      >
-        <table className="pc-revenue__table">
-          <thead>
-            <tr>
-              <th scope="col">{adminText('todayLegalType')}</th>
-              <th scope="col">{adminText('todayLegalVersion')}</th>
-              <th scope="col">{adminText('todayLegalValidFrom')}</th>
-              <th scope="col">{adminText('todayLegalOrigin')}</th>
-              <th scope="col">{adminText('todayLegalAge')}</th>
-              <th scope="col">
-                <span className="pc-visually-hidden">{adminText('todayToneWarning')}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr
-                key={r.type}
-                data-testid="today-legal-row"
-                data-type={r.type}
-                data-warnings={r.warnings.join(' ')}
-              >
-                <th scope="row">{ENUM_LABELS.LEGAL_TEXT_TYPES[r.type].de}</th>
-                <td>{r.present ? (r.version ?? '–') : adminText('todayLegalMissing')}</td>
-                <td>{r.validFrom ? formatBerlin(new Date(r.validFrom), 'dd.MM.yyyy') : '–'}</td>
-                <td>{r.origin ? ENUM_LABELS.LEGAL_TEXT_ORIGINS[r.origin].de : '–'}</td>
-                <td>
-                  {r.ageDays === null ? '–' : adminText('todayLegalAgeDays', { days: r.ageDays })}
-                </td>
-                <td>
-                  {r.warnings.length === 0 ? (
-                    <StatusBadge tone="success">{adminText('todayLegalOk')}</StatusBadge>
-                  ) : (
-                    r.warnings.map((w) => (
-                      <StatusBadge key={w} tone="warning">
-                        {adminText(LEGAL_WARNING_LABEL[w])}
-                      </StatusBadge>
-                    ))
-                  )}
-                </td>
+      <details className="pc-fold" open={due > 0 || undefined}>
+        <summary data-testid="today-legal-summary">
+          {due === 0 ? (
+            <>
+              <StatusBadge tone="success">{adminText('todayLegalOk')}</StatusBadge>{' '}
+              {adminText('todayLegalAllCurrent')}
+            </>
+          ) : (
+            <>
+              <StatusBadge tone="warning">{adminText('todayToneWarning')}</StatusBadge>{' '}
+              {adminText(due === 1 ? 'todayLegalDueOne' : 'todayLegalDue', { n: due })}
+            </>
+          )}
+        </summary>
+        <p className="pc-admin-row">
+          <a href={href} className="pc-admin-link">
+            {adminText('todayLegalOpen')}
+          </a>
+        </p>
+        <div
+          className="pc-revenue__scroll"
+          tabIndex={0}
+          role="region"
+          aria-labelledby="today-legal-title"
+        >
+          <table className="pc-revenue__table">
+            <thead>
+              <tr>
+                <th scope="col">{adminText('todayLegalType')}</th>
+                <th scope="col">{adminText('todayLegalVersion')}</th>
+                <th scope="col">{adminText('todayLegalValidFrom')}</th>
+                <th scope="col">{adminText('todayLegalOrigin')}</th>
+                <th scope="col">{adminText('todayLegalAge')}</th>
+                <th scope="col">
+                  <span className="pc-visually-hidden">{adminText('todayToneWarning')}</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr
+                  key={r.type}
+                  data-testid="today-legal-row"
+                  data-type={r.type}
+                  data-warnings={r.warnings.join(' ')}
+                >
+                  <th scope="row">{ENUM_LABELS.LEGAL_TEXT_TYPES[r.type].de}</th>
+                  <td>{r.present ? (r.version ?? '–') : adminText('todayLegalMissing')}</td>
+                  <td>{r.validFrom ? formatBerlin(new Date(r.validFrom), 'dd.MM.yyyy') : '–'}</td>
+                  <td>{r.origin ? ENUM_LABELS.LEGAL_TEXT_ORIGINS[r.origin].de : '–'}</td>
+                  <td>
+                    {r.ageDays === null ? '–' : adminText('todayLegalAgeDays', { days: r.ageDays })}
+                  </td>
+                  <td>
+                    {r.warnings.length === 0 ? (
+                      <StatusBadge tone="success">{adminText('todayLegalOk')}</StatusBadge>
+                    ) : (
+                      r.warnings.map((w) => (
+                        <StatusBadge key={w} tone="warning">
+                          {adminText(LEGAL_WARNING_LABEL[w])}
+                        </StatusBadge>
+                      ))
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </section>
   )
 }

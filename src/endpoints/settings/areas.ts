@@ -561,63 +561,20 @@ export const settingsTranslateEndpoint: Endpoint = {
 }
 
 /**
- * Manuelle Monatssumme eintragen (P5.23, KONZEPT §8.4, A45): `POST /api/globals/settings/revenue-entry`
- * `{ month, source, amount, note }` – legt den Eintrag (Monat, Quelle) an oder ändert ihn (eindeutig je Monat und
- * Quelle). Regeln (Format, keine Zukunft, Grenzen) prüft die Collection `revenue-entries`; sie reiht danach den
- * Umsatz-Wächter neu ein.
+ * „Monat abschließen“ (V-38, U-93, KONZEPT §8.4): `POST /api/globals/settings/month-close`
+ * `{ month, amounts: { tattoo, flohmarkt, auftragsarbeiten, sonstiges } }` – alle vier Monatssummen auf einmal (leer =
+ * 0 €), idempotent (`closeRevenueMonth`). Antwort `{ unchanged, changed }`.
  */
-export const settingsRevenueEntryEndpoint: Endpoint = {
-  path: '/revenue-entry',
+export const settingsMonthCloseEndpoint: Endpoint = {
+  path: '/month-close',
   method: 'post',
   handler: async (req) => {
     if (!isAdminRequest(req)) return json(403, { error: 'Nicht erlaubt.' })
     const body = await readJsonBody(req)
-    const c = new Collector()
-    const month = str(body.month).trim()
-    const source = str(body.source)
-    const amountCents = c.cents('amountCents', body.amount)
-    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
-      c.errors.push({ path: 'month', message: 'Monat im Format JJJJ-MM, z. B. 2026-09.' })
-    }
-    if (c.errors.length > 0) {
-      return json(400, { error: 'Bitte die markierten Felder prüfen.', errors: c.errors })
-    }
-    const data = { month, source, amountCents, note: text(body.note) }
     try {
-      const existing = await req.payload.find({
-        collection: 'revenue-entries',
-        where: {
-          and: [
-            { month: { equals: month } },
-            { source: { equals: source } },
-            { seed: { not_equals: true } },
-          ],
-        },
-        limit: 1,
-        depth: 0,
-        overrideAccess: true,
-        req,
-      })
-      const doc = existing.docs[0]
-      if (doc) {
-        await req.payload.update({
-          collection: 'revenue-entries',
-          id: doc.id,
-          data: data as never,
-          depth: 0,
-          overrideAccess: true,
-          req,
-        })
-      } else {
-        await req.payload.create({
-          collection: 'revenue-entries',
-          data: data as never,
-          depth: 0,
-          overrideAccess: true,
-          req,
-        })
-      }
-      return json(200, { unchanged: false })
+      const { closeRevenueMonth } = await import('@/lib/revenue/monthClose')
+      const res = await closeRevenueMonth(req, { month: body.month, amounts: obj(body.amounts) })
+      return json(200, { unchanged: res.changed.length === 0, changed: res.changed })
     } catch (err) {
       if (err instanceof ValidationError) {
         return json(400, {
@@ -628,7 +585,7 @@ export const settingsRevenueEntryEndpoint: Endpoint = {
           })),
         })
       }
-      log.error('settings.revenue_entry_failed', { reason: errorSummary(err) })
+      log.error('settings.month_close_failed', { reason: errorSummary(err) })
       return json(500, { error: 'Speichern hat nicht geklappt. Bitte noch einmal versuchen.' })
     }
   },

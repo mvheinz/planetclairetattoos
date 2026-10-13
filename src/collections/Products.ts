@@ -38,6 +38,7 @@ import {
   itemNumberStatusEndpoint,
   nextItemNumberEndpoint,
 } from '@/endpoints/products/nextItemNumber'
+import { instagramEndpoints } from '@/endpoints/products/instagram'
 import { translateEndpoint } from '@/endpoints/products/translate'
 import {
   attentionDoneEndpoint,
@@ -841,6 +842,8 @@ export const Products: CollectionConfig = {
     productReadinessEndpoint,
     ...publishReadyEndpoints,
     ...marketSaleEndpoints,
+    // V-39: „Für Instagram“ (Foto zum Teilen, Story-Bild)
+    ...instagramEndpoints,
   ],
   // §6.6.11: Index (category, status); UNIQUE item_number und (slug, _locale) über die Felder.
   indexes: [{ fields: ['category', 'status'] }],

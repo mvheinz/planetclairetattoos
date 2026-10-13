@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-import { ADMIN_BOTTOM_BAR, ADMIN_VIEWS } from '../../../src/admin/views/registry'
+import { ADMIN_BOTTOM_BAR, ADMIN_MENU, ADMIN_VIEWS } from '../../../src/admin/views/registry'
 import { serverURL } from '../../helpers/adminEnv'
 import { expectNoSeriousViolations } from '../axe'
 import { adminPath, expect, test } from '../fixtures'
@@ -66,7 +66,7 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
     fixtureProducts,
   }) => {
     // 14 Ansichten nacheinander (seit P14.11 mit „Termine“) – mehr Zeit als der Standard.
-    test.setTimeout(90_000)
+    test.setTimeout(180_000)
     const piece = await fixtureProducts.create('keramik')
     for (const view of ADMIN_VIEWS) {
       const res = await page.goto(adminPath(view.path))
@@ -142,14 +142,16 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
     await noHorizontalScroll(page)
     await expectNoSeriousViolations(page, 'Heute (390)')
 
-    // „Mehr“ öffnet das Menü mit allen Ansichten und den Standard-Ansichten unter „Alle Daten“.
+    // „Mehr“ öffnet das Menü mit allen Ansichten (Bestell-Listen als ein Punkt „Bestellungen“, V-37) und den
+    // Standard-Ansichten unter „Alle Daten“.
     const more = bar.getByRole('button', { name: 'Mehr' })
     await more.click()
     await expect(more).toHaveAttribute('aria-expanded', 'true')
     const menu = page.getByTestId('admin-nav-views')
     await expect(menu).toBeVisible()
-    for (const view of ADMIN_VIEWS)
-      await expect(menu.getByRole('link', { name: view.title })).toBeVisible()
+    for (const item of ADMIN_MENU)
+      await expect(menu.getByRole('link', { name: item.title, exact: true })).toBeVisible()
+    await expect(menu.getByRole('link', { name: 'Vorkasse offen' })).toHaveCount(0)
     await expect(page.locator('#pc-admin-all-data')).toHaveText('Alle Daten')
     await expect(page.locator('.nav a[href$="/collections/orders"]').first()).toBeVisible()
     expect(await tapTargetsBelow44(page, '.pc-admin-nav__link')).toEqual([])
@@ -164,11 +166,28 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
     expect(small, 'Menü-Einträge „Alle Daten“ ≥ 44 px hoch').toBe(0)
     await expectNoSeriousViolations(page, 'Menü „Mehr“ (390)')
 
-    // Ansicht wechseln über das Menü
-    await menu.getByRole('link', { name: 'Zu packen' }).click()
+    // Ansicht wechseln über das Menü: „Bestellungen“ öffnet „Zu packen“ mit den Reitern der fünf Listen
+    await menu.getByRole('link', { name: 'Bestellungen', exact: true }).click()
     await expect(page).toHaveURL(new RegExp(`${adminPath('/packen')}$`))
     await expect(page.locator('h1').first()).toHaveText('Zu packen')
     await expect(bar.getByRole('link', { name: 'Packen' })).toHaveAttribute('aria-current', 'page')
+    const tabs = page.getByTestId('order-tabs')
+    await expect(tabs.getByRole('link')).toHaveText([
+      'Zu packen',
+      'Vorkasse offen',
+      'Versendet',
+      'Abholung',
+      'Widerrufe',
+    ])
+    await expect(tabs.getByRole('link', { name: 'Zu packen' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(await tapTargetsBelow44(page, '.pc-tabs__tab')).toEqual([])
+    await tabs.getByRole('link', { name: 'Vorkasse offen' }).click()
+    await expect(page).toHaveURL(new RegExp(`${adminPath('/vorkasse')}$`))
+    await expect(page.locator('h1').first()).toHaveText('Vorkasse offen')
+    await noHorizontalScroll(page)
 
     for (const view of ADMIN_VIEWS) {
       await page.goto(adminPath(view.path))
@@ -194,11 +213,12 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
     const side = page.getByTestId('admin-nav-views')
     await expect(side).toBeVisible()
     const titles = (await side.locator('.pc-admin-nav__link').allInnerTexts()).map((t) => t.trim())
-    expect(titles).toEqual(ADMIN_VIEWS.map((v) => v.title))
+    expect(titles).toEqual(ADMIN_MENU.map((v) => v.title))
+    expect(titles).toHaveLength(10)
     await expect(page.locator('#pc-admin-all-data')).toBeVisible()
 
     // Tastatur: Link fokussieren, sichtbarer Fokus, Enter öffnet die Ansicht.
-    const link = side.getByRole('link', { name: 'Vorkasse offen' })
+    const link = side.getByRole('link', { name: 'Bestellungen', exact: true })
     // Unter Last kann ein spätes Neu-Rendern den Fokus verwerfen oder die Leiste (gespeicherte Einstellung) wieder
     // einklappen (`inert`) – dann aufklappen und Fokus + Tab wiederholen.
     await expect(async () => {
@@ -206,18 +226,19 @@ test.describe('Verwaltungs-Gerüst (P5.1) @a11y', () => {
         await page.getByRole('button', { name: 'Öffnen Menü' }).click()
         await expect(aside).not.toHaveAttribute('inert', '', { timeout: 2_000 })
       }
-      await side.getByRole('link', { name: 'Zu packen' }).focus()
+      await side.getByRole('link', { name: 'Meine Stücke' }).focus()
       await page.keyboard.press('Tab')
       await expect(link).toBeFocused({ timeout: 1_000 })
     }).toPass({ timeout: 15_000 })
     const outline = await link.evaluate((el) => getComputedStyle(el).outlineStyle)
     expect(outline).not.toBe('none')
     await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(new RegExp(`${adminPath('/packen')}$`))
+    await expect(link).toHaveAttribute('aria-current', 'page')
+    // Reiter „Vorkasse offen“: der Menüpunkt „Bestellungen“ bleibt aktiv
+    await page.getByTestId('order-tab-vorkasse').click()
     await expect(page).toHaveURL(new RegExp(`${adminPath('/vorkasse')}$`))
-    await expect(side.getByRole('link', { name: 'Vorkasse offen' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    )
+    await expect(link).toHaveAttribute('aria-current', 'page')
     // Platzhalter („Tattoo“ bis P7) führt in „Alle Daten“.
     await page.goto(adminPath('/tattoo'))
     await page.getByRole('link', { name: 'In „Alle Daten“ öffnen' }).click()

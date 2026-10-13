@@ -1469,9 +1469,12 @@ Die Unterseiten R12–R18 nutzen die Blöcke dieser Seite nach Typ (Flash → `f
 | 3 | tattooGallery | `heading` „Fresh & healed“; `filter` all; `limit` 12 |
 | 4 | priceInfo | `heading` „Preise“ / “Prices”; `content` DE „Für eigene Ideen findest du oben meinen Preisrahmen. Die Anzahlung besprechen wir persönlich per Mail – auf dieser Website zahlst du nichts.“ · EN “For ideas of your own you will find my price range above. We settle the deposit personally by email – you pay nothing on this website.” (P20.5, V-28 a: ohne Flash-Satz – den Festpreis am Motiv nennt die Zeile „Flash“ der Preisseite, und die steht nur mit veröffentlichten Motiven da) |
 | 5 | processSteps | `heading` „Ablauf“ / “How it works”; 5 Schritte unten |
-| 6 | callout (`tone` hint) | Tattoos erst ab 18. / Tattoos for 18+ only. |
-| 7 | faqList | `category` tattoo, `heading` „FAQ“ |
-| 8 | contactLinks | `heading` „Anfrage per Mail“ / “Request by email”; `emailSubject` „Tattoo-Anfrage“ / “Tattoo request” |
+| 6 | faqList | `category` tattoo, `heading` „FAQ“ |
+
+P20.6 (V-36, U-93): Die früheren Blöcke `callout` („Tattoos erst ab 18.“) und `contactLinks` („Anfrage per Mail“,
+Betreff „Tattoo-Anfrage“) sind entfallen – keine Tattoo-Seite zeigte sie (den Hinweis „ab 18“ zeigt R16 aus den festen
+Texten `tattoo.process.ageHint`, den Kontakt-Kasten baut `TattooShell` mit eigenem Betreff). So stehen in der Texte-Liste
+und in der Verwaltung keine Texte mehr, die nirgends erscheinen.
 
 - **Mein Stil DE:** Fine Line, naiv, mit Humor. Ich steche am liebsten kleine Tiere mit Kulleraugen, Figuren mit zittriger Linie und Motive, die ein bisschen schief gucken. Schwarz, fein und so, dass es zu dir passt.
 - **Mein Stil EN:** Fine line, naive, with a sense of humour. My favourite things to tattoo are small animals with googly eyes, figures with a shaky line and designs that look at you slightly sideways. Black, fine, and made to suit you.

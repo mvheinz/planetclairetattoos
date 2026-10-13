@@ -4,9 +4,10 @@ Rechnungen: 12 · 648,90 €
 Gutschriften: 1 · 45,00 €
 Saldo: 603,90 €
 
-Monats-CSV und Rechnungs-ZIP liegen in der Verwaltung unter „Export“ und können an die Steuerberatung gehen.
+Monats-CSV und Rechnungs-ZIP (mit der Tabelle „Einnahmen außerhalb des Shops“) liegen in der Verwaltung unter „Export“ und können an die Steuerberatung gehen.
 
-Hinweis: Für Oktober 2026 fehlen noch manuelle Monatssummen (Tattoo, Flohmarkt). Bitte unter Einstellungen → Umsatz-Wächter eintragen, auch wenn es 0 € waren.
+Für Oktober 2026 fehlen noch deine Monatssummen außerhalb des Shops (Tattoo, Flohmarkt). Ein Formular, ein Tipp – auch wenn es 0 € waren:
+Monat abschließen: https://planetclairetattoos.com/werkstatt/einstellungen/umsatz-waechter?monat=2026-10#monat-abschliessen
 
 --
 Diese Nachricht hat deine Website automatisch erzeugt.

@@ -53,6 +53,17 @@ test('@a11y „Heute“: Kacheln, roter Hinweis Anfechtung mit Link, letzte Best
     )
     await expect(page.locator('[data-hint="seed"]')).toContainText('Beispieldaten vorhanden')
     await expect(page.getByTestId('today-recent')).toContainText(disputed.orderNumber)
+    // V-37: Rechtstexte als eine Zeile; mit Platzhalter-Texten (Test-Bestand) ist etwas fällig → schon aufgeklappt
+    const legal = page.getByTestId('today-legal')
+    const summary = legal.getByTestId('today-legal-summary')
+    const due = Number(await legal.getAttribute('data-due'))
+    if (due === 0) {
+      await expect(summary).toContainText('Rechtstexte: alles aktuell')
+      await expect(legal.getByTestId('today-legal-row').first()).toBeHidden()
+      await summary.click()
+    } else await expect(summary).toContainText('brauch')
+    await expect(legal.getByTestId('today-legal-row')).toHaveCount(6)
+    await expect(legal.getByTestId('today-legal-row').first()).toBeVisible()
     const startklar = page.getByTestId('today-startklar')
     await expect(startklar).toContainText('Startklar-Prüfung nicht grün')
     await expect(startklar.getByRole('link')).toHaveAttribute(

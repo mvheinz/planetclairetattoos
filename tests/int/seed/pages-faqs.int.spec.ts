@@ -105,9 +105,7 @@ describe('Seiten (SEED-SPEC §13)', () => {
       'tattooGallery',
       'priceInfo',
       'processSteps',
-      'callout',
       'faqList',
-      'contactLinks',
     ])
     expect(await types('tattoo_aftercare')).toEqual([
       'richText',

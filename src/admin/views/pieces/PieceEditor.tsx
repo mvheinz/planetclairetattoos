@@ -7,6 +7,7 @@ import { ActionButton } from '../../components/ActionButton'
 import { postAdminAction } from '../../components/adminAction'
 import { AttentionDoneButton } from '../../components/AttentionDoneButton'
 import { CopyButton } from '../../components/CopyButton'
+import { InstagramShare } from '../../components/InstagramShare'
 import { Notice } from '../../components/Notice'
 import { PhotoPicker } from '../../components/PhotoPicker/PhotoPicker'
 import { refreshAutoAlts, type PiecePhoto } from '../../components/PhotoPicker/photoList'
@@ -25,6 +26,7 @@ import {
 } from '@/lib/enums'
 import { PRICE_CENTS_RANGE, parseEuroInput } from '@/lib/money'
 import { isTextile } from '@/lib/products/categoryRules'
+import { instagramPostText } from '@/lib/products/instagram'
 import { padItemNumber } from '@/lib/products/itemNumber'
 import type { Readiness } from '@/lib/products/readiness'
 import { productPath } from '@/lib/shop/format'
@@ -120,6 +122,21 @@ class IssuesError extends Error {
 function fieldLabel(path: string): string {
   const key = `pieceField_${path === 'dimensions.note' ? 'dimensionsNote' : path.split('.')[0]}`
   return key in ADMIN_CUSTOM_DE ? adminText(key as AdminCustomKey) : ''
+}
+
+/** „Für Instagram“ bei einem Stück, das schon im Shop ist (V-39): erst beim Aufklappen laden. */
+function InstagramLater(props: React.ComponentProps<typeof InstagramShare>) {
+  const [open, setOpen] = useState(false)
+  return (
+    <details
+      className="pc-piece__instagram"
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      data-testid="piece-instagram"
+    >
+      <summary>{adminText('instagramButton')}</summary>
+      {open ? <InstagramShare {...props} /> : null}
+    </details>
+  )
 }
 
 export function PieceEditor({
@@ -421,6 +438,24 @@ export function PieceEditor({
     savedImages.some((v, i) => v !== photos[i]?.id) ||
     (scalePhotos[0]?.id ?? null) !== savedScale
 
+  // V-39: fertiger Text für Instagram (nach dem Online-Stellen und bei Stücken im Shop)
+  const priceCents = parseEuroInput(form.price, PRICE_CENTS_RANGE)
+  const shopBase = siteUrl.replace(/\/$/, '')
+  const instagram =
+    id && itemNumber !== null && priceCents !== null
+      ? {
+          productId: id,
+          itemNumber,
+          text: instagramPostText({
+            title: { de: form.de.title, en: form.en.title },
+            itemNumber,
+            priceCents,
+            shippingClass: form.shippingClass,
+            shortUrl: published?.short ?? `${shopBase}/nr/${itemNumber}`,
+          }),
+        }
+      : null
+
   if (published) {
     return (
       <div className="pc-piece" data-testid="piece-published">
@@ -434,6 +469,7 @@ export function PieceEditor({
           <CopyButton text={published.url} label={adminText('pieceCopyLink')} />
           <CopyButton text={published.short} label={adminText('pieceCopyShort')} />
         </div>
+        {instagram ? <InstagramShare {...instagram} /> : null}
         <p className="pc-admin-row">
           <a
             className="pc-admin-btn pc-admin-btn--primary"
@@ -489,6 +525,8 @@ export function PieceEditor({
           ) : null}
         </div>
       ) : null}
+
+      {instagram && status === 'available' ? <InstagramLater {...instagram} /> : null}
 
       {id && (!status || status === 'draft') && readiness ? (
         <ReadinessBox readiness={readiness} jump={jump} />

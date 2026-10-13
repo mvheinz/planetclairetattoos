@@ -114,6 +114,14 @@ describe('R-210 Startklar-Prüfung', () => {
     expect(ids(a)).toEqual(['R210-02'])
   })
 
+  it('Nr. 2 Bausteine: Beschriftungen statt Schlüssel (V-37)', () => {
+    const a = green()
+    a.snippetsNotLawyer = ['checkout.vorkasseInfo', 'dispute.vsbg37']
+    const detail = evaluateGolive(a).checks.find((c) => c.id === 'R210-02')!.detail
+    expect(detail).toContain('Kasse: Vorkasse, Schlichtung (§ 37 VSBG)')
+    expect(detail).not.toContain('checkout.vorkasseInfo')
+  })
+
   it.each([
     ['legalName', ''],
     ['street', '[Straße folgt]'],

@@ -5,7 +5,7 @@ import React, { useId, useState } from 'react'
 import { adminText } from '../../translations'
 
 // Monatsauswahl der Exporte (PLAN P5.24/P5.25, KONZEPT §7.15): Links auf `GET /api/admin/export/{JJJJ-MM}.csv`,
-// `.zip` und `.datev.csv` (Admin-Sitzung, Download als Anhang). Ohne JavaScript zeigen die Links auf den
+// `.zip`, `.ausserhalb.csv` (Einnahmen außerhalb des Shops, V-65) und `.datev.csv` (Admin-Sitzung, Download als Anhang). Ohne JavaScript zeigen die Links auf den
 // vorausgewählten Monat (Vormonat). DATEV ist ausgegraut mit Hinweis, solange Konten fehlen (409 am Endpunkt).
 
 export interface MonthOption {
@@ -63,6 +63,14 @@ export function MonthExport({
           data-testid="export-zip"
         >
           {adminText('exportZip')}
+        </a>
+        <a
+          className="pc-admin-btn pc-admin-btn--secondary"
+          href={href('ausserhalb.csv')}
+          download
+          data-testid="export-offline"
+        >
+          {adminText('exportOffline')}
         </a>
         {datevMissing.length === 0 ? (
           <a

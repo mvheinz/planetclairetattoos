@@ -28,7 +28,13 @@ import { TextsView } from './texts/TextsView'
 import { TodayView } from './today/TodayView'
 import { WithdrawalDetailView } from './withdrawals/WithdrawalDetailView'
 import { WithdrawalsListView } from './withdrawals/WithdrawalsListView'
-import { ADMIN_HOME_VIEW, adminView, allDataPath, type AdminViewMatch } from './registry'
+import {
+  ADMIN_HOME_VIEW,
+  adminView,
+  allDataPath,
+  ORDER_TABS,
+  type AdminViewMatch,
+} from './registry'
 
 // Inhalt einer Verwaltungs-Ansicht (PLAN P5.1). Bis die Aufgabe der Ansicht (`task` in der Registry) sie füllt, zeigt
 // sie einen Platzhalter mit Link in „Alle Daten“ – so funktionieren auch die Direktlinks der Verwaltungs-Mails schon
@@ -73,15 +79,43 @@ const VIEW_BODIES: Partial<Record<string, ViewBody>> = {
   termine: TourView,
 }
 
+/** Reiter der Bestell-Listen (V-37): ein Menüpunkt „Bestellungen“, darin die fünf Listen. */
+function OrderTabs({ current, adminRoute }: { current: string; adminRoute: string }) {
+  return (
+    <nav aria-label={adminText('ordersTabsLabel')} data-testid="order-tabs">
+      <ul className="pc-tabs">
+        {ORDER_TABS.map((key) => {
+          const view = adminView(key)
+          return (
+            <li key={key}>
+              <a
+                href={`${adminRoute}${view.path}`}
+                className="pc-tabs__tab"
+                aria-current={key === current ? 'page' : undefined}
+                data-testid={`order-tab-${key}`}
+              >
+                {view.title}
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </nav>
+  )
+}
+
 export function AdminViewBody(props: AdminViewBodyProps) {
   const { match, adminRoute } = props
   const { view, id } = match
   const Body = VIEW_BODIES[view.key]
   const parent = view.parent ? adminView(view.parent) : null
   const title = id ? `${view.title} ${id}` : view.title
+  const orderTab = (ORDER_TABS as readonly string[]).includes(view.key)
   const nav = parent
     ? [{ label: parent.title, url: `${adminRoute}${parent.path}` }, { label: title }]
-    : [{ label: title }]
+    : orderTab
+      ? [{ label: adminText('ordersTitle') }, { label: title }]
+      : [{ label: title }]
 
   return (
     <Gutter
@@ -92,6 +126,7 @@ export function AdminViewBody(props: AdminViewBodyProps) {
     >
       <SetStepNav nav={nav} />
       <h1 className="pc-admin-view__title">{title}</h1>
+      {orderTab ? <OrderTabs current={view.key} adminRoute={adminRoute} /> : null}
       {Body ? (
         <Body {...props} />
       ) : (

@@ -2,8 +2,9 @@ import { adminPath, expect, test, testPayload } from '../fixtures'
 import { refreshTattoo } from '../tattoo/tattooFixtures'
 import { expectAccessible, expectNoHorizontalScroll } from './orderHelpers'
 
-// P7.9 – Reiter „Texte“ (KONZEPT §7.12, §9.6): Preise (`settings.tattoo.*`), Blöcke der Seiten `tattoo` und
-// `tattoo_aftercare`, FAQ Tattoo/Aftercare. „Anzahlung verfällt bei Absage“ speichert mit sichtbarer Warnung (V-24);
+// P7.9 – Reiter „Texte“ (KONZEPT §7.12, §9.6): Preise (`settings.tattoo.*`); Blöcke der Seiten `tattoo` und
+// `tattoo_aftercare` und FAQ Tattoo/Aftercare seit V-37 (P20.6) nur noch unter „Texte“ → „Seiten und FAQ“ (der Reiter
+// verlinkt dorthin). „Anzahlung verfällt bei Absage“ speichert mit sichtbarer Warnung (V-24);
 // „Übersetzen“ (Mock) füllt die EN-Felder mit „[EN] …“. Die Seite `tattoo` gibt es im Test-Bestand nicht – der Test
 // legt sie an und entfernt sie danach wieder (P7.4 prüft die Rückfall-Texte).
 
@@ -75,21 +76,35 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   await page.goto(adminPath('/tattoo?reiter=texte'))
   await expect(page.getByTestId('tattoo-texts')).toBeVisible()
   await expect(page.getByTestId('area-form-tattooPrices')).toBeVisible()
-  const form = page.getByTestId('page-texts-tattoo')
+  // Jede Sache an einer Stelle (V-37): Seitentexte und Fragen nur unter „Texte“, hier ein Link dorthin
+  await expect(page.getByTestId('page-texts-tattoo')).toHaveCount(0)
+  await expect(page.getByTestId('faq-editor-tattoo')).toHaveCount(0)
+  await expect(page.getByTestId('tattoo-texts-link-tattoo')).toHaveAttribute(
+    'href',
+    /\/texte\?seite=tattoo#seite$/,
+  )
+  await page.goto(adminPath('/texte?seite=tattoo'))
+  // erst nach dem Hydrieren tippen (sonst setzt React die Felder auf den Server-Stand zurück)
+  await page.waitForLoadState('networkidle')
+  const form = page.getByTestId('page-texts-all-tattoo')
   const add = form.getByTestId('page-add-priceInfo')
   if (await add.isVisible()) await add.click()
   const block = form.locator('[data-testid="page-block"][data-block-type="priceInfo"]').first()
   const field = (name: string, l: 'de' | 'en') =>
     block.locator(`[data-testid^="tf-blocks."][data-testid$=".fields.${name}.${l}"]`)
-  await field('heading', 'de').fill('Preise')
-  await field('content', 'de').fill('Kleine Motive ab 80 €.\n\nAnzahlung verfällt bei Absage.')
+  const content = 'Kleine Motive ab 80 €.\n\nAnzahlung verfällt bei Absage.'
+  await expect(async () => {
+    await field('heading', 'de').fill('Preise')
+    await field('content', 'de').fill(content)
+    await expect(field('content', 'de')).toHaveValue(content, { timeout: 1_000 })
+  }).toPass({ timeout: 15_000 })
   // Mit dem Beispielbestand (P8) hat der Block schon englische Texte – leeren, damit „Übersetzen“ sie füllt.
   await field('heading', 'en').fill('')
   await field('content', 'en').fill('')
   await expectNoHorizontalScroll(page)
   await expectAccessible(page, '.pc-admin-view')
-  await form.getByTestId('page-save-tattoo').click()
-  await expect(form.getByTestId('page-saved-tattoo')).toBeVisible()
+  await form.getByTestId('page-save-all-tattoo').click()
+  await expect(form.getByTestId('page-saved-all-tattoo')).toBeVisible()
   await expect(form.getByTestId('tattoo-text-warning')).toContainText('Anzahlung verfällt')
 
   await form.getByTestId('translate-button').click()
@@ -118,6 +133,7 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   expect(price?.heading).toBe('[EN] Preise')
 
   // Preise-Formular: Warnung schon beim Tippen
+  await page.goto(adminPath('/tattoo?reiter=texte'))
   const prices = page.getByTestId('area-form-tattooPrices')
   await prices.getByTestId('area-field-tattoo.priceNote.de').fill('Anzahlung nicht erstattbar')
   await expect(prices.getByTestId('tattoo-prices-warning')).toBeVisible()

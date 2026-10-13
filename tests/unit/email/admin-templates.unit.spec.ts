@@ -131,18 +131,25 @@ describe('Pflichtinhalte (KONZEPT §6.4)', () => {
     expect(m.html).toContain(`href="${ADMIN}/texte"`)
   })
 
-  it('A11 Betreff „Monatsexport Oktober 2026 ist bereit“, Summen, Hinweis auf fehlende Monatssummen', async () => {
+  it('A11 Betreff „Monatsexport Oktober 2026 ist bereit“, Summen, Hinweis auf fehlende Monatssummen, Link zum Formular (V-38)', async () => {
     const m = await render('admin_monthly_close')
     expect(m.subject).toBe('Monatsexport Oktober 2026 ist bereit')
     expect(m.text).toContain('Rechnungen: 12 · 648,90 €')
     expect(m.text).toContain('Gutschriften: 1 · 45,00 €')
     expect(m.text).toContain('Saldo: 603,90 €')
-    expect(m.text).toContain('fehlen noch manuelle Monatssummen (Tattoo, Flohmarkt)')
+    expect(m.text).toContain(
+      'fehlen noch deine Monatssummen außerhalb des Shops (Tattoo, Flohmarkt)',
+    )
+    // V-38: direkt zum Formular „Monat abschließen“ für diesen Monat
+    const form = `${ADMIN}/einstellungen/umsatz-waechter?monat=2026-10#monat-abschliessen`
+    expect(m.text).toContain(`Monat abschließen: ${form}`)
+    expect(m.html).toContain(`href="${form}"`)
     const complete = await render('admin_monthly_close', {
       ...MAIL_FIXTURE_DATA.admin_monthly_close!,
       missingManualSources: [],
     })
     expect(complete.text).not.toContain('fehlen')
+    expect(complete.text).toContain(`Monat abschließen: ${form}`)
   })
 
   it('A13 Betreff mit Resttagen, Bestellung, Frist, Link', async () => {

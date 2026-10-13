@@ -182,6 +182,10 @@ export const TATTOO_TEXT = {
   textsPrices: 'Preise',
   textsPricesConfirm: 'Preise bestätigen',
   textsBooking: 'Anfragen offen / ausgebucht',
+  textsPagesElsewhere: 'Seitentexte und Fragen',
+  textsPagesElsewhereHint:
+    'Die Texte der Tattoo-Seiten und die Fragen bearbeitest du an einer Stelle: unter „Texte“ → „Seiten und FAQ“.',
+  textsPageLink: 'Seite „{{page}}“ bearbeiten',
   pageTitle: 'Titel der Seite',
   pageMetaTitle: 'Titel für Suchmaschinen (höchstens 60 Zeichen)',
   pageMetaDescription: 'Beschreibung für Suchmaschinen (höchstens 160 Zeichen)',

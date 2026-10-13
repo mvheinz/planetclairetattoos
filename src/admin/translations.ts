@@ -217,6 +217,19 @@ export const ADMIN_CUSTOM_DE = {
   piecePublished: 'Nr. {{nr}} ist online.',
   pieceCopyLink: 'Link kopieren',
   pieceCopyShort: 'Kurzlink kopieren',
+  // „Für Instagram“ (V-39)
+  instagramTitle: 'Für Instagram',
+  instagramIntro:
+    'Ein Tipp: Der Text unten kommt in die Zwischenablage, dann geht das Teilen-Menü mit dem Foto auf. In Instagram den Text einfach einfügen. Am Computer wird das Foto gespeichert.',
+  instagramButton: 'Für Instagram',
+  instagramStory: 'Story-Bild (Hochformat)',
+  instagramTextLabel: 'Text zum Einfügen',
+  instagramShared: 'Text ist kopiert – in Instagram einfach einfügen.',
+  instagramSaved: 'Bild gespeichert. Der Text ist kopiert – in Instagram einfach einfügen.',
+  instagramCopied: 'Text ist kopiert.',
+  instagramCopyFailed:
+    'Der Text ließ sich nicht kopieren – bitte im Feld unten markieren und kopieren.',
+  instagramFailed: 'Das Bild ließ sich nicht laden. Bitte später noch einmal.',
   pieceAnother: 'Noch ein Stück',
   pieceBackToEdit: 'Weiter bearbeiten',
   pieceToList: 'Zu „Meine Stücke“',
@@ -476,10 +489,13 @@ export const ADMIN_CUSTOM_DE = {
   exportPackagingDownload: 'CSV herunterladen',
   exportMonthTitle: 'Buchhaltung (Monat)',
   exportMonthIntro:
-    'Für die Steuerberatung: Belege eines Monats als Tabelle (CSV), alle Rechnungen und Gutschriften als ZIP und der DATEV-Buchungsstapel. Ohne Namen, Adressen und E-Mails, nie mit Beispieldaten.',
+    'Für die Steuerberatung: Belege eines Monats als Tabelle (CSV), alle Rechnungen und Gutschriften als ZIP, die Tabelle „Einnahmen außerhalb des Shops“ (Markt-Verkäufe mit Preis und deine Monatssummen – auch im ZIP) und der DATEV-Buchungsstapel. Ohne Namen, Adressen und E-Mails, nie mit Beispieldaten.',
   exportMonth: 'Monat',
   exportCsv: 'Monats-CSV herunterladen',
   exportZip: 'Rechnungs-ZIP herunterladen',
+  exportOffline: 'Einnahmen außerhalb des Shops (CSV)',
+  ordersTitle: 'Bestellungen',
+  ordersTabsLabel: 'Bestellungen: Listen',
   exportDatev: 'DATEV-Datei herunterladen',
   exportDatevMissing:
     'DATEV: Konten mit der Steuerberatung festlegen (Alle Daten → Einstellungen, Bereich „Export“). Es fehlen: {{fields}}.',
@@ -825,6 +841,13 @@ export const ADMIN_CUSTOM_DE = {
   inquiryLegalHold: 'Gesperrt (Aufbewahrungspflicht) – Löschen geht erst nach Aufheben der Sperre.',
   // Einstellungen, Teil 1 (P5.21)
   settingsAreas: 'Bereiche der Einstellungen',
+  settingsGroupDaily: 'Alltag',
+  settingsGroupDailyHint:
+    'Was du öfter brauchst: Shop auf/zu, Vorlagen, Versand, Monatssummen, Konto.',
+  settingsGroupSetup: 'Einrichtung (einmal)',
+  settingsGroupSetupHint:
+    'Einmal beim Start eintragen, danach selten: Stammdaten, Steuer, Bank, Kosten, Datenschutz, Rechtstexte, System.',
+  settingsYearTotalsElsewhere: 'Die Jahressummen vor dem Shop trägst du an einer Stelle ein:',
   settingsAreaBusiness: 'Stammdaten & Impressum',
   settingsAreaTax: 'Steuer',
   settingsAreaPayment: 'Zahlung',
@@ -989,10 +1012,39 @@ export const ADMIN_CUSTOM_DE = {
   revenueOfflineHint:
     'Stücke, die du mit „Verkauft (Markt/privat)“ oder dem Markt-Knopf unter „Heute“ mit Preis einträgst, zählen automatisch in der Spalte „Markt-Verkäufe (Stücke)“. Trage sie nicht noch einmal als Flohmarkt-Monatssumme ein – dort nur, was du ohne Stück-Eintrag verkauft hast.',
   revenueSum: 'Summe',
-  revenueEntryTitle: 'Monatssumme eintragen',
+  revenueEntryTitle: 'Monat abschließen',
   revenueEntryHint:
-    'Umsätze außerhalb des Shops (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) – am besten jeden Monat.',
+    'Einmal im Monat: deine Einnahmen außerhalb des Shops (Tattoo, Flohmarkt, Auftragsarbeiten, Sonstiges) eintragen und einmal tippen. Danach ist der gelbe Hinweis unter „Heute“ weg.',
+  monthCloseMarket: 'Markt-Verkäufe schon erfasst: {{amount}}',
+  monthCloseOpen: 'Für {{month}} fehlt noch etwas.',
+  monthCloseComplete:
+    'Für {{month}} ist alles eingetragen – du kannst die Beträge hier noch ändern.',
+  monthCloseEmptyHint: 'Leeres Feld heißt 0 €.',
+  monthCloseSave: 'Monat abschließen',
   revenueYearsTitle: 'Umsätze vor dem Shop',
+  // Werkstatt-Rückblick (V-40)
+  reviewTitle: 'Rückblick',
+  reviewIntro:
+    'Nur aus deinen eigenen Verkäufen – ohne Besucher-Statistik. So siehst du, was gut läuft und was du lieber mit auf den Markt nimmst.',
+  reviewSales: 'Verkäufe der letzten {{months}} Monate',
+  reviewSalesNone: 'In diesem Zeitraum noch keine Verkäufe.',
+  reviewCategory: 'Kategorie',
+  reviewChannelOnline: 'online (Versand)',
+  reviewChannelPickup: 'Abholung',
+  reviewChannelMarket: 'Markt',
+  reviewAverage:
+    'Im Schnitt war ein Stück {{days}} Tage online, bis es verkauft war (aus {{n}} Verkäufen).',
+  reviewAverageNone: 'Wie lange Stücke liegen, steht hier nach den ersten Verkäufen.',
+  reviewLong: 'Liegt seit über {{days}} Tagen im Shop',
+  reviewLongNone: 'Kein Stück liegt so lange.',
+  reviewLongDays: 'seit {{days}} Tagen',
+  reviewAlmost: 'Fast gekauft (letzte {{days}} Tage)',
+  reviewAlmostHint:
+    'So oft lag ein Stück in einer Kasse, die nicht bezahlt wurde. Nur gezählt – ohne Namen oder andere Angaben.',
+  reviewAlmostNone: 'Keine abgebrochenen Kassen.',
+  reviewAlmostOnce: '1 × in der Kasse',
+  reviewAlmostCount: '{{n}} × in der Kasse',
+  reviewAlmostGone: 'nicht mehr im Shop',
   revenueHistory: 'Verlauf der Hinweise',
   revenueHistoryNone: 'Bisher keine Hinweise.',
   // Texte (P5.27)
@@ -1118,6 +1170,10 @@ export const ADMIN_CUSTOM_DE = {
   todayLegalWarnNotLawyer: 'Nicht von der Kanzlei',
   todayLegalWarnOverdue: 'Prüfung fällig',
   todayLegalOk: 'In Ordnung',
+  todayLegalAllCurrent: 'Rechtstexte: alles aktuell',
+  todayLegalDueOne: 'Rechtstexte: 1 Text braucht deine Aufmerksamkeit',
+  todayLegalDue: 'Rechtstexte: {{n}} Texte brauchen deine Aufmerksamkeit',
+  todayLegalOpen: 'Rechtstexte öffnen',
   // Datenschutz-Anfragen (P6.16–P6.18, KONZEPT §7.15, LOESCHKONZEPT §5)
   privacyIntro:
     'Jede Anfrage zählt – egal ob per Mail, Brief, Instagram oder mündlich. Bitte innerhalb eines Werktags erfassen; die Antwort ist binnen eines Monats fällig (auch während du die Identität prüfst).',

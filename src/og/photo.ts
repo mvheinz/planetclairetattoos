@@ -56,43 +56,64 @@ const is45 = (s: StoredSize | null | undefined): s is StoredSize & { filename: s
   !!s.height &&
   Math.abs(s.width / s.height - OG_PHOTO.width / OG_PHOTO.height) < 0.01
 
-/** JPEG 504 × 630 als Data-URL oder `null` (kein Foto, Datei fehlt, nicht lesbar). */
-export async function productPhotoDataUrl(
+/**
+ * Erstes Foto als JPEG im Format 4:5 (Standard 504 × 630, für Instagram 1080 × 1350, V-39) oder `null` (kein Foto,
+ * Datei fehlt, nicht lesbar).
+ */
+export async function productPhotoJpeg(
   media: OgMediaInput | number | null | undefined,
-): Promise<string | null> {
+  size: { width: number; height: number } = OG_PHOTO,
+): Promise<Buffer | null> {
   if (!media || typeof media !== 'object') return null
   try {
-    let image: Sharp | null = null
-    // Reihenfolge nach Auflösung: `card` (800 × 1000), Original mit Zuschnitt, `thumb` (400 × 500).
-    const card = media.sizes?.card
-    if (is45(card)) {
+    const fromCard = async (): Promise<Sharp | null> => {
+      const card = media.sizes?.card
+      if (!is45(card)) return null
       const buf = await readMediaFile(card.filename, media.prefix)
-      if (buf) image = sharp(buf)
+      return buf ? sharp(buf) : null
     }
-    if (!image && media.filename) {
+    const fromOriginal = async (): Promise<Sharp | null> => {
+      if (!media.filename) return null
       const buf = await readMediaFile(media.filename, media.prefix)
-      if (buf) {
-        // Originale sind beim Hochladen schon gedreht und ohne Metadaten normiert (DESIGN §12.2 Schritt 2).
-        const meta = await sharp(buf).metadata()
-        if (meta.width && meta.height)
-          image = sharp(buf).extract(
-            focalCrop(meta.width, meta.height, media.focalX ?? 50, media.focalY ?? 50),
-          )
-      }
+      if (!buf) return null
+      // Originale sind beim Hochladen schon gedreht und ohne Metadaten normiert (DESIGN §12.2 Schritt 2).
+      const meta = await sharp(buf).metadata()
+      if (!meta.width || !meta.height) return null
+      return sharp(buf).extract(
+        focalCrop(meta.width, meta.height, media.focalX ?? 50, media.focalY ?? 50),
+      )
     }
-    const thumb = media.sizes?.thumb
-    if (!image && is45(thumb)) {
+    const fromThumb = async (): Promise<Sharp | null> => {
+      const thumb = media.sizes?.thumb
+      if (!is45(thumb)) return null
       const buf = await readMediaFile(thumb.filename, media.prefix)
-      if (buf) image = sharp(buf)
+      return buf ? sharp(buf) : null
+    }
+    // Reihenfolge nach Auflösung: `card` (800 × 1000), Original mit Zuschnitt, `thumb` (400 × 500). Für Formate über
+    // 800 px Breite zuerst das Original (schärfer als `card`).
+    const order =
+      size.width > 800 ? [fromOriginal, fromCard, fromThumb] : [fromCard, fromOriginal, fromThumb]
+    let image: Sharp | null = null
+    for (const load of order) {
+      image = await load()
+      if (image) break
     }
     if (!image) return null
-    const jpeg = await image
-      .resize(OG_PHOTO.width, OG_PHOTO.height, { fit: 'cover' })
+    return await image
+      .resize(size.width, size.height, { fit: 'cover' })
       .flatten({ background: '#E6EACD' })
       .jpeg({ quality: 84, mozjpeg: true })
       .toBuffer()
-    return `data:image/jpeg;base64,${jpeg.toString('base64')}`
   } catch {
     return null
   }
+}
+
+/** JPEG 504 × 630 (oder `size`) als Data-URL oder `null` (kein Foto, Datei fehlt, nicht lesbar). */
+export async function productPhotoDataUrl(
+  media: OgMediaInput | number | null | undefined,
+  size: { width: number; height: number } = OG_PHOTO,
+): Promise<string | null> {
+  const jpeg = await productPhotoJpeg(media, size)
+  return jpeg ? `data:image/jpeg;base64,${jpeg.toString('base64')}` : null
 }

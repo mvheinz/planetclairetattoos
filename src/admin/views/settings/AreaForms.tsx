@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import React, { useId, useRef, useState } from 'react'
 
+import { formatEuroInput } from '@/lib/money'
 import { tattooTextWarnings } from '@/lib/tattoo/textWarnings'
 
 import { ConfirmDialog } from '../../components/ConfirmDialog'
@@ -998,76 +999,104 @@ export function LegalForm({ initial }: { initial: LegalValues }) {
 
 // --- Manuelle Monatssummen (P5.23) --------------------------------------------------------------------------------
 
-/** Eine Monatssumme (Monat, Quelle) eintragen oder ändern – `POST /api/globals/settings/revenue-entry`. */
-export function RevenueEntryForm({
+/** Stand eines Monats für „Monat abschließen“ (V-38; aus `monthCloseStates`). */
+export interface MonthCloseOption {
+  value: string
+  label: string
+  /** Eingetragene Summen je Quelle in Cent (`null` = noch nicht eingetragen). */
+  amounts: Record<string, number | null>
+  /** Markt-Verkäufe von Stücken mit Preis in diesem Monat (Cent). */
+  marketCents: number
+}
+
+const euroText = (cents: number) => `${formatEuroInput(cents)} €`
+
+/**
+ * „Monat abschließen“ (V-38, U-93, KONZEPT §8.4): Monat wählen, vier Beträge (Tattoo, Flohmarkt, Auftragsarbeiten,
+ * Sonstiges; leer = 0 €), darüber „Markt-Verkäufe schon erfasst: …“, ein Knopf. Speichert über
+ * `POST /api/globals/settings/month-close` alle vier Summen auf einmal (idempotent).
+ */
+export function MonthCloseForm({
   months,
   sources,
+  initialMonth,
 }: {
-  months: readonly Option[]
+  months: readonly MonthCloseOption[]
   sources: readonly Option[]
+  initialMonth: string
 }) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
-  const { busy, errors, feedback, save } = useSave()
-  const [v, setV] = useState({
-    month: months[1]?.value ?? months[0]?.value ?? '',
-    source: sources[0]?.value ?? '',
-    amount: '',
-    note: '',
-  })
+  const { busy, errors, setErrors, feedback, save } = useSave()
+  const valuesOf = (month: string) => {
+    const m = months.find((x) => x.value === month)
+    return Object.fromEntries(
+      sources.map((s) => {
+        const c = m?.amounts[s.value]
+        return [s.value, c === null || c === undefined ? '' : formatEuroInput(c)]
+      }),
+    ) as Record<string, string>
+  }
+  const [month, setMonth] = useState(
+    months.some((m) => m.value === initialMonth) ? initialMonth : (months[0]?.value ?? ''),
+  )
+  const [amounts, setAmounts] = useState<Record<string, string>>(() => valuesOf(month))
+  const current = months.find((m) => m.value === month)
+  const complete = current ? sources.every((s) => current.amounts[s.value] != null) : false
   return (
     <Ctx.Provider value={errors}>
       <form
         ref={formRef}
+        id="monat-abschliessen"
         className="pc-settings__form"
         noValidate
-        data-testid="revenue-entry-form"
+        data-testid="month-close-form"
         onSubmit={(e) => {
           e.preventDefault()
-          void save('/api/globals/settings/revenue-entry', v, formRef.current, () => {
-            setV((cur) => ({ ...cur, amount: '', note: '' }))
-            router.refresh()
-          })
+          void save('/api/globals/settings/month-close', { month, amounts }, formRef.current, () =>
+            router.refresh(),
+          )
         }}
       >
         <SelectField
           path="month"
           label={areaText('costsMonth')}
           options={months}
-          value={v.month}
-          onChange={(month) => setV({ ...v, month })}
+          value={month}
+          onChange={(m) => {
+            setMonth(m)
+            setAmounts(valuesOf(m))
+            setErrors({})
+          }}
         />
-        <SelectField
-          path="source"
-          label={areaText('revenueSource')}
-          options={sources}
-          value={v.source}
-          onChange={(source) => setV({ ...v, source })}
-        />
-        <TextField
-          path="amountCents"
-          label={areaText('revenueAmount')}
-          hint={areaText('revenueAmountHint')}
-          inputMode="decimal"
-          value={v.amount}
-          onChange={(amount) => setV({ ...v, amount })}
-        />
-        <TextField
-          path="note"
-          label={areaText('costsNote')}
-          maxLength={200}
-          value={v.note}
-          onChange={(note) => setV({ ...v, note })}
-        />
+        <p className="pc-order__muted" data-testid="month-close-market" aria-live="polite">
+          {adminText('monthCloseMarket', { amount: euroText(current?.marketCents ?? 0) })}
+        </p>
+        <p className="pc-order__muted" data-testid="month-close-state" data-complete={complete}>
+          {adminText(complete ? 'monthCloseComplete' : 'monthCloseOpen', {
+            month: current?.label ?? month,
+          })}
+        </p>
+        {sources.map((s) => (
+          <TextField
+            key={s.value}
+            path={`amounts.${s.value}`}
+            label={s.label}
+            inputMode="decimal"
+            value={amounts[s.value] ?? ''}
+            onChange={(v) => setAmounts((cur) => ({ ...cur, [s.value]: v }))}
+          />
+        ))}
+        <p className="pc-order__muted">{adminText('monthCloseEmptyHint')}</p>
         <p className="pc-admin-row">
           <button
             type="submit"
             className="pc-admin-btn pc-admin-btn--primary"
             disabled={busy}
             aria-busy={busy || undefined}
-            data-testid="revenue-entry-save"
+            data-testid="month-close-save"
           >
-            {busy ? adminText('actionBusy') : areaText('save')}
+            {busy ? adminText('actionBusy') : adminText('monthCloseSave')}
           </button>
         </p>
         {feedback ? <Notice tone={feedback.tone}>{feedback.text}</Notice> : null}

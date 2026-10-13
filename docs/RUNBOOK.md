@@ -482,6 +482,7 @@ Hier trägt die P11-Session bzw. Jutta ein, was sich zu bestimmten Terminen ergi
 | (P11) | Erste Monatsrechnungen Vercel, Neon, Cloudflare, Lettermint, Sentry, DeepL (Summe ≤ 25 €, AK-A-12-03) | offen |
 | (P11) | Erste manuelle Wiederherstellungs-Übung (Abschnitt 6.3), danach halbjährlich | offen |
 | (monatlich) | Kosten-Routine (Abschnitt 10): Summe, Neon-CU-h | offen |
+| (monatlich, am 1.) | Monatsabschluss (Task `monthlyClose`, A11): Monats-CSV und Rechnungs-ZIP liegen privat ab; das ZIP enthält seit P20.6 auch `planetclaire-JJJJ-MM-einnahmen-ausserhalb-des-shops.csv` (Markt-Verkäufe mit Preis, Monatssummen; V-65), einzeln über `GET /api/admin/export/JJJJ-MM.ausserhalb.csv`. Jutta trägt die vier Monatssummen über den Link „Monat abschließen“ der A11 ein (V-38); fehlt das nach einer Woche noch (gelber Hinweis unter „Heute“), kurz erinnern. Wird ein alter Monat nachgetragen, das ZIP nicht neu ablegen (R-122: nur schreiben, wenn es die Datei noch nicht gibt) – die aktuelle Tabelle über den Export-Knopf neu laden und der Steuerberatung schicken | offen |
 
 ## 15. Jutta schickt eine Excel-Liste
 
@@ -502,6 +503,12 @@ lädt die Datei im Chat hoch (Anleitung für sie: `docs/owner/IPAD.md`).
    abarbeiten (Englisch selbst schreiben, U-00), „Bitte entscheiden“ und „Nicht übernommen“ Jutta in einfachen Worten
    zurückmelden (nicht raten). „Deine Notizen“ umsetzen oder nachfragen. Mail-Texte: auf Werbung prüfen (in
    Transaktionsmails verboten – das erkennt die Prüfung nicht).
+   Texte-Liste (V-36, P20.6): Zeilen, die es nicht mehr gibt (Texte, die die Seite nicht mehr zeigt – z. B. in Juttas
+   Liste `T-2026-10-12-7bc103` die Ersatztexte `m:commission.steps.*`), sind kein Fehler: unverändert nur gezählt
+   („N Zeilen entfallen“), geändert unter „Entfällt“ im Bericht – Jutta kurz sagen, wo der Text jetzt steht. Trägt ein
+   Blatt eine **andere Listen-Nr.** als die Datei (rechts in der Kopfzeile jedes Bereichs-Blatts), gleicht der Befehl
+   dieses Blatt mit dem Stand seiner Liste ab und vermerkt Übernommenes auch dort (beide `stand/*.json` committen).
+   Gemerkte Stände nie von Hand ändern.
    Datenminimierung: „Verkauft“-Notizen und „Deine Notiz“ landen dauerhaft im Repo – vor dem Commit auf Namen,
    @-Namen, Telefonnummern oder Adressen von Käufer:innen prüfen und auf Ort/Markt kürzen (Jutta kurz Bescheid geben).
 5. Prüfen: `pnpm check` (Texte: auch `tests/unit/i18n`, Verbotsliste), bei Bestand zusätzlich

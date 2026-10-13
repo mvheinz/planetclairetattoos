@@ -331,6 +331,47 @@ export function adminView(key: string): AdminViewDef {
 /** Startansicht: `ADMIN_ROUTE` selbst zeigt „Heute“ (Payload-Dashboard ersetzt). */
 export const ADMIN_HOME_VIEW: AdminViewKey = 'heute'
 
+/**
+ * Die fünf Bestell-Listen (V-37, U-93): im Menü **ein** Punkt „Bestellungen“, in der Ansicht als Reiter. Die Pfade
+ * bleiben (Direktlinks aus Mails, „Heute“-Kacheln, Leiste unten).
+ */
+export const ORDER_TABS = ['packen', 'vorkasse', 'versendet', 'abholung', 'widerrufe'] as const
+
+export interface AdminMenuItem {
+  key: string
+  title: string
+  icon: AdminIconName
+  /** Ziel des Menüpunkts (relativ zu `ADMIN_ROUTE`). */
+  path: `/${string}`
+  /** Ansichten, bei denen der Punkt als aktiv gilt (samt ihren Detailansichten). */
+  views: readonly string[]
+}
+
+/**
+ * Menü „Mehr“ bzw. Seitenleiste (KONZEPT §7.2, V-37): alle Hauptansichten in Registry-Reihenfolge, die Bestell-Listen
+ * zusammengefasst an der Stelle der ersten („Bestellungen“ → „Zu packen“).
+ */
+export const ADMIN_MENU: readonly AdminMenuItem[] = ADMIN_VIEWS.flatMap((v): AdminMenuItem[] => {
+  const tab = (ORDER_TABS as readonly string[]).indexOf(v.key)
+  if (tab > 0) return []
+  if (tab === 0)
+    return [
+      {
+        key: 'bestellungen',
+        title: 'Bestellungen',
+        icon: 'box',
+        path: v.path,
+        views: [...ORDER_TABS, 'bestellung'],
+      },
+    ]
+  return [{ key: v.key, title: v.title, icon: v.icon, path: v.path, views: [v.key] }]
+})
+
+/** Ist der Menüpunkt für den sichtbaren Pfad aktiv (eine seiner Ansichten oder deren Detailansicht)? */
+export function isActiveMenuItem(item: AdminMenuItem, relativePath: string): boolean {
+  return item.views.some((key) => isActiveView(key, relativePath))
+}
+
 /** Leiste unten auf dem Handy: „Heute · Neues Stück · Packen · Mehr“ (KONZEPT §7.2); „Mehr“ öffnet das Menü. */
 export const ADMIN_BOTTOM_BAR: readonly AdminViewKey[] = ['heute', 'neues-stueck', 'packen']
 

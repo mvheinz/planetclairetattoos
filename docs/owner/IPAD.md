@@ -69,6 +69,14 @@ Excel im kostenlosen **LibreOffice**. Alles andere wie oben.
 Claude übernimmt nur, was du geändert hast, und schreibt dir zurück, was geklappt hat und wo es nachfragen muss. Hat sich
 dasselbe Feld inzwischen anders geändert, überschreibt Claude nichts, sondern fragt dich.
 
+**Texte-Liste, seit P20.6 aufgeräumt (V-36):** In der Spalte „Wo auf der Seite“ steht in deinen Worten, wo der Text
+steht, zum Beispiel „Startseite – Text unter Koko“ oder „Fragen – „Kann ich abholen?“ › Antwort“. Oben in jedem Blatt
+stehen die wichtigsten Texte (Seiten, Kategorien, Fragen), darunter die festen Texte (Knöpfe, Hinweise, Mails). Zeilen,
+die auf der Seite gar nicht erscheinen, sind weg. Schickst du eine ältere Liste zurück, in der so eine Zeile noch steht,
+ist das kein Problem: Claude meldet sie als „entfällt“. Rechts oben in jedem Blatt steht die **Listen-Nr.** – so passt
+Claude jedes Blatt zur richtigen Liste, auch wenn du nur ein Blatt zurückschickst oder Blätter aus zwei Listen
+zusammenkopierst. Am iPad und am Computer ist das gleich.
+
 **Am Computer:** In Excel oder LibreOffice einfach **Speichern** (die Datei bleibt `.xlsx`); in Numbers am Mac **Ablage →
 Exportieren → Excel**. Dann im Chat auf die **Büroklammer** bzw. **+** → Datei wählen → kurz dazuschreiben → **Senden**.
 

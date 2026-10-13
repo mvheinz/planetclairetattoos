@@ -1,4 +1,5 @@
-import { LEGAL_TEXT_TYPES, type LegalTextType } from '@/lib/enums'
+import { ENUM_LABELS } from '@/lib/enumLabels'
+import { LEGAL_TEXT_TYPES, type LegalSnippetKey, type LegalTextType } from '@/lib/enums'
 import { isValidIban, normalizeIban } from '@/lib/settings/rules'
 
 // Startklar-Prüfung (Go-live-Gate, R-210, KONZEPT §7.16, DATENMODELL §13.7): reine Prüffunktionen ohne Datenbank und
@@ -215,7 +216,10 @@ export function evaluateGolive(input: GoliveInput): GoliveReport {
       'texts',
       'Die rechtlichen Textbausteine stammen von der Kanzlei',
       'R-210 Nr. 2, DATENMODELL §6.28',
-      input.snippetsNotLawyer,
+      // V-37: Beschriftungen statt Schlüssel („Kasse: Vorkasse“ statt `checkout.vorkasseInfo`)
+      input.snippetsNotLawyer.map(
+        (k) => ENUM_LABELS.LEGAL_SNIPPET_KEYS[k as LegalSnippetKey]?.de ?? k,
+      ),
       'Alle Bausteine mit Kanzlei-Pflicht haben eine aktive Fassung der Kanzlei.',
       (l) =>
         `Noch Arbeitsfassungen statt Kanzlei-Text: ${l}. Bitte unter „Texte“ → Bausteine ersetzen.`,

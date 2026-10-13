@@ -132,7 +132,12 @@ describe('monthlyClose (AK-8-01)', () => {
     const zipFile = files.find((f) => f.mimeType === 'application/zip')!
     const zip = unzipSync(await readFile(path.join(uploadStaticDir('private'), zipFile.filename!)))
     expect(Object.keys(zip).sort()).toEqual(
-      [...invoices.map((i) => `${i.number}.pdf`), 'planetclaire-2026-10.csv'].sort(),
+      [
+        ...invoices.map((i) => `${i.number}.pdf`),
+        'planetclaire-2026-10.csv',
+        // V-65: Einnahmen außerhalb des Shops (Markt-Verkäufe, Monatssummen)
+        'planetclaire-2026-10-einnahmen-ausserhalb-des-shops.csv',
+      ].sort(),
     )
 
     const mail = await a11()

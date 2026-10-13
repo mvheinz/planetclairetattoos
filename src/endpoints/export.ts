@@ -4,16 +4,17 @@ import { isAdminRequest } from '@/access'
 import { createLogger, errorSummary } from '@/lib/monitoring/logger'
 
 // Admin-Endpunkte der Exporte (ARCHITEKTUR §2.5, KONZEPT §7.15, R-124; PLAN P5.24/P5.25):
-// `GET /api/admin/export/{JJJJ-MM}.csv` (Monats-CSV), `.zip` (Rechnungs-ZIP), `.datev.csv` (DATEV-Buchungsstapel).
+// `GET /api/admin/export/{JJJJ-MM}.csv` (Monats-CSV), `.zip` (Rechnungs-ZIP), `.datev.csv` (DATEV-Buchungsstapel),
+// `.ausserhalb.csv` (Einnahmen außerhalb des Shops: Markt-Verkäufe und Monatssummen, V-65).
 // Nur mit Admin-Sitzung (sonst 401), `Cache-Control: private, no-store`, Download als Anhang. Exporte enthalten nie
 // Beispieldaten – auch nicht im Vorschau-Modus.
 
 const log = createLogger()
 const noStore = { 'cache-control': 'private, no-store' }
 
-export const EXPORT_FILE_RE = /^(\d{4}-(?:0[1-9]|1[0-2]))\.(csv|zip|datev\.csv)$/
+export const EXPORT_FILE_RE = /^(\d{4}-(?:0[1-9]|1[0-2]))\.(csv|zip|datev\.csv|ausserhalb\.csv)$/
 
-type Kind = 'csv' | 'zip' | 'datev.csv'
+type Kind = 'csv' | 'zip' | 'datev.csv' | 'ausserhalb.csv'
 
 function download(bytes: Buffer, filename: string, contentType: string): Response {
   return new Response(new Uint8Array(bytes), {
@@ -35,13 +36,22 @@ async function handleExport(req: PayloadRequest): Promise<Response> {
   if (!isAdminRequest(req)) return error(401, 'Nur für die Verwaltung.')
   const file = String((req.routeParams as { file?: string } | undefined)?.file ?? '')
   const m = EXPORT_FILE_RE.exec(file)
-  if (!m) return error(404, 'Unbekannte Export-Datei. Format: JJJJ-MM.csv, .zip oder .datev.csv')
+  if (!m)
+    return error(
+      404,
+      'Unbekannte Export-Datei. Format: JJJJ-MM.csv, .zip, .datev.csv oder .ausserhalb.csv',
+    )
   const month = m[1]!
   const kind = m[2] as Kind
   try {
     if (kind === 'csv') {
       const { buildMonthlyCsv } = await import('@/lib/export/monthlyCsv')
       const res = await buildMonthlyCsv(req.payload, month)
+      return download(res.bytes, res.filename, 'text/csv; charset=utf-8')
+    }
+    if (kind === 'ausserhalb.csv') {
+      const { buildOfflineCsv } = await import('@/lib/export/offlineCsv')
+      const res = await buildOfflineCsv(req.payload, month)
       return download(res.bytes, res.filename, 'text/csv; charset=utf-8')
     }
     if (kind === 'zip') {

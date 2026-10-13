@@ -175,9 +175,67 @@ const EMAIL_TEMPLATE_LABELS: Labels<E.EmailTemplate> = {
   admin_compliance_docs_review: l('A16 Nachweise prüfen'),
 }
 
-const SNIPPET_LABELS = Object.fromEntries(
-  E.LEGAL_SNIPPET_KEYS.map((k) => [k, l(`Baustein ${k}`)]),
-) as Labels<E.LegalSnippetKey>
+// Rechtsbausteine in Juttas Worten (V-37: Startklar-Prüfung und Auswahllisten zeigen Beschriftungen statt Schlüssel).
+const SNIPPET_LABELS = {
+  'price.kleinunternehmerNote': l('Preis: Hinweis Kleinunternehmer', 'Price: small-business note'),
+  'price.shippingNote': l('Preis: zzgl. Versand', 'Price: plus shipping'),
+  'price.tattooNote': l('Preis: Hinweis Tattoo', 'Price: tattoo note'),
+  'delivery.timeShipping': l('Lieferzeit Versand', 'Delivery time (shipping)'),
+  'delivery.timePickup': l('Abholung: Zeitpunkt', 'Pickup: timing'),
+  'cart.paymentAndDeliveryInfo': l(
+    'Warenkorb: Zahlung und Lieferung',
+    'Cart: payment and delivery',
+  ),
+  'checkout.legalNotice': l('Kasse: Hinweis AGB und Widerruf', 'Checkout: terms and withdrawal'),
+  'checkout.dhlEmailConsent': l('Kasse: E-Mail an DHL', 'Checkout: email to DHL'),
+  'checkout.deviationAgreement': l(
+    'Kasse: Abweichung vereinbaren',
+    'Checkout: agreement on deviation',
+  ),
+  'checkout.vorkasseInfo': l('Kasse: Vorkasse', 'Checkout: prepayment'),
+  'product.ceramicsDecorative': l('Stück: Keramik nur Deko', 'Piece: ceramics decorative only'),
+  'product.ceramicsFoodSafe': l('Stück: Keramik lebensmittelecht', 'Piece: ceramics food-safe'),
+  'product.jewelrySmallParts': l('Stück: Schmuck Kleinteile', 'Piece: jewellery small parts'),
+  'product.jewelryNickel': l('Stück: Schmuck nickelfrei', 'Piece: jewellery nickel-free'),
+  'product.textileSecondHand': l('Stück: Textil gebraucht', 'Piece: second-hand textile'),
+  'product.textileLabelMissing': l('Stück: Textil ohne Etikett', 'Piece: textile without label'),
+  'product.noSpecialWarnings': l('Stück: keine besonderen Hinweise', 'Piece: no special warnings'),
+  'product.glassFrame': l('Stück: Rahmen mit Glas', 'Piece: frame with glass'),
+  'email.orderConfirmation.contractSentence': l(
+    'Mail Bestellbestätigung: Vertragssatz',
+    'Order confirmation email: contract sentence',
+  ),
+  'email.vorkasse.paymentInstructions': l(
+    'Mail Vorkasse: Zahlungsangaben',
+    'Prepayment email: payment details',
+  ),
+  'email.vorkasse.reminder': l('Mail Vorkasse: Erinnerung', 'Prepayment email: reminder'),
+  'email.vorkasse.cancellation': l('Mail Vorkasse: Storno', 'Prepayment email: cancellation'),
+  'email.shipping.damageNotice': l(
+    'Mail Versand: Transportschaden',
+    'Shipping email: transport damage',
+  ),
+  'email.pickup.ready': l('Mail Abholung: abholbereit', 'Pickup email: ready'),
+  'withdrawal.intro': l('Widerruf: Einleitung', 'Withdrawal: introduction'),
+  'withdrawal.receiptNotice': l('Widerruf: Eingangsbestätigung', 'Withdrawal: receipt'),
+  'withdrawal.returnInfo': l('Widerruf: Rücksendung', 'Withdrawal: return'),
+  'withdrawal.returnCostsNote': l('Widerruf: Kosten der Rücksendung', 'Withdrawal: return costs'),
+  'complaint.repairChoice': l(
+    'Reklamation: Reparatur oder Ersatz',
+    'Complaint: repair or replacement',
+  ),
+  'dispute.vsbg37': l('Schlichtung (§ 37 VSBG)', 'Dispute resolution (§ 37 VSBG)'),
+  'inquiry.privacyNotice': l('Anfrage: Datenschutz-Hinweis', 'Inquiry: privacy notice'),
+  'inquiry.autoReply': l('Anfrage: automatische Antwort', 'Inquiry: automatic reply'),
+  'commission.offer': l('Auftragsarbeit: Angebot', 'Commission: offer'),
+  'translation.disclaimer': l('Hinweis zur Übersetzung', 'Translation note'),
+  'privacyRequest.accessResponse': l('Datenschutz: Auskunft', 'Privacy: access response'),
+  'privacyRequest.erasureResponse': l('Datenschutz: Löschung', 'Privacy: erasure response'),
+  'ip.copyrightNotice': l('Urheberrecht: Hinweis', 'Copyright notice'),
+  'ip.aiMiningReservation': l('Urheberrecht: kein KI-Training', 'Copyright: no AI training'),
+  'ip.purchaseClause': l('Urheberrecht: beim Kauf', 'Copyright: with purchase'),
+  'ip.tattooFlashNotice': l('Urheberrecht: Tattoo-Flash', 'Copyright: tattoo flash'),
+} satisfies Labels<E.LegalSnippetKey>
 
 export const ENUM_LABELS = {
   LOCALES: { de: l('Deutsch', 'German'), en: l('Englisch', 'English') } satisfies Labels<E.Locale>,

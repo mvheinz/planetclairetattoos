@@ -6,6 +6,7 @@ import { ENUM_LABELS } from '@/lib/enumLabels'
 import { LEGAL_TEXT_TYPES, PRIVATE_UPLOAD_PURPOSES, REVENUE_SOURCES } from '@/lib/enums'
 import { berlinMonthRange, formatBerlin } from '@/lib/time'
 
+import { adminLink } from '../../layout'
 import type { RenderedMail, TemplateRenderInput } from '../../registry'
 import { block, fmtDate, money, renderAdminMail, type Block } from '../kit'
 
@@ -15,7 +16,7 @@ import { ADMIN_MAIL_PATHS } from './paths'
 // Aufbewahrungssperren prüfen, A16 Produktsicherheits-Unterlagen. Immer Deutsch, kurz, Direktlink; strikte Schemata.
 
 export const ADMIN_LEGAL_REVIEW_DUE_VERSION = 'a10-v1'
-export const ADMIN_MONTHLY_CLOSE_VERSION = 'a11-v1'
+export const ADMIN_MONTHLY_CLOSE_VERSION = 'a11-v2'
 export const ADMIN_LEGAL_HOLD_REVIEW_VERSION = 'a15-v1'
 export const ADMIN_COMPLIANCE_DOCS_REVIEW_VERSION = 'a16-v1'
 
@@ -96,20 +97,26 @@ export async function renderAdminMonthlyClose(
       ['Saldo', money(d.invoiceTotalCents - d.creditNoteTotalCents, 'de')],
     ]),
     block.p(
-      'Monats-CSV und Rechnungs-ZIP liegen in der Verwaltung unter „Export“ und können an die Steuerberatung gehen.',
+      'Monats-CSV und Rechnungs-ZIP (mit der Tabelle „Einnahmen außerhalb des Shops“) liegen in der Verwaltung unter „Export“ und können an die Steuerberatung gehen.',
     ),
   ]
-  if (d.missingManualSources.length > 0) {
-    blocks.push(
-      block.p(
-        `Hinweis: Für ${monthLabel(d.month)} fehlen noch manuelle Monatssummen (${d.missingManualSources
-          .map((s) => ENUM_LABELS.REVENUE_SOURCES[s].de)
-          .join(
-            ', ',
-          )}). Bitte unter Einstellungen → Umsatz-Wächter eintragen, auch wenn es 0 € waren.`,
-      ),
-    )
-  }
+  // V-38: direkt zum Formular „Monat abschließen“ (vier Beträge, ein Knopf)
+  const formLink = adminLink(links, ADMIN_MAIL_PATHS.monthClose(d.month))
+  blocks.push(
+    d.missingManualSources.length > 0
+      ? block.link(
+          `Für ${monthLabel(d.month)} fehlen noch deine Monatssummen außerhalb des Shops (${d.missingManualSources
+            .map((s) => ENUM_LABELS.REVENUE_SOURCES[s].de)
+            .join(', ')}). Ein Formular, ein Tipp – auch wenn es 0 € waren:`,
+          'Monat abschließen',
+          formLink,
+        )
+      : block.link(
+          `Deine Monatssummen für ${monthLabel(d.month)} sind eingetragen. Ändern kannst du sie hier:`,
+          'Monat abschließen',
+          formLink,
+        ),
+  )
   return renderAdminMail({
     subject: adminMonthlyCloseSubject(d),
     blocks,

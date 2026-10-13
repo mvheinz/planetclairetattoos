@@ -34,7 +34,6 @@ import {
   ShopForm,
   TaxConfirmForm,
   TemplatesForm,
-  YearTotalsForm,
 } from './AreaForms'
 import { ProcessorAgreementUpload } from './ProcessorAgreementUpload'
 import { type AdoptGroup, SeedArea } from './SeedArea'
@@ -42,7 +41,8 @@ import { areaText, initialAreaValues, initialProcessorAgreements, type Obj } fro
 import { getPath, SETTINGS_SECTIONS, type SettingsSectionKey } from './settingsForm'
 import { PasswordForm, SettingsSectionForm, TaxModeForm } from './SettingsForms'
 
-// Ansicht „Einstellungen“ `/einstellungen` (PLAN P5.21, KONZEPT §7.14): Bereiche als Handy-Formulare über dem Global
+// Ansicht „Einstellungen“ `/einstellungen` (PLAN P5.21, KONZEPT §7.14; seit V-37 in zwei Gruppen „Alltag“ und
+// „Einrichtung (einmal)“): Bereiche als Handy-Formulare über dem Global
 // `settings` – Stammdaten & Impressum, Steuer (Modus-Verlauf mit „gilt ab“, Aufbewahrung 8/10 Jahre), Zahlung
 // (Bankdaten; Zahlungsanbieter und Vorkasse-Fristen nur Anzeige), Benachrichtigungen, Rechtstexte (Übersicht, P6),
 // Konto (Passwort ändern, Abmelden). Teil 2 und 3 (P5.22/P5.22a): Shop, Kosten, Vorlagen, Steuer-Bestätigung mit
@@ -50,25 +50,45 @@ import { PasswordForm, SettingsSectionForm, TaxModeForm } from './SettingsForms'
 // (Anzahl je Collection, Entfernen und Übernehmen – P8.19, `SeedArea`). Versand, Umsatz-Wächter, System und Produktsicherheit haben eigene
 // Unterseiten.
 
-const AREAS = [
-  ['stammdaten', 'settingsAreaBusiness'],
-  ['steuer', 'settingsAreaTax'],
-  ['zahlung', 'settingsAreaPayment'],
-  ['shop', 'settingsAreaShop'],
-  ['kosten', 'settingsAreaCosts'],
-  ['vorlagen', 'settingsAreaTemplates'],
-  ['datenschutz', 'settingsAreaPrivacy'],
-  ['rechtstexte', 'settingsAreaLegal'],
-  ['benachrichtigungen', 'settingsAreaNotifications'],
-  ['beispieldaten', 'settingsAreaSeed'],
-  ['konto', 'settingsAreaAccount'],
-] as const
-
-const SUBVIEWS = [
-  ['versand', 'settings-shipping'],
-  ['umsatz-waechter', 'settings-revenue'],
-  ['system', 'settings-system'],
-  ['produktsicherheit', 'settings-product-safety'],
+/**
+ * Zwei Gruppen (V-37, U-93): „Alltag“ (was Jutta öfter braucht) und „Einrichtung (einmal)“ (Stammdaten, Steuer,
+ * Zahlung, Kosten, Datenschutz, Rechtstexte, Beispieldaten). Jede Sache steht an genau einer Stelle; die Jahressummen
+ * vor dem Shop nur im Umsatz-Wächter, Seitentexte und Fragen nur unter „Texte“.
+ */
+const GROUPS = [
+  {
+    id: 'alltag',
+    title: 'settingsGroupDaily',
+    hint: 'settingsGroupDailyHint',
+    areas: [
+      ['shop', 'settingsAreaShop'],
+      ['vorlagen', 'settingsAreaTemplates'],
+      ['benachrichtigungen', 'settingsAreaNotifications'],
+      ['konto', 'settingsAreaAccount'],
+    ],
+    subviews: [
+      ['versand', 'settings-shipping'],
+      ['umsatz-waechter', 'settings-revenue'],
+    ],
+  },
+  {
+    id: 'einrichtung',
+    title: 'settingsGroupSetup',
+    hint: 'settingsGroupSetupHint',
+    areas: [
+      ['stammdaten', 'settingsAreaBusiness'],
+      ['steuer', 'settingsAreaTax'],
+      ['zahlung', 'settingsAreaPayment'],
+      ['kosten', 'settingsAreaCosts'],
+      ['datenschutz', 'settingsAreaPrivacy'],
+      ['rechtstexte', 'settingsAreaLegal'],
+      ['beispieldaten', 'settingsAreaSeed'],
+    ],
+    subviews: [
+      ['system', 'settings-system'],
+      ['produktsicherheit', 'settings-product-safety'],
+    ],
+  },
 ] as const
 
 function collectionLabel(req: AdminViewBodyProps['req'], slug: string): string {
@@ -263,28 +283,86 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
   return (
     <div className="pc-order pc-settings" data-testid="settings">
       <nav aria-label={adminText('settingsAreas')}>
-        <ul className="pc-settings__areas">
-          {AREAS.map(([id, key]) => (
-            <li key={id}>
-              <a href={`#${id}`} className="pc-admin-link">
-                {adminText(key)}
-              </a>
-            </li>
-          ))}
-          {SUBVIEWS.map(([key, testId]) => (
-            <li key={key}>
-              <Link
-                href={`${adminRoute}${adminView(key).path}`}
-                prefetch={false}
-                className="pc-admin-link"
-                data-testid={testId}
-              >
-                {adminView(key).title}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {GROUPS.map((g) => (
+          <div key={g.id} className="pc-settings__group" data-testid={`settings-group-${g.id}`}>
+            <p className="pc-settings__group-title" id={`settings-group-${g.id}`}>
+              <strong>{adminText(g.title)}</strong>
+            </p>
+            <p className="pc-order__muted">{adminText(g.hint)}</p>
+            <ul className="pc-settings__areas" aria-labelledby={`settings-group-${g.id}`}>
+              {g.areas.map(([id, key]) => (
+                <li key={id}>
+                  <a href={`#${id}`} className="pc-admin-link">
+                    {adminText(key)}
+                  </a>
+                </li>
+              ))}
+              {g.subviews.map(([key, testId]) => (
+                <li key={key}>
+                  <Link
+                    href={`${adminRoute}${adminView(key).path}`}
+                    prefetch={false}
+                    className="pc-admin-link"
+                    data-testid={testId}
+                  >
+                    {adminView(key).title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </nav>
+
+      <h2 className="pc-settings__group-title" data-testid="settings-daily-start">
+        {adminText('settingsGroupDaily')}
+      </h2>
+
+      <section id="shop" className="pc-order__section" aria-labelledby="settings-shop">
+        <h2 id="settings-shop">{adminText('settingsAreaShop')}</h2>
+        <ShopForm
+          initial={area.shop}
+          blocked={production && !startklar.ready ? startklar.openItems : null}
+          translateDisabled={translation.enabled ? null : (translation.reason ?? null)}
+        />
+      </section>
+
+      <section id="vorlagen" className="pc-order__section" aria-labelledby="settings-templates">
+        <h2 id="settings-templates">{adminText('settingsAreaTemplates')}</h2>
+        <TemplatesForm initial={area.templates} categories={categories} />
+      </section>
+
+      <section
+        id="benachrichtigungen"
+        className="pc-order__section"
+        aria-labelledby="settings-notifications"
+      >
+        <h2 id="settings-notifications">{adminText('settingsAreaNotifications')}</h2>
+        <SettingsSectionForm
+          section="notifications"
+          initial={initialOf(settings, 'notifications')}
+        />
+      </section>
+
+      <section id="konto" className="pc-order__section" aria-labelledby="settings-account">
+        <h2 id="settings-account">{adminText('settingsAreaAccount')}</h2>
+        <h3>{adminText('settingsPasswordTitle')}</h3>
+        <PasswordForm />
+        <p className="pc-admin-row">
+          <a
+            href={`${adminRoute}/logout`}
+            className="pc-admin-btn pc-admin-btn--secondary"
+            data-testid="settings-logout"
+          >
+            {adminText('settingsLogout')}
+          </a>
+        </p>
+      </section>
+
+      <h2 className="pc-settings__group-title" data-testid="settings-setup-start">
+        {adminText('settingsGroupSetup')}
+      </h2>
+
       <section id="stammdaten" className="pc-order__section" aria-labelledby="settings-business">
         <h2 id="settings-business">{adminText('settingsAreaBusiness')}</h2>
         <p className="pc-order__muted">{adminText('settingsBusinessIntro')}</p>
@@ -346,7 +424,16 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
         <h3>{areaText('taxConfirmTitle')}</h3>
         <TaxConfirmForm confirmedAt={confirmedAt} />
         <h3>{areaText('yearTotals')}</h3>
-        <YearTotalsForm initial={area.yearTotals} idPrefix="settings-tax" />
+        <p data-testid="settings-tax-year-totals-link">
+          {adminText('settingsYearTotalsElsewhere')}{' '}
+          <Link
+            href={`${adminRoute}${adminView('umsatz-waechter').path}#revenue-years`}
+            prefetch={false}
+            className="pc-admin-link"
+          >
+            {adminView('umsatz-waechter').title}
+          </Link>
+        </p>
       </section>
 
       <section id="zahlung" className="pc-order__section" aria-labelledby="settings-payment">
@@ -371,23 +458,9 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
         <SettingsSectionForm section="payment" initial={initialOf(settings, 'payment')} />
       </section>
 
-      <section id="shop" className="pc-order__section" aria-labelledby="settings-shop">
-        <h2 id="settings-shop">{adminText('settingsAreaShop')}</h2>
-        <ShopForm
-          initial={area.shop}
-          blocked={production && !startklar.ready ? startklar.openItems : null}
-          translateDisabled={translation.enabled ? null : (translation.reason ?? null)}
-        />
-      </section>
-
       <section id="kosten" className="pc-order__section" aria-labelledby="settings-costs">
         <h2 id="settings-costs">{adminText('settingsAreaCosts')}</h2>
         <CostsForm initial={area.costs} />
-      </section>
-
-      <section id="vorlagen" className="pc-order__section" aria-labelledby="settings-templates">
-        <h2 id="settings-templates">{adminText('settingsAreaTemplates')}</h2>
-        <TemplatesForm initial={area.templates} categories={categories} />
       </section>
 
       <section id="datenschutz" className="pc-order__section" aria-labelledby="settings-privacy">
@@ -401,18 +474,6 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
           rows={deletionPreview}
           now={now}
           label={(slug) => collectionLabel(req, slug)}
-        />
-      </section>
-
-      <section
-        id="benachrichtigungen"
-        className="pc-order__section"
-        aria-labelledby="settings-notifications"
-      >
-        <h2 id="settings-notifications">{adminText('settingsAreaNotifications')}</h2>
-        <SettingsSectionForm
-          section="notifications"
-          initial={initialOf(settings, 'notifications')}
         />
       </section>
 
@@ -446,21 +507,6 @@ export async function SettingsView({ adminRoute, req }: AdminViewBodyProps) {
           lockedTypes={seedLocked.map((t) => ENUM_LABELS.LEGAL_TEXT_TYPES[t].de)}
           adoptGroups={adoptGroups}
         />
-      </section>
-
-      <section id="konto" className="pc-order__section" aria-labelledby="settings-account">
-        <h2 id="settings-account">{adminText('settingsAreaAccount')}</h2>
-        <h3>{adminText('settingsPasswordTitle')}</h3>
-        <PasswordForm />
-        <p className="pc-admin-row">
-          <a
-            href={`${adminRoute}/logout`}
-            className="pc-admin-btn pc-admin-btn--secondary"
-            data-testid="settings-logout"
-          >
-            {adminText('settingsLogout')}
-          </a>
-        </p>
       </section>
     </div>
   )

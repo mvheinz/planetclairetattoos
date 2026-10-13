@@ -55,7 +55,7 @@ const find = (pred: (e: TextEntry) => boolean) => {
 
 describe('Texte-Liste: Inhalt (P18.2)', () => {
   it('alle Bereiche, eindeutige Kennungen, keine Rechtstexte/Technik, Pflichtwörter nur zum Lesen', () => {
-    expect(entries.length).toBeGreaterThan(1000)
+    expect(entries.length).toBeGreaterThan(900)
     expect(new Set(entries.map((e) => e.id)).size).toBe(entries.length)
     expect(new Set(entries.map((e) => e.sheet))).toEqual(new Set(TEXT_SHEETS))
     for (const prefix of [
@@ -101,7 +101,7 @@ describe('Texte-Liste: Inhalt (P18.2)', () => {
     expect(byId.get('einst:shipping.deliveryTimeText')?.maxLength).toBe(60)
     expect(byId.get('einst:shipping.deliveryTimeText')?.validate?.('ca. 3 Werktage')).not.toBe(true)
     expect(byId.get('seite:home:layout.0.heading')?.where).toBe(
-      'Seite „Startseite“ › Block 1 (Kopf) › Überschrift',
+      'Startseite – oben bei Koko › Überschrift',
     )
     for (const e of entries) {
       expect(e.de, e.id).not.toBe('')
@@ -239,7 +239,7 @@ describe('Texte-Liste: Rückweg', () => {
       'Neuer Text „Ganz neuer Satz für die Startseite“ – bitte sagen, wo er hingehört.',
     ])
     expect(report.problems).toEqual([
-      'Kennung „m:gibt.es.nicht“ gibt es nicht (mehr) – Zeile nicht übernommen.',
+      'Kennung „m:gibt.es.nicht“ gibt es nicht – Zeile nicht übernommen.',
     ])
     expect(report.notes).toEqual(['1 Texte stehen nicht in der Liste – sie bleiben, wie sie sind.'])
   })

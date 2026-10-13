@@ -171,7 +171,15 @@ test('@a11y Umsatz-Wächter: Balken, Monatstabelle, Eingaben, Satz „ersetzt ke
     'Der Wächter ersetzt keine Steuerberatung.',
   )
   await expect(page.getByTestId('revenue-year-totals')).toContainText('Vorjahr auch mit 0 €')
-  await expect(page.getByTestId('revenue-entry-form')).toBeVisible()
+  // V-38: „Monat abschließen“ – vier Beträge, Markt-Verkäufe schon erfasst, ein Knopf
+  const close = page.getByTestId('month-close-form')
+  await expect(close).toBeVisible()
+  await expect(close.getByTestId('month-close-market')).toContainText(
+    'Markt-Verkäufe schon erfasst:',
+  )
+  for (const source of ['tattoo', 'flohmarkt', 'auftragsarbeiten', 'sonstiges'])
+    await expect(close.getByTestId(`area-field-amounts.${source}`)).toBeVisible()
+  await expect(page.getByTestId('revenue-review')).toContainText('Rückblick')
   await expectNoHorizontalScroll(page)
   await expectAccessible(page, '.pc-admin-view')
 })
