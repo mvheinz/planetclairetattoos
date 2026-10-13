@@ -79,16 +79,25 @@ test('@a11y Texte: Warnung bei „Anzahlung verfällt bei Absage“, Speichern b
   // Jede Sache an einer Stelle (V-37): Seitentexte und Fragen nur unter „Texte“, hier ein Link dorthin
   await expect(page.getByTestId('page-texts-tattoo')).toHaveCount(0)
   await expect(page.getByTestId('faq-editor-tattoo')).toHaveCount(0)
-  await page.getByTestId('tattoo-texts-link-tattoo').click()
-  await expect(page).toHaveURL(/\/texte\?seite=tattoo#seite$/)
+  await expect(page.getByTestId('tattoo-texts-link-tattoo')).toHaveAttribute(
+    'href',
+    /\/texte\?seite=tattoo#seite$/,
+  )
+  await page.goto(adminPath('/texte?seite=tattoo'))
+  // erst nach dem Hydrieren tippen (sonst setzt React die Felder auf den Server-Stand zurück)
+  await page.waitForLoadState('networkidle')
   const form = page.getByTestId('page-texts-all-tattoo')
   const add = form.getByTestId('page-add-priceInfo')
   if (await add.isVisible()) await add.click()
   const block = form.locator('[data-testid="page-block"][data-block-type="priceInfo"]').first()
   const field = (name: string, l: 'de' | 'en') =>
     block.locator(`[data-testid^="tf-blocks."][data-testid$=".fields.${name}.${l}"]`)
-  await field('heading', 'de').fill('Preise')
-  await field('content', 'de').fill('Kleine Motive ab 80 €.\n\nAnzahlung verfällt bei Absage.')
+  const content = 'Kleine Motive ab 80 €.\n\nAnzahlung verfällt bei Absage.'
+  await expect(async () => {
+    await field('heading', 'de').fill('Preise')
+    await field('content', 'de').fill(content)
+    await expect(field('content', 'de')).toHaveValue(content, { timeout: 1_000 })
+  }).toPass({ timeout: 15_000 })
   // Mit dem Beispielbestand (P8) hat der Block schon englische Texte – leeren, damit „Übersetzen“ sie füllt.
   await field('heading', 'en').fill('')
   await field('content', 'en').fill('')

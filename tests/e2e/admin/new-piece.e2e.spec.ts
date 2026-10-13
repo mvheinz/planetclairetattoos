@@ -84,6 +84,13 @@ test.describe('Neues Stück (P5.6)', () => {
     )
     await expect(page.getByRole('button', { name: 'Link kopieren', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Kurzlink kopieren' })).toBeVisible()
+    // V-39: „Für Instagram“ – fertiger Text (Nummer, Preis zzgl. Versand, Kurzlink), Knopf nach dem Vorladen bereit
+    const insta = page.getByTestId('instagram')
+    await expect(insta.getByTestId('instagram-text')).toHaveValue(
+      new RegExp(`Nr\\. ${padded} · \\d+ € zzgl\\. Versand[\\s\\S]*/nr/${nr}$`),
+    )
+    await expect(insta.getByTestId('instagram-share')).toBeEnabled({ timeout: 30_000 })
+    await expect(insta.getByTestId('instagram-story')).toBeEnabled()
     await expect(page.getByTestId('piece-another')).toHaveAttribute(
       'href',
       adminPath('/neues-stueck'),

@@ -999,7 +999,6 @@ export function LegalForm({ initial }: { initial: LegalValues }) {
 
 // --- Manuelle Monatssummen (P5.23) --------------------------------------------------------------------------------
 
-/** Eine Monatssumme (Monat, Quelle) eintragen oder ändern – `POST /api/globals/settings/revenue-entry`. */
 /** Stand eines Monats für „Monat abschließen“ (V-38; aus `monthCloseStates`). */
 export interface MonthCloseOption {
   value: string

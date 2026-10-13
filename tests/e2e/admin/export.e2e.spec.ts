@@ -44,6 +44,14 @@ test('@a11y Export: Monat wählen, CSV und ZIP laden, DATEV ausgegraut ohne Kont
       'href',
       '/api/admin/export/2026-09.zip',
     )
+    // V-65: zweite Tabelle „Einnahmen außerhalb des Shops“
+    await expect(page.getByTestId('export-offline')).toHaveAttribute(
+      'href',
+      '/api/admin/export/2026-09.ausserhalb.csv',
+    )
+    const offline = await page.request.get('/api/admin/export/2026-09.ausserhalb.csv')
+    expect(offline.status()).toBe(200)
+    expect((await offline.body()).toString('utf8')).toContain('Monat;Datum;Art;Stück-Nr.')
 
     // CSV als Download (UTF-8 mit BOM, `;`), ohne `@`
     const [download] = await Promise.all([
