@@ -2,6 +2,27 @@
 
 Neueste Einträge oben. Format: `## YYYY-MM-DD – Phase/Aufgabe` + was erledigt wurde + wie getestet.
 
+## 2026-10-12 – P20.6 (Teil 2) Verwaltung: Menü, Monat abschließen, Für Instagram, Rückblick
+
+- Texte-Excel aufgeräumt: nur echte Seitentexte, Fundort in deinen Worten, Wichtiges zuerst, Listen-Nummer pro Blatt; weggelassene Zeilen sind beim Hochladen kein Fehler.
+- Kürzeres Menü: Alle Bestell-Listen stehen unter einem Punkt 'Bestellungen' mit Reitern; Einstellungen in 'Alltag' und 'Einrichtung (einmal)' getrennt; Rechtstexte auf 'Heute' nur noch eine Zeile.
+- Neues Formular 'Monat abschließen': vier Beträge eintragen (leer = 0 €), du siehst die schon erfassten Markt-Verkäufe; die Monatsmail führt direkt dorthin.
+- Neuer Knopf 'Für Instagram' beim fertigen Stück: Text liegt in der Zwischenablage, dann Teilen mit Foto; dazu ein Story-Bild (1080x1920) mit Titel, Nummer und Preis 'zzgl. Versand'.
+- Umsatz-Wächter hat einen 'Rückblick': was sich wie verkauft hat, wie lange Stücke online waren, welche lange liegen und bei welchen die Kasse abgebrochen wurde (nur Zahlen, keine Personendaten).
+- Der Monatsexport hat eine zweite Tabelle 'Einnahmen außerhalb des Shops' für die Steuerberatung.
+- Tests: Typprüfung, Lint, Formatprüfung, statische Prüfungen, alle 2657 Unit-Tests und die Int-Tests zum Paket grün; Oberflächentests (Computer + Handy) grün bis auf eine Prüfung der Cache-Kopfzeile, die nur im Entwicklungsserver abweicht.
+
+## 2026-10-13 – P20.4
+
+- Ein Wort von mir: In der Bestandsliste (Excel/Numbers) und im Stück-Formular gibt es jetzt einen Vorschlag von Claude für jedes Stück, auf Deutsch und Englisch. Nichts wird von selbst veröffentlicht; du übernimmst mit einem Klick (Knopf 'Vorschlag übernehmen') oder einer Excel-Zelle.
+- Pflege: Keramik und Schmuck haben je eine eigene Pflegevorlage; eine leere Zelle in der Liste überschreibt die Vorlage nie. Pflegesätze stehen nicht mehr doppelt in den Beschreibungen.
+- Tassen, Becher und Pokale sind klar als Deko gekennzeichnet (Zweck in der Beschreibung); die Kanzlei bekommt dazu eine Frage (K-14).
+- Texte: Jede Aussage steht nur noch einmal (z. B. Festpreis, Flash, Kontakt im Fuß). Englisch ist jetzt britisch (basket, pickup), doppelte Tassen-Namen sind unterscheidbar.
+- Überall heißt es 'Jutta & Coco'; die Kontaktseite bleibt.
+- Beim Veröffentlichen bestätigst du: 'Motiv und Schriftzug sind von mir – keine Liedzeilen, Gedichte, Film- oder Buchzitate'. Neue Kanzleifrage K-43 dazu.
+- Schutztexte freundlicher: Kaufklausel passend zu den AGB, im Fuß nur eine kurze Zeile mit 'kein KI-Training' und Link zum Impressum, bei Flash 'Frag mich vorher gern per Mail'.
+- Tests: Typecheck, Lint, Unit (2655), Int und E2E (146, Desktop und Handy) grün.
+
 ## 2026-10-12 – P20.3
 
 - Im Shop und im Menü gibt es das Feld „Nr. aus dem Post“: Wer auf Instagram „Nr. 115“ liest, tippt die Zahl ein und landet direkt beim Stück.
